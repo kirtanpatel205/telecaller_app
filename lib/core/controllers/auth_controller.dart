@@ -6,6 +6,8 @@ import 'package:get_storage/get_storage.dart';
 import 'package:intl_phone_field2/phone_number.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:telecaller_app/constants/app_constants.dart';
+import 'package:telecaller_app/constants/app_routes.dart';
+import 'package:telecaller_app/core/models/login_response_entity.dart';
 
 import '../helpers/storage.dart';
 import '../services/api_service.dart';
@@ -34,8 +36,8 @@ class AuthController extends GetxController {
     });
   }
 
-  // Rx<LoginResponseProfile?> profile =
-  // Rx<LoginResponseProfile?>(LoginResponseProfile());
+  Rx<LoginResponseProfile?> profile =
+  Rx<LoginResponseProfile?>(LoginResponseProfile());
 
   @override
   void onInit() {
@@ -56,43 +58,26 @@ class AuthController extends GetxController {
     super.onClose();
   }
 
-  //
-  // Future<void> checkUserManually(LoginResponseEntity entity) async {
-  //   if (entity.status == true) {
-  //     log("login success -  ${entity.token}");
-  //     Storage.saveToSharedPrefs(AppConstants.ISLOGGING, true);
-  //     Storage.saveValue(AppConstants.USER_ID, entity.profile?.id);
-  //     Storage.saveValue(AppConstants.FIRE_USER_ID, entity.profile?.id);
-  //     Storage.saveValue(AppConstants.TOKEN, entity.token);
-  //     Storage.saveValue(AppConstants.PHONE, entity.profile?.phone);
-  //     Storage.saveValue('backgroundService_setup', true);
-  //     print(
-  //         "save user ${entity.profile?.id} ${entity.profile?.id} ${entity.token}");
-  //     profile.value = entity.profile;
-  //     final prefs = await SharedPreferences.getInstance();
-  //     bool isLoggedIn = await prefs.getBool(AppConstants.ISLOGGING) ?? false;
-  //     print(
-  //         "isLoggedIn $isLoggedIn -- ${prefs.getBool(AppConstants.ISLOGGING)}");
-  //     FlutterBackgroundService().invoke("updateToken", {
-  //       "token": entity.token,
-  //     });
-  //     FlutterBackgroundService().invoke("syncNow");
-  //     bool permissionsShown = Storage.getValue('permissions_shown') ?? false;
-  //
-  //
-  //
-  //     if (!permissionsShown) {
-  //       print("Showing permissions screen for first time");
-  //       Get.to(PermissionStatusScreen());
-  //     } else {
-  //       print("Permissions already shown, going to Welcome");
-  //       Get.offAllNamed(Routes.HOME);
-  //     }
-  //
-  //
-  //   }
-  // }
-  //
+
+  Future<void> checkUserManually(LoginResponseEntity entity) async {
+    if (entity.status == true) {
+      log("login success -  ${entity.token}");
+      Storage.saveToSharedPrefs(AppConstants.ISLOGGING, true);
+      Storage.saveValue(AppConstants.USER_ID, entity.profile?.id);
+      Storage.saveValue(AppConstants.FIRE_USER_ID, entity.profile?.id);
+      Storage.saveValue(AppConstants.TOKEN, entity.token);
+      Storage.saveValue(AppConstants.PHONE, entity.profile?.phone);
+      print(
+          "save user ${entity.profile?.id} ${entity.profile?.id} ${entity.token}");
+      profile.value = entity.profile;
+
+
+
+      Get.offAllNamed(Routes.HOME);
+
+    }
+  }
+
   // Future refreshProfile() async {
   //   LoginResponseProfile profileEntity = await api.profile();
   //

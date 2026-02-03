@@ -1,5 +1,7 @@
 
 import 'package:get/get.dart';
+import 'package:telecaller_app/ui/views/home/home_binding.dart';
+import 'package:telecaller_app/ui/views/home/home_page.dart';
 import 'package:telecaller_app/ui/views/login/login_binding.dart';
 import 'package:telecaller_app/ui/views/login/login_page.dart';
 import 'package:telecaller_app/ui/views/otp/otp_binding.dart';
@@ -29,5 +31,6 @@ class AppPages {
     GetPage(
         name: Paths.LOGIN, page: () => LoginPage(), binding: LoginBinding()),
     GetPage(name: Paths.OTP, page: () => OtpPage(), binding: OtpBinding()),
+    GetPage(name: Paths.HOME, page: () => HomePage(), binding: HomeBinding()),
   ];
 }

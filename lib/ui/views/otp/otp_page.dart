@@ -35,19 +35,9 @@ class OtpPage extends GetView<OtpController> {
                   width: 0.8.sw,
                   'assets/images/otp-banner.svg')),
 
-          // Flexible(
-          //   flex: 60,
-          //
-          //         child: Padding(
-          //             padding: REdgeInsets.all(10),
-          //             child:Column(
-          //
-          //
-          //             crossAxisAlignment: CrossAxisAlignment.start,
-          //             children:[
 
           Text(
-            "otpveri".tr,
+            "Verification code".tr,
             style: AppTextStyle.titleBold.copyWith(fontSize: 20),
           ),
 
@@ -56,7 +46,7 @@ class OtpPage extends GetView<OtpController> {
           ),
 
           Text(
-            "otpveri1".trParams({"nl": "\n"}),
+            "We Have Send The verification Code @nlOn Your Mobile Number".trParams({"nl": "\n"}),
             style: AppTextStyle.subTitle.copyWith(fontSize: 14),
           ),
 
@@ -114,7 +104,7 @@ class OtpPage extends GetView<OtpController> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          "otpveri3".tr,
+                          "Don’t recieve Verification code?".tr,
                           style: AppTextStyle.bold6.copyWith(
                               color: AppColors.themeColor.textSecondaryColor),
                         ),
@@ -129,7 +119,7 @@ class OtpPage extends GetView<OtpController> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          "otpveri3".tr,
+                          "Don’t recieve Verification code?".tr,
                           style: AppTextStyle.bold6.copyWith(
                               color: AppColors.themeColor.textSecondaryColor),
                         ),
@@ -150,31 +140,12 @@ class OtpPage extends GetView<OtpController> {
           SizedBox(
             height: 50,
           ),
-          Obx(
-            () => controller.isLoading.value
-                ?
-                // ? Center(
-                //     child: CircularProgressIndicator(),
-                //   )
-                Container(
-                    decoration: BoxDecoration(
-                        color: AppColors.themeColor.primaryColor,
-                        borderRadius: BorderRadius.circular(8)),
-                    width: MediaQuery.sizeOf(context).width,
-                    // height: 40,
-                    child: ElevatedButton(
-                      onPressed: null,
-                      child: CircularProgressIndicator(
-                        color: AppColors.themeColor.cardColor,
-                        // strokeWidth: 2.0,
-                      ),
-                    ),
-                  )
-                : CustomButton(
-                    onClick: () => controller.verifyOtp(),
-                    title: "otppage5".tr,
-                  ),
-          )
+         Obx(()=> CustomButton(
+
+           onClick: () => controller.verifyOtp(),
+           isLoading: controller.isLoading.value,
+           title: "Continue".tr,
+         ),)
         ],
       ).paddingAll(20.r),
     ));

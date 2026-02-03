@@ -106,7 +106,7 @@ class WelcomePage extends GetView<WelcomeController> {
                         ? CustomButton(
 
                           onClick: () => Get.toNamed(Routes.LOGIN),
-                            title: 'getstarted'.tr,
+                            title: 'Get Started',
                           )
                         : Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -120,7 +120,7 @@ class WelcomePage extends GetView<WelcomeController> {
                                     // Navigate to login page
                                     Get.toNamed(Routes.LOGIN);
                                   },
-                                  child: Text('skip'.tr,
+                                  child: Text('Skip'.tr,
                                       style: AppTextStyle.regular8.copyWith(
                                           fontSize: 12,
                                           color: AppColors
@@ -143,7 +143,7 @@ class WelcomePage extends GetView<WelcomeController> {
                                      Get.toNamed(Routes.LOGIN);
                                     }
                                   },
-                                  child: Text('next'.tr,
+                                  child: Text('Next'.tr,
                                       style: AppTextStyle.regular8.copyWith(
                                           fontSize: 12,
                                           color:

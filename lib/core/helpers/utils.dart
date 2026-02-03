@@ -38,6 +38,32 @@ class Utils {
     return jsonString;
   }
 
+  // Url Open Snakbaar
+
+  static showErrorSnackbar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red.withOpacity(0.8),
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
+
+
+  // ✅ Helper method - Show success snackbar
+  static showSuccessSnackbar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.green.withOpacity(0.8),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+
   static colorToHex(Color color) {
     return "#${color.value.toRadixString(16)}";
   }
@@ -144,6 +170,7 @@ class Utils {
       return false;
     }
   }
+
 
   static void closeDialog() {
     if (Get.isDialogOpen!) {
