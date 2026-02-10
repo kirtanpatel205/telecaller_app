@@ -52,7 +52,6 @@ class HomePage extends GetView<HomeController> {
 
             onTap: (index) {
               controller.onBottomTabChange(index);
-              controller.navigateToPage(index);
             },
           ),
         ),

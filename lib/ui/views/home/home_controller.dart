@@ -1,10 +1,17 @@
 import 'package:get/get.dart';
 import 'package:telecaller_app/constants/app_routes.dart';
 import 'package:telecaller_app/core/controllers/auth_controller.dart';
+import 'package:telecaller_app/ui/views/auto_dialer/autodialer_controller.dart';
+import 'package:telecaller_app/ui/views/leads/leads_controller.dart';
+import 'package:telecaller_app/ui/views/setting/setting_controller.dart';
 
 class HomeController extends GetxController {
   RxInt currentTab = 0.obs;
   AuthController authController = Get.find();
+  LeadsController leadsController = Get.put(LeadsController());
+  AutoDialerController autoDialerController = Get.put(AutoDialerController());
+  SettingController settingController = Get.put(SettingController());
+
 
   @override
   void onInit() {
@@ -23,23 +30,4 @@ class HomeController extends GetxController {
   void onBottomTabChange(int index) {
     currentTab.value = index;
   }
-
-
-  void navigateToPage(int index) {
-    switch (index) {
-      case 0:
-        Get.toNamed(Routes.HOME);
-        break;
-      case 1:
-        Get.toNamed(Routes.LEADS);
-        break;
-      case 2:
-        Get.toNamed(Routes.AUTO_DIAL);
-        break;
-      case 3:
-        Get.toNamed(Routes.SETTING);
-        break;
-    }
-  }
-
 }
