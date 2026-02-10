@@ -1,13 +1,10 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:ui';
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:logger/logger.dart';
 import 'package:keep_screen_on/keep_screen_on.dart';
 import 'package:telecaller_app/constants/app_pages.dart';
@@ -16,9 +13,7 @@ import 'package:telecaller_app/constants/app_strings.dart';
 import 'package:telecaller_app/constants/app_theme.dart';
 import 'package:telecaller_app/ui/views/splash/splash_binding.dart';
 import 'package:telecaller_app/ui/views/splash/splash_page.dart';
-
 import 'core/helpers/initializer.dart';
-
 final logger = Logger();
 
 Future<void> main() async {

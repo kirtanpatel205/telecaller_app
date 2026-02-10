@@ -10,7 +10,8 @@ import 'package:telecaller_app/core/helpers/utils.dart';
 import 'package:telecaller_app/ui/views/login/login_controller.dart';
 import 'package:telecaller_app/ui/widgets/app_safe_area.dart';
 import 'package:telecaller_app/ui/widgets/custom_button.dart';
-import 'package:url_launcher/url_launcher.dart';
+
+
 
 class LoginPage extends GetView<LoginController> {
   const LoginPage({super.key});
