@@ -1,5 +1,9 @@
 
 
+import 'dart:convert';
+import 'dart:developer' as developer;
+import 'dart:io';
+
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 
@@ -65,6 +69,78 @@ class ApiService extends GetxService{
     );
     print("abs $response");
     return LoginResponseEntity.fromJson(response);
+  }
+
+
+//profile
+  Future<LoginResponseProfile> profile() async {
+    Map<String, dynamic> response = await client.get(
+      AppConstants.API_PROFILE,
+    );
+    print("profile: ${json.encode(response)}");
+    print("profile: ${response["profile"]["name"]}");
+    //developer.log("${response}");
+    LoginResponseProfile profile =
+    LoginResponseProfile.fromJson(response["profile"]);
+    print("profile data: ${profile.name}");
+    return profile;
+  }
+
+  Future<ApiResponseEntity> Updateprofile(
+      {required String name,
+        required String lastName,
+        required String addressLine1,
+        required String addressLine2,
+        required String city,
+        required String state,
+        required String zipCode,
+        required String profile,
+        required String country,
+        required String email}) async {
+    final data = {
+      "name": name,
+      "lastname": lastName,
+      "email": email,
+      "profile": profile,
+      "address": {
+        "addressLine1": addressLine1,
+        "addressLine2": addressLine2,
+        "city": city,
+        "state": state,
+        "zip": zipCode,
+        "country": country
+      }
+    };
+    Map<String, dynamic> response = await client
+        .post(AppConstants.API_UPDATE_PROFILE, isRaw: true, data: data);
+    developer.log('ghj${addressLine1}');
+    print(response);
+    print("response : $data ${data.values}");
+    print("profile update${response}");
+    return ApiResponseEntity.fromJson(response);
+  }
+
+  Future<Map<String, dynamic>> UpdateprofileImage({
+    required File name,
+  }) async {
+    var multipartFile = await dio.MultipartFile.fromFile(
+      name.path,
+      filename: name.uri.pathSegments.last, // Use the actual file name
+    );
+    try {
+      Map<String, dynamic> response = await client.post(
+        AppConstants.API_UPDATE_PROFILE_IMAGE,
+        data: {"type": "image", "file": multipartFile},
+        // isRaw: true,
+      );
+
+      print("response : $multipartFile");
+      print("profile update $response");
+      return response;
+    } catch (e) {
+      print("Upload error: $e");
+      return {"status": false, "message": "Image upload failed"};
+    }
   }
 
 }
