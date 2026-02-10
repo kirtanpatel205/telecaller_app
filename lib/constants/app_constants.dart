@@ -60,4 +60,11 @@ class AppConstants {
   static String API_UPDATE_PROFILE_IMAGE = '$API_URL/app/upload-image';
 
 
+  // lead all
+
+  static String API_ALL_LEAD = '$API_URL/telecaller/lead/all';
+
+
+
+
 }

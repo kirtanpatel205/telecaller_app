@@ -11,6 +11,8 @@ abstract class Routes {
   static const HOME = Paths.HOME;
   static const CALL = Paths.CALL;
   static const SETTING = Paths.SETTING;
+  static const AUTO_DIAL = Paths.AUTO_DIAL;
+  static const LEADS = Paths.LEADS;
   static const CUSTOMERS = Paths.CUSTOMERS;
   static const OTHER = Paths.OTHER;
   static const ADDCUSTOMER = Paths.ADDCUSTOMER;
@@ -57,7 +59,6 @@ abstract class Paths {
 
   static const CALL = '/call';
   static const CALL_LOG = '/call-log';
-  static const SETTING = '/setting';
   static const CUSTOMERS = '/customers';
   static const OTHER = '/other';
   static const ADDCUSTOMER = '/add-customer';
@@ -88,4 +89,15 @@ abstract class Paths {
   static const OVERLAY = '/overlay';
   static const STARTOVERLAY = '/start-overlay';
   static const BACKOVERLAY = '/back-overlay';
+
+
+
+  // new Routers
+  static const LEADS = '/leads';
+  static const AUTO_DIAL = '/auto-dial';
+  static const SETTING = '/setting';
+
+
+
+
 }

@@ -34,60 +34,6 @@ class HomePage extends GetView<HomeController> {
               ),
             ],
           ),
-
-          // ================= FAB =================
-          // floatingActionButton:
-          // controller.currentTab.value == 1 ||
-          //     controller.currentTab.value == 2 ||
-          //     controller.currentTab.value == 3
-          //     ? FloatingActionButton(
-          //   backgroundColor:
-          //   controller.isCallStarted.value &&
-          //       controller.currentTab.value != 3 &&
-          //       controller.currentTab.value != 1
-          //       ? AppColors.themeColor.otpWrongColor
-          //       : controller.isCallTask.value
-          //       ? AppColors.themeColor.otpRightColor
-          //       : AppColors.themeColor.primaryColor,
-          //
-          //   child: controller.currentTab.value == 1
-          //       ? Icon(Icons.add,
-          //       color: AppColors.themeColor.cardColor)
-          //       : controller.currentTab.value == 3
-          //       ? const Icon(Icons.add)
-          //       : controller.isCallStarted.value
-          //       ? Icon(Icons.play_arrow,
-          //       color:
-          //       AppColors.themeColor.cardColor)
-          //       : Icon(Icons.call,
-          //       color:
-          //       AppColors.themeColor.cardColor),
-          //
-          //   onPressed: () {
-          //     if (controller.currentTab.value == 1) {
-          //       Get.toNamed(Routes.ADDCUSTOMER, arguments: {
-          //         "name": controller.selectedTabIndex.value
-          //       });
-          //     } else if (controller.currentTab.value == 3) {
-          //       Get.toNamed(Routes.CREATEORDER);
-          //     } else if (controller.isCallStarted.value) {
-          //       controller.isCallStarted.value = false;
-          //       controller.startCall(context);
-          //       controller.isCallInProgress.value = true;
-          //       Utils.showToast("Call Start");
-          //     } else if (!controller.isSleepModeActive.value &&
-          //         !controller.isCallTask.value) {
-          //       controller.startCall(context);
-          //       controller.isCallInProgress.value = true;
-          //       Utils.showToast("Call Start");
-          //     } else if (controller.isCallTask.value) {
-          //       controller.isCallTask.value = false;
-          //     }
-          //   },
-          // )
-          //     : const SizedBox(),
-
-          // ================= BOTTOM NAV =================
           bottomNavigationBar: CurvedNavigationBar(
             index: controller.currentTab.value,
             height: 70,
@@ -106,6 +52,7 @@ class HomePage extends GetView<HomeController> {
 
             onTap: (index) {
               controller.onBottomTabChange(index);
+              controller.navigateToPage(index);
             },
           ),
         ),
