@@ -78,14 +78,14 @@ class AuthController extends GetxController {
     }
   }
 
-  // Future refreshProfile() async {
-  //   LoginResponseProfile profileEntity = await api.profile();
-  //
-  //   if (profileEntity != null) {
-  //     profile.value = profileEntity;
-  //     print("refresh profile ${profileEntity.name}");
-  //   }
-  // }
+  Future refreshProfile() async {
+    LoginResponseProfile profileEntity = await api.profile();
+
+    if (profileEntity != null) {
+      profile.value = profileEntity;
+      print("refresh profile ${profileEntity.name}");
+    }
+  }
 
   Future<void> signOut() async {
     //   print("🔴 Signing out...");

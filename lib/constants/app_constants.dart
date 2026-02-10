@@ -55,6 +55,9 @@ class AppConstants {
 
   static String API_SEND_OTP = '$API_URL/telecaller/send-otp';
   static String API_VERYFY_OTP = '$API_URL/telecaller/verify-otp';
+  static String API_PROFILE = '$API_URL/auth/profile';
+  static String API_UPDATE_PROFILE = '$API_URL/auth/profile/save';
+  static String API_UPDATE_PROFILE_IMAGE = '$API_URL/app/upload-image';
 
 
 }
