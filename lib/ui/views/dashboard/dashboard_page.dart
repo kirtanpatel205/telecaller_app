@@ -6,8 +6,8 @@ import 'package:telecaller_app/constants/app_colors.dart';
 import 'package:telecaller_app/constants/app_routes.dart';
 import 'package:telecaller_app/constants/app_text_style.dart';
 
-import 'home_controller.dart';
-import 'notifiction_page.dart';
+import '../home/home_controller.dart';
+import '../notifiction/notifiction_page.dart';
 
 class DashboardPage extends GetView<HomeController> {
   @override
