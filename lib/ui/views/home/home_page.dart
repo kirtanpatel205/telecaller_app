@@ -2,12 +2,12 @@ import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:telecaller_app/constants/app_colors.dart';
-import 'package:telecaller_app/ui/views/home/autodialer_page.dart';
+import 'package:telecaller_app/ui/views/auto_dialer/autodialer_page.dart';
 import 'package:telecaller_app/ui/views/home/home_controller.dart';
-import 'package:telecaller_app/ui/views/home/leads_page.dart';
-import 'package:telecaller_app/ui/views/home/setting_page.dart';
+import 'package:telecaller_app/ui/views/leads/leads_page.dart';
+import 'package:telecaller_app/ui/views/setting/setting_page.dart';
 import 'package:telecaller_app/ui/widgets/app_safe_area.dart';
-import 'dashboard_page.dart';
+import '../dashboard/dashboard_page.dart';
 
 class HomePage extends GetView<HomeController> {
 

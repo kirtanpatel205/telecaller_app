@@ -16,7 +16,7 @@ import 'package:telecaller_app/constants/app_routes.dart';
 import 'package:telecaller_app/constants/app_text_style.dart';
 import 'package:telecaller_app/core/helpers/storage.dart';
 
-import 'home_controller.dart';
+import '../home/home_controller.dart';
 
 class SettingPage extends GetView<HomeController> {
   @override
