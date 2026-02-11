@@ -225,27 +225,7 @@ class LeadsPage extends GetView<LeadsController> {
                 controller.selectedLeadId.value = lead.id ?? '';
               controller.  LedadContectId(lead.id.toString());
               },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? AppColors.themeColor.primaryColor.withOpacity(0.1)
-                      : Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: isSelected
-                        ? AppColors.themeColor.primaryColor
-                        : Colors.grey.shade200,
-                    width: isSelected ? 2 : 1,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
+              child: Card(
                 child: Padding(
                   padding: const EdgeInsets.all(14),
                   child: Column(

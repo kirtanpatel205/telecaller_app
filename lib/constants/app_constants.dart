@@ -31,9 +31,6 @@ class AppConstants {
   static const String FIRE_USER_ID = 'fireUserId';
   static const String EMAIL_ID = 'email';
   static const String PHONE = 'phone';
-  static const String TIMEBETWEENCALL = 'timeBetweenCall';
-  static const String SETTINGCALL = 'settingCall';
-  static const String SLEEPMODE = 'sleepMode';
   static const String LANGUAGE = 'language';
   static const String IS_DARK_MODE = 'isDarkMode';
   static const String UPLOAD_PROCESSED = 'upload_processed';
