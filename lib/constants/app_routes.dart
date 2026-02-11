@@ -1,13 +1,9 @@
 abstract class Routes {
   static const SPLASH = Paths.SPLASH;
-  static const COUPONSACTIVE = Paths.COUPONSACTIVE;
   static const WELCOME = Paths.WELCOME;
   static const CONTACTMASTER = Paths.CONTACTMASTER;
-
   static const LOGIN = Paths.LOGIN;
   static const OTP = Paths.OTP;
-  static const SUCCESS = Paths.SUCCESS;
-  static const BOTTOMBAR = Paths.BOTTOMBAR;
   static const HOME = Paths.HOME;
   static const CALL = Paths.CALL;
   static const SETTING = Paths.SETTING;
@@ -42,6 +38,7 @@ abstract class Routes {
   static const ENDOVERLAY = Paths.ENDOVERLAY;
   static const BACKOVERLAY = Paths.BACKOVERLAY;
   static const CALLLOG = Paths.CALL_LOG;
+  static const LEADSCONTACT = Paths.LEADSCONTACT;
 }
 
 abstract class Paths {
@@ -96,6 +93,7 @@ abstract class Paths {
   static const LEADS = '/leads';
   static const AUTO_DIAL = '/auto-dial';
   static const SETTING = '/setting';
+  static const LEADSCONTACT = '/leads-contact';
 
 
 

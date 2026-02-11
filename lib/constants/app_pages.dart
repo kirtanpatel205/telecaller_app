@@ -8,6 +8,8 @@ import 'package:telecaller_app/ui/views/home/home_binding.dart';
 import 'package:telecaller_app/ui/views/home/home_page.dart';
 import 'package:telecaller_app/ui/views/leads/leads_binding.dart';
 import 'package:telecaller_app/ui/views/leads/leads_page.dart';
+import 'package:telecaller_app/ui/views/leadsContact/leadscontact_binding.dart';
+import 'package:telecaller_app/ui/views/leadsContact/leadscontact_page.dart';
 import 'package:telecaller_app/ui/views/login/login_binding.dart';
 import 'package:telecaller_app/ui/views/login/login_page.dart';
 import 'package:telecaller_app/ui/views/otp/otp_binding.dart';
@@ -53,10 +55,15 @@ class AppPages {
       name: Paths.AUTO_DIAL,
       binding: AutodialerBinding(),
       page: () => AutoDialerPage(),
-    ),GetPage(
+    ),
+    GetPage(
       name: Paths.SETTING,
       binding: SettingBinding(),
       page: () => SettingPage(),
+    ),GetPage(
+      name: Paths.LEADSCONTACT,
+      binding: LeadscontactBinding(),
+      page: () => LeadscontactPage(),
     ),
   ];
 }
