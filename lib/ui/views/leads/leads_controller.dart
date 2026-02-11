@@ -1,12 +1,12 @@
 import 'package:flutter_pagewise/flutter_pagewise.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:telecaller_app/constants/app_routes.dart';
 import 'package:telecaller_app/core/models/all_lead_entity.dart';
 import 'package:telecaller_app/core/services/api_service.dart';
 
 class LeadsController extends GetxController {
   // Observable variables
-  RxList<AllLeadLeads> allLeads = <AllLeadLeads>[].obs;
   RxBool isLoading = false.obs;
   RxInt totalLeads = 0.obs;
   var selectedDateIndex = 0.obs;
@@ -24,6 +24,12 @@ class LeadsController extends GetxController {
     apiService = Get.find<ApiService>();
     initPagewise();
     generatePastDatesFromStartOfYear();
+  }
+  @override
+  void onClose() {
+    // Clean up resources
+    // pagewiseAllLeadLoadController.dispose();
+    super.onClose();
   }
 
   void generatePastDatesFromStartOfYear() {
@@ -81,10 +87,17 @@ class LeadsController extends GetxController {
     pagewiseAllLeadLoadController.reset();
     initPagewise();
   }
-  @override
-  void onClose() {
-    // Clean up resources
-    // pagewiseAllLeadLoadController.dispose();
-    super.onClose();
+
+  // id arguments
+
+  LedadContectId(String id){
+    print("LeadContact id $id");
+    Get.toNamed(Routes.LEADSCONTACT,arguments: {
+      "id":id
+    });
+
+
   }
+
+
 }

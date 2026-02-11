@@ -14,6 +14,7 @@ import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:telecaller_app/constants/app_constants.dart';
 import 'package:telecaller_app/core/models/all_lead_entity.dart';
 import 'package:telecaller_app/core/models/api_response_entity.dart';
+import 'package:telecaller_app/core/models/lead_contact_id_entity.dart';
 import 'package:telecaller_app/core/models/login_response_entity.dart';
 
 import 'package:telecaller_app/core/network/dio_client.dart';
@@ -155,6 +156,29 @@ class ApiService extends GetxService{
     );
     return AllLeadEntity.fromJson(response);
   }
+
+  Future<ApiResponseEntity> saveFCMToken(String token) async {
+    Map<String, dynamic> response = await client.post(
+      AppConstants.SAVE_FCM_TOKEN,
+      data: {"token": token},
+    );
+    return ApiResponseEntity.fromJson(response);
+  }
+
+
+  Future<LeadContactIdEntity> getCallLead({
+    String? id,
+    int? page = 0,
+
+    int? limit = 10,
+  }) async {
+    Map<String, dynamic> response = await client.post(
+      AppConstants.API_GET_CALL,
+      data: {"lead_id": id, "page": page, "limit": limit},
+    );
+    return LeadContactIdEntity.fromJson(response);
+  }
+
 
 
 }

@@ -52,7 +52,7 @@ class FCMService extends GetxService {
       return;
     }
     try {
-      // await api.saveFCMToken(token);
+     await api.saveFCMToken(token);
       print("FCM token saved successfully");
     } catch (e) {
       print("Failed to save FCM token: $e");

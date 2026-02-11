@@ -63,6 +63,14 @@ class AppConstants {
   // lead all
 
   static String API_ALL_LEAD = '$API_URL/telecaller/lead/all';
+  static String API_GET_CALL = '$API_URL/telecaller/lead-contact/all';
+
+
+
+  // fcm token
+
+  static String SAVE_FCM_TOKEN = '$API_URL/telecaller/save/fcm-token';
+
 
 
 

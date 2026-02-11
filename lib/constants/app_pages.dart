@@ -63,7 +63,7 @@ class AppPages {
     ),GetPage(
       name: Paths.LEADSCONTACT,
       binding: LeadscontactBinding(),
-      page: () => LeadscontactPage(),
+      page: () => LeadsContactPage(),
     ),
   ];
 }

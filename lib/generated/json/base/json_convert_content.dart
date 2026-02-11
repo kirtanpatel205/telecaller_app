@@ -6,6 +6,7 @@
 import 'package:flutter/material.dart' show debugPrint;
 import 'package:telecaller_app/core/models/all_lead_entity.dart';
 import 'package:telecaller_app/core/models/api_response_entity.dart';
+import 'package:telecaller_app/core/models/lead_contact_id_entity.dart';
 import 'package:telecaller_app/core/models/login_response_entity.dart';
 
 JsonConvert jsonConvert = JsonConvert();
@@ -177,6 +178,33 @@ class JsonConvert {
       return data.map<ApiResponseEntity>((Map<String, dynamic> e) =>
           ApiResponseEntity.fromJson(e)).toList() as M;
     }
+    if (<LeadContactIdEntity>[] is M) {
+      return data.map<LeadContactIdEntity>((Map<String, dynamic> e) =>
+          LeadContactIdEntity.fromJson(e)).toList() as M;
+    }
+    if (<LeadContactIdLeadContacts>[] is M) {
+      return data.map<LeadContactIdLeadContacts>((Map<String, dynamic> e) =>
+          LeadContactIdLeadContacts.fromJson(e)).toList() as M;
+    }
+    if (<LeadContactIdLeadContactsAssignedTo>[] is M) {
+      return data.map<LeadContactIdLeadContactsAssignedTo>((
+          Map<String, dynamic> e) =>
+          LeadContactIdLeadContactsAssignedTo.fromJson(e)).toList() as M;
+    }
+    if (<LeadContactIdLeadContactsAssignedToAddress>[] is M) {
+      return data.map<LeadContactIdLeadContactsAssignedToAddress>((
+          Map<String, dynamic> e) =>
+          LeadContactIdLeadContactsAssignedToAddress.fromJson(e)).toList() as M;
+    }
+    if (<LeadContactIdLeadContactsContact>[] is M) {
+      return data.map<LeadContactIdLeadContactsContact>((
+          Map<String, dynamic> e) =>
+          LeadContactIdLeadContactsContact.fromJson(e)).toList() as M;
+    }
+    if (<LeadContactIdLeadContactsLogs>[] is M) {
+      return data.map<LeadContactIdLeadContactsLogs>((Map<String, dynamic> e) =>
+          LeadContactIdLeadContactsLogs.fromJson(e)).toList() as M;
+    }
     if (<LoginResponseEntity>[] is M) {
       return data.map<LoginResponseEntity>((Map<String, dynamic> e) =>
           LoginResponseEntity.fromJson(e)).toList() as M;
@@ -227,6 +255,16 @@ class JsonConvertClassCollection {
     (AllLeadLeadsFormId).toString(): AllLeadLeadsFormId.fromJson,
     (AllLeadLeadsFormIdFields).toString(): AllLeadLeadsFormIdFields.fromJson,
     (ApiResponseEntity).toString(): ApiResponseEntity.fromJson,
+    (LeadContactIdEntity).toString(): LeadContactIdEntity.fromJson,
+    (LeadContactIdLeadContacts).toString(): LeadContactIdLeadContacts.fromJson,
+    (LeadContactIdLeadContactsAssignedTo)
+        .toString(): LeadContactIdLeadContactsAssignedTo.fromJson,
+    (LeadContactIdLeadContactsAssignedToAddress)
+        .toString(): LeadContactIdLeadContactsAssignedToAddress.fromJson,
+    (LeadContactIdLeadContactsContact)
+        .toString(): LeadContactIdLeadContactsContact.fromJson,
+    (LeadContactIdLeadContactsLogs).toString(): LeadContactIdLeadContactsLogs
+        .fromJson,
     (LoginResponseEntity).toString(): LoginResponseEntity.fromJson,
     (LoginResponseProfile).toString(): LoginResponseProfile.fromJson,
     (LoginResponseProfileAddress).toString(): LoginResponseProfileAddress
