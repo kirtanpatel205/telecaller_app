@@ -23,26 +23,6 @@ class LeadsContactController extends GetxController {
 
   late PagewiseLoadController<LeadContactIdLeadContacts> pagewiseLoadLeadIdController;
 
-  final List<String> statusFilters = [
-    'all',
-    'Completed',
-    'Pending',
-    'Scheduled',
-    'Interested',
-    'Not Interested',
-    'Follow Up',
-    'Invalid',
-    'No Response'
-  ];
-
-  final List<String> sortOptions = [
-    'name',
-    'phone',
-    'date',
-    'status',
-    'duration'
-  ];
-
   @override
   void onInit() {
     super.onInit();
@@ -141,11 +121,6 @@ class LeadsContactController extends GetxController {
     }
 
     return sortedLeads;
-  }
-
-  int _calculateDuration(List<LeadContactIdLeadContactsLogs>? logs) {
-    if (logs == null || logs.isEmpty) return 0;
-    return logs.fold<int>(0, (sum, log) => sum + (log.duration ?? 0));
   }
 
   void updateSearch(String query) {

@@ -223,7 +223,7 @@ class LeadsPage extends GetView<LeadsController> {
             child: GestureDetector(
               onTap: () {
                 controller.selectedLeadId.value = lead.id ?? '';
-              controller.  LedadContectId(lead.id.toString());
+              controller.LedadContectId(lead.id.toString());
               },
               child: Card(
                 child: Padding(
