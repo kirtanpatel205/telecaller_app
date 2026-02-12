@@ -14,7 +14,6 @@ class LeadsController extends GetxController {
   var selectedLeadId = ''.obs;
   var selectedDateString = DateFormat('yyyy-MM-dd').format(DateTime.now()).obs;
 
-
   late ApiService apiService;
   late PagewiseLoadController<AllLeadLeads> pagewiseAllLeadLoadController;
 
@@ -25,6 +24,7 @@ class LeadsController extends GetxController {
     initPagewise();
     generatePastDatesFromStartOfYear();
   }
+
   @override
   void onClose() {
     // Clean up resources
@@ -83,21 +83,15 @@ class LeadsController extends GetxController {
   }
 
   /// Reset pagination and reload leads
-   resetAndReload() {
+  resetAndReload() {
     pagewiseAllLeadLoadController.reset();
     initPagewise();
   }
 
   // id arguments
 
-  LedadContectId(String id){
+  LedadContectId(String id) {
     print("LeadContact id $id");
-    Get.toNamed(Routes.LEADSCONTACT,arguments: {
-      "id":id
-    });
-
-
+    Get.toNamed(Routes.LEADSCONTACT, arguments: {"id": id});
   }
-
-
 }
