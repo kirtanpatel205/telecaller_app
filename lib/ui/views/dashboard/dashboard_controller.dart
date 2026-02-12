@@ -16,7 +16,7 @@ class DashboardController extends GetxController{
   @override
   void onReady() {
     // TODO: implement onReady
-    authController.refreshProfile();
+    // authController.refreshProfile();
     super.onReady();
   }
 }
