@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import 'package:telecaller_app/core/models/lead_contact_id_entity.dart';
 import 'package:telecaller_app/ui/widgets/CustomSearchBar.dart';
 import 'package:telecaller_app/ui/widgets/custom-appbar.dart';
+import 'package:telecaller_app/ui/widgets/custom_sortby.dart';
+import 'package:telecaller_app/ui/widgets/custome_icon_button.dart';
 import 'package:telecaller_app/ui/widgets/statusDashboard.dart';
 import 'leadscontact_controller.dart';
 
@@ -42,6 +44,42 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                       },
                     ),
                     CustomSearchBar(),
+
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          CustomActionButton(
+                            title: "Reset",
+                            icon: Icons.refresh,
+                            onTap: () {},
+                          ),
+                          SizedBox(width: 5),
+                          CustomActionButton(
+                            title: "Filter",
+                            icon: Icons.filter,
+                            onTap: () {},
+                          ),
+                          SizedBox(width: 5,),
+                          // CustomSortby(
+                          //   items: controller.optionsCall,
+                          //   onChanged: (String value) {
+                          //     controller.onDropdownSelectedCall(value);
+                          //   },
+                          //   selectedItem: controller.selectedOptionCall.value,
+                          // ),
+                          CustomActionButton(
+                            title: "Export",
+                            icon: Icons.import_export,
+                            onTap: () {},
+                            isFullWidth: false,
+                            isPrimary: true,
+                          ),
+                        ],
+                      ),
+                    ),
+
                     Expanded(child: _buildLeadsTable(context)),
                   ],
                 ),

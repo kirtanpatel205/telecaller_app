@@ -20,6 +20,15 @@ class LeadsContactController extends GetxController {
   RxString selectedFilter = 'all'.obs;
   RxString selectedSort = 'name'.obs;
   RxBool isLoading = false.obs;
+  var optionsCall = [
+    "updated-at",
+    "created-at",
+    "name",
+    "phone",
+  ].obs;
+  RxString selectedOptionCall = "updated-at".obs;
+
+
 
   late PagewiseLoadController<LeadContactIdLeadContacts> pagewiseLoadLeadIdController;
 
@@ -176,5 +185,12 @@ class LeadsContactController extends GetxController {
   int getTotalDuration(List<LeadContactIdLeadContactsLogs>? logs) {
     if (logs == null || logs.isEmpty) return 0;
     return logs.fold<int>(0, (sum, log) => sum + (log.duration ?? 0));
+  }
+
+
+  Future<void> onDropdownSelectedCall(String Value) async {
+    selectedOptionCall.value = Value;
+    print("selected option $Value");
+    // await getleadsbyid();
   }
 }
