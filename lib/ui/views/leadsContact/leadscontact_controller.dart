@@ -1,5 +1,7 @@
 import 'package:flutter_pagewise/flutter_pagewise.dart';
+import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:get/get.dart';
+import 'package:telecaller_app/core/helpers/utils.dart';
 import 'package:telecaller_app/core/models/lead_contact_id_entity.dart';
 import 'package:telecaller_app/core/services/api_service.dart';
 
@@ -15,6 +17,7 @@ class LeadsContactController extends GetxController {
   RxInt followUpCount = 0.obs;
   RxInt invalidCount = 0.obs;
   RxInt noResponseCount = 0.obs;
+  RxBool buttonShow = false.obs;
 
   RxString searchQuery = ''.obs;
   RxString selectedFilter = 'all'.obs;
@@ -42,6 +45,8 @@ class LeadsContactController extends GetxController {
   argumnetGet() {
     if (Get.arguments != null && Get.arguments["id"] != null) {
       final String id = Get.arguments["id"];
+      buttonShow.value = Get.arguments["buttonShow"];
+      print("New Button value ${buttonShow.value}");
       initPagewise(id);
     } else {
       print("Lead ID not found in arguments");
@@ -193,4 +198,16 @@ class LeadsContactController extends GetxController {
     print("selected option $Value");
     // await getleadsbyid();
   }
+
+
+  // get call in one method
+
+  Future<void> makeDirectCall(String phoneNumber) async {
+    try {
+      await FlutterPhoneDirectCaller.callNumber(phoneNumber);
+    } catch (e) {
+      Utils.showToast("Failed to make call: $e");
+    }
+  }
+
 }

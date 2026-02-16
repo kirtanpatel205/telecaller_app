@@ -61,7 +61,7 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                             icon: Icons.filter,
                             onTap: () {},
                           ),
-                          SizedBox(width: 5,),
+                          SizedBox(width: 5),
                           // CustomSortby(
                           //   items: controller.optionsCall,
                           //   onChanged: (String value) {
@@ -137,6 +137,24 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                 ),
               ),
               _buildStatusBadge(lead.status ?? 'N/A'),
+              SizedBox(
+                width: 10,
+              ),
+
+              Obx(()=>controller.buttonShow.value ?
+              Container(
+                width: 100,
+                height: 33,
+                child: CustomActionButton(
+                  title: "Call Now",
+                  icon: Icons.call,
+                  isPrimary: true,
+
+                  onTap: () {
+                    controller.makeDirectCall(lead.contact!.phone.toString());
+                  },
+                ),
+              ): SizedBox()),
             ],
           ),
           const SizedBox(height: 8),

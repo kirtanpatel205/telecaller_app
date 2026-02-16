@@ -1,4 +1,21 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- ======================= CORE PERMISSIONS ======================= -->
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+
+    <!-- ======================= PHONE STATE PERMISSIONS ======================= -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.READ_CALL_LOG"/>
+    <uses-permission android:name="android.permission.ANSWER_PHONE_CALLS"/>
+    <uses-permission android:name="android.permission.READ_PHONE_NUMBERS"/>
+    <!-- ======================= UI PERMISSIONS ======================= -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
+
+
     <application
         android:label="telecaller_app"
         android:name="${applicationName}"
@@ -41,5 +58,18 @@
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
         </intent>
+
+        <!-- ✅ Phone/Tel Intent -->
+        <intent>
+            <action android:name="android.intent.action.DIAL"/>
+            <data android:scheme="tel"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.CALL"/>
+            <data android:scheme="tel"/>
+        </intent>
+
+
+
     </queries>
 </manifest>

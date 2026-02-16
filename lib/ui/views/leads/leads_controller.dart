@@ -90,8 +90,11 @@ class LeadsController extends GetxController {
 
   // id arguments
 
-  LedadContectId(String id) {
+  LedadContectId({String id = '', bool buttonShow = false}) {
     print("LeadContact id $id");
-    Get.toNamed(Routes.LEADSCONTACT, arguments: {"id": id});
+    Get.toNamed(
+      Routes.LEADSCONTACT,
+      arguments: {"id": id, "buttonShow":buttonShow},
+    );
   }
 }

@@ -116,6 +116,11 @@ public final class GeneratedPluginRegistrant {
       Log.e(TAG, "Error registering plugin phone_number_hint, com.moderntechsolutions.phone_number_hint.PhoneNumberHintPlugin", e);
     }
     try {
+      flutterEngine.getPlugins().add(new it.mainella.phone_state.PhoneStatePlugin());
+    } catch (Exception e) {
+      Log.e(TAG, "Error registering plugin phone_state, it.mainella.phone_state.PhoneStatePlugin", e);
+    }
+    try {
       flutterEngine.getPlugins().add(new dev.fluttercommunity.plus.share.SharePlusPlugin());
     } catch (Exception e) {
       Log.e(TAG, "Error registering plugin share_plus, dev.fluttercommunity.plus.share.SharePlusPlugin", e);
