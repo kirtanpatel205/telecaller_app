@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:telecaller_app/constants/app_colors.dart';
@@ -142,11 +141,10 @@ class OverlayPages extends GetView<OverlayController> {
                         /// Dropdown
                         ///
                         CustomDropdown(
-                          selectedValue: controller.callDropdownValue ,
+                          selectedValue: controller.callDropdownValue,
                           items: controller.leadOptions,
                           onChanged: (value) {
                             controller.onDropdownChange(value);
-
                           },
                         ),
 
@@ -154,7 +152,7 @@ class OverlayPages extends GetView<OverlayController> {
 
                         Obx(
                           () =>
-                              controller.callDropdownValue .value == "reschedule"
+                              controller.callDropdownValue.value == "reschedule"
                                   ? Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
@@ -257,18 +255,7 @@ class OverlayPages extends GetView<OverlayController> {
                         const SizedBox(height: 10),
 
                         InkWell(
-                          onTap: () {
-                            //  Get.toNamed('/customer-detail-page');
-                            // Get.toNamed(Routes.CUSTOMERDETAILPAGE,
-                            //     arguments: {
-                            //       'phone': controllerhome.customerphoneNum
-                            //           .toString(),
-                            //       'id': controllerhome.lastCalledId
-                            //           .toString() ??
-                            //           "",
-                            //       // controllerhome.currentCallId.toString(),
-                            //     });
-                          },
+                          onTap: () {},
                           child: Row(
                             children: [
                               SizedBox(
@@ -423,7 +410,7 @@ class OverlayPages extends GetView<OverlayController> {
                                 SizedBox(width: 5),
                                 Obx(
                                   () => Text(
-                                    controller.callDropdownValue .value.isEmpty
+                                    controller.callDropdownValue.value.isEmpty
                                         ? "Next Call (${controller.countdown.value})"
                                         : "Next Call",
                                     style: TextStyle(
