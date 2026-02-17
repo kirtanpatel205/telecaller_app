@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:phone_state/phone_state.dart';
 
 class PhoneStatusService extends GetxService {
-
   StreamSubscription<PhoneState>? _phoneStateSub;
 
   var callStatus = "Idle".obs;
@@ -15,11 +14,9 @@ class PhoneStatusService extends GetxService {
   }
 
   void _startListening() async {
-
     // Permission check
 
     _phoneStateSub = PhoneState.stream.listen((PhoneState state) {
-
       switch (state.status) {
         case PhoneStateStatus.CALL_INCOMING:
           callStatus.value = "Incoming";
@@ -35,7 +32,6 @@ class PhoneStatusService extends GetxService {
           break;
 
         default:
-
           callStatus.value = "Idle";
       }
 

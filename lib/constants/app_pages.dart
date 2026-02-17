@@ -14,8 +14,6 @@ import 'package:telecaller_app/ui/views/login/login_binding.dart';
 import 'package:telecaller_app/ui/views/login/login_page.dart';
 import 'package:telecaller_app/ui/views/otp/otp_binding.dart';
 import 'package:telecaller_app/ui/views/otp/otp_page.dart';
-import 'package:telecaller_app/ui/views/overlay/overlay_binding.dart';
-import 'package:telecaller_app/ui/views/overlay/overlay_pages.dart';
 import 'package:telecaller_app/ui/views/setting/setting_binding.dart';
 import 'package:telecaller_app/ui/views/setting/setting_page.dart';
 import 'package:telecaller_app/ui/views/splash/splash_binding.dart';
@@ -68,9 +66,9 @@ class AppPages {
       page: () => LeadsContactPage(),
     ),
 
-    GetPage(
-        name: Paths.OVERLAY,
-        page: () => OverlayPages(),
-        binding: OverlayBinding()),
+    // GetPage(
+    //     name: Paths.OVERLAY,
+    //     page: () => OverlayPages(),
+    //     binding: OverlayBinding()),
   ];
 }

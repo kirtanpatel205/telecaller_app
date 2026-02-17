@@ -2,11 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart' show DateFormat;
 import 'package:telecaller_app/constants/app_colors.dart';
-import 'package:telecaller_app/constants/app_routes.dart';
+import 'package:telecaller_app/core/controllers/overlay_controller.dart';
 import 'package:telecaller_app/core/helpers/utils.dart';
-import 'package:telecaller_app/ui/views/overlay/overlay_controller.dart';
 
 class OverlayPages extends GetView<OverlayController> {
   final controller = Get.put(OverlayController());

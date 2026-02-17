@@ -88,10 +88,10 @@ class OverlayController extends GetxController {
     await Future.delayed(const Duration(milliseconds: 500));
   }
 
-  /// -----------------------------
-  /// PENDING LIST (Mock)
-  /// -----------------------------
+/// -----------------------------
+/// PENDING LIST (Mock)
+/// -----------------------------
 
-  // var pendingCustomersController = PendingCustomersMock();
+// var pendingCustomersController = PendingCustomersMock();
 
 }

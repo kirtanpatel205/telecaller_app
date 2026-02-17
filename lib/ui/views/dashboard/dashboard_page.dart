@@ -5,7 +5,7 @@ import 'package:getwidget/getwidget.dart';
 import 'package:telecaller_app/constants/app_colors.dart';
 import 'package:telecaller_app/constants/app_routes.dart';
 import 'package:telecaller_app/constants/app_text_style.dart';
-import 'package:telecaller_app/ui/views/overlay/overlay_pages.dart';
+import 'package:telecaller_app/ui/views/home/overlay/overlay_pages.dart';
 
 import '../home/home_controller.dart';
 import '../notifiction/notifiction_page.dart';
