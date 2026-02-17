@@ -4,94 +4,72 @@ import 'package:get/get.dart';
 
 class OverlayController extends GetxController {
 
-  /// -----------------------------
-  /// CALL INFO
-  /// -----------------------------
+  /// ---------------- CALL INFO ----------------
+  final formattedCallLogDuration = "00:00".obs;
+  final lastCalledName = "No previous call".obs;
+  final lastCalledNumber = "+910000000000".obs;
+  final customerphoneNum = "".obs;
 
-  RxString formattedCallLogDuration = "00:00".obs;
-  RxString lastCalledName = "".obs;
-  RxString lastCalledNumber = "".obs;
-  RxString customerphoneNum = "".obs;
+  /// ---------------- DROPDOWN ----------------
+  final callDropdownValue = "".obs;
 
-  /// -----------------------------
-  /// DROPDOWN
-  /// -----------------------------
-
-  RxString dropdownValue = "".obs;
-
-  List<Map<String, String>> leadOptions = [
+  final List<Map<String, String>> leadOptions = [
     {"label": "Interested", "value": "interested"},
     {"label": "Not Interested", "value": "not_interested"},
-    {"label": "Call Later", "value": "reschedule"},
-    {"label": "Switch Off", "value": "switch_off"},
+    {"label": "Reschedule", "value": "reschedule"},
+    {"label": "Follow-up", "value": "follow_up"},
+    {"label": "Invalid", "value": "invalid"},
+    {"label": "No Response", "value": "no_response"},
+    {"label": "Other", "value": "other"},
   ];
 
-  void ondropdownchange(String value) {
-    dropdownValue.value = value;
+  void onDropdownChange(String value) {
+    callDropdownValue.value = value;
   }
 
-  /// -----------------------------
-  /// RESCHEDULE
-  /// -----------------------------
-
-  RxString rescheduledate = "".obs;
+  /// ---------------- RESCHEDULE ----------------
+  final rescheduleDate = "".obs;
 
   Future<void> pickDate(BuildContext context) async {
-    final pickedDate = await showDatePicker(
+    final picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now().add(const Duration(days: 1)),
       firstDate: DateTime.now(),
       lastDate: DateTime(2100),
     );
 
-    if (pickedDate != null) {
-      rescheduledate.value =
-      "${pickedDate.year}-${pickedDate.month}-${pickedDate.day}";
+    if (picked != null) {
+      rescheduleDate.value =
+      "${picked.year}-${picked.month}-${picked.day}";
     }
   }
 
-  /// -----------------------------
-  /// CALL FLOW
-  /// -----------------------------
-
-  RxBool isCallStarted = false.obs;
-  RxBool isCallInProgress = false.obs;
-  RxBool isCallTask = true.obs;
-
-  TextEditingController timeBetweenCalls =
-  TextEditingController(text: "10");
-
-  RxInt countdown = 10.obs;
-  RxInt countdownEnd = 10.obs;
-
-  Timer? timer;
+  /// ---------------- TIMER ----------------
+  final countdown = 10.obs;
+  Timer? _timer;
 
   void startTimer() {
-    timer?.cancel();
-    countdownEnd.value = countdown.value;
+    _timer?.cancel();
+    countdown.value = 10;
 
-    timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (countdownEnd.value > 0) {
-        countdownEnd.value--;
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (countdown.value > 0) {
+        countdown.value--;
       } else {
         timer.cancel();
       }
     });
   }
 
-  /// -----------------------------
-  /// API / UPDATE PLACEHOLDER
-  /// -----------------------------
-
-  Future<void> getUpdateleadsbyid() async {
-    // 🔥 Here call your API
-    await Future.delayed(const Duration(milliseconds: 500));
+  @override
+  void onInit() {
+    startTimer();
+    super.onInit();
   }
 
-/// -----------------------------
-/// PENDING LIST (Mock)
-/// -----------------------------
-
-// var pendingCustomersController = PendingCustomersMock();
-
+  @override
+  void onClose() {
+    _timer?.cancel();
+    super.onClose();
+  }
 }
