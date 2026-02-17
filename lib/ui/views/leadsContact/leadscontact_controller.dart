@@ -22,18 +22,15 @@ class LeadsContactController extends GetxController {
   RxString searchQuery = ''.obs;
   RxString selectedFilter = 'all'.obs;
   RxString selectedSort = 'name'.obs;
+
+  // ✅ Prevent multiple auto calls
+  RxBool autoCallDone = false.obs;
   RxBool isLoading = false.obs;
-  var optionsCall = [
-    "updated-at",
-    "created-at",
-    "name",
-    "phone",
-  ].obs;
+  var optionsCall = ["updated-at", "created-at", "name", "phone"].obs;
   RxString selectedOptionCall = "updated-at".obs;
 
-
-
-  late PagewiseLoadController<LeadContactIdLeadContacts> pagewiseLoadLeadIdController;
+  late PagewiseLoadController<LeadContactIdLeadContacts>
+  pagewiseLoadLeadIdController;
 
   @override
   void onInit() {
@@ -61,21 +58,32 @@ class LeadsContactController extends GetxController {
           pageSize: 10,
           pageFuture: (pageNumber) async {
             try {
-              final LeadContactIdEntity allCustomersEntity =
-              await apiService.getCallLead(
-                page: pageNumber ?? 1,
-                limit: 10,
-                id: leadId,
-                // search: searchQuery.value.isNotEmpty ? searchQuery.value : null,
-                // filter: selectedFilter.value != 'all' ? selectedFilter.value : null,
-              );
+              final LeadContactIdEntity allCustomersEntity = await apiService
+                  .getCallLead(page: pageNumber ?? 1, limit: 10, id: leadId);
 
               if (allCustomersEntity.status ?? false) {
                 totalLeadsId.value = allCustomersEntity.total ?? 0;
-                _calculateStatistics(allCustomersEntity.leadContacts ?? []);
 
                 var leads = allCustomersEntity.leadContacts ?? [];
+
+                _calculateStatistics(leads);
+
                 leads = _sortLeads(leads);
+
+                // 🔥 AUTO CALL LOGIC
+                if (buttonShow.value == false &&
+                    leads.isNotEmpty &&
+                    autoCallDone.value == false) {
+                  autoCallDone.value = true;
+
+                  final firstNumber = leads.first.contact?.phone;
+
+                  if (firstNumber != null && firstNumber.isNotEmpty) {
+                    Future.delayed(const Duration(milliseconds: 500), () {
+                      makeDirectCall(firstNumber);
+                    });
+                  }
+                }
 
                 return leads;
               } else {
@@ -92,28 +100,39 @@ class LeadsContactController extends GetxController {
   }
 
   void _calculateStatistics(List<LeadContactIdLeadContacts> leads) {
-    completedCount.value = leads.where((l) => l.status?.toLowerCase() == 'completed').length;
-    pendingCount.value = leads.where((l) => l.status?.toLowerCase() == 'pending').length;
-    scheduledCount.value = leads.where((l) => l.status?.toLowerCase() == 'scheduled').length;
-    interestedCount.value = leads.where((l) => l.status?.toLowerCase() == 'interested').length;
-    notInterestedCount.value = leads.where((l) => l.status?.toLowerCase() == 'not interested').length;
-    followUpCount.value = leads.where((l) => l.status?.toLowerCase() == 'follow up').length;
-    invalidCount.value = leads.where((l) => l.status?.toLowerCase() == 'invalid').length;
-    noResponseCount.value = leads.where((l) => l.status?.toLowerCase() == 'no response').length;
+    completedCount.value =
+        leads.where((l) => l.status?.toLowerCase() == 'completed').length;
+    pendingCount.value =
+        leads.where((l) => l.status?.toLowerCase() == 'pending').length;
+    scheduledCount.value =
+        leads.where((l) => l.status?.toLowerCase() == 'scheduled').length;
+    interestedCount.value =
+        leads.where((l) => l.status?.toLowerCase() == 'interested').length;
+    notInterestedCount.value =
+        leads.where((l) => l.status?.toLowerCase() == 'not interested').length;
+    followUpCount.value =
+        leads.where((l) => l.status?.toLowerCase() == 'follow up').length;
+    invalidCount.value =
+        leads.where((l) => l.status?.toLowerCase() == 'invalid').length;
+    noResponseCount.value =
+        leads.where((l) => l.status?.toLowerCase() == 'no response').length;
   }
 
   List<LeadContactIdLeadContacts> _sortLeads(
-      List<LeadContactIdLeadContacts> leads) {
+    List<LeadContactIdLeadContacts> leads,
+  ) {
     final sortedLeads = List<LeadContactIdLeadContacts>.from(leads);
 
     switch (selectedSort.value) {
       case 'name':
-        sortedLeads.sort((a, b) =>
-            (a.contact?.name ?? '').compareTo(b.contact?.name ?? ''));
+        sortedLeads.sort(
+          (a, b) => (a.contact?.name ?? '').compareTo(b.contact?.name ?? ''),
+        );
         break;
       case 'phone':
-        sortedLeads.sort((a, b) =>
-            (a.contact?.phone ?? '').compareTo(b.contact?.phone ?? ''));
+        sortedLeads.sort(
+          (a, b) => (a.contact?.phone ?? '').compareTo(b.contact?.phone ?? ''),
+        );
         break;
       case 'date':
         sortedLeads.sort((a, b) {
@@ -192,15 +211,12 @@ class LeadsContactController extends GetxController {
     return logs.fold<int>(0, (sum, log) => sum + (log.duration ?? 0));
   }
 
-
   Future<void> onDropdownSelectedCall(String Value) async {
     selectedOptionCall.value = Value;
     print("selected option $Value");
     // await getleadsbyid();
   }
 
-
-  // get call in one method
 
   Future<void> makeDirectCall(String phoneNumber) async {
     try {
@@ -209,5 +225,4 @@ class LeadsContactController extends GetxController {
       Utils.showToast("Failed to make call: $e");
     }
   }
-
 }

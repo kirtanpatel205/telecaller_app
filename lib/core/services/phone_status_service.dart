@@ -14,7 +14,6 @@ class PhoneStatusService extends GetxService {
   }
 
   void _startListening() async {
-    // Permission check
 
     _phoneStateSub = PhoneState.stream.listen((PhoneState state) {
       switch (state.status) {
