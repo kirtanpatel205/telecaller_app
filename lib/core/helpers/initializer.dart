@@ -13,6 +13,7 @@ import 'package:telecaller_app/core/controllers/auth_controller.dart';
 import 'package:telecaller_app/core/helpers/storage.dart';
 import 'package:telecaller_app/core/services/api_service.dart';
 import 'package:telecaller_app/core/services/fcm_service.dart';
+import 'package:telecaller_app/core/services/phone_status_service.dart';
 
 class Initializer {
   static final Initializer instance = Initializer._internal();
@@ -53,6 +54,10 @@ class Initializer {
       await Get.put<ApiService>(ApiService()).init();
       await Get.putAsync<AuthController>(() async => AuthController());
       // await Get.putAsync<FCMService>(() async => FCMService());
+      await Get.putAsync<PhoneStatusService>(
+            () async => await PhoneStatusService().init(),
+      );
+
 
 
 

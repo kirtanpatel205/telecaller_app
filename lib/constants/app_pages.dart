@@ -65,5 +65,10 @@ class AppPages {
       binding: LeadscontactBinding(),
       page: () => LeadsContactPage(),
     ),
+
+    // GetPage(
+    //     name: Paths.OVERLAY,
+    //     page: () => OverlayPages(),
+    //     binding: OverlayBinding()),
   ];
 }

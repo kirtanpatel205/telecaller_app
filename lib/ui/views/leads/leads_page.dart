@@ -246,7 +246,7 @@ class LeadsPage extends GetView<LeadsController> {
           child: GestureDetector(
             onTap: () {
               controller.selectedLeadId.value = lead.id ?? '';
-              controller.LedadContectId(lead.id.toString());
+              controller.LedadContectId(id: lead.id.toString(),buttonShow: true);
             },
             child: Card(
               child: Padding(
@@ -394,6 +394,10 @@ class LeadsPage extends GetView<LeadsController> {
                       isFullWidth: true,
                       onTap: () {
                         print("Auto Dial Click");
+
+
+
+                        controller.LedadContectId(id: lead.id.toString(),buttonShow: false,);
                       },
                     ),
                   ],

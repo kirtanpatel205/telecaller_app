@@ -61,6 +61,8 @@ class AppConstants {
 
   static String API_ALL_LEAD = '$API_URL/telecaller/lead/all';
   static String API_GET_CALL = '$API_URL/telecaller/lead-contact/all';
+  static String API_LEADS_UPDATE = '$API_URL/telecaller/lead/log/update';
+
 
 
 

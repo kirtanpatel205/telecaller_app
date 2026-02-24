@@ -10,6 +10,7 @@ import 'package:telecaller_app/ui/views/setting/setting_controller.dart';
 class HomeController extends GetxController {
   RxInt currentTab = 0.obs;
   AuthController authController = Get.find();
+
   LeadsController leadsController = Get.put(LeadsController());
   AutoDialerController autoDialerController = Get.put(AutoDialerController());
   SettingController settingController = Get.put(SettingController());

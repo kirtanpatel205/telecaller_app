@@ -102,7 +102,7 @@ dependencies:
   flutter_phone_direct_caller: ^2.1.1
   # system_alert_window: ^2.0.0
   overlay_support: ^2.1.0
-#  phone_state: ^2.1.1
+  phone_state: ^2.1.1
 #  flutter_phone_call_state:
   permission_handler: ^11.3.1
 #  yaml: ^3.1.2

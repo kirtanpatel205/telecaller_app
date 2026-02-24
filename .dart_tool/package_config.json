@@ -824,6 +824,12 @@
       "languageVersion": "2.19"
     },
     {
+      "name": "phone_state",
+      "rootUri": "file:///C:/Users/01/AppData/Local/Pub/Cache/hosted/pub.dev/phone_state-2.1.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.5"
+    },
+    {
       "name": "pin_code_fields",
       "rootUri": "file:///C:/Users/VRAJ/AppData/Local/Pub/Cache/hosted/pub.dev/pin_code_fields-8.0.1",
       "packageUri": "lib/",
@@ -1160,6 +1166,7 @@
       "languageVersion": "3.7"
     }
   ],
+  "generated": "2026-02-16T06:15:51.451292Z",
   "generator": "pub",
   "generatorVersion": "3.10.0",
   "flutterRoot": "file:///D:/flutter_windows_3.38.1-stable/flutter",

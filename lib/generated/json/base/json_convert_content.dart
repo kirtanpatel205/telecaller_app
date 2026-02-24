@@ -6,6 +6,7 @@
 import 'package:flutter/material.dart' show debugPrint;
 import 'package:telecaller_app/core/models/all_lead_entity.dart';
 import 'package:telecaller_app/core/models/api_response_entity.dart';
+import 'package:telecaller_app/core/models/call_lead_update_response_entity.dart';
 import 'package:telecaller_app/core/models/lead_contact_id_entity.dart';
 import 'package:telecaller_app/core/models/login_response_entity.dart';
 
@@ -178,6 +179,25 @@ class JsonConvert {
       return data.map<ApiResponseEntity>((Map<String, dynamic> e) =>
           ApiResponseEntity.fromJson(e)).toList() as M;
     }
+    if (<CallLeadUpdateResponseEntity>[] is M) {
+      return data.map<CallLeadUpdateResponseEntity>((Map<String, dynamic> e) =>
+          CallLeadUpdateResponseEntity.fromJson(e)).toList() as M;
+    }
+    if (<CallLeadUpdateResponseData>[] is M) {
+      return data.map<CallLeadUpdateResponseData>((Map<String, dynamic> e) =>
+          CallLeadUpdateResponseData.fromJson(e)).toList() as M;
+    }
+    if (<CallLeadUpdateResponseDataContact>[] is M) {
+      return data.map<CallLeadUpdateResponseDataContact>((
+          Map<String, dynamic> e) =>
+          CallLeadUpdateResponseDataContact.fromJson(e)).toList() as M;
+    }
+    if (<CallLeadUpdateResponseDataLogs>[] is M) {
+      return data
+          .map<CallLeadUpdateResponseDataLogs>((
+          Map<String, dynamic> e) => CallLeadUpdateResponseDataLogs.fromJson(e))
+          .toList() as M;
+    }
     if (<LeadContactIdEntity>[] is M) {
       return data.map<LeadContactIdEntity>((Map<String, dynamic> e) =>
           LeadContactIdEntity.fromJson(e)).toList() as M;
@@ -255,6 +275,14 @@ class JsonConvertClassCollection {
     (AllLeadLeadsFormId).toString(): AllLeadLeadsFormId.fromJson,
     (AllLeadLeadsFormIdFields).toString(): AllLeadLeadsFormIdFields.fromJson,
     (ApiResponseEntity).toString(): ApiResponseEntity.fromJson,
+    (CallLeadUpdateResponseEntity).toString(): CallLeadUpdateResponseEntity
+        .fromJson,
+    (CallLeadUpdateResponseData).toString(): CallLeadUpdateResponseData
+        .fromJson,
+    (CallLeadUpdateResponseDataContact)
+        .toString(): CallLeadUpdateResponseDataContact.fromJson,
+    (CallLeadUpdateResponseDataLogs).toString(): CallLeadUpdateResponseDataLogs
+        .fromJson,
     (LeadContactIdEntity).toString(): LeadContactIdEntity.fromJson,
     (LeadContactIdLeadContacts).toString(): LeadContactIdLeadContacts.fromJson,
     (LeadContactIdLeadContactsAssignedTo)

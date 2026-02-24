@@ -12,6 +12,7 @@ abstract class Routes {
   static const EDITPROFILE = Paths.EDITPROFILE;
   static const NOTIFICATION = Paths.NOTIFICATION;
   static const LEADSCONTACT = Paths.LEADSCONTACT;
+  static const OVERLAYS = Paths.OVERLAY;
 }
 
 abstract class Paths {
@@ -31,4 +32,5 @@ abstract class Paths {
   static const AUTO_DIAL = '/auto-dial';
   static const SETTING = '/setting';
   static const LEADSCONTACT = '/leads-contact';
+  static const OVERLAY = '/overlay';
 }
