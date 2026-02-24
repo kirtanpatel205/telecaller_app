@@ -1,6 +1,6 @@
 #!/bin/sh
 # This is a generated file; do not edit or check into version control.
-export "FLUTTER_ROOT=D:\flutter"
+export "FLUTTER_ROOT=D:\flutter_windows_3.38.1-stable\flutter"
 export "FLUTTER_APPLICATION_PATH=D:\projects\telecaller_app"
 export "COCOAPODS_PARALLEL_CODE_SIGN=true"
 export "FLUTTER_TARGET=lib\main.dart"
