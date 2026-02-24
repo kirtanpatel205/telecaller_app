@@ -1,5 +1,3 @@
-
-
 import 'dart:convert';
 import 'dart:developer' as developer;
 import 'dart:io';
@@ -7,25 +5,24 @@ import 'dart:io';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 
-
-
-
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:telecaller_app/constants/app_constants.dart';
 import 'package:telecaller_app/core/models/all_lead_entity.dart';
 import 'package:telecaller_app/core/models/api_response_entity.dart';
+import 'package:telecaller_app/core/models/call_lead_update_response_entity.dart';
 import 'package:telecaller_app/core/models/lead_contact_id_entity.dart';
 import 'package:telecaller_app/core/models/login_response_entity.dart';
 
 import 'package:telecaller_app/core/network/dio_client.dart';
 
-
-class ApiService extends GetxService{
+class ApiService extends GetxService {
   var totalCommissions;
-  dio.Dio _dio = new dio.Dio(dio.BaseOptions(
-    //connectTimeout: 5,
-    //receiveTimeout: 20
-  ));
+  dio.Dio _dio = new dio.Dio(
+    dio.BaseOptions(
+      //connectTimeout: 5,
+      //receiveTimeout: 20
+    ),
+  );
   late DioClient client;
 
   static ApiService to = Get.find();
@@ -47,19 +44,18 @@ class ApiService extends GetxService{
     client = new DioClient(_dio);
   }
 
-
   Future<ApiResponseEntity> sendOtp({
     String phone = "",
     String authType = "phone",
   }) async {
-    Map<String, dynamic> response =
-    await client.post(AppConstants.API_SEND_OTP, data: {
-      "phone": phone,
-      "auth_type": authType,
-    });
+    Map<String, dynamic> response = await client.post(
+      AppConstants.API_SEND_OTP,
+      data: {"phone": phone, "auth_type": authType},
+    );
     print(phone);
     return ApiResponseEntity.fromJson(response);
   }
+
   Future<LoginResponseEntity> verifyOtp({
     String phone = "",
     String authType = "phone",
@@ -73,32 +69,31 @@ class ApiService extends GetxService{
     return LoginResponseEntity.fromJson(response);
   }
 
-
-//profile
+  //profile
   Future<LoginResponseProfile> profile() async {
-    Map<String, dynamic> response = await client.get(
-      AppConstants.API_PROFILE,
-    );
+    Map<String, dynamic> response = await client.get(AppConstants.API_PROFILE);
     print("profile: ${json.encode(response)}");
     print("profile: ${response["profile"]["name"]}");
     //developer.log("${response}");
-    LoginResponseProfile profile =
-    LoginResponseProfile.fromJson(response["profile"]);
+    LoginResponseProfile profile = LoginResponseProfile.fromJson(
+      response["profile"],
+    );
     print("profile data: ${profile.name}");
     return profile;
   }
 
-  Future<ApiResponseEntity> Updateprofile(
-      {required String name,
-        required String lastName,
-        required String addressLine1,
-        required String addressLine2,
-        required String city,
-        required String state,
-        required String zipCode,
-        required String profile,
-        required String country,
-        required String email}) async {
+  Future<ApiResponseEntity> Updateprofile({
+    required String name,
+    required String lastName,
+    required String addressLine1,
+    required String addressLine2,
+    required String city,
+    required String state,
+    required String zipCode,
+    required String profile,
+    required String country,
+    required String email,
+  }) async {
     final data = {
       "name": name,
       "lastname": lastName,
@@ -110,11 +105,14 @@ class ApiService extends GetxService{
         "city": city,
         "state": state,
         "zip": zipCode,
-        "country": country
-      }
+        "country": country,
+      },
     };
-    Map<String, dynamic> response = await client
-        .post(AppConstants.API_UPDATE_PROFILE, isRaw: true, data: data);
+    Map<String, dynamic> response = await client.post(
+      AppConstants.API_UPDATE_PROFILE,
+      isRaw: true,
+      data: data,
+    );
     developer.log('ghj${addressLine1}');
     print(response);
     print("response : $data ${data.values}");
@@ -122,9 +120,7 @@ class ApiService extends GetxService{
     return ApiResponseEntity.fromJson(response);
   }
 
-  Future<Map<String, dynamic>> UpdateprofileImage({
-    required File name,
-  }) async {
+  Future<Map<String, dynamic>> UpdateprofileImage({required File name}) async {
     var multipartFile = await dio.MultipartFile.fromFile(
       name.path,
       filename: name.uri.pathSegments.last, // Use the actual file name
@@ -165,7 +161,6 @@ class ApiService extends GetxService{
     return ApiResponseEntity.fromJson(response);
   }
 
-
   Future<LeadContactIdEntity> getCallLead({
     String? id,
     int? page = 0,
@@ -179,6 +174,28 @@ class ApiService extends GetxService{
     return LeadContactIdEntity.fromJson(response);
   }
 
+  // call log update
 
-
+  Future<CallLeadUpdateResponseEntity> callUpdateLeadById({
+    String lead_id = '',
+    String type = "outgoing",
+    String answertype = "interested",
+    String answer = "",
+    int duration = 180,
+  }) async {
+    print("callUpdateLeadById ${lead_id} $duration $type $answertype $answer");
+    Map<String, dynamic> response = await client.post(
+      "${AppConstants.API_LEADS_UPDATE}",
+      isRaw: true,
+      data: {
+        "id": lead_id,
+        "type": type,
+        "answertype": answertype,
+        "duration": duration,
+        "answer": answer,
+      },
+    );
+    print("callUpdateLeadById response: ${response}");
+    return CallLeadUpdateResponseEntity.fromJson(response);
+  }
 }

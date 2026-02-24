@@ -1,6 +1,7 @@
 import 'package:flutter_pagewise/flutter_pagewise.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:get/get.dart';
+import 'package:telecaller_app/core/controllers/overlay_controller.dart';
 import 'package:telecaller_app/core/helpers/utils.dart';
 import 'package:telecaller_app/core/models/lead_contact_id_entity.dart';
 import 'package:telecaller_app/core/services/api_service.dart';
@@ -23,11 +24,14 @@ class LeadsContactController extends GetxController {
   RxString selectedFilter = 'all'.obs;
   RxString selectedSort = 'name'.obs;
 
-  // ✅ Prevent multiple auto calls
-  RxBool autoCallDone = false.obs;
+  // ✅ autoCallDone HATAVYU — page wise first load pachi auto call lagse
+  // OverlayController j manage karse ke next call kyare lagvanu chhe
   RxBool isLoading = false.obs;
   var optionsCall = ["updated-at", "created-at", "name", "phone"].obs;
   RxString selectedOptionCall = "updated-at".obs;
+
+  // ✅ Track karva ke queue set thayo ke nahi
+  bool _queueInitialized = false;
 
   late PagewiseLoadController<LeadContactIdLeadContacts>
   pagewiseLoadLeadIdController;
@@ -39,11 +43,11 @@ class LeadsContactController extends GetxController {
     apiService = Get.find<ApiService>();
   }
 
-  argumnetGet() {
+  void argumnetGet() {
     if (Get.arguments != null && Get.arguments["id"] != null) {
       final String id = Get.arguments["id"];
-      buttonShow.value = Get.arguments["buttonShow"];
-      print("New Button value ${buttonShow.value}");
+      buttonShow.value = Get.arguments["buttonShow"] ?? false;
+      print("Button show value: ${buttonShow.value}");
       initPagewise(id);
     } else {
       print("Lead ID not found in arguments");
@@ -52,6 +56,7 @@ class LeadsContactController extends GetxController {
 
   void initPagewise(String? leadId) {
     isLoading.value = true;
+    _queueInitialized = false; // reset on re-init
 
     pagewiseLoadLeadIdController =
         PagewiseLoadController<LeadContactIdLeadContacts>(
@@ -65,19 +70,20 @@ class LeadsContactController extends GetxController {
                 totalLeadsId.value = allCustomersEntity.total ?? 0;
 
                 var leads = allCustomersEntity.leadContacts ?? [];
-
                 _calculateStatistics(leads);
-
                 leads = _sortLeads(leads);
 
-                // 🔥 AUTO CALL LOGIC
+                // ✅ AUTO CALL: sirf PEHLI VAAR (page 1, queue not set yet)
                 if (buttonShow.value == false &&
                     leads.isNotEmpty &&
-                    autoCallDone.value == false) {
-                  autoCallDone.value = true;
+                    !_queueInitialized) {
+                  _queueInitialized = true;
 
+                  // Queue setup karo — PEHLA, call lagavta pehla
+                  _setupCallQueue(leads);
+
+                  // First number auto dial
                   final firstNumber = leads.first.contact?.phone;
-
                   if (firstNumber != null && firstNumber.isNotEmpty) {
                     Future.delayed(const Duration(milliseconds: 500), () {
                       makeDirectCall(firstNumber);
@@ -97,6 +103,70 @@ class LeadsContactController extends GetxController {
         );
 
     isLoading.value = false;
+  }
+
+  // ─────────────────────────────────────────────────────────
+  // Queue setup — id + name + number — OverlayController ne aapi do
+  // ─────────────────────────────────────────────────────────
+  void _setupCallQueue(List<LeadContactIdLeadContacts> leads) {
+    // OverlayController ensure
+    if (!Get.isRegistered<OverlayController>()) {
+      Get.put(OverlayController());
+    }
+    final overlayCtrl = Get.find<OverlayController>();
+
+    // ✅ BADHA leads queue ma — id, name, number sathe
+    final queue =
+        leads
+            .where(
+              (l) => l.contact?.phone != null && l.contact!.phone!.isNotEmpty,
+            )
+            .map(
+              (l) => {
+                "id": l.id ?? "",
+                "name": l.contact?.name ?? "Unknown",
+                "number": l.contact?.phone ?? "",
+              },
+            )
+            .toList();
+
+    overlayCtrl.callQueue = queue;
+    // ✅ Index 1 thi start — index 0 abhi dial thai rahi chhe
+    overlayCtrl.currentQueueIndex = 1;
+    overlayCtrl.isAutoCallMode.value = true;
+
+    print("✅ Queue set: ${queue.length} contacts");
+    for (int i = 0; i < queue.length; i++) {
+      print(
+        "  [$i] ${queue[i]['name']} | ${queue[i]['number']} | id=${queue[i]['id']}",
+      );
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────
+  // Manual Call (buttonShow == true)
+  // ─────────────────────────────────────────────────────────
+  void onManualCallTapped(LeadContactIdLeadContacts lead) {
+    final number = lead.contact?.phone ?? "";
+    if (number.isEmpty) return;
+
+    if (!Get.isRegistered<OverlayController>()) {
+      Get.put(OverlayController());
+    }
+    final overlayCtrl = Get.find<OverlayController>();
+
+    // Manual mode: single entry queue, no auto countdown
+    overlayCtrl.callQueue = [
+      {
+        "id": lead.id ?? "",
+        "name": lead.contact?.name ?? "Unknown",
+        "number": number,
+      },
+    ];
+    overlayCtrl.currentQueueIndex = 0;
+    overlayCtrl.isAutoCallMode.value = false;
+
+    makeDirectCall(number);
   }
 
   void _calculateStatistics(List<LeadContactIdLeadContacts> leads) {
@@ -122,7 +192,6 @@ class LeadsContactController extends GetxController {
     List<LeadContactIdLeadContacts> leads,
   ) {
     final sortedLeads = List<LeadContactIdLeadContacts>.from(leads);
-
     switch (selectedSort.value) {
       case 'name':
         sortedLeads.sort(
@@ -144,15 +213,9 @@ class LeadsContactController extends GetxController {
       case 'status':
         sortedLeads.sort((a, b) => (a.status ?? '').compareTo(b.status ?? ''));
         break;
-      case 'duration':
-        // final durationA = _calculateDuration(a.logs);
-        // final durationB = _calculateDuration(b.logs);
-        // sortedLeads.sort((a, b) => durationB.compareTo(durationA));
-        break;
       default:
         break;
     }
-
     return sortedLeads;
   }
 
@@ -211,12 +274,9 @@ class LeadsContactController extends GetxController {
     return logs.fold<int>(0, (sum, log) => sum + (log.duration ?? 0));
   }
 
-  Future<void> onDropdownSelectedCall(String Value) async {
-    selectedOptionCall.value = Value;
-    print("selected option $Value");
-    // await getleadsbyid();
+  Future<void> onDropdownSelectedCall(String value) async {
+    selectedOptionCall.value = value;
   }
-
 
   Future<void> makeDirectCall(String phoneNumber) async {
     try {

@@ -6,8 +6,11 @@ import 'package:telecaller_app/constants/app_text_style.dart';
 import 'package:telecaller_app/core/controllers/overlay_controller.dart';
 import 'package:telecaller_app/ui/widgets/custom_dropdown_call.dart';
 
-class OverlayPages extends GetView<OverlayController> {
-  final controller = Get.put(OverlayController());
+class OverlayPages extends StatelessWidget {
+  // Use find so we get the existing instance placed by PhoneStatusService
+  final OverlayController controller = Get.find<OverlayController>();
+
+  OverlayPages({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -34,8 +37,9 @@ class OverlayPages extends GetView<OverlayController> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // ── Header ──────────────────────────────────────
                         Text(
-                          "Last Dialed call",
+                          "Last Dialed Call",
                           style: TextStyle(
                             color: AppColors.themeColor.textPrimaryColor,
                             fontSize: 14,
@@ -43,9 +47,9 @@ class OverlayPages extends GetView<OverlayController> {
                           ),
                         ),
 
-                        /// Call Duration
+                        // ── Call Duration ────────────────────────────────
                         Obx(
-                          () => Text(
+                              () => Text(
                             "Call Duration : ${controller.formattedCallLogDuration.value}",
                             style: TextStyle(
                               color: AppColors.themeColor.textPrimaryColor,
@@ -57,6 +61,7 @@ class OverlayPages extends GetView<OverlayController> {
 
                         const SizedBox(height: 15),
 
+                        // ── Avatar + Name + Number ────────────────────────
                         Row(
                           children: [
                             Container(
@@ -67,15 +72,16 @@ class OverlayPages extends GetView<OverlayController> {
                                 ),
                                 shape: BoxShape.circle,
                               ),
-                              child: CircleAvatar(
-                                radius: 30,
-                                backgroundColor: AppColors.themeColor.cardColor,
-                                child: Center(
+                              child: Obx(
+                                    () => CircleAvatar(
+                                  radius: 30,
+                                  backgroundColor:
+                                  AppColors.themeColor.cardColor,
                                   child: Text(
-                                    "R",
-                                    // (controllerhome.lastCalledName.value.isNotEmpty)
-                                    //     ? controllerhome.lastCalledName.value[0].toUpperCase()
-                                    //     : "U",
+                                    controller.lastCalledName.value.isNotEmpty
+                                        ? controller.lastCalledName.value[0]
+                                        .toUpperCase()
+                                        : "?",
                                     style: TextStyle(
                                       fontSize: 30,
                                       color: AppColors.themeColor.primaryColor,
@@ -85,41 +91,40 @@ class OverlayPages extends GetView<OverlayController> {
                                 ),
                               ),
                             ),
-                            SizedBox(width: 8),
-
-                            /// 👇 Wrap Column inside Expanded to avoid overflow
+                            const SizedBox(width: 8),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    "No previous call",
-                                    // controllerhome.lastCalledName.value.isNotEmpty
-                                    //     ? controllerhome.lastCalledName.value
-                                    //     : 'No previous call',
-                                    style: TextStyle(
-                                      fontSize: 16.0,
-                                      fontWeight: FontWeight.w500,
-                                      color:
-                                          AppColors.themeColor.textPrimaryColor,
+                                  Obx(
+                                        () => Text(
+                                      controller.lastCalledName.value.isNotEmpty
+                                          ? controller.lastCalledName.value
+                                          : "No previous call",
+                                      style: TextStyle(
+                                        fontSize: 16.0,
+                                        fontWeight: FontWeight.w500,
+                                        color: AppColors
+                                            .themeColor.textPrimaryColor,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
                                     ),
-                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                  SizedBox(height: 4.0),
-                                  // changed from width to height
-                                  Text(
-                                    "+916355736782",
-
-                                    // controllerhome.lastCalledName.isNotEmpty
-                                    //     ? controllerhome.lastCalledNumber.value ?? ""
-                                    //     : 'No previous call',
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                      color:
-                                          AppColors.themeColor.textPrimaryColor,
+                                  const SizedBox(height: 4.0),
+                                  Obx(
+                                        () => Text(
+                                      controller.lastCalledNumber.value
+                                          .isNotEmpty
+                                          ? controller.lastCalledNumber.value
+                                          : "N/A",
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                        color: AppColors
+                                            .themeColor.textPrimaryColor,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
                                     ),
-                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ],
                               ),
@@ -128,6 +133,8 @@ class OverlayPages extends GetView<OverlayController> {
                         ),
 
                         const SizedBox(height: 15),
+
+                        // ── What happened on call ──────────────────────────
                         Text(
                           "What Happened On Call",
                           style: TextStyle(
@@ -138,8 +145,6 @@ class OverlayPages extends GetView<OverlayController> {
                         ),
                         const SizedBox(height: 10),
 
-                        /// Dropdown
-                        ///
                         CustomDropdown(
                           selectedValue: controller.callDropdownValue,
                           items: controller.leadOptions,
@@ -150,110 +155,83 @@ class OverlayPages extends GetView<OverlayController> {
 
                         const SizedBox(height: 15),
 
+                        // ── Reschedule Date Picker ────────────────────────
                         Obx(
-                          () =>
-                              controller.callDropdownValue.value == "reschedule"
-                                  ? Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                              () => controller.callDropdownValue.value ==
+                              "reschedule"
+                              ? Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Reschedule Call",
+                                style: TextStyle(
+                                  color: AppColors
+                                      .themeColor.textPrimaryColor,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: AppColors.themeColor.bgColor,
+                                  borderRadius:
+                                  BorderRadius.circular(8.0),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 12),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text(
-                                        "Reschedule Call",
-                                        style: TextStyle(
-                                          color:
-                                              AppColors
-                                                  .themeColor
-                                                  .textPrimaryColor,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                      SizedBox(height: 10),
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          color: AppColors.themeColor.bgColor,
-                                          borderRadius: BorderRadius.circular(
-                                            8.0,
+                                      Obx(
+                                            () => Text(
+                                          controller.rescheduleDate.value
+                                              .isEmpty
+                                              ? DateFormat('dd-MM-yyyy')
+                                              .format(
+                                            DateTime.now().add(
+                                              const Duration(
+                                                  days: 1),
+                                            ),
+                                          )
+                                              : DateFormat('dd-MM-yyyy')
+                                              .format(
+                                            DateFormat('yyyy-MM-dd')
+                                                .parse(controller
+                                                .rescheduleDate
+                                                .value),
                                           ),
-                                        ),
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 16,
-                                            vertical: 12,
-                                          ),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Obx(
-                                                () => Text(
-                                                  controller
-                                                          .rescheduleDate
-                                                          .value
-                                                          .isEmpty
-                                                      ? DateFormat(
-                                                        'dd-MM-yyyy',
-                                                      ).format(
-                                                        DateTime.now().add(
-                                                          Duration(days: 1),
-                                                        ),
-                                                      )
-                                                      : DateFormat(
-                                                        'dd-MM-yyyy',
-                                                      ).format(
-                                                        DateFormat(
-                                                          'yyyy-MM-dd',
-                                                        ).parse(
-                                                          controller
-                                                              .rescheduleDate
-                                                              .value,
-                                                        ),
-                                                      ),
-                                                  style: AppTextStyle.medium8
-                                                      .copyWith(
-                                                        color:
-                                                            AppColors
-                                                                .themeColor
-                                                                .textPrimaryColor,
-                                                      ),
-                                                ),
-                                              ),
-                                              InkWell(
-                                                onTap:
-                                                    () => controller.pickDate(
-                                                      context,
-                                                    ),
-                                                child: Icon(
-                                                  Icons.calendar_month,
-                                                  color:
-                                                      AppColors
-                                                          .themeColor
-                                                          .primaryColor,
-                                                ),
-                                              ),
-                                              // InkWell(
-                                              //   onTap: () => controllerhome.statuschange(),
-                                              //   child: Icon(Icons.arrow_back))
-                                            ],
+                                          style: AppTextStyle.medium8
+                                              .copyWith(
+                                            color: AppColors.themeColor
+                                                .textPrimaryColor,
                                           ),
                                         ),
                                       ),
-                                      // SizedBox(height: 10,),
-                                      // Container(
-                                      //   padding: EdgeInsets.only(right: 5),
-                                      //   alignment: Alignment.centerRight,
-                                      //   child: InkWell(
-                                      //             onTap: () => controllerhome.statuschange(),
-                                      //             child: Text("submit")),
-                                      // )
+                                      InkWell(
+                                        onTap: () =>
+                                            controller.pickDate(context),
+                                        child: Icon(
+                                          Icons.calendar_month,
+                                          color: AppColors
+                                              .themeColor.primaryColor,
+                                        ),
+                                      ),
                                     ],
-                                  )
-                                  : Container(),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                            ],
+                          )
+                              : const SizedBox.shrink(),
                         ),
 
-                        /// Redial
                         const SizedBox(height: 10),
 
+                        // ── Edit Contact ──────────────────────────────────
                         InkWell(
                           onTap: () {},
                           child: Row(
@@ -270,7 +248,7 @@ class OverlayPages extends GetView<OverlayController> {
                                   ),
                                 ),
                               ),
-                              SizedBox(width: 5),
+                              const SizedBox(width: 5),
                               Text(
                                 "Edit Contact",
                                 style: TextStyle(
@@ -280,7 +258,9 @@ class OverlayPages extends GetView<OverlayController> {
                             ],
                           ),
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
+
+                        // ── Note ──────────────────────────────────────────
                         InkWell(
                           onTap: () {
                             Get.toNamed('/create-note-page');
@@ -299,7 +279,7 @@ class OverlayPages extends GetView<OverlayController> {
                                   ),
                                 ),
                               ),
-                              SizedBox(width: 5),
+                              const SizedBox(width: 5),
                               Text(
                                 "Note",
                                 style: TextStyle(
@@ -309,35 +289,26 @@ class OverlayPages extends GetView<OverlayController> {
                             ],
                           ),
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
 
-                        SizedBox(height: 10),
+                        // ── Redial + Pause ─────────────────────────────────
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Expanded(
                               child: InkWell(
-                                onTap: () {
-                                  // FlutterPhoneDirectCaller.callNumber(
-                                  //   "+917698085149",
-                                  // );
-
-                                  Get.back();
-                                },
+                                onTap: () => controller.redialLastCall(),
                                 child: Container(
-                                  width: 200,
                                   height: 35,
                                   decoration: BoxDecoration(
                                     color: Colors.blue[500],
                                     borderRadius: BorderRadius.circular(4),
                                   ),
-                                  child: Row(
+                                  child: const Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Icon(
-                                        Icons.threesixty_outlined,
-                                        color: Colors.white,
-                                      ),
+                                      Icon(Icons.threesixty_outlined,
+                                          color: Colors.white),
                                       SizedBox(width: 5),
                                       Text(
                                         "Redial Call",
@@ -352,27 +323,19 @@ class OverlayPages extends GetView<OverlayController> {
                                 ),
                               ),
                             ),
-                            SizedBox(width: 10),
+                            const SizedBox(width: 10),
                             Expanded(
                               child: InkWell(
-                                onTap: () async {
-                                  // controllerhome.getendcall();
-                                  // if (controllerhome.dropdownValue.value ==
-                                  //     "reschedule") {
-                                  // controllerhome.statuschange();
-                                  // }
-
-                                  // Get.back();
-                                  // Get.back();
+                                onTap: () {
+                                  // TODO: implement pause
                                 },
                                 child: Container(
-                                  width: 200,
                                   height: 35,
                                   decoration: BoxDecoration(
                                     color: Colors.orange[400],
                                     borderRadius: BorderRadius.circular(4),
                                   ),
-                                  child: Row(
+                                  child: const Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Icon(Icons.pause, color: Colors.white),
@@ -392,10 +355,12 @@ class OverlayPages extends GetView<OverlayController> {
                             ),
                           ],
                         ),
-                        SizedBox(height: 10),
 
+                        const SizedBox(height: 10),
+
+                        // ── Next Call (with countdown) ──────────────────────
                         InkWell(
-                          onTap: () async {},
+                          onTap: () => controller.onNextCallTapped(),
                           child: Container(
                             width: double.maxFinite,
                             height: 35,
@@ -406,19 +371,33 @@ class OverlayPages extends GetView<OverlayController> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.skip_next, color: Colors.white),
-                                SizedBox(width: 5),
+                                const Icon(Icons.skip_next,
+                                    color: Colors.white),
+                                const SizedBox(width: 5),
                                 Obx(
-                                  () => Text(
-                                    controller.callDropdownValue.value.isEmpty
-                                        ? "Next Call (${controller.countdown.value})"
-                                        : "Next Call",
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.white,
-                                    ),
-                                  ),
+                                      () {
+                                    // In auto mode show countdown, in manual mode just "Next Call"
+                                    if (controller.isAutoCallMode.value &&
+                                        controller
+                                            .callDropdownValue.value.isEmpty) {
+                                      return Text(
+                                        "Next Call (${controller.countdown.value}s)",
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.white,
+                                        ),
+                                      );
+                                    }
+                                    return const Text(
+                                      "Next Call",
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.white,
+                                      ),
+                                    );
+                                  },
                                 ),
                               ],
                             ),
@@ -430,12 +409,13 @@ class OverlayPages extends GetView<OverlayController> {
                 ],
               ),
 
-              /// Close Button
+              // ── Close Button ─────────────────────────────────────────
               Positioned(
                 top: Get.height * .24,
                 right: 0,
                 child: IconButton(
-                  onPressed: () async {
+                  onPressed: () {
+                    controller.stopCountdown(); // stop auto-dial on close
                     Get.back();
                   },
                   icon: Icon(

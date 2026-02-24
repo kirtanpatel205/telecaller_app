@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:telecaller_app/core/models/lead_contact_id_entity.dart';
 import 'package:telecaller_app/ui/widgets/CustomSearchBar.dart';
 import 'package:telecaller_app/ui/widgets/custom-appbar.dart';
-import 'package:telecaller_app/ui/widgets/custom_sortby.dart';
 import 'package:telecaller_app/ui/widgets/custome_icon_button.dart';
 import 'package:telecaller_app/ui/widgets/statusDashboard.dart';
 import 'leadscontact_controller.dart';
@@ -16,93 +15,81 @@ class LeadsContactPage extends GetView<LeadsContactController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
-        title: Text('Leads Contact', style: TextStyle(color: Colors.black)),
+        title: const Text('Leads Contact', style: TextStyle(color: Colors.black)),
       ),
-
       body: Obx(
-        () =>
-            controller.isLoading.value
-                ? const Center(child: CircularProgressIndicator())
-                : Column(
-                  children: [
-                    StatsDashboard(
-                      stats: {
-                        'Total': controller.totalLeadsId.value,
-                        'Completed': controller.completedCount.value,
-                        'Pending': controller.pendingCount.value,
-                        'Scheduled': controller.scheduledCount.value,
-                      },
-                    ),
-                    SizedBox(height: 5),
-                    StatsDashboard(
-                      stats: {
-                        'Interested': controller.interestedCount.value,
-                        'Not Interested': controller.notInterestedCount.value,
-                        'Follow Up': controller.followUpCount.value,
-                        'Invalid': controller.invalidCount.value,
-                        'No Response': controller.noResponseCount.value,
-                      },
-                    ),
-                    CustomSearchBar(),
-
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          CustomActionButton(
-                            title: "Reset",
-                            icon: Icons.refresh,
-                            onTap: () {},
-                          ),
-                          SizedBox(width: 5),
-                          CustomActionButton(
-                            title: "Filter",
-                            icon: Icons.filter,
-                            onTap: () {},
-                          ),
-                          SizedBox(width: 5),
-                          // CustomSortby(
-                          //   items: controller.optionsCall,
-                          //   onChanged: (String value) {
-                          //     controller.onDropdownSelectedCall(value);
-                          //   },
-                          //   selectedItem: controller.selectedOptionCall.value,
-                          // ),
-                          CustomActionButton(
-                            title: "Export",
-                            icon: Icons.import_export,
-                            onTap: () {},
-                            isFullWidth: false,
-                            isPrimary: true,
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    Expanded(child: _buildLeadsTable(context)),
-                  ],
-                ),
+            () => controller.isLoading.value
+            ? const Center(child: CircularProgressIndicator())
+            : Column(
+          children: [
+            StatsDashboard(
+              stats: {
+                'Total': controller.totalLeadsId.value,
+                'Completed': controller.completedCount.value,
+                'Pending': controller.pendingCount.value,
+                'Scheduled': controller.scheduledCount.value,
+              },
+            ),
+            const SizedBox(height: 5),
+            StatsDashboard(
+              stats: {
+                'Interested': controller.interestedCount.value,
+                'Not Interested': controller.notInterestedCount.value,
+                'Follow Up': controller.followUpCount.value,
+                'Invalid': controller.invalidCount.value,
+                'No Response': controller.noResponseCount.value,
+              },
+            ),
+            const CustomSearchBar(),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  CustomActionButton(
+                    title: "Reset",
+                    icon: Icons.refresh,
+                    onTap: () {},
+                  ),
+                  const SizedBox(width: 5),
+                  CustomActionButton(
+                    title: "Filter",
+                    icon: Icons.filter,
+                    onTap: () {},
+                  ),
+                  const SizedBox(width: 5),
+                  CustomActionButton(
+                    title: "Export",
+                    icon: Icons.import_export,
+                    onTap: () {},
+                    isFullWidth: false,
+                    isPrimary: true,
+                  ),
+                ],
+              ),
+            ),
+            Expanded(child: _buildLeadsTable(context)),
+          ],
+        ),
       ),
     );
   }
 
-  // Leads Table
   Widget _buildLeadsTable(BuildContext context) {
     return controller.isLoading.value
         ? const Center(child: CircularProgressIndicator())
         : PagewiseListView<LeadContactIdLeadContacts>(
-          pageLoadController: controller.pagewiseLoadLeadIdController,
-          showRetry: true,
-          noItemsFoundBuilder:
-              (context) => const Center(child: Text('No leads found')),
-          loadingBuilder:
-              (context) => const Center(child: CircularProgressIndicator()),
-          itemBuilder: (context, item, index) => _buildLeadCardMobile(item),
-        );
+      pageLoadController: controller.pagewiseLoadLeadIdController,
+      showRetry: true,
+      noItemsFoundBuilder: (context) =>
+      const Center(child: Text('No leads found')),
+      loadingBuilder: (context) =>
+      const Center(child: CircularProgressIndicator()),
+      itemBuilder: (context, item, index) =>
+          _buildLeadCardMobile(item),
+    );
   }
 
-  // Mobile Card View
   Widget _buildLeadCardMobile(LeadContactIdLeadContacts lead) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -122,7 +109,7 @@ class LeadsContactPage extends GetView<LeadsContactController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Name and Status
+          // Name + Status + Call Now button
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -137,28 +124,31 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                 ),
               ),
               _buildStatusBadge(lead.status ?? 'N/A'),
-              SizedBox(
-                width: 10,
+              const SizedBox(width: 10),
+
+              // ── Show "Call Now" only when buttonShow == true (manual mode) ──
+              Obx(
+                    () => controller.buttonShow.value
+                    ? SizedBox(
+                  width: 100,
+                  height: 33,
+                  child: CustomActionButton(
+                    title: "Call Now",
+                    icon: Icons.call,
+                    isPrimary: true,
+                    onTap: () {
+                      // Uses the manual call flow which sets isAutoCallMode = false
+                      controller.onManualCallTapped(lead);
+                    },
+                  ),
+                )
+                    : const SizedBox.shrink(),
               ),
-
-              Obx(()=>controller.buttonShow.value ?
-              Container(
-                width: 100,
-                height: 33,
-                child: CustomActionButton(
-                  title: "Call Now",
-                  icon: Icons.call,
-                  isPrimary: true,
-
-                  onTap: () {
-                    controller.makeDirectCall(lead.contact!.phone.toString());
-                  },
-                ),
-              ): SizedBox()),
             ],
           ),
+
           const SizedBox(height: 8),
-          // Phone
+
           Row(
             children: [
               const Icon(Icons.phone, size: 14, color: Colors.grey),
@@ -173,7 +163,7 @@ class LeadsContactPage extends GetView<LeadsContactController> {
             ],
           ),
           const SizedBox(height: 6),
-          // Email
+
           Row(
             children: [
               const Icon(Icons.email, size: 14, color: Colors.grey),
@@ -188,7 +178,7 @@ class LeadsContactPage extends GetView<LeadsContactController> {
             ],
           ),
           const SizedBox(height: 8),
-          // Telecaller, Logs, Duration
+
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -196,16 +186,13 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Telecaller',
-                      style: TextStyle(fontSize: 10, color: Colors.grey[600]),
-                    ),
+                    Text('Telecaller',
+                        style:
+                        TextStyle(fontSize: 10, color: Colors.grey[600])),
                     Text(
                       lead.assignedTo?.name ?? 'N/A',
                       style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                      ),
+                          fontSize: 12, fontWeight: FontWeight.w500),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ],
@@ -215,16 +202,13 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Logs',
-                      style: TextStyle(fontSize: 10, color: Colors.grey[600]),
-                    ),
+                    Text('Logs',
+                        style:
+                        TextStyle(fontSize: 10, color: Colors.grey[600])),
                     Text(
                       '${lead.logs?.length ?? 0}',
                       style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                      ),
+                          fontSize: 12, fontWeight: FontWeight.w500),
                     ),
                   ],
                 ),
@@ -233,18 +217,14 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Duration',
-                      style: TextStyle(fontSize: 10, color: Colors.grey[600]),
-                    ),
+                    Text('Duration',
+                        style:
+                        TextStyle(fontSize: 10, color: Colors.grey[600])),
                     Text(
                       controller.formatDuration(
-                        controller.getTotalDuration(lead.logs),
-                      ),
+                          controller.getTotalDuration(lead.logs)),
                       style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                      ),
+                          fontSize: 12, fontWeight: FontWeight.w500),
                     ),
                   ],
                 ),
@@ -256,7 +236,6 @@ class LeadsContactPage extends GetView<LeadsContactController> {
     );
   }
 
-  // Status Badge
   Widget _buildStatusBadge(String status) {
     final color = controller.getStatusColor(status);
     return Container(
@@ -277,21 +256,9 @@ class LeadsContactPage extends GetView<LeadsContactController> {
     );
   }
 
-  // Hex to Color
   Color _hexToColor(String hexColor) {
     final hexString = hexColor.replaceAll('#', '');
     final intValue = int.parse(hexString, radix: 16);
     return Color(intValue | 0xFF000000);
-  }
-
-  // Format Date
-  String _formatDate(String? dateString) {
-    if (dateString == null || dateString.isEmpty) return 'N/A';
-    try {
-      final dateTime = DateTime.parse(dateString);
-      return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
-    } catch (e) {
-      return dateString;
-    }
   }
 }
