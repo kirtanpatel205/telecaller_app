@@ -13,124 +13,13 @@ class AutoDialerPage extends GetView<AutoDialerController> {
     return Scaffold(
       appBar: CustomAppBar(
         leading: SizedBox(),
-        title: Text('Auto Dialer'),
+        title: Text('Auto Dialer',style: TextStyle(color: Colors.blue),),
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(isTablet ? 32.0 : 16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.symmetric(
-                  horizontal: isTablet ? 32 : 16,
-                  vertical: isTablet ? 24 : 16
-              ),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF4DB6AC), Color(0xFF26C6DA)],
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.teal.withOpacity(0.2),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      // Rocket Icon
-                      Container(
-                        padding: EdgeInsets.all(isTablet ? 12.0 : 8.0),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.rocket_launch_outlined,
-                          color: Colors.white,
-                          size: isTablet ? 32 : 24,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-
-                      // Banner Text
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Auto Dialer',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: isTablet ? 32 : 20,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'Poppins',
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Stremline Your Calling Process With Power Dialing',
-                              style: TextStyle(
-                                color: Colors.white70,
-                                fontSize: isTablet ? 16 : 12,
-                                fontFamily: 'Poppins',
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: isTablet ? 0 : 16),
-
-                  // Status Indicator
-                  Align(
-                    alignment: isTablet ? Alignment.centerRight : Alignment.centerLeft,
-                    child: Container(
-                      margin: EdgeInsets.only(left: isTablet ? 0 : 48), // Align with text when on mobile
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            width: 8,
-                            height: 8,
-                            decoration: const BoxDecoration(
-                              color: Colors.grey,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Obx(() => Text(
-                            'Status: ${controller.status.value}',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: isTablet ? 14 : 12,
-                              fontWeight: FontWeight.w500,
-                              fontFamily: 'Poppins',
-                            ),
-                          )),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: isTablet ? 24 : 16),
 
             // Cards Row
             LayoutBuilder(
