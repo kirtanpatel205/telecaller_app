@@ -1092,10 +1092,10 @@ packages:
     dependency: "direct main"
     description:
       name: phone_state
-      sha256: "291f7444e68f9a504afa8c7ceee42a5bbfe7131f059439e4e8d23d9d347f1157"
+      sha256: "2aa408beedafaca1b8d09a2368c067489492cdc0c252387e905a310450f11701"
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.1"
+    version: "3.0.1"
   pin_code_fields:
     dependency: "direct main"
     description:
@@ -1534,5 +1534,5 @@ packages:
     source: hosted
     version: "6.5.0"
 sdks:
-  dart: ">=3.8.0-0 <4.0.0"
+  dart: ">=3.9.2 <4.0.0"
   flutter: ">=3.38.0"
