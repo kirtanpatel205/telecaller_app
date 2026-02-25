@@ -325,24 +325,31 @@ class OverlayPages extends StatelessWidget {
                             ),
                             const SizedBox(width: 10),
                             Expanded(
-                              child: InkWell(
+                              child: Obx(() => InkWell(
                                 onTap: () {
-                                  // TODO: implement pause
+                                  if (controller.isPaused.value) {
+                                    controller.resumeCountdown();
+                                  } else {
+                                    controller.pauseCountdown();
+                                  }
                                 },
                                 child: Container(
                                   height: 35,
                                   decoration: BoxDecoration(
-                                    color: Colors.orange[400],
+                                    color: controller.isPaused.value ? Colors.green[500] : Colors.orange[400],
                                     borderRadius: BorderRadius.circular(4),
                                   ),
-                                  child: const Row(
+                                  child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Icon(Icons.pause, color: Colors.white),
-                                      SizedBox(width: 5),
+                                      Icon(
+                                          controller.isPaused.value ? Icons.play_arrow : Icons.pause,
+                                          color: Colors.white
+                                      ),
+                                      const SizedBox(width: 5),
                                       Text(
-                                        "Pause Call",
-                                        style: TextStyle(
+                                        controller.isPaused.value ? "Resume Call" : "Pause Call",
+                                        style: const TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.w500,
                                           color: Colors.white,
@@ -351,7 +358,7 @@ class OverlayPages extends StatelessWidget {
                                     ],
                                   ),
                                 ),
-                              ),
+                              )),
                             ),
                           ],
                         ),
@@ -359,50 +366,53 @@ class OverlayPages extends StatelessWidget {
                         const SizedBox(height: 10),
 
                         // ── Next Call (with countdown) ──────────────────────
-                        InkWell(
-                          onTap: () => controller.onNextCallTapped(),
-                          child: Container(
-                            width: double.maxFinite,
-                            height: 35,
-                            decoration: BoxDecoration(
-                              color: Colors.green[300],
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(Icons.skip_next,
-                                    color: Colors.white),
-                                const SizedBox(width: 5),
-                                Obx(
-                                      () {
-                                    // In auto mode show countdown, in manual mode just "Next Call"
-                                    if (controller.isAutoCallMode.value &&
-                                        controller
-                                            .callDropdownValue.value.isEmpty) {
-                                      return Text(
-                                        "Next Call (${controller.countdown.value}s)",
-                                        style: const TextStyle(
+                        Obx(() {
+                          if (!controller.isAutoCallMode.value) return const SizedBox.shrink();
+                          
+                          return InkWell(
+                            onTap: () => controller.onNextCallTapped(),
+                            child: Container(
+                              width: double.maxFinite,
+                              height: 35,
+                              decoration: BoxDecoration(
+                                color: Colors.green[300],
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(Icons.skip_next,
+                                      color: Colors.white),
+                                  const SizedBox(width: 5),
+                                  Obx(
+                                        () {
+                                      // In auto mode show countdown
+                                      if (controller
+                                          .callDropdownValue.value.isEmpty) {
+                                        return Text(
+                                          "Auto Next (${controller.countdown.value}s)",
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.white,
+                                          ),
+                                        );
+                                      }
+                                      return const Text(
+                                        "Next Call",
+                                        style: TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.w500,
                                           color: Colors.white,
                                         ),
                                       );
-                                    }
-                                    return const Text(
-                                      "Next Call",
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.white,
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ],
+                                    },
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        ),
+                          );
+                        }),
                       ],
                     ),
                   ),

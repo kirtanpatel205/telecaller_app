@@ -19,7 +19,7 @@ class OverlayController extends GetxController {
   // Entry: { "id": "...", "name": "...", "number": "..." }
   // ─────────────────────────────────────────────
   List<Map<String, String>> callQueue = [];
-  int currentQueueIndex = 0;
+  final currentQueueIndex = 0.obs;
   RxBool isAutoCallMode = false.obs;
 
   // Current lead info for API update
@@ -43,7 +43,8 @@ class OverlayController extends GetxController {
 
   void onDropdownChange(String value) {
     callDropdownValue.value = value;
-    stopCountdown(); // user selecting = auto countdown band
+    pauseCountdown(); // Ensure it pauses when a selection is made
+    print("⏸️ Timer paused due to selection: $value");
   }
 
   final rescheduleDate = "".obs;
@@ -56,6 +57,7 @@ class OverlayController extends GetxController {
       lastDate: DateTime(2100),
     );
     if (picked != null) {
+      pauseCountdown(); // Stop timer if user is rescheduling
       rescheduleDate.value =
           "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
     }
@@ -65,30 +67,58 @@ class OverlayController extends GetxController {
   // COUNTDOWN
   // ─────────────────────────────────────────────
   final countdown = 10.obs;
+  final isPaused = false.obs;
   Timer? _countdownTimer;
 
-  void startCountdown() {
+  // States for countdown
+  bool _isPreCallMode = false;
+
+  void startCountdown({int seconds = 10, bool isPreCall = false}) {
     stopCountdown();
-    countdown.value = 10;
-    callDropdownValue.value = ""; // navin call mate dropdown reset
+    _isPreCallMode = isPreCall;
+    isPaused.value = false;
+    countdown.value = seconds;
+    
+    if (!isPreCall) {
+      callDropdownValue.value = ""; // navin call mate dropdown reset
+    }
 
     // ✅ Auto mode ma j countdown shuru thay
     if (!isAutoCallMode.value) return;
 
     _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (isPaused.value) return; // Wait if paused
+
       if (countdown.value > 0) {
         countdown.value--;
       } else {
         timer.cancel();
-        // ✅ Countdown 0 thay = API update + next dial
-        _updateAndDialNext();
+        if (_isPreCallMode) {
+          _actuallyDialNext();
+        } else {
+          // ✅ Countdown 0 thay = API update + next dial
+          _updateAndDialNext();
+        }
       }
     });
   }
 
+  void pauseCountdown() {
+    print("⏸️ Auto-dialer Paused");
+    isPaused.value = true;
+  }
+
+  void resumeCountdown() {
+    print("▶️ Auto-dialer Resumed");
+    isPaused.value = false;
+  }
+
   void stopCountdown() {
+    print("🛑 Auto-dialer Stopped");
     _countdownTimer?.cancel();
     _countdownTimer = null;
+    isPaused.value = false;
+    countdown.value = 0; 
   }
 
   // ─────────────────────────────────────────────
@@ -119,7 +149,9 @@ class OverlayController extends GetxController {
       "✅ onCallEnded: number=$calledNumber | name=${lastCalledName.value} | id=$_currentLeadId",
     );
 
-    startCountdown();
+    // After call ends, overlay shows up. 
+    // currentQueueIndex is already pointing to the NEXT person.
+    startCountdown(seconds: 10, isPreCall: false);
   }
 
   // ✅ Last 10 digits compare — country code difference handle kare
@@ -144,11 +176,13 @@ class OverlayController extends GetxController {
   // NEXT CALL — User manually taps button
   // ─────────────────────────────────────────────
   Future<void> onNextCallTapped() async {
-    stopCountdown();
+    // Resume/Stop the overlay countdown and move to pre-call phase
+    _countdownTimer?.cancel();
+    _countdownTimer = null;
     await _updateAndDialNext();
   }
 
-  // ✅ API update PACHHI next dial
+  // ✅ API update PACHHI next dial prepare karo
   Future<void> _updateAndDialNext() async {
     if (_currentLeadId.isNotEmpty) {
       await updateLeadStatus(
@@ -156,46 +190,70 @@ class OverlayController extends GetxController {
         durationInSeconds: _currentDurationSeconds,
       );
     }
-    _dialNextInQueue();
+    _prepareNextCall();
   }
 
-  void _dialNextInQueue() {
+  void _prepareNextCall() {
     print(
-      "Queue length: ${callQueue.length}, currentIndex: $currentQueueIndex",
+      "Queue length: ${callQueue.length}, currentIndex: ${currentQueueIndex.value}",
     );
 
-    if (currentQueueIndex >= callQueue.length) {
+    if (currentQueueIndex.value >= callQueue.length) {
       // ✅ Badhi calls complete
-      Get.back();
-      Get.snackbar(
-        "Completed",
-        "All calls completed!",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green[400],
-        colorText: Colors.white,
-        duration: const Duration(seconds: 3),
-      );
+      _finishQueue();
       return;
     }
 
-    final next = callQueue[currentQueueIndex];
+    // Close overlay first
+    if (Get.isOverlaysOpen) {
+      Get.back();
+    }
+
+    // Start 5s pre-call countdown
+    print("⏳ Starting 5s pre-call countdown...");
+    // Force reset countdown to 5 and start it
+    countdown.value = 5; 
+    startCountdown(seconds: 5, isPreCall: true);
+  }
+
+  void _actuallyDialNext() {
+    if (currentQueueIndex.value >= callQueue.length) {
+      _finishQueue();
+      return;
+    }
+
+    final next = callQueue[currentQueueIndex.value];
     final number = next["number"] ?? "";
     print("➡️ Next call: ${next['name']} | $number");
-    currentQueueIndex++;
-
-    Get.back(); // dialog band karo
+    
+    currentQueueIndex.value++;
 
     if (number.isNotEmpty) {
-      Future.delayed(const Duration(milliseconds: 400), () {
-        makeDirectCall(number);
-      });
+      makeDirectCall(number);
     }
+  }
+
+  void _finishQueue() {
+    isAutoCallMode.value = false;
+    stopCountdown();
+    if (Get.isOverlaysOpen) {
+      Get.back();
+    }
+    Get.snackbar(
+      "Completed",
+      "All calls completed!",
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.green[400],
+      colorText: Colors.white,
+      duration: const Duration(seconds: 3),
+    );
   }
 
   // ─────────────────────────────────────────────
   // REDIAL
   // ─────────────────────────────────────────────
   void redialLastCall() {
+    stopCountdown(); // Stop auto-progression on manual redial
     final number = lastCalledNumber.value;
     if (number.isNotEmpty) {
       Get.back();

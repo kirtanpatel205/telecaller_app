@@ -91,10 +91,19 @@ class LeadsController extends GetxController {
   // id arguments
 
   LedadContectId({String id = '', bool buttonShow = false}) {
-    print("LeadContact id $id");
-    Get.toNamed(
-      Routes.LEADSCONTACT,
-      arguments: {"id": id, "buttonShow":buttonShow},
-    );
+    print("LeadContact id $id, buttonShow $buttonShow");
+    if (!buttonShow) {
+      // For auto mode, go to Auto Dialer
+      Get.toNamed(
+        Routes.AUTO_DIAL,
+        arguments: {"id": id},
+      );
+    } else {
+      // For manual mode, go to Leads Contact
+      Get.toNamed(
+        Routes.LEADSCONTACT,
+        arguments: {"id": id, "buttonShow": true},
+      );
+    }
   }
 }
