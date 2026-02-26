@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "626864530224",
+    "project_id": "dbm-telecaller",
+    "storage_bucket": "dbm-telecaller.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:626864530224:android:f6b51f7a782de4a55bdef5",
+        "android_client_info": {
+          "package_name": "com.digibulkmarketing.telecaller_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCX4eUsWYS4sXhLLyxSVaB8UU5a85Py6-E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

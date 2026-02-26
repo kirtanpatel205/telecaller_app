@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:ui';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -11,6 +12,7 @@ import 'package:telecaller_app/constants/app_pages.dart';
 import 'package:telecaller_app/constants/app_routes.dart';
 import 'package:telecaller_app/constants/app_strings.dart';
 import 'package:telecaller_app/constants/app_theme.dart';
+import 'package:telecaller_app/firebase_options.dart';
 import 'package:telecaller_app/ui/views/splash/splash_binding.dart';
 import 'package:telecaller_app/ui/views/splash/splash_page.dart';
 import 'core/helpers/initializer.dart';
@@ -20,6 +22,9 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // ==================== FIREBASE INIT ====================
+Firebase.initializeApp(
+  options: DefaultFirebaseOptions.currentPlatform
+);
 
   // ==================== GESTURE RESAMPLING ====================
   GestureBinding.instance.resamplingEnabled = true;
@@ -68,7 +73,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     super.dispose();
   }
 
-  @override
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.sizeOf(context);

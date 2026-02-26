@@ -1,4 +1,4 @@
-package com.example.telecaller_app
+package com.digibulkmarketing.telecaller_app
 
 import io.flutter.embedding.android.FlutterActivity
 
