@@ -1,14 +1,216 @@
+import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:get/get.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:telecaller_app/constants/app_constants.dart';
 import 'package:telecaller_app/core/helpers/storage.dart';
+import 'package:telecaller_app/firebase_options.dart';
+import 'package:android_intent_plus/android_intent.dart';
+import 'package:android_intent_plus/flag.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import 'api_service.dart';
+
+@pragma('vm:entry-point')
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // Initialize notifications for background
+  final FlutterLocalNotificationsPlugin localNotif =
+      FlutterLocalNotificationsPlugin();
+  const AndroidInitializationSettings initializationSettingsAndroid =
+      AndroidInitializationSettings('ic_launcher');
+  const InitializationSettings initializationSettings = InitializationSettings(
+    android: initializationSettingsAndroid,
+  );
+  await localNotif.initialize(initializationSettings);
+
+  const AndroidNotificationChannel channel = AndroidNotificationChannel(
+    'high_importance_channel',
+    'High Importance Notifications',
+    importance: Importance.max,
+    playSound: true,
+    enableVibration: true,
+  );
+  await localNotif
+      .resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin
+      >()
+      ?.createNotificationChannel(channel);
+
+  print('Handling a background message ${message.messageId}');
+  _handleNotificationPayload(message, localNotif, channel);
+}
+
+void _handleNotificationPayload(
+  RemoteMessage message, [
+  FlutterLocalNotificationsPlugin? localNotif,
+  AndroidNotificationChannel? channel,
+]) {
+  print('Processing message: ${message.messageId}');
+  final data = message.data;
+  final notification = message.notification;
+
+  print('Message Data: $data');
+
+  String title = notification?.title ?? data['title'] ?? 'Auto Call';
+  String body = notification?.body ?? data['body'] ?? 'Incoming Auto Call Task';
+
+  // Extract from 'message' key if it's a map or JSON string
+  if (data.containsKey('message')) {
+    try {
+      var msgContent = data['message'];
+      if (msgContent is String && msgContent.startsWith('{')) {
+        var decoded = json.decode(msgContent);
+        title = decoded['title'] ?? title;
+        body = decoded['body'] ?? body;
+      } else if (msgContent is Map) {
+        title = msgContent['title'] ?? title;
+        body = msgContent['body'] ?? body;
+      }
+    } catch (e) {
+      print('Error parsing message content for display: $e');
+    }
+  }
+
+  print('Final Notification Title: $title, Body: $body');
+
+  // Show notification if we have the plugin (usually in background)
+  if (localNotif != null && channel != null) {
+    localNotif.show(
+      message.messageId.hashCode,
+      title,
+      body,
+      NotificationDetails(
+        android: AndroidNotificationDetails(
+          channel.id,
+          channel.name,
+          importance: Importance.max,
+          priority: Priority.high,
+          icon: 'ic_launcher',
+          fullScreenIntent: true,
+          ongoing: true,
+          autoCancel: true,
+        ),
+      ),
+    );
+  }
+
+  String? phoneNumber;
+
+  // 1. Try common keys in a flat map
+  List<String> keys = [
+    'phone_number',
+    'phoneNumber',
+    'phone',
+    'number',
+    'mobile',
+  ];
+  for (var key in keys) {
+    if (data.containsKey(key)) {
+      phoneNumber = data[key]?.toString();
+      break;
+    }
+  }
+
+  // 2. If not found, check if there's a nested 'message' object (like in user's example)
+  if (phoneNumber == null && data.containsKey('message')) {
+    try {
+      var messageContent = data['message'];
+      if (messageContent is String) {
+        // Try parsing as JSON if it's a string
+        var decoded = json.decode(messageContent);
+        if (decoded is Map) {
+          phoneNumber =
+              (decoded['phoneNumber'] ??
+                      decoded['phone_number'] ??
+                      decoded['phone'])
+                  ?.toString();
+        }
+      } else if (messageContent is Map) {
+        phoneNumber =
+            (messageContent['phoneNumber'] ??
+                    messageContent['phone_number'] ??
+                    messageContent['phone'])
+                ?.toString();
+      }
+    } catch (e) {
+      print('Error parsing nested message data: $e');
+    }
+  }
+
+  // 3. Fallback: Search ALL values in data map for something that looks like a phone number
+  if (phoneNumber == null) {
+    RegExp phoneRegex = RegExp(r'\+?[0-9]{10,15}');
+    for (var value in data.values) {
+      String valStr = value.toString();
+      Match? match = phoneRegex.firstMatch(valStr);
+      if (match != null) {
+        phoneNumber = match.group(0);
+        print('Extracted phone number from data value "$valStr": $phoneNumber');
+        break;
+      }
+    }
+  }
+
+  // 4. Fallback: Search notification body
+  if (phoneNumber == null && notification?.body != null) {
+    RegExp phoneRegex = RegExp(r'\+?[0-9]{10,15}');
+    Match? match = phoneRegex.firstMatch(notification!.body!);
+    if (match != null) {
+      phoneNumber = match.group(0);
+      print('Extracted phone number from notification body: $phoneNumber');
+    }
+  }
+
+  if (phoneNumber != null && phoneNumber.isNotEmpty) {
+    print('Starting 10-second auto-call countdown for $phoneNumber');
+
+    Timer(const Duration(seconds: 10), () async {
+      print('Initiating auto-call to $phoneNumber now');
+      try {
+        if (Platform.isAndroid) {
+          // Check permissions first
+          final callStatus = await Permission.phone.status;
+          final alertStatus = await Permission.systemAlertWindow.status;
+          print('Permissions: CALL_PHONE=$callStatus, SYSTEM_ALERT_WINDOW=$alertStatus');
+
+          print('Launching CallActivity proxy for background call');
+          final intent = AndroidIntent(
+            action: 'android.intent.action.MAIN',
+            package: 'com.digibulkmarketing.telecaller_app',
+            componentName: 'com.digibulkmarketing.telecaller_app.CallActivity',
+            arguments: <String, dynamic>{'phoneNumber': phoneNumber},
+            flags: <int>[Flag.FLAG_ACTIVITY_NEW_TASK],
+          );
+          await intent.launch();
+          print('CallActivity intent sent successfully');
+        } else {
+          bool? res = await FlutterPhoneDirectCaller.callNumber(phoneNumber!);
+          print('Call initiated result: $res');
+        }
+      } catch (e) {
+        print('Error launching CallActivity: $e');
+        // Final fallback to direct caller if proxy fails
+        try {
+          print('Attempting fallback to FlutterPhoneDirectCaller');
+          await FlutterPhoneDirectCaller.callNumber(phoneNumber!);
+        } catch (e2) {
+          print('Final fallback failed: $e2');
+        }
+      }
+    });
+  } else {
+    print('No phone number found anywhere in message payload');
+  }
+}
 
 class FCMService extends GetxService {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
@@ -35,7 +237,9 @@ class FCMService extends GetxService {
     flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
     await flutterLocalNotificationsPlugin!
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >()
         ?.createNotificationChannel(channel!);
   }
 
@@ -46,22 +250,19 @@ class FCMService extends GetxService {
     }
     print('FCM Token: $token');
     await Storage.saveValue(AppConstants.FCM_TOKEN, token);
-    String? authToken = await Storage.getValue(AppConstants.TOKEN);
-    if (authToken == null || authToken.isEmpty) {
-      print("No auth token available, skipping FCM token save");
-      return;
-    }
-    try {
-     await api.saveFCMToken(token);
-      print("FCM token saved successfully");
-    } catch (e) {
-      print("Failed to save FCM token: $e");
-    }
-  }
 
-  Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-    await Firebase.initializeApp();
-    print('Handling a background message ${message.messageId}');
+    // Always attempt to save to API if we have an auth token
+    String? authToken = await Storage.getValue(AppConstants.TOKEN);
+    if (authToken != null && authToken.isNotEmpty) {
+      try {
+        await api.saveFCMToken(token);
+        print("FCM token saved successfully to API");
+      } catch (e) {
+        print("Failed to save FCM token to API: $e");
+      }
+    } else {
+      print("Auth token missing, FCM token saved locally only");
+    }
   }
 
   Future<void> _initOneSignal() async {
@@ -83,27 +284,16 @@ class FCMService extends GetxService {
     });
 
     OneSignal.Notifications.addForegroundWillDisplayListener((event) {
-      print('Notification Will Display: ${event.notification.jsonRepresentation()}');
+      print(
+        'Notification Will Display: ${event.notification.jsonRepresentation()}',
+      );
       event.notification.display();
     });
 
-    OneSignal.InAppMessages.addClickListener((event) {
-      print("In App Message Clicked: ${event.result.jsonRepresentation()}");
-    });
-    OneSignal.InAppMessages.addWillDisplayListener((event) {
-      print("In App Message Will Display: ${event.message.messageId}");
-    });
-    OneSignal.InAppMessages.addDidDisplayListener((event) {
-      print("In App Message Displayed: ${event.message.messageId}");
-    });
-    OneSignal.InAppMessages.addWillDismissListener((event) {
-      print("In App Message Will Dismiss: ${event.message.messageId}");
-    });
-    OneSignal.InAppMessages.addDidDismissListener((event) {
-      print("In App Message Dismissed: ${event.message.messageId}");
-    });
-
-    OneSignal.User.addTagWithKey("platform", Platform.isAndroid ? "android" : "ios");
+    OneSignal.User.addTagWithKey(
+      "platform",
+      Platform.isAndroid ? "android" : "ios",
+    );
   }
 
   void initFCM() async {
@@ -119,19 +309,26 @@ class FCMService extends GetxService {
       sound: true,
     );
 
-    FirebaseMessaging.instance.getInitialMessage().then((RemoteMessage? message) {
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+
+    FirebaseMessaging.instance.getInitialMessage().then((
+      RemoteMessage? message,
+    ) {
       if (message != null) {
         print("Initial Message: ${message.messageId}");
+        _handleNotificationPayload(message);
       }
     });
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       print('Foreground Message: ${message.messageId}');
+      _handleNotificationPayload(message);
       showNotification(message);
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       print('Message Opened App: ${message.data}');
+      _handleNotificationPayload(message);
     });
 
     Stream<String> tokenStream = FirebaseMessaging.instance.onTokenRefresh;
@@ -144,16 +341,6 @@ class FCMService extends GetxService {
     RemoteNotification? notification = message.notification;
     if (notification == null) return;
 
-    String? image;
-    AndroidNotification? android = message.notification?.android;
-    AppleNotification? apple = message.notification?.apple;
-
-    if (Platform.isAndroid && android?.imageUrl != null) {
-      image = android!.imageUrl;
-    } else if (Platform.isIOS && apple?.imageUrl != null) {
-      image = apple!.imageUrl;
-    }
-
     flutterLocalNotificationsPlugin!.show(
       notification.hashCode,
       notification.title,
@@ -163,7 +350,7 @@ class FCMService extends GetxService {
           channel!.id,
           channel!.name,
           channelDescription: channel!.description,
-          icon: 'logo',
+          icon: 'ic_launcher',
         ),
       ),
     );
@@ -186,26 +373,20 @@ class FCMService extends GetxService {
       try {
         if (Platform.isAndroid || Platform.isIOS) {
           fcmToken = await FirebaseMessaging.instance.getToken();
-          if (Platform.isIOS) {
-            String? apnToken = await FirebaseMessaging.instance.getAPNSToken();
-            print("APNs Token: $apnToken");
-          }
         }
         if (fcmToken != null) {
           await setToken(fcmToken);
           return;
         } else {
-          print("FCM Token not available, retrying (${retryCount + 1}/$maxRetries)");
+          print(
+            "FCM Token not available, retrying (${retryCount + 1}/$maxRetries)",
+          );
           retryCount++;
           await Future.delayed(Duration(seconds: 3));
         }
       } catch (e) {
         print("Error fetching FCM token: $e");
         retryCount++;
-        if (retryCount >= maxRetries) {
-          print("Max retries reached, giving up");
-          break;
-        }
         await Future.delayed(Duration(seconds: 3));
       }
     }

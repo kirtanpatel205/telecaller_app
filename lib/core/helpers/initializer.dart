@@ -53,6 +53,8 @@ class Initializer {
 
       await Get.put<ApiService>(ApiService()).init();
       await Get.putAsync<AuthController>(() async => AuthController());
+      await Get.putAsync<FCMService>(() async => FCMService());
+
       // await Get.putAsync<FCMService>(() async => FCMService());
       await Get.putAsync<PhoneStatusService>(
             () async => await PhoneStatusService().init(),

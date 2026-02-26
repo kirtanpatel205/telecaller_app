@@ -15,16 +15,30 @@ import 'package:telecaller_app/constants/app_theme.dart';
 import 'package:telecaller_app/firebase_options.dart';
 import 'package:telecaller_app/ui/views/splash/splash_binding.dart';
 import 'package:telecaller_app/ui/views/splash/splash_page.dart';
+import 'package:telecaller_app/core/services/background_service_manager.dart';
+import 'package:telecaller_app/core/services/fcm_service.dart';
 import 'core/helpers/initializer.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 final logger = Logger();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // ==================== FIREBASE INIT ====================
-Firebase.initializeApp(
-  options: DefaultFirebaseOptions.currentPlatform
-);
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform
+  );
+
+  // Register FCM background handler at the very top
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+
+  // ==================== BACKGROUND SERVICE ====================
+  try {
+    await BackgroundServiceManager.initializeService();
+    logger.i("✅ Background service initialized");
+  } catch (e) {
+    logger.e("❌ Background service error: $e");
+  }
 
   // ==================== GESTURE RESAMPLING ====================
   GestureBinding.instance.resamplingEnabled = true;
