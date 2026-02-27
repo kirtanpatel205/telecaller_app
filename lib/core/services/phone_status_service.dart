@@ -107,6 +107,8 @@ class PhoneStatusService extends GetxService {
 
           phoneNumber.value = "";
 
+          Future.delayed(Duration(seconds: 10));
+
           _showOverlayAfterCall(number: endedNumber, duration: callDuration);
           break;
 

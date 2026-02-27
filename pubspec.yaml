@@ -52,7 +52,7 @@ dependencies:
   get_storage: ^2.1.1
 
   # background_service
-#  flutter_background_service: ^5.1.0
+  flutter_background_service: ^5.0.10
 
 #  call_log: ^6.0.1
 

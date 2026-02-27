@@ -15,6 +15,7 @@ import 'package:telecaller_app/constants/app_colors.dart';
 import 'package:telecaller_app/constants/app_routes.dart';
 import 'package:telecaller_app/constants/app_text_style.dart';
 import 'package:telecaller_app/core/helpers/storage.dart';
+import 'package:telecaller_app/core/services/background_service_manager.dart';
 
 import '../home/home_controller.dart';
 
@@ -228,6 +229,59 @@ class SettingPage extends GetView<HomeController> {
                       SizedBox(
                         height: 10,
                       ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Text(
+                        "Background Reliability",
+                        style: AppTextStyle.bold7.copyWith(
+                            color: AppColors.themeColor.primaryColor, fontSize: 16),
+                      ),
+                      SizedBox(height: 10),
+                      Container(
+                        padding: EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(15),
+                          border: Border.all(color: Colors.blue.withOpacity(0.3)),
+                        ),
+                        child: Column(
+                          children: [
+                            Text(
+                              "To ensure 24/7 auto-calling works correctly, please disable battery optimization and enable 'Auto-start' for this app.",
+                              style: TextStyle(fontSize: 12),
+                            ),
+                            SizedBox(height: 15),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                ElevatedButton.icon(
+                                  onPressed: () => BackgroundServiceManager.requestBatteryOptimizationExclusion(),
+                                  icon: Icon(Icons.battery_alert, size: 18),
+                                  label: Text("Disable Battery Optimization", style: TextStyle(fontSize: 10)),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.blue,
+                                    foregroundColor: Colors.white,
+                                    padding: EdgeInsets.symmetric(horizontal: 10),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 10),
+                            ElevatedButton.icon(
+                              onPressed: () => BackgroundServiceManager.openManufacturerSettings(),
+                              icon: Icon(Icons.settings_applications, size: 18),
+                              label: Text("Open Manufacturer Settings (Auto-start)", style: TextStyle(fontSize: 10)),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.orange,
+                                foregroundColor: Colors.white,
+                                padding: EdgeInsets.symmetric(horizontal: 10),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 20),
                       InkWell(
                         onTap: () {
                           Storage.clearStorage();

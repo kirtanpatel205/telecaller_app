@@ -125,24 +125,18 @@ class LeadsContactPage extends GetView<LeadsContactController> {
               ),
               _buildStatusBadge(lead.status ?? 'N/A'),
               const SizedBox(width: 10),
-
-              // ── Show "Call Now" only when buttonShow == true (manual mode) ──
-              Obx(
-                    () => controller.buttonShow.value
-                    ? SizedBox(
-                  width: 100,
-                  height: 33,
-                  child: CustomActionButton(
-                    title: "Call Now",
-                    icon: Icons.call,
-                    isPrimary: true,
-                    onTap: () {
-                      // Uses the manual call flow which sets isAutoCallMode = false
-                      controller.onManualCallTapped(lead);
-                    },
-                  ),
-                )
-                    : const SizedBox.shrink(),
+              SizedBox(
+                width: 100,
+                height: 33,
+                child: CustomActionButton(
+                  title: "Call Now",
+                  icon: Icons.call,
+                  isPrimary: true,
+                  onTap: () {
+                    // Uses the manual call flow which sets isAutoCallMode = false
+                    controller.onManualCallTapped(lead);
+                  },
+                ),
               ),
             ],
           ),
@@ -188,7 +182,7 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                   children: [
                     Text('Telecaller',
                         style:
-                        TextStyle(fontSize: 10, color: Colors.grey[600])),
+                        TextStyle(fontSize: 10, color: Colors.blueGrey[600])),
                     Text(
                       lead.assignedTo?.name ?? 'N/A',
                       style: const TextStyle(
@@ -204,7 +198,7 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                   children: [
                     Text('Logs',
                         style:
-                        TextStyle(fontSize: 10, color: Colors.grey[600])),
+                        TextStyle(fontSize: 10, color: Colors.blueGrey[600])),
                     Text(
                       '${lead.logs?.length ?? 0}',
                       style: const TextStyle(
