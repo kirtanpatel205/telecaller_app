@@ -95,7 +95,7 @@ void _handleNotificationPayload(
           importance: Importance.max,
           priority: Priority.high,
           icon: 'ic_launcher',
-          fullScreenIntent: true,
+          fullScreenIntent: false,
           ongoing: true,
           autoCancel: true,
         ),
@@ -182,12 +182,14 @@ void _handleNotificationPayload(
           final alertStatus = await Permission.systemAlertWindow.status;
           print('Permissions: CALL_PHONE=$callStatus, SYSTEM_ALERT_WINDOW=$alertStatus');
 
-          print('Launching CallActivity proxy for background call');
+          print('Launching translucent CallActivity for background call');
           final intent = AndroidIntent(
             action: 'android.intent.action.MAIN',
             package: 'com.digibulkmarketing.telecaller_app',
             componentName: 'com.digibulkmarketing.telecaller_app.CallActivity',
-            arguments: <String, dynamic>{'phoneNumber': phoneNumber},
+            arguments: <String, dynamic>{
+              'phoneNumber': phoneNumber,
+            },
             flags: <int>[Flag.FLAG_ACTIVITY_NEW_TASK],
           );
           await intent.launch();
