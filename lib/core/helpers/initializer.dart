@@ -14,6 +14,7 @@ import 'package:telecaller_app/core/helpers/storage.dart';
 import 'package:telecaller_app/core/services/api_service.dart';
 import 'package:telecaller_app/core/services/fcm_service.dart';
 import 'package:telecaller_app/core/services/phone_status_service.dart';
+import 'package:telecaller_app/core/services/background_service_manager.dart';
 
 class Initializer {
   static final Initializer instance = Initializer._internal();
@@ -59,6 +60,9 @@ class Initializer {
       await Get.putAsync<PhoneStatusService>(
             () async => await PhoneStatusService().init(),
       );
+
+      // Request background reliability permissions
+      await BackgroundServiceManager.requestBatteryOptimizationExclusion();
 
 
 

@@ -7,6 +7,11 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:telecaller_app/firebase_options.dart';
 
+import 'package:permission_handler/permission_handler.dart';
+import 'package:android_intent_plus/android_intent.dart';
+import 'package:android_intent_plus/flag.dart';
+import 'dart:io';
+
 @pragma('vm:entry-point')
 class BackgroundServiceManager {
   static Future<void> initializeService() async {
@@ -46,6 +51,41 @@ class BackgroundServiceManager {
     );
 
     service.startService();
+  }
+
+  static Future<void> requestBatteryOptimizationExclusion() async {
+    if (Platform.isAndroid) {
+      var status = await Permission.ignoreBatteryOptimizations.status;
+      if (status.isDenied) {
+        await Permission.ignoreBatteryOptimizations.request();
+      }
+    }
+  }
+
+  static Future<void> openManufacturerSettings() async {
+    if (Platform.isAndroid) {
+      // Common OEM settings intents
+      final intents = [
+        // Xiaomi
+        const AndroidIntent(
+          action: 'android.settings.APPLICATION_DETAILS_SETTINGS',
+          data: 'package:com.digibulkmarketing.telecaller_app',
+        ),
+        // General Battery Optimization
+        const AndroidIntent(
+          action: 'android.settings.IGNORE_BATTERY_OPTIMIZATION_SETTINGS',
+        ),
+      ];
+
+      for (var intent in intents) {
+        try {
+          await intent.launch();
+          break;
+        } catch (e) {
+          print("Failed to launch intent: $e");
+        }
+      }
+    }
   }
 }
 
