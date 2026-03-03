@@ -10,6 +10,7 @@ import 'package:telecaller_app/constants/app_constants.dart';
 import 'package:telecaller_app/core/models/all_lead_entity.dart';
 import 'package:telecaller_app/core/models/api_response_entity.dart';
 import 'package:telecaller_app/core/models/call_lead_update_response_entity.dart';
+import 'package:telecaller_app/core/models/get_static_entity.dart';
 import 'package:telecaller_app/core/models/lead_contact_id_entity.dart';
 import 'package:telecaller_app/core/models/login_response_entity.dart';
 
@@ -199,6 +200,13 @@ class ApiService extends GetxService {
     return CallLeadUpdateResponseEntity.fromJson(response);
   }
 
+  Future<GetStaticEntity> DashboardStastics() async {
+    Map<String, dynamic> response = await client.get(
+      AppConstants.API_GET_DASHBOARD_STATISTICS,
+    );
+    print("response details ${response}");
+    return GetStaticEntity.fromJson(response);
+  }
 
 
 

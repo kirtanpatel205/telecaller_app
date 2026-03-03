@@ -68,7 +68,7 @@ dependencies:
   flutter_screenutil: ^5.9.3
   animated_theme_switcher: ^2.0.10
   intl_phone_field2: ^3.3.4
-  bounce: ^1.0.0
+  bounce: ^1.0.2
   week_of_year: ^2.2.0
   auto_size_text: ^3.0.0
   grouped_list: ^5.1.2

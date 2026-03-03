@@ -7,6 +7,7 @@ import 'package:flutter/material.dart' show debugPrint;
 import 'package:telecaller_app/core/models/all_lead_entity.dart';
 import 'package:telecaller_app/core/models/api_response_entity.dart';
 import 'package:telecaller_app/core/models/call_lead_update_response_entity.dart';
+import 'package:telecaller_app/core/models/get_static_entity.dart';
 import 'package:telecaller_app/core/models/lead_contact_id_entity.dart';
 import 'package:telecaller_app/core/models/login_response_entity.dart';
 
@@ -198,6 +199,14 @@ class JsonConvert {
           Map<String, dynamic> e) => CallLeadUpdateResponseDataLogs.fromJson(e))
           .toList() as M;
     }
+    if (<GetStaticEntity>[] is M) {
+      return data.map<GetStaticEntity>((Map<String, dynamic> e) =>
+          GetStaticEntity.fromJson(e)).toList() as M;
+    }
+    if (<GetStaticStatistics>[] is M) {
+      return data.map<GetStaticStatistics>((Map<String, dynamic> e) =>
+          GetStaticStatistics.fromJson(e)).toList() as M;
+    }
     if (<LeadContactIdEntity>[] is M) {
       return data.map<LeadContactIdEntity>((Map<String, dynamic> e) =>
           LeadContactIdEntity.fromJson(e)).toList() as M;
@@ -283,6 +292,8 @@ class JsonConvertClassCollection {
         .toString(): CallLeadUpdateResponseDataContact.fromJson,
     (CallLeadUpdateResponseDataLogs).toString(): CallLeadUpdateResponseDataLogs
         .fromJson,
+    (GetStaticEntity).toString(): GetStaticEntity.fromJson,
+    (GetStaticStatistics).toString(): GetStaticStatistics.fromJson,
     (LeadContactIdEntity).toString(): LeadContactIdEntity.fromJson,
     (LeadContactIdLeadContacts).toString(): LeadContactIdLeadContacts.fromJson,
     (LeadContactIdLeadContactsAssignedTo)
