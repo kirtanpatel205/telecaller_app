@@ -133,7 +133,9 @@ class DashboardPage extends GetView<HomeController> {
               const SizedBox(height: 24),
               _buildCallsSection(context),
               const SizedBox(height: 24),
-              _buildBottomAnalytics(context),
+              _buildBottomAnalyticsChart1(context),
+              const SizedBox(height: 24),
+              _buildBottomAnalyticsChart2(context),
               const SizedBox(height: 24),
             ],
           ),
@@ -492,7 +494,7 @@ class DashboardPage extends GetView<HomeController> {
     );
   }
 
-  Widget _buildBottomAnalytics(BuildContext context) {
+  Widget _buildBottomAnalyticsChart1(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
         bool isMobile = constraints.maxWidth < 800;
@@ -502,321 +504,13 @@ class DashboardPage extends GetView<HomeController> {
           children: [
             Expanded(
               flex: isMobile ? 0 : 2,
-              child: Container(
-                height: 350,
-                width: isMobile ? double.infinity : null,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.shade200),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Calls Over Time",
-                          style: AppTextStyle.semiBold8.copyWith(fontSize: 16),
-                        ),
-                        Row(
-                          children: [
-                            Obx(() {
-                              if (controller.dashboardController.selectedTimeFilter.value == 'Specific') {
-                                String dateText = "Select Date Range";
-                                if (controller.dashboardController.selectedDateRange.value != null) {
-                                  final start = DateFormat('yyyy-MM-dd').format(controller.dashboardController.selectedDateRange.value!.start);
-                                  final end = DateFormat('yyyy-MM-dd').format(controller.dashboardController.selectedDateRange.value!.end);
-                                  dateText = "$start \u2192 $end";
-                                }
-                                return Padding(
-                                  padding: const EdgeInsets.only(right: 8.0),
-                                  child: InkWell(
-                                    onTap: () async {
-                                      DateTimeRange? range = await showDateRangePicker(
-                                        context: context,
-                                        firstDate: DateTime(2020),
-                                        lastDate: DateTime(2100),
-                                        initialDateRange: controller.dashboardController.selectedDateRange.value,
-                                      );
-                                      if (range != null) {
-                                        controller.dashboardController.updateDateRange(range);
-                                      }
-                                    },
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                      decoration: BoxDecoration(
-                                        border: Border.all(color: const Color(0xFF1890FF)), // Match reference image outline
-                                        borderRadius: BorderRadius.circular(6),
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          Text(dateText, style: AppTextStyle.regular6.copyWith(fontSize: 12)),
-                                          const SizedBox(width: 8),
-                                          Icon(Icons.cancel, size: 14, color: Colors.grey.shade400,),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              }
-                              return const SizedBox();
-                            }),
-                            Container(
-                              height: 32,
-                              padding: const EdgeInsets.symmetric(horizontal: 8),
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey.shade300),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Obx(() => DropdownButtonHideUnderline(
-                                child: DropdownButton<String>(
-                                  value: controller.dashboardController.selectedTimeFilter.value,
-                                  icon: const Icon(Icons.keyboard_arrow_down, size: 16),
-                                  style: AppTextStyle.regular6.copyWith(fontSize: 12, color: Colors.black87),
-                                  onChanged: (String? newValue) {
-                                    if (newValue != null) {
-                                      controller.dashboardController.updateTimeFilter(newValue);
-                                      if (newValue == 'Specific' && controller.dashboardController.selectedDateRange.value == null) {
-                                        // Auto-show picker when first selected
-                                        showDateRangePicker(
-                                          context: context,
-                                          firstDate: DateTime(2020),
-                                          lastDate: DateTime(2100),
-                                        ).then((range) {
-                                          if (range != null) {
-                                            controller.dashboardController.updateDateRange(range);
-                                          } else {
-                                            controller.dashboardController.updateTimeFilter('Today'); // revert if cancelled
-                                          }
-                                        });
-                                      }
-                                    }
-                                  },
-                                  items: <String>['Today', 'Week', 'Month', 'Year', 'Specific']
-                                      .map<DropdownMenuItem<String>>((String value) {
-                                    return DropdownMenuItem<String>(
-                                      value: value,
-                                      child: Text(value),
-                                    );
-                                  }).toList(),
-                                ),
-                              )),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    Expanded(
-                      child: Obx(() {
-                        if (controller.dashboardController.callsOverTimeData.isEmpty) {
-                          return const Center(child: CircularProgressIndicator());
-                        }
-                        return LineChart(
-                          LineChartData(
-                            gridData: FlGridData(
-                              show: true,
-                              drawVerticalLine: true,
-                              horizontalInterval: 60,
-                              verticalInterval: 1,
-                              getDrawingHorizontalLine: (value) {
-                                return FlLine(color: Colors.grey.shade300, strokeWidth: 1, dashArray: [4, 4]);
-                              },
-                              getDrawingVerticalLine: (value) {
-                                return FlLine(color: Colors.grey.shade300, strokeWidth: 1, dashArray: [4, 4]);
-                              },
-                            ),
-                            titlesData: FlTitlesData(
-                              show: true,
-                              rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                              topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                              bottomTitles: AxisTitles(
-                                sideTitles: SideTitles(
-                                  showTitles: true,
-                                  reservedSize: 30,
-                                  interval: controller.dashboardController.callsOverTimeData.length > 10 ? 3 : 1,
-                                  getTitlesWidget: (value, meta) {
-                                    String text = '';
-                                    if (controller.dashboardController.selectedTimeFilter.value == 'Specific' && controller.dashboardController.selectedDateRange.value != null) {
-                                      DateTime start = controller.dashboardController.selectedDateRange.value!.start;
-                                      DateTime date = start.add(Duration(days: value.toInt()));
-                                      text = DateFormat('yyyy-MM-dd').format(date);
-                                    } else {
-                                      text = value.toInt().toString();
-                                    }
-                                    return SideTitleWidget(
-                                      axisSide: meta.axisSide,
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(top: 4.0),
-                                        child: Text(text, style: TextStyle(color: Colors.grey.shade600, fontSize: 10)),
-                                      )
-                                    );
-                                  },
-                                ),
-                              ),
-                              leftTitles: AxisTitles(
-                                sideTitles: SideTitles(
-                                  showTitles: true,
-                                  interval: 60,
-                                  reservedSize: 36,
-                                  getTitlesWidget: (value, meta) {
-                                    return Text(value.toInt().toString(), style: TextStyle(color: Colors.grey.shade600, fontSize: 12));
-                                  },
-                                ),
-                              ),
-                            ),
-                            borderData: FlBorderData(
-                              show: true,
-                              border: Border(
-                                bottom: BorderSide(color: Colors.grey.shade400, width: 1),
-                                left: BorderSide(color: Colors.grey.shade400, width: 1),
-                                right: const BorderSide(color: Colors.transparent),
-                                top: const BorderSide(color: Colors.transparent),
-                              ),
-                            ),
-                            minX: 0,
-                            maxX: controller.dashboardController.callsOverTimeData.length.toDouble() - 1,
-                            minY: 0,
-                            maxY: 260,
-                            lineBarsData: [
-                              LineChartBarData(
-                                spots: controller.dashboardController.callsOverTimeData.toList(),
-                                isCurved: false, // Straight lines in reference image
-                                color: const Color(0xFF3399FF),
-                                barWidth: 1.5,
-                                isStrokeCapRound: true,
-                                dotData: FlDotData(
-                                  show: true,
-                                  getDotPainter: (spot, percent, barData, index) {
-                                    return FlDotCirclePainter(
-                                      radius: 2.5,
-                                      color: Colors.white,
-                                      strokeWidth: 1.5,
-                                      strokeColor: const Color(0xFF3399FF),
-                                    );
-                                  },
-                                ),
-                                belowBarData: BarAreaData(show: false),
-                              ),
-                            ],
-                          ),
-                        );
-                      }),
-                    ),
-                    const SizedBox(height: 12),
-                    Center(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(width: 12, height: 2, color: const Color(0xFF3399FF), alignment: Alignment.center, child: Container(width: 4, height: 4, decoration: BoxDecoration(color: Colors.white, border: Border.all(color: const Color(0xFF3399FF)), shape: BoxShape.circle))),
-                          const SizedBox(width: 8),
-                          const Text("calls", style: TextStyle(color: Color(0xFF3399FF), fontSize: 12)),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              child: _buildBarChartWidget(context, isMobile),
             ),
             if (!isMobile) const SizedBox(width: 16),
             if (isMobile) const SizedBox(height: 16),
             Expanded(
               flex: isMobile ? 0 : 1,
-              child: Container(
-                height: 350,
-                width: isMobile ? double.infinity : null,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.shade200),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Call Status Distribution",
-                      style: AppTextStyle.semiBold8.copyWith(fontSize: 16),
-                    ),
-                    const Expanded(child: SizedBox()),
-                    Center(
-                      child: SizedBox(
-                        height: 180,
-                        child: Obx(() {
-                          int incoming = controller.dashboardController.callsIncomingToday.value;
-                          int missed = controller.dashboardController.callsMissedToday.value;
-                          int notAnswered = controller.dashboardController.callsNotAnsweredToday.value;
-                          int outgoing = controller.dashboardController.callsOutgoingToday.value;
-                          
-                          // Default dummy values for visual display if values are 0 (since they are 0 initially)
-                          if (incoming == 0 && missed == 0 && notAnswered == 0 && outgoing == 0) {
-                            incoming = 25;
-                            missed = 15;
-                            notAnswered = 5;
-                            outgoing = 55;
-                          }
-
-                          return PieChart(
-                            PieChartData(
-                              sectionsSpace: 1,
-                              centerSpaceRadius: 0,
-                              startDegreeOffset: -90,
-                              sections: [
-                                PieChartSectionData(
-                                  color: const Color(0xFF52C41A), // Green - Incoming
-                                  value: incoming.toDouble(),
-                                  title: '',
-                                  radius: 90,
-                                ),
-                                PieChartSectionData(
-                                  color: const Color(0xFFFAAD14), // Yellow/Orange - Missed
-                                  value: missed.toDouble(),
-                                  title: '',
-                                  radius: 90,
-                                ),
-                                PieChartSectionData(
-                                  color: const Color(0xFFFF4D4F), // Red - Not Answered
-                                  value: notAnswered.toDouble(),
-                                  title: '',
-                                  radius: 90,
-                                ),
-                                PieChartSectionData(
-                                  color: const Color(0xFF1890FF), // Blue - Outgoing
-                                  value: outgoing.toDouble(),
-                                  title: '',
-                                  radius: 90,
-                                ),
-                              ],
-                            ),
-                          );
-                        }),
-                      ),
-                    ),
-                    const Expanded(child: SizedBox()),
-                    // Legend
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        _buildLegendItem(color: const Color(0xFF52C41A), text: "Incoming"),
-                        const SizedBox(width: 16),
-                        _buildLegendItem(color: const Color(0xFFFAAD14), text: "Missed"),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                         _buildLegendItem(color: const Color(0xFFFF4D4F), text: "Not Answered"),
-                         const SizedBox(width: 16),
-                         _buildLegendItem(color: const Color(0xFF1890FF), text: "Outgoing"),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+              child: _buildPieChartWidget(context, isMobile),
             ),
           ],
         );
@@ -824,7 +518,502 @@ class DashboardPage extends GetView<HomeController> {
     );
   }
 
-  Widget _buildLegendItem({required Color color, required String text}) {
+
+  Widget _buildBottomAnalyticsChart2(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        bool isMobile = constraints.maxWidth < 800;
+        return Flex(
+          direction: isMobile ? Axis.vertical : Axis.horizontal,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              flex: isMobile ? 0 : 2,
+              child: _buildBarChartWidget(context, isMobile),
+            ),
+            if (!isMobile) const SizedBox(width: 16),
+            if (isMobile) const SizedBox(height: 16),
+            Expanded(
+              flex: isMobile ? 0 : 1,
+              child: _buildPieChartWidget(context, isMobile),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildBarChartWidget(BuildContext context, bool isMobile) {
+    return Container(
+      height: 350,
+      width: isMobile ? double.infinity : null,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+
+          /// ================= HEADER =================
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Calls Over Time",
+                style: AppTextStyle.semiBold8.copyWith(fontSize: 16),
+              ),
+              _buildTimeFilter(context),
+            ],
+          ),
+
+          SizedBox(height: 12),
+
+          /// ================= CHART AREA =================
+          Expanded(
+            child: Obx(() {
+              if (controller.dashboardController.isChartLoading.value) {
+                return Container(
+                  margin: EdgeInsets.symmetric(
+                      vertical: Get.height * 0.08),
+                  child: const Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              }
+
+              final data =
+                  controller.dashboardController.barChartData;
+
+              if (data.isEmpty) {
+                return SizedBox(
+                  height: 200,
+                  child: const Center(
+                    child: Text("No chart data available"),
+                  ),
+                );
+              }
+
+              /// ===== Calculate maxY =====
+              double maxY = 0;
+              for (var spot in data) {
+                if (spot.incoming.count > maxY) {
+                  maxY = spot.incoming.count.toDouble();
+                }
+                if (spot.outgoing.count > maxY) {
+                  maxY = spot.outgoing.count.toDouble();
+                }
+              }
+
+              maxY += 10;
+              double interval = (maxY / 5).ceilToDouble();
+
+              return Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: SizedBox(
+                    width: data.length * 90, // little spacing
+                    height: 280,
+                    child: BarChart(
+                      BarChartData(
+                        maxY: maxY,
+                        alignment: BarChartAlignment.spaceAround,
+
+                        /// ===== GRID =====
+                        gridData: FlGridData(
+                          show: true,
+                          drawVerticalLine: false,
+                          horizontalInterval: interval,
+                          getDrawingHorizontalLine: (value) {
+                            return FlLine(
+                              color: Colors.grey.shade300,
+                              strokeWidth: 1,
+                              dashArray: [4, 4],
+                            );
+                          },
+                        ),
+
+                        borderData: FlBorderData(show: false),
+
+                        /// ===== TITLES =====
+                        titlesData: FlTitlesData(
+                          topTitles: const AxisTitles(
+                              sideTitles: SideTitles(showTitles: false)),
+                          rightTitles: const AxisTitles(
+                              sideTitles: SideTitles(showTitles: false)),
+
+                          bottomTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              getTitlesWidget: (value, meta) {
+                                int index = value.toInt();
+                                if (index >= data.length) {
+                                  return const SizedBox();
+                                }
+
+                                return SideTitleWidget(
+                                  axisSide: meta.axisSide,
+                                  space: 8,
+                                  child: Text(
+                                    data[index].label,
+                                    style: const TextStyle(fontSize: 10),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+
+                          leftTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              reservedSize: 40,
+                              interval: interval,
+                              getTitlesWidget: (value, meta) {
+                                return SideTitleWidget(
+                                  axisSide: meta.axisSide,
+                                  child: Text(
+                                    value.toInt().toString(),
+                                    style: const TextStyle(fontSize: 10),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+
+                        /// ===== BARS =====
+                        barGroups: data.asMap().entries.map((entry) {
+                          int index = entry.key;
+                          var spot = entry.value;
+
+                          return BarChartGroupData(
+                            x: index,
+                            barsSpace: 10, // spacing between 2 bars
+                            barRods: [
+                              BarChartRodData(
+                                toY: spot.incoming.count.toDouble(),
+                                color: const Color(0xFF52C41A),
+                                width: 14,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              BarChartRodData(
+                                toY: spot.outgoing.count.toDouble(),
+                                color: const Color(0xFF1890FF),
+                                width: 14,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ],
+                          );
+                        }).toList(),
+
+                        /// ===== TOUCH TOOLTIP =====
+                        barTouchData: BarTouchData(
+                          enabled: true,
+                          touchTooltipData: BarTouchTooltipData(
+                            tooltipBgColor: Colors.white,
+                            getTooltipItem:
+                                (group, groupIndex, rod, rodIndex) {
+
+                              final dataItem =
+                              data[group.x.toInt()];
+
+                              String title;
+
+                              if (rodIndex == 0) {
+                                title =
+                                "Incoming: ${dataItem.incoming.count}\nDuration: ${dataItem.incoming.totalDuration}";
+                              } else {
+                                title =
+                                "Outgoing: ${dataItem.outgoing.count}\nDuration: ${dataItem.outgoing.totalDuration}";
+                              }
+
+                              return BarTooltipItem(
+                                title,
+                                const TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 12),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }),
+          ),
+
+          const SizedBox(height: 10),
+
+          /// ================= LEGEND =================
+          Center(
+            child: Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 20,
+              children: [
+                _buildLegendItem(
+                    const Color(0xFF52C41A), "Incoming"),
+                _buildLegendItem(
+                    const Color(0xFF1890FF), "Outgoing"),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTimeFilter(BuildContext context) {
+    return Row(
+      children: [
+
+        /// ===== Specific Date Range Button =====
+        Obx(() {
+          if (controller.dashboardController.selectedTimeFilter.value == 'Specific') {
+            String dateText = "Select Date Range";
+
+            if (controller.dashboardController.selectedDateRange.value != null) {
+              final start = DateFormat('yyyy-MM-dd').format(
+                  controller.dashboardController.selectedDateRange.value!.start);
+              final end = DateFormat('yyyy-MM-dd').format(
+                  controller.dashboardController.selectedDateRange.value!.end);
+              dateText = "$start → $end";
+            }
+
+            return Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: InkWell(
+                onTap: () async {
+                  DateTimeRange? range = await showDateRangePicker(
+                    context: context,
+                    firstDate: DateTime(2020),
+                    lastDate: DateTime(2100),
+                    initialDateRange:
+                    controller.dashboardController.selectedDateRange.value,
+                  );
+
+                  if (range != null) {
+                    controller.dashboardController.updateDateRange(range);
+                  }
+                },
+                child: Container(
+                  padding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: const Color(0xFF1890FF)),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Row(
+                    children: [
+                      Text(
+                        dateText,
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                      const SizedBox(width: 8),
+                      Icon(Icons.calendar_today,
+                          size: 14, color: Colors.grey.shade500),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }
+          return const SizedBox();
+        }),
+
+        /// ===== Dropdown =====
+        Container(
+          height: 32,
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey.shade300),
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Obx(() => DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              value: controller
+                  .dashboardController.selectedTimeFilter.value,
+              icon:
+              const Icon(Icons.keyboard_arrow_down, size: 16),
+              style: const TextStyle(
+                  fontSize: 12, color: Colors.black87),
+              onChanged: (String? newValue) {
+                if (newValue != null) {
+                  controller.dashboardController
+                      .updateTimeFilter(newValue);
+
+                  if (newValue == 'Specific' &&
+                      controller.dashboardController
+                          .selectedDateRange.value ==
+                          null) {
+                    showDateRangePicker(
+                      context: context,
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime(2100),
+                    ).then((range) {
+                      if (range != null) {
+                        controller.dashboardController
+                            .updateDateRange(range);
+                      } else {
+                        controller.dashboardController
+                            .updateTimeFilter('Today');
+                      }
+                    });
+                  }
+                }
+              },
+              items: ['Today', 'Week', 'Month', 'Year', 'Specific']
+                  .map((value) => DropdownMenuItem(
+                value: value,
+                child: Text(value),
+              ))
+                  .toList(),
+            ),
+          )),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLegendItem(Color color, String text) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          text,
+          style: TextStyle(
+            color: color,
+            fontSize: 12,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPieChartWidget(BuildContext context, bool isMobile) {
+    return Container(
+      height: 350,
+      width: isMobile ? double.infinity : null,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Call Status Distribution",
+            style: AppTextStyle.semiBold8.copyWith(fontSize: 16),
+          ),
+          const Expanded(child: SizedBox()),
+          Center(
+            child: SizedBox(
+              height: 180,
+              child: Obx(() {
+                if (controller.dashboardController.isChartLoading.value) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                
+                int incoming = controller.dashboardController.incomingPieCount.value;
+                int missed = controller.dashboardController.missedPieCount.value;
+                int notAnswered = controller.dashboardController.notAnsweredPieCount.value;
+                int outgoing = controller.dashboardController.outgoingPieCount.value;
+                
+                if (incoming == 0 && missed == 0 && notAnswered == 0 && outgoing == 0) {
+                  return const Center(child: Text("No data for pie chart"));
+                }
+
+                return PieChart(
+                  PieChartData(
+                    pieTouchData: PieTouchData(
+                      touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                        if (!event.isInterestedForInteractions ||
+                            pieTouchResponse == null ||
+                            pieTouchResponse.touchedSection == null) {
+                          controller.dashboardController.touchedPieIndex.value = -1;
+                          return;
+                        }
+                        controller.dashboardController.touchedPieIndex.value =
+                            pieTouchResponse.touchedSection!.touchedSectionIndex;
+                      },
+                    ),
+                    sectionsSpace: 1,
+                    centerSpaceRadius: 0,
+                    startDegreeOffset: -90,
+                    sections: [
+                      PieChartSectionData(
+                        color: const Color(0xFF52C41A), // Green - Incoming
+                        value: incoming.toDouble(),
+                        title: controller.dashboardController.touchedPieIndex.value == 0 ? incoming.toString() : '',
+                        radius: controller.dashboardController.touchedPieIndex.value == 0 ? 100 : 90,
+                        titleStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                      ),
+                      PieChartSectionData(
+                        color: const Color(0xFFFAAD14), // Yellow/Orange - Missed
+                        value: missed.toDouble(),
+                        title: controller.dashboardController.touchedPieIndex.value == 1 ? missed.toString() : '',
+                        radius: controller.dashboardController.touchedPieIndex.value == 1 ? 100 : 90,
+                        titleStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                      ),
+                      PieChartSectionData(
+                        color: const Color(0xFFFF4D4F), // Red - Not Answered
+                        value: notAnswered.toDouble(),
+                        title: controller.dashboardController.touchedPieIndex.value == 2 ? notAnswered.toString() : '',
+                        radius: controller.dashboardController.touchedPieIndex.value == 2 ? 100 : 90,
+                        titleStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                      ),
+                      PieChartSectionData(
+                        color: const Color(0xFF1890FF), // Blue - Outgoing
+                        value: outgoing.toDouble(),
+                        title: controller.dashboardController.touchedPieIndex.value == 3 ? outgoing.toString() : '',
+                        radius: controller.dashboardController.touchedPieIndex.value == 3 ? 100 : 90,
+                        titleStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+            ),
+          ),
+          const Expanded(child: SizedBox()),
+          // Legend
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildLegendItemm(color: const Color(0xFF52C41A), text: "Incoming"),
+              const SizedBox(width: 16),
+              _buildLegendItemm(color: const Color(0xFFFAAD14), text: "Missed"),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+               _buildLegendItemm(color: const Color(0xFFFF4D4F), text: "Not Answered"),
+               const SizedBox(width: 16),
+               _buildLegendItemm(color: const Color(0xFF1890FF), text: "Outgoing"),
+            ],
+          ),
+        ],
+      ));
+    }
+
+  Widget _buildLegendItemm({required Color color, required String text}) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [

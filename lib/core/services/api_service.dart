@@ -13,6 +13,7 @@ import 'package:telecaller_app/core/models/call_lead_update_response_entity.dart
 import 'package:telecaller_app/core/models/get_static_entity.dart';
 import 'package:telecaller_app/core/models/lead_contact_id_entity.dart';
 import 'package:telecaller_app/core/models/login_response_entity.dart';
+import 'package:telecaller_app/core/models/call_chart_entity.dart';
 
 import 'package:telecaller_app/core/network/dio_client.dart';
 
@@ -208,6 +209,28 @@ class ApiService extends GetxService {
     return GetStaticEntity.fromJson(response);
   }
 
-
+  Future<CallChartEntity> callChart({
+    String? filter = "today",
+    String startDate = "",
+    String endDate = "",
+    String simNumbers = "",
+  }) async {
+    Map<String, dynamic> data ={
+      "filter_by":{
+        "type":filter,
+        if(startDate != null && startDate.isNotEmpty)
+        "start_date":startDate,
+        if(endDate != null && endDate.isNotEmpty)
+        "end_date":endDate,
+        // if(simNumbers != null && simNumbers.isNotEmpty)
+        "simNumbers": []
+      }
+    };
+print("callChart request data $data");
+    Map<String, dynamic> response = await client.post(AppConstants.API_CALL_CHART,isRaw: true, data: data
+    );
+    print("callChart response details $response");
+    return CallChartEntity.fromJson(response);
+  }
 
 }

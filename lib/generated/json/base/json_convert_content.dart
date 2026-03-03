@@ -6,6 +6,7 @@
 import 'package:flutter/material.dart' show debugPrint;
 import 'package:telecaller_app/core/models/all_lead_entity.dart';
 import 'package:telecaller_app/core/models/api_response_entity.dart';
+import 'package:telecaller_app/core/models/call_chart_entity.dart';
 import 'package:telecaller_app/core/models/call_lead_update_response_entity.dart';
 import 'package:telecaller_app/core/models/get_static_entity.dart';
 import 'package:telecaller_app/core/models/lead_contact_id_entity.dart';
@@ -180,6 +181,26 @@ class JsonConvert {
       return data.map<ApiResponseEntity>((Map<String, dynamic> e) =>
           ApiResponseEntity.fromJson(e)).toList() as M;
     }
+    if (<CallChartEntity>[] is M) {
+      return data.map<CallChartEntity>((Map<String, dynamic> e) =>
+          CallChartEntity.fromJson(e)).toList() as M;
+    }
+    if (<CallChartBarChart>[] is M) {
+      return data.map<CallChartBarChart>((Map<String, dynamic> e) =>
+          CallChartBarChart.fromJson(e)).toList() as M;
+    }
+    if (<CallChartBarChartIncoming>[] is M) {
+      return data.map<CallChartBarChartIncoming>((Map<String, dynamic> e) =>
+          CallChartBarChartIncoming.fromJson(e)).toList() as M;
+    }
+    if (<CallChartBarChartOutgoing>[] is M) {
+      return data.map<CallChartBarChartOutgoing>((Map<String, dynamic> e) =>
+          CallChartBarChartOutgoing.fromJson(e)).toList() as M;
+    }
+    if (<CallChartPieChart>[] is M) {
+      return data.map<CallChartPieChart>((Map<String, dynamic> e) =>
+          CallChartPieChart.fromJson(e)).toList() as M;
+    }
     if (<CallLeadUpdateResponseEntity>[] is M) {
       return data.map<CallLeadUpdateResponseEntity>((Map<String, dynamic> e) =>
           CallLeadUpdateResponseEntity.fromJson(e)).toList() as M;
@@ -284,6 +305,11 @@ class JsonConvertClassCollection {
     (AllLeadLeadsFormId).toString(): AllLeadLeadsFormId.fromJson,
     (AllLeadLeadsFormIdFields).toString(): AllLeadLeadsFormIdFields.fromJson,
     (ApiResponseEntity).toString(): ApiResponseEntity.fromJson,
+    (CallChartEntity).toString(): CallChartEntity.fromJson,
+    (CallChartBarChart).toString(): CallChartBarChart.fromJson,
+    (CallChartBarChartIncoming).toString(): CallChartBarChartIncoming.fromJson,
+    (CallChartBarChartOutgoing).toString(): CallChartBarChartOutgoing.fromJson,
+    (CallChartPieChart).toString(): CallChartPieChart.fromJson,
     (CallLeadUpdateResponseEntity).toString(): CallLeadUpdateResponseEntity
         .fromJson,
     (CallLeadUpdateResponseData).toString(): CallLeadUpdateResponseData

@@ -65,4 +65,6 @@ class AppConstants {
   //dashboard overview
   static String API_GET_DASHBOARD_STATISTICS =
       '$API_URL/telecaller/dashboard-statistics';
+      
+  static String API_CALL_CHART = '$API_URL/telecaller/calls/analytics';
 }

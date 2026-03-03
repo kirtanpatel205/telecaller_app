@@ -4,10 +4,31 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:telecaller_app/core/controllers/auth_controller.dart';
+import 'package:telecaller_app/core/models/call_chart_entity.dart';
 import 'package:telecaller_app/core/models/get_static_entity.dart';
 import 'package:telecaller_app/core/services/api_service.dart';
 
 class DashboardController extends GetxController{
+
+
+  @override
+  void onInit() {
+    // TODO: implement onInit
+    authController.refreshProfile();
+    super.onInit();
+    fetchChartData();
+    static();
+  }
+
+  @override
+  void onReady() {
+    // TODO: implement onReady
+    // authController.refreshProfile();
+    super.onReady();
+  }
+
+  RxBool isLoading = true.obs;
+  ApiService apiService = Get.find();
   AuthController authController = Get.find();
 
   // Dummy Observable Data for Dashboard Overview
@@ -39,75 +60,73 @@ class DashboardController extends GetxController{
   // Chart Data
   RxString selectedTimeFilter = 'Today'.obs;
   Rxn<DateTimeRange> selectedDateRange = Rxn<DateTimeRange>();
-  RxList<FlSpot> callsOverTimeData = <FlSpot>[].obs;
+  RxList<CallChartBarChart> barChartData = <CallChartBarChart>[].obs;
+  
+  // Pie Chart Data
+  RxInt touchedPieIndex = (-1).obs;
+  // Pie Chart Data
+  RxInt incomingPieCount = 0.obs;
+  RxInt outgoingPieCount = 0.obs;
+  RxInt missedPieCount = 0.obs;
+  RxInt notAnsweredPieCount = 0.obs;
+
+  RxBool isChartLoading = true.obs;
 
   void updateTimeFilter(String filter) {
     selectedTimeFilter.value = filter;
-    generateChartData();
+    fetchChartData();
   }
 
   void updateDateRange(DateTimeRange? range) {
     if (range != null) {
       selectedDateRange.value = range;
-      generateChartData();
+      fetchChartData();
     }
   }
 
-  void generateChartData() {
-    callsOverTimeData.clear();
-    // Generate dummy data based on filter
-    int numberOfPoints = 0;
-    switch (selectedTimeFilter.value) {
-      case 'Today':
-        numberOfPoints = 6; // E.g., every 4 hours
-        break;
-      case 'Week':
-        numberOfPoints = 7;
-        break;
-      case 'Month':
-        numberOfPoints = 30;
-        break;
-      case 'Year':
-        numberOfPoints = 12;
-        break;
-      case 'Specific':
-        if (selectedDateRange.value != null) {
-          numberOfPoints = selectedDateRange.value!.duration.inDays;
-          if (numberOfPoints == 0) numberOfPoints = 1;
-        } else {
-          numberOfPoints = 10;
+  void fetchChartData() async {
+    isChartLoading.value = true;
+    barChartData.clear();
+
+    String filter = selectedTimeFilter.value;
+    String? startDate;
+    String? endDate;
+
+    if (filter == 'Specific' && selectedDateRange.value != null) {
+      startDate = selectedDateRange.value!.start.toIso8601String().split('T').first;
+      endDate = selectedDateRange.value!.end.toIso8601String().split('T').first;
+    }
+
+    String apiFilter = filter.toLowerCase().replaceAll(' ', '_');
+    if (apiFilter == 'week') apiFilter = 'this_week';
+    if (apiFilter == 'month') apiFilter = 'this_month';
+    if (apiFilter == 'year') apiFilter = 'this_year';
+
+    try {
+      final CallChartEntity chartEntity = await apiService.callChart(
+        filter: apiFilter,
+        startDate: startDate ?? '',
+        endDate: endDate ?? '',
+      );
+
+      if (chartEntity.status) {
+        // Handle Bar Chart Data
+        if (chartEntity.barChart.isNotEmpty) {
+           barChartData.assignAll(chartEntity.barChart);
         }
-        break;
-      default:
-        numberOfPoints = 10;
+
+        // Handle Pie Chart Data
+        incomingPieCount.value = chartEntity.pieChart.incomingCall;
+        outgoingPieCount.value = chartEntity.pieChart.outgoingCall;
+        missedPieCount.value = chartEntity.pieChart.missedCall;
+        notAnsweredPieCount.value = chartEntity.pieChart.notAnsweredCall;
+      }
+    } catch (e) {
+      log("Error fetching chart data: $e");
+    } finally {
+      isChartLoading.value = false;
     }
-    
-    // Create random-looking data
-    for (int i = 0; i <= numberOfPoints; i++) {
-      double randomValue = (i * 2.5 + (i % 3 * 15) + (i % 2 == 0 ? 50 : 10)).toDouble();
-      if(randomValue > 240) randomValue = 200 + (i % 20).toDouble(); // cap it roughly for looks
-      callsOverTimeData.add(FlSpot(i.toDouble(), randomValue));
-    }
   }
-
-  @override
-  void onInit() {
-    // TODO: implement onInit
-    authController.refreshProfile();
-    generateChartData();
-    super.onInit();
-    static();
-  }
-
-  @override
-  void onReady() {
-    // TODO: implement onReady
-    // authController.refreshProfile();
-    super.onReady();
-  }
-
-  RxBool isLoading = true.obs;
-  ApiService apiService = Get.find();
 
 
   void static() async {
