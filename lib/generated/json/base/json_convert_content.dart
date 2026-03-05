@@ -9,6 +9,7 @@ import 'package:telecaller_app/core/models/api_response_entity.dart';
 import 'package:telecaller_app/core/models/call_chart_entity.dart';
 import 'package:telecaller_app/core/models/call_lead_update_response_entity.dart';
 import 'package:telecaller_app/core/models/get_static_entity.dart';
+import 'package:telecaller_app/core/models/lead_chart_entity.dart';
 import 'package:telecaller_app/core/models/lead_contact_id_entity.dart';
 import 'package:telecaller_app/core/models/login_response_entity.dart';
 
@@ -228,6 +229,22 @@ class JsonConvert {
       return data.map<GetStaticStatistics>((Map<String, dynamic> e) =>
           GetStaticStatistics.fromJson(e)).toList() as M;
     }
+    if (<LeadChartEntity>[] is M) {
+      return data.map<LeadChartEntity>((Map<String, dynamic> e) =>
+          LeadChartEntity.fromJson(e)).toList() as M;
+    }
+    if (<LeadChartLeads>[] is M) {
+      return data.map<LeadChartLeads>((Map<String, dynamic> e) =>
+          LeadChartLeads.fromJson(e)).toList() as M;
+    }
+    if (<LeadChartBarChart>[] is M) {
+      return data.map<LeadChartBarChart>((Map<String, dynamic> e) =>
+          LeadChartBarChart.fromJson(e)).toList() as M;
+    }
+    if (<LeadChartPieChart>[] is M) {
+      return data.map<LeadChartPieChart>((Map<String, dynamic> e) =>
+          LeadChartPieChart.fromJson(e)).toList() as M;
+    }
     if (<LeadContactIdEntity>[] is M) {
       return data.map<LeadContactIdEntity>((Map<String, dynamic> e) =>
           LeadContactIdEntity.fromJson(e)).toList() as M;
@@ -320,6 +337,10 @@ class JsonConvertClassCollection {
         .fromJson,
     (GetStaticEntity).toString(): GetStaticEntity.fromJson,
     (GetStaticStatistics).toString(): GetStaticStatistics.fromJson,
+    (LeadChartEntity).toString(): LeadChartEntity.fromJson,
+    (LeadChartLeads).toString(): LeadChartLeads.fromJson,
+    (LeadChartBarChart).toString(): LeadChartBarChart.fromJson,
+    (LeadChartPieChart).toString(): LeadChartPieChart.fromJson,
     (LeadContactIdEntity).toString(): LeadContactIdEntity.fromJson,
     (LeadContactIdLeadContacts).toString(): LeadContactIdLeadContacts.fromJson,
     (LeadContactIdLeadContactsAssignedTo)

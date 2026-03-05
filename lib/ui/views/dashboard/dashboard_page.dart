@@ -529,13 +529,13 @@ class DashboardPage extends GetView<HomeController> {
           children: [
             Expanded(
               flex: isMobile ? 0 : 2,
-              child: _buildBarChartWidget(context, isMobile),
+              child: _buildLeadBarChartWidget(context, isMobile),
             ),
             if (!isMobile) const SizedBox(width: 16),
             if (isMobile) const SizedBox(height: 16),
             Expanded(
               flex: isMobile ? 0 : 1,
-              child: _buildPieChartWidget(context, isMobile),
+              child: _buildLeadPieChartWidget(context, isMobile),
             ),
           ],
         );
@@ -879,30 +879,6 @@ class DashboardPage extends GetView<HomeController> {
     );
   }
 
-  Widget _buildLegendItem(Color color, String text) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 12,
-          height: 12,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(2),
-          ),
-        ),
-        const SizedBox(width: 6),
-        Text(
-          text,
-          style: TextStyle(
-            color: color,
-            fontSize: 12,
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildPieChartWidget(BuildContext context, bool isMobile) {
     return Container(
       height: 350,
@@ -935,7 +911,28 @@ class DashboardPage extends GetView<HomeController> {
                 int outgoing = controller.dashboardController.outgoingPieCount.value;
                 
                 if (incoming == 0 && missed == 0 && notAnswered == 0 && outgoing == 0) {
-                  return const Center(child: Text("No data for pie chart"));
+                  return const Center(child: Text("No chart data available"));
+                }
+
+                List<PieChartSectionData> pieChartSections = [];
+                List<Map<String, dynamic>> validData = [];
+                
+                if (incoming > 0) validData.add({"value": incoming, "color": const Color(0xFF52C41A)});
+                if (missed > 0) validData.add({"value": missed, "color": const Color(0xFFFAAD14)});
+                if (notAnswered > 0) validData.add({"value": notAnswered, "color": const Color(0xFFFF4D4F)});
+                if (outgoing > 0) validData.add({"value": outgoing, "color": const Color(0xFF1890FF)});
+
+                for (int i = 0; i < validData.length; i++) {
+                  bool isTouched = controller.dashboardController.touchedPieIndex.value == i;
+                  pieChartSections.add(
+                    PieChartSectionData(
+                      color: validData[i]["color"],
+                      value: validData[i]["value"].toDouble(),
+                      title: isTouched ? validData[i]["value"].toString() : '',
+                      radius: isTouched ? 100 : 90,
+                      titleStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                    ),
+                  );
                 }
 
                 return PieChart(
@@ -955,36 +952,7 @@ class DashboardPage extends GetView<HomeController> {
                     sectionsSpace: 1,
                     centerSpaceRadius: 0,
                     startDegreeOffset: -90,
-                    sections: [
-                      PieChartSectionData(
-                        color: const Color(0xFF52C41A), // Green - Incoming
-                        value: incoming.toDouble(),
-                        title: controller.dashboardController.touchedPieIndex.value == 0 ? incoming.toString() : '',
-                        radius: controller.dashboardController.touchedPieIndex.value == 0 ? 100 : 90,
-                        titleStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-                      ),
-                      PieChartSectionData(
-                        color: const Color(0xFFFAAD14), // Yellow/Orange - Missed
-                        value: missed.toDouble(),
-                        title: controller.dashboardController.touchedPieIndex.value == 1 ? missed.toString() : '',
-                        radius: controller.dashboardController.touchedPieIndex.value == 1 ? 100 : 90,
-                        titleStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-                      ),
-                      PieChartSectionData(
-                        color: const Color(0xFFFF4D4F), // Red - Not Answered
-                        value: notAnswered.toDouble(),
-                        title: controller.dashboardController.touchedPieIndex.value == 2 ? notAnswered.toString() : '',
-                        radius: controller.dashboardController.touchedPieIndex.value == 2 ? 100 : 90,
-                        titleStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-                      ),
-                      PieChartSectionData(
-                        color: const Color(0xFF1890FF), // Blue - Outgoing
-                        value: outgoing.toDouble(),
-                        title: controller.dashboardController.touchedPieIndex.value == 3 ? outgoing.toString() : '',
-                        radius: controller.dashboardController.touchedPieIndex.value == 3 ? 100 : 90,
-                        titleStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-                      ),
-                    ],
+                    sections: pieChartSections,
                   ),
                 );
               }),
@@ -1012,6 +980,382 @@ class DashboardPage extends GetView<HomeController> {
         ],
       ));
     }
+
+  ///lead chart
+
+  Widget _buildLeadBarChartWidget(BuildContext context, bool isMobile) {
+    return Container(
+      height: 350,
+      width: isMobile ? double.infinity : null,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Leads Over Time",
+                style: AppTextStyle.semiBold8.copyWith(fontSize: 16),
+              ),
+              _buildLeadTimeFilter(context),
+            ],
+          ),
+          SizedBox(height: 12),
+          Expanded(
+            child: Obx(() {
+              if (controller.dashboardController.isLeadChartLoading.value) {
+                return Container(
+                  margin: EdgeInsets.symmetric(vertical: Get.height * 0.08),
+                  child: const Center(child: CircularProgressIndicator()),
+                );
+              }
+
+              final data = controller.dashboardController.leadBarChartData;
+
+              if (data.isEmpty) {
+                return SizedBox(
+                  height: 200,
+                  child: const Center(child: Text("No chart data available")),
+                );
+              }
+
+              double maxY = 0;
+              for (var spot in data) {
+                if (spot.count > maxY) {
+                  maxY = spot.count.toDouble();
+                }
+              }
+
+              maxY += 10;
+              double interval = (maxY / 5).ceilToDouble();
+              if (interval == 0) interval = 1;
+
+              return Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: SizedBox(
+                    width: data.length * 90,
+                    height: 280,
+                    child: BarChart(
+                      BarChartData(
+                        maxY: maxY,
+                        alignment: BarChartAlignment.spaceAround,
+                        gridData: FlGridData(
+                          show: true,
+                          drawVerticalLine: false,
+                          horizontalInterval: interval,
+                          getDrawingHorizontalLine: (value) {
+                            return FlLine(
+                              color: Colors.grey.shade300,
+                              strokeWidth: 1,
+                              dashArray: [4, 4],
+                            );
+                          },
+                        ),
+                        borderData: FlBorderData(show: false),
+                        titlesData: FlTitlesData(
+                          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                          bottomTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              getTitlesWidget: (value, meta) {
+                                int index = value.toInt();
+                                if (index >= data.length) return const SizedBox();
+                                return SideTitleWidget(
+                                  axisSide: meta.axisSide,
+                                  space: 8,
+                                  child: Text(
+                                    data[index].label,
+                                    style: const TextStyle(fontSize: 10),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                          leftTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              reservedSize: 40,
+                              interval: interval,
+                              getTitlesWidget: (value, meta) {
+                                return SideTitleWidget(
+                                  axisSide: meta.axisSide,
+                                  child: Text(
+                                    value.toInt().toString(),
+                                    style: const TextStyle(fontSize: 10),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                        barGroups: data.asMap().entries.map((entry) {
+                          int index = entry.key;
+                          var spot = entry.value;
+
+                          return BarChartGroupData(
+                            x: index,
+                            barsSpace: 10,
+                            barRods: [
+                              BarChartRodData(
+                                toY: spot.count.toDouble(),
+                                color: const Color(0xFF1890FF),
+                                width: 14,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ],
+                          );
+                        }).toList(),
+                        barTouchData: BarTouchData(
+                          enabled: true,
+                          touchTooltipData: BarTouchTooltipData(
+                            tooltipBgColor: Colors.white,
+                            getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                              final dataItem = data[group.x.toInt()];
+                              return BarTooltipItem(
+                                "Leads: ${dataItem.count}",
+                                const TextStyle(color: Colors.black, fontSize: 12),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }),
+          ),
+          const SizedBox(height: 10),
+          Center(
+            child: Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 20,
+              children: [
+                _buildLegendItem(
+                    const Color(0xFF1890FF), "TotalLeads"),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLeadTimeFilter(BuildContext context) {
+    return Row(
+      children: [
+        Obx(() {
+          if (controller.dashboardController.selectedLeadTimeFilter.value == 'Specific') {
+            String dateText = "Select Date Range";
+            if (controller.dashboardController.selectedLeadDateRange.value != null) {
+              final start = DateFormat('yyyy-MM-dd').format(controller.dashboardController.selectedLeadDateRange.value!.start);
+              final end = DateFormat('yyyy-MM-dd').format(controller.dashboardController.selectedLeadDateRange.value!.end);
+              dateText = "$start → $end";
+            }
+            return Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: InkWell(
+                onTap: () async {
+                  DateTimeRange? range = await showDateRangePicker(
+                    context: context,
+                    firstDate: DateTime(2020),
+                    lastDate: DateTime(2100),
+                    initialDateRange: controller.dashboardController.selectedLeadDateRange.value,
+                  );
+                  if (range != null) {
+                    controller.dashboardController.updateLeadDateRange(range);
+                  }
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: const Color(0xFF1890FF)),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Row(
+                    children: [
+                      Text(dateText, style: const TextStyle(fontSize: 12)),
+                      const SizedBox(width: 8),
+                      Icon(Icons.calendar_today, size: 14, color: Colors.grey.shade500),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }
+          return const SizedBox();
+        }),
+        Container(
+          height: 32,
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey.shade300),
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Obx(() => DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              value: controller.dashboardController.selectedLeadTimeFilter.value,
+              icon: const Icon(Icons.keyboard_arrow_down, size: 16),
+              style: const TextStyle(fontSize: 12, color: Colors.black87),
+              onChanged: (String? newValue) {
+                if (newValue != null) {
+                  controller.dashboardController.updateLeadTimeFilter(newValue);
+                  if (newValue == 'Specific' && controller.dashboardController.selectedLeadDateRange.value == null) {
+                    showDateRangePicker(
+                      context: context,
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime(2100),
+                    ).then((range) {
+                      if (range != null) {
+                        controller.dashboardController.updateLeadDateRange(range);
+                      } else {
+                        controller.dashboardController.updateLeadTimeFilter('Today');
+                      }
+                    });
+                  }
+                }
+              },
+              items: ['Today', 'Week', 'Month', 'Year', 'Specific']
+                  .map((value) => DropdownMenuItem(value: value, child: Text(value)))
+                  .toList(),
+            ),
+          )),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLeadPieChartWidget(BuildContext context, bool isMobile) {
+    return Container(
+      height: 350,
+      width: isMobile ? double.infinity : null,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Lead Status Distribution",
+            style: AppTextStyle.semiBold8.copyWith(fontSize: 16),
+          ),
+          const Expanded(child: SizedBox()),
+          Center(
+            child: SizedBox(
+              height: 180,
+              child: Obx(() {
+                if (controller.dashboardController.isLeadChartLoading.value) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                
+                int completed = controller.dashboardController.leadCompletedPieCount.value;
+                int scheduled = controller.dashboardController.leadScheduledPieCount.value;
+                int pending = controller.dashboardController.leadPendingPieCount.value;
+                
+                if (completed == 0 && scheduled == 0 && pending == 0) {
+                  return const Center(child: Text("No chart data available"));
+                }
+
+                List<PieChartSectionData> pieChartSections = [];
+                List<Map<String, dynamic>> validData = [];
+                
+                if (completed > 0) validData.add({"value": completed, "color": const Color(0xFF52C41A)});
+                if (scheduled > 0) validData.add({"value": scheduled, "color": const Color(0xFFFAAD14)});
+                if (pending > 0) validData.add({"value": pending, "color": const Color(0xFFFF4D4F)});
+
+                for (int i = 0; i < validData.length; i++) {
+                  bool isTouched = controller.dashboardController.touchedLeadPieIndex.value == i;
+                  pieChartSections.add(
+                    PieChartSectionData(
+                      color: validData[i]["color"],
+                      value: validData[i]["value"].toDouble(),
+                      title: isTouched ? validData[i]["value"].toString() : '',
+                      radius: isTouched ? 100 : 90,
+                      titleStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                    ),
+                  );
+                }
+
+                return PieChart(
+                  PieChartData(
+                    pieTouchData: PieTouchData(
+                      touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                        if (!event.isInterestedForInteractions ||
+                            pieTouchResponse == null ||
+                            pieTouchResponse.touchedSection == null) {
+                          controller.dashboardController.touchedLeadPieIndex.value = -1;
+                          return;
+                        }
+                        controller.dashboardController.touchedLeadPieIndex.value =
+                            pieTouchResponse.touchedSection!.touchedSectionIndex;
+                      },
+                    ),
+                    sectionsSpace: 1,
+                    centerSpaceRadius: 0,
+                    startDegreeOffset: -90,
+                    sections: pieChartSections,
+                  ),
+                );
+              }),
+            ),
+          ),
+          const Expanded(child: SizedBox()),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildLegendItemm(color: const Color(0xFF52C41A), text: "Completed"),
+              const SizedBox(width: 16),
+              _buildLegendItemm(color: const Color(0xFFFAAD14), text: "Scheduled"),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+               _buildLegendItemm(color: const Color(0xFFFF4D4F), text: "Pending"),
+            ],
+          ),
+        ],
+      )
+    );
+  }
+
+
+  Widget _buildLegendItem(Color color, String text) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          text,
+          style: TextStyle(
+            color: color,
+            fontSize: 12,
+          ),
+        ),
+      ],
+    );
+  }
 
   Widget _buildLegendItemm({required Color color, required String text}) {
     return Row(

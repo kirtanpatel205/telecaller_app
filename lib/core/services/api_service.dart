@@ -11,6 +11,7 @@ import 'package:telecaller_app/core/models/all_lead_entity.dart';
 import 'package:telecaller_app/core/models/api_response_entity.dart';
 import 'package:telecaller_app/core/models/call_lead_update_response_entity.dart';
 import 'package:telecaller_app/core/models/get_static_entity.dart';
+import 'package:telecaller_app/core/models/lead_chart_entity.dart';
 import 'package:telecaller_app/core/models/lead_contact_id_entity.dart';
 import 'package:telecaller_app/core/models/login_response_entity.dart';
 import 'package:telecaller_app/core/models/call_chart_entity.dart';
@@ -231,6 +232,27 @@ print("callChart request data $data");
     );
     print("callChart response details $response");
     return CallChartEntity.fromJson(response);
+  }
+
+  Future<LeadChartEntity> leadChart({
+    String? filter = "today",
+    String startDate = "",
+    String endDate = "",
+  }) async {
+    Map<String, dynamic> data ={
+      "filter_by":{
+        "type":filter,
+        if(startDate != null && startDate.isNotEmpty)
+        "start_date":startDate,
+        if(endDate != null && endDate.isNotEmpty)
+        "end_date":endDate,
+      }
+    };
+    print("callChart request data $data");
+    Map<String, dynamic> response = await client.post(AppConstants.API_LEAD_CHART,isRaw: true, data: data
+    );
+    print("callChart response details $response");
+    return LeadChartEntity.fromJson(response);
   }
 
 }

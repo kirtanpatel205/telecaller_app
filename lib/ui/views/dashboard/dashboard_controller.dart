@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:telecaller_app/core/controllers/auth_controller.dart';
 import 'package:telecaller_app/core/models/call_chart_entity.dart';
+import 'package:telecaller_app/core/models/lead_chart_entity.dart';
 import 'package:telecaller_app/core/models/get_static_entity.dart';
 import 'package:telecaller_app/core/services/api_service.dart';
 
@@ -17,6 +18,7 @@ class DashboardController extends GetxController{
     authController.refreshProfile();
     super.onInit();
     fetchChartData();
+    fetchLeadChartData();
     static();
   }
 
@@ -72,6 +74,19 @@ class DashboardController extends GetxController{
 
   RxBool isChartLoading = true.obs;
 
+  // Lead Chart Data
+  RxString selectedLeadTimeFilter = 'Today'.obs;
+  Rxn<DateTimeRange> selectedLeadDateRange = Rxn<DateTimeRange>();
+  RxList<LeadChartLeads> leadBarChartData = <LeadChartLeads>[].obs;
+  
+  // Lead Pie Chart Data
+  RxInt touchedLeadPieIndex = (-1).obs;
+  RxInt leadCompletedPieCount = 0.obs;
+  RxInt leadScheduledPieCount = 0.obs;
+  RxInt leadPendingPieCount = 0.obs;
+
+  RxBool isLeadChartLoading = true.obs;
+
   void updateTimeFilter(String filter) {
     selectedTimeFilter.value = filter;
     fetchChartData();
@@ -125,6 +140,62 @@ class DashboardController extends GetxController{
       log("Error fetching chart data: $e");
     } finally {
       isChartLoading.value = false;
+    }
+  }
+
+
+  void updateLeadTimeFilter(String filter) {
+    selectedLeadTimeFilter.value = filter;
+    fetchLeadChartData();
+  }
+
+  void updateLeadDateRange(DateTimeRange? range) {
+    if (range != null) {
+      selectedLeadDateRange.value = range;
+      fetchLeadChartData();
+    }
+  }
+
+  void fetchLeadChartData() async {
+    isLeadChartLoading.value = true;
+    leadBarChartData.clear();
+
+    String filter = selectedLeadTimeFilter.value;
+    String? startDate;
+    String? endDate;
+
+    if (filter == 'Specific' && selectedLeadDateRange.value != null) {
+      startDate = selectedLeadDateRange.value!.start.toIso8601String().split('T').first;
+      endDate = selectedLeadDateRange.value!.end.toIso8601String().split('T').first;
+    }
+
+    String apiFilter = filter.toLowerCase().replaceAll(' ', '_');
+    if (apiFilter == 'week') apiFilter = 'this_week';
+    if (apiFilter == 'month') apiFilter = 'this_month';
+    if (apiFilter == 'year') apiFilter = 'this_year';
+
+    try {
+      final LeadChartEntity chartEntity = await apiService.leadChart(
+        filter: apiFilter,
+        startDate: startDate ?? '',
+        endDate: endDate ?? '',
+      );
+
+      if (chartEntity.status) {
+        // Handle Bar Chart Data
+        if (chartEntity.leads.isNotEmpty) {
+           leadBarChartData.assignAll(chartEntity.leads);
+        }
+
+        // Handle Pie Chart Data
+        leadCompletedPieCount.value = chartEntity.pieChart.completed;
+        leadScheduledPieCount.value = chartEntity.pieChart.scheduled;
+        leadPendingPieCount.value = chartEntity.pieChart.pending;
+      }
+    } catch (e) {
+      log("Error fetching lead chart data: $e");
+    } finally {
+      isLeadChartLoading.value = false;
     }
   }
 
