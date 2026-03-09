@@ -904,33 +904,56 @@ class DashboardPage extends GetView<HomeController> {
                 if (controller.dashboardController.isChartLoading.value) {
                   return const Center(child: CircularProgressIndicator());
                 }
-                
-                int incoming = controller.dashboardController.incomingPieCount.value;
-                int missed = controller.dashboardController.missedPieCount.value;
+
+                int incoming    = controller.dashboardController.incomingPieCount.value;
+                int missed      = controller.dashboardController.missedPieCount.value;
                 int notAnswered = controller.dashboardController.notAnsweredPieCount.value;
-                int outgoing = controller.dashboardController.outgoingPieCount.value;
-                
+                int outgoing    = controller.dashboardController.outgoingPieCount.value;
+
                 if (incoming == 0 && missed == 0 && notAnswered == 0 && outgoing == 0) {
                   return const Center(child: Text("No chart data available"));
                 }
 
-                List<PieChartSectionData> pieChartSections = [];
+                // ── Build valid data list ──────────────────────────────────
                 List<Map<String, dynamic>> validData = [];
-                
-                if (incoming > 0) validData.add({"value": incoming, "color": const Color(0xFF52C41A)});
-                if (missed > 0) validData.add({"value": missed, "color": const Color(0xFFFAAD14)});
+                if (incoming > 0)    validData.add({"value": incoming,    "color": const Color(0xFF52C41A)});
+                if (missed > 0)      validData.add({"value": missed,      "color": const Color(0xFFFAAD14)});
                 if (notAnswered > 0) validData.add({"value": notAnswered, "color": const Color(0xFFFF4D4F)});
-                if (outgoing > 0) validData.add({"value": outgoing, "color": const Color(0xFF1890FF)});
+                if (outgoing > 0)    validData.add({"value": outgoing,    "color": const Color(0xFF1890FF)});
+
+                // ── FIX: enforce minimum 2.5% so tiny slices stay visible ─
+                // Without this, "Not Answered: 12" out of 3235 total = 0.37%
+                // which renders as an invisible sliver on the pie chart.
+                const double minPercent = 2.5;
+                final double rawTotal = validData.fold(0.0, (sum, e) => sum + (e["value"] as int).toDouble());
+
+                List<double> adjustedValues = validData.map((e) {
+                  double pct = (e["value"] as int) / rawTotal * 100;
+                  return pct.clamp(minPercent, 100.0);
+                }).toList();
+
+                // Re-normalise so adjusted values still sum to rawTotal
+                final double adjSum = adjustedValues.fold(0.0, (s, v) => s + v);
+                adjustedValues = adjustedValues.map((v) => v / adjSum * rawTotal).toList();
+                // ─────────────────────────────────────────────────────────
+
+                List<PieChartSectionData> pieChartSections = [];
 
                 for (int i = 0; i < validData.length; i++) {
                   bool isTouched = controller.dashboardController.touchedPieIndex.value == i;
                   pieChartSections.add(
                     PieChartSectionData(
                       color: validData[i]["color"],
-                      value: validData[i]["value"].toDouble(),
-                      title: isTouched ? validData[i]["value"].toString() : '',
+                      value: adjustedValues[i],          // ← adjusted value (visual only)
+                      title: isTouched
+                          ? (validData[i]["value"] as int).toString()  // ← show real value on touch
+                          : '',
                       radius: isTouched ? 100 : 90,
-                      titleStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                      titleStyle: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                     ),
                   );
                 }
@@ -972,14 +995,15 @@ class DashboardPage extends GetView<HomeController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-               _buildLegendItemm(color: const Color(0xFFFF4D4F), text: "Not Answered"),
-               const SizedBox(width: 16),
-               _buildLegendItemm(color: const Color(0xFF1890FF), text: "Outgoing"),
+              _buildLegendItemm(color: const Color(0xFFFF4D4F), text: "Not Answered"),
+              const SizedBox(width: 16),
+              _buildLegendItemm(color: const Color(0xFF1890FF), text: "Outgoing"),
             ],
           ),
         ],
-      ));
-    }
+      ),
+    );
+  }
 
   ///lead chart
 
