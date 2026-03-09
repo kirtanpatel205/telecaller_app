@@ -12,7 +12,7 @@ class CallActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
-        // Show over lockscreen if possible
+        // Show over lockscreen but DO NOT dismiss keyguard (keep phone locked)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
             setShowWhenLocked(true)
             setTurnScreenOn(true)
@@ -20,10 +20,12 @@ class CallActivity : Activity() {
             window.addFlags(
                 WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
                 WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or
-                WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD or
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
             )
         }
+
+        // Keep screen on for all API levels
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         val phoneNumber = intent.getStringExtra("phoneNumber")
         Log.d("CallActivity", "onCreate - phoneNumber from intent: $phoneNumber")

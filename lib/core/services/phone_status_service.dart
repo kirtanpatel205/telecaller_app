@@ -6,6 +6,9 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:telecaller_app/core/controllers/overlay_controller.dart';
 import 'package:telecaller_app/core/controllers/socket_controller.dart';
 import 'package:telecaller_app/ui/views/home/overlay/overlay_pages.dart';
+import 'package:android_intent_plus/android_intent.dart';
+import 'package:android_intent_plus/flag.dart';
+import 'dart:io';
 
 class PhoneStatusService extends GetxService {
   StreamSubscription<PhoneState>? _phoneStateSub;
@@ -252,6 +255,7 @@ class PhoneStatusService extends GetxService {
   }
 
   void _emitCallStart() async {
+
     try {
       if (Get.isRegistered<SocketController>()) {
         final SocketController socketCtrl = Get.find<SocketController>();

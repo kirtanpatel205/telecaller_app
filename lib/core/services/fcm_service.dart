@@ -22,18 +22,27 @@ import 'package:permission_handler/permission_handler.dart';
 
 import 'api_service.dart';
 
+// Track the last background notification to cancel when call starts
+int? _lastBgNotificationId;
+FlutterLocalNotificationsPlugin? _lastBgNotifPlugin;
+
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   try {
     print('🔔 [FCM BG] Handling background message: ${message.messageId}');
-    
-    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
     await GetStorage.init();
 
     // Initialize notifications for background IMMEDIATELY
-    final FlutterLocalNotificationsPlugin localNotif = FlutterLocalNotificationsPlugin();
-    const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('ic_launcher');
-    const InitializationSettings initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
+    final FlutterLocalNotificationsPlugin localNotif =
+        FlutterLocalNotificationsPlugin();
+    const AndroidInitializationSettings initializationSettingsAndroid =
+        AndroidInitializationSettings('ic_launcher');
+    const InitializationSettings initializationSettings =
+        InitializationSettings(android: initializationSettingsAndroid);
     await localNotif.initialize(initializationSettings);
 
     const AndroidNotificationChannel channel = AndroidNotificationChannel(
@@ -43,12 +52,16 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
       playSound: true,
       enableVibration: true,
     );
-    
-    await localNotif.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()?.createNotificationChannel(channel);
+
+    await localNotif
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >()
+        ?.createNotificationChannel(channel);
 
     // Call the payload handler which now handles the display too
     _handleNotificationPayload(message, localNotif, channel);
-    
+
     // Initialize SocketController for FCM background isolate (wrapped to prevent failure block)
     try {
       if (!Get.isRegistered<SocketController>()) {
@@ -61,7 +74,6 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     } catch (e) {
       print('⚠️ [FCM BG] SocketController init error: $e');
     }
-    
   } catch (e, stack) {
     print('❌ [FCM BG] Critical error in background handler: $e');
     print(stack);
@@ -104,7 +116,9 @@ Map<String, String> _handleNotificationPayload(
   // Show notification if we have the plugin (usually in background)
   if (localNotif != null && channel != null) {
     try {
-      final int notificationId = message.messageId?.hashCode ?? DateTime.now().millisecondsSinceEpoch.hashCode;
+      final int notificationId =
+          message.messageId?.hashCode ??
+          DateTime.now().millisecondsSinceEpoch.hashCode;
       localNotif.show(
         notificationId,
         title,
@@ -119,12 +133,15 @@ Map<String, String> _handleNotificationPayload(
             fullScreenIntent: true,
             visibility: NotificationVisibility.public,
             category: AndroidNotificationCategory.call,
-            ongoing: true,
-            autoCancel: false,
+            ongoing: false,
+            autoCancel: true,
             ticker: 'Incoming Call Task',
           ),
         ),
       );
+      // Store notification ID so we can cancel it when call starts
+      _lastBgNotificationId = notificationId;
+      _lastBgNotifPlugin = localNotif;
       print('✅ [FCM BG] Notification display triggered for $notificationId');
     } catch (e) {
       print('❌ [FCM BG] Failed to show notification: $e');
@@ -198,9 +215,9 @@ Map<String, String> _handleNotificationPayload(
     }
   }
 
-    if (phoneNumber != null && phoneNumber.isNotEmpty) {
+  if (phoneNumber != null && phoneNumber.isNotEmpty) {
     print('Starting 10-second auto-call countdown for $phoneNumber');
-    
+
     // Extract leadId and callSessionId if available in data
     String? leadId = data['leadContactId'] ?? data['leadId'] ?? data['lead_id'];
     String? callSessionId = data['callSessionId'] ?? data['call_session_id'];
@@ -219,9 +236,9 @@ Map<String, String> _handleNotificationPayload(
       print('❌ Socket notification emission error: $e');
     }
 
-    
     // Check nested message for leadId and callSessionId
-    if ((leadId == null || callSessionId == null) && data.containsKey('message')) {
+    if ((leadId == null || callSessionId == null) &&
+        data.containsKey('message')) {
       try {
         var messageContent = data['message'];
         Map? decoded;
@@ -232,8 +249,14 @@ Map<String, String> _handleNotificationPayload(
         }
 
         if (decoded != null) {
-          leadId ??= (decoded['leadContactId'] ?? decoded['leadId'] ?? decoded['lead_id'])?.toString();
-          callSessionId ??= (decoded['callSessionId'] ?? decoded['call_session_id'])?.toString();
+          leadId ??=
+              (decoded['leadContactId'] ??
+                      decoded['leadId'] ??
+                      decoded['lead_id'])
+                  ?.toString();
+          callSessionId ??=
+              (decoded['callSessionId'] ?? decoded['call_session_id'])
+                  ?.toString();
         }
       } catch (e) {
         print('Error parsing leadId/callSessionId from nested message: $e');
@@ -242,7 +265,19 @@ Map<String, String> _handleNotificationPayload(
 
     Timer(const Duration(seconds: 10), () async {
       print('Initiating auto-call to $phoneNumber now');
-      
+
+      // Cancel the ongoing notification since call is starting
+      try {
+        if (_lastBgNotificationId != null && _lastBgNotifPlugin != null) {
+          await _lastBgNotifPlugin!.cancel(_lastBgNotificationId!);
+          print('🔕 [FCM BG] Cancelled notification $_lastBgNotificationId');
+          _lastBgNotificationId = null;
+          _lastBgNotifPlugin = null;
+        }
+      } catch (e) {
+        print('⚠️ [FCM BG] Failed to cancel notification: $e');
+      }
+
       // Sync with background service
       if (leadId != null || callSessionId != null) {
         FlutterBackgroundService().invoke('set_lead_info', {
@@ -255,9 +290,13 @@ Map<String, String> _handleNotificationPayload(
       try {
         if (Get.isRegistered<SocketController>()) {
           final SocketController socket = Get.find<SocketController>();
-          print('📤 [FCM Backup] Attempting call-start emission for lead $leadId');
+          print(
+            '📤 [FCM Backup] Attempting call-start emission for lead $leadId',
+          );
           await socket.emitCallStart(
-            callSessionId: callSessionId ?? 'fcm_fallback_${DateTime.now().millisecondsSinceEpoch}',
+            callSessionId:
+                callSessionId ??
+                'fcm_fallback_${DateTime.now().millisecondsSinceEpoch}',
             leadContactId: leadId ?? 'unknown',
             callId: phoneNumber ?? 'unknown',
           );
@@ -271,16 +310,16 @@ Map<String, String> _handleNotificationPayload(
           // Check permissions first
           final callStatus = await Permission.phone.status;
           final alertStatus = await Permission.systemAlertWindow.status;
-          print('Permissions: CALL_PHONE=$callStatus, SYSTEM_ALERT_WINDOW=$alertStatus');
+          print(
+            'Permissions: CALL_PHONE=$callStatus, SYSTEM_ALERT_WINDOW=$alertStatus',
+          );
 
           print('Launching translucent CallActivity for background call');
           final intent = AndroidIntent(
             action: 'android.intent.action.MAIN',
             package: 'com.digibulkmarketing.telecaller_app',
             componentName: 'com.digibulkmarketing.telecaller_app.CallActivity',
-            arguments: <String, dynamic>{
-              'phoneNumber': phoneNumber,
-            },
+            arguments: <String, dynamic>{'phoneNumber': phoneNumber},
             flags: <int>[Flag.FLAG_ACTIVITY_NEW_TASK],
           );
           await intent.launch();
@@ -434,9 +473,13 @@ class FCMService extends GetxService {
     _initialized = true;
   }
 
-  void showNotification(RemoteMessage message, [String? title, String? body]) async {
+  void showNotification(
+    RemoteMessage message, [
+    String? title,
+    String? body,
+  ]) async {
     RemoteNotification? notification = message.notification;
-    
+
     String finalTitle = title ?? notification?.title ?? 'Auto Call';
     String finalBody = body ?? notification?.body ?? 'Incoming Task';
 
