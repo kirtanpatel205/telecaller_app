@@ -22,9 +22,22 @@ import 'package:permission_handler/permission_handler.dart';
 
 import 'api_service.dart';
 
-// Track the last background notification to cancel when call starts
+// ✅ Platform channel to check lock screen status from native
+const _platform = MethodChannel('com.digibulkmarketing.telecaller_app/lockscreen');
+
 int? _lastBgNotificationId;
 FlutterLocalNotificationsPlugin? _lastBgNotifPlugin;
+
+/// ✅ Check if device is currently locked
+Future<bool> _isScreenLocked() async {
+  try {
+    final bool isLocked = await _platform.invokeMethod('isScreenLocked');
+    return isLocked;
+  } catch (e) {
+    print('⚠️ Could not check lock state: $e');
+    return false; // Assume unlocked if check fails
+  }
+}
 
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -36,13 +49,12 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     );
     await GetStorage.init();
 
-    // Initialize notifications for background IMMEDIATELY
     final FlutterLocalNotificationsPlugin localNotif =
-        FlutterLocalNotificationsPlugin();
+    FlutterLocalNotificationsPlugin();
     const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('ic_launcher');
+    AndroidInitializationSettings('ic_launcher');
     const InitializationSettings initializationSettings =
-        InitializationSettings(android: initializationSettingsAndroid);
+    InitializationSettings(android: initializationSettingsAndroid);
     await localNotif.initialize(initializationSettings);
 
     const AndroidNotificationChannel channel = AndroidNotificationChannel(
@@ -55,18 +67,16 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
     await localNotif
         .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-        >()
+        AndroidFlutterLocalNotificationsPlugin
+    >()
         ?.createNotificationChannel(channel);
 
-    // Call the payload handler which now handles the display too
     _handleNotificationPayload(message, localNotif, channel);
 
-    // Initialize SocketController for FCM background isolate (wrapped to prevent failure block)
     try {
       if (!Get.isRegistered<SocketController>()) {
         final socket = SocketController();
-        await socket.initSocket(); // Ensure token is loaded
+        await socket.initSocket();
         Get.put(socket);
       } else {
         await Get.find<SocketController>().initSocket();
@@ -81,10 +91,10 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 }
 
 Map<String, String> _handleNotificationPayload(
-  RemoteMessage message, [
-  FlutterLocalNotificationsPlugin? localNotif,
-  AndroidNotificationChannel? channel,
-]) {
+    RemoteMessage message, [
+      FlutterLocalNotificationsPlugin? localNotif,
+      AndroidNotificationChannel? channel,
+    ]) {
   print('Processing message: ${message.messageId}');
   final data = message.data;
   final notification = message.notification;
@@ -94,7 +104,6 @@ Map<String, String> _handleNotificationPayload(
   String title = notification?.title ?? data['title'] ?? 'Auto Call';
   String body = notification?.body ?? data['body'] ?? 'Incoming Auto Call Task';
 
-  // Extract from 'message' key if it's a map or JSON string
   if (data.containsKey('message')) {
     try {
       var msgContent = data['message'];
@@ -113,12 +122,12 @@ Map<String, String> _handleNotificationPayload(
 
   print('Final Notification Title: $title, Body: $body');
 
-  // Show notification if we have the plugin (usually in background)
   if (localNotif != null && channel != null) {
     try {
       final int notificationId =
           message.messageId?.hashCode ??
-          DateTime.now().millisecondsSinceEpoch.hashCode;
+              DateTime.now().millisecondsSinceEpoch.hashCode;
+
       localNotif.show(
         notificationId,
         title,
@@ -130,7 +139,9 @@ Map<String, String> _handleNotificationPayload(
             importance: Importance.max,
             priority: Priority.high,
             icon: 'ic_launcher',
-            fullScreenIntent: true,
+            // ✅ FIX: fullScreenIntent દૂર કર્યો — lock screen પર app launch ન થાય
+            // fullScreenIntent: true,  // <-- આ જ problem હતો!
+            fullScreenIntent: false,
             visibility: NotificationVisibility.public,
             category: AndroidNotificationCategory.call,
             ongoing: false,
@@ -139,7 +150,6 @@ Map<String, String> _handleNotificationPayload(
           ),
         ),
       );
-      // Store notification ID so we can cancel it when call starts
       _lastBgNotificationId = notificationId;
       _lastBgNotifPlugin = localNotif;
       print('✅ [FCM BG] Notification display triggered for $notificationId');
@@ -150,7 +160,6 @@ Map<String, String> _handleNotificationPayload(
 
   String? phoneNumber;
 
-  // 1. Try common keys in a flat map
   List<String> keys = [
     'phone_number',
     'phoneNumber',
@@ -165,25 +174,23 @@ Map<String, String> _handleNotificationPayload(
     }
   }
 
-  // 2. If not found, check if there's a nested 'message' object (like in user's example)
   if (phoneNumber == null && data.containsKey('message')) {
     try {
       var messageContent = data['message'];
       if (messageContent is String) {
-        // Try parsing as JSON if it's a string
         var decoded = json.decode(messageContent);
         if (decoded is Map) {
           phoneNumber =
               (decoded['phoneNumber'] ??
-                      decoded['phone_number'] ??
-                      decoded['phone'])
+                  decoded['phone_number'] ??
+                  decoded['phone'])
                   ?.toString();
         }
       } else if (messageContent is Map) {
         phoneNumber =
             (messageContent['phoneNumber'] ??
-                    messageContent['phone_number'] ??
-                    messageContent['phone'])
+                messageContent['phone_number'] ??
+                messageContent['phone'])
                 ?.toString();
       }
     } catch (e) {
@@ -191,7 +198,6 @@ Map<String, String> _handleNotificationPayload(
     }
   }
 
-  // 3. Fallback: Search ALL values in data map for something that looks like a phone number
   if (phoneNumber == null) {
     RegExp phoneRegex = RegExp(r'\+?[0-9]{10,15}');
     for (var value in data.values) {
@@ -205,7 +211,6 @@ Map<String, String> _handleNotificationPayload(
     }
   }
 
-  // 4. Fallback: Search notification body
   if (phoneNumber == null && notification?.body != null) {
     RegExp phoneRegex = RegExp(r'\+?[0-9]{10,15}');
     Match? match = phoneRegex.firstMatch(notification!.body!);
@@ -218,11 +223,9 @@ Map<String, String> _handleNotificationPayload(
   if (phoneNumber != null && phoneNumber.isNotEmpty) {
     print('Starting 10-second auto-call countdown for $phoneNumber');
 
-    // Extract leadId and callSessionId if available in data
     String? leadId = data['leadContactId'] ?? data['leadId'] ?? data['lead_id'];
     String? callSessionId = data['callSessionId'] ?? data['call_session_id'];
 
-    // Emit Socket Notification Received
     try {
       if (Get.isRegistered<SocketController>()) {
         final SocketController socket = Get.find<SocketController>();
@@ -236,7 +239,6 @@ Map<String, String> _handleNotificationPayload(
       print('❌ Socket notification emission error: $e');
     }
 
-    // Check nested message for leadId and callSessionId
     if ((leadId == null || callSessionId == null) &&
         data.containsKey('message')) {
       try {
@@ -251,8 +253,8 @@ Map<String, String> _handleNotificationPayload(
         if (decoded != null) {
           leadId ??=
               (decoded['leadContactId'] ??
-                      decoded['leadId'] ??
-                      decoded['lead_id'])
+                  decoded['leadId'] ??
+                  decoded['lead_id'])
                   ?.toString();
           callSessionId ??=
               (decoded['callSessionId'] ?? decoded['call_session_id'])
@@ -266,7 +268,6 @@ Map<String, String> _handleNotificationPayload(
     Timer(const Duration(seconds: 10), () async {
       print('Initiating auto-call to $phoneNumber now');
 
-      // Cancel the ongoing notification since call is starting
       try {
         if (_lastBgNotificationId != null && _lastBgNotifPlugin != null) {
           await _lastBgNotifPlugin!.cancel(_lastBgNotificationId!);
@@ -278,7 +279,6 @@ Map<String, String> _handleNotificationPayload(
         print('⚠️ [FCM BG] Failed to cancel notification: $e');
       }
 
-      // Sync with background service
       if (leadId != null || callSessionId != null) {
         FlutterBackgroundService().invoke('set_lead_info', {
           'leadId': leadId,
@@ -286,7 +286,6 @@ Map<String, String> _handleNotificationPayload(
         });
       }
 
-      // FCM-Based Backup Socket Emission
       try {
         if (Get.isRegistered<SocketController>()) {
           final SocketController socket = Get.find<SocketController>();
@@ -295,7 +294,7 @@ Map<String, String> _handleNotificationPayload(
           );
           await socket.emitCallStart(
             callSessionId:
-                callSessionId ??
+            callSessionId ??
                 'fcm_fallback_${DateTime.now().millisecondsSinceEpoch}',
             leadContactId: leadId ?? 'unknown',
             callId: phoneNumber ?? 'unknown',
@@ -307,7 +306,6 @@ Map<String, String> _handleNotificationPayload(
 
       try {
         if (Platform.isAndroid) {
-          // Check permissions first
           final callStatus = await Permission.phone.status;
           final alertStatus = await Permission.systemAlertWindow.status;
           print(
@@ -318,7 +316,8 @@ Map<String, String> _handleNotificationPayload(
           final intent = AndroidIntent(
             action: 'android.intent.action.MAIN',
             package: 'com.digibulkmarketing.telecaller_app',
-            componentName: 'com.digibulkmarketing.telecaller_app.CallActivity',
+            componentName:
+            'com.digibulkmarketing.telecaller_app.CallActivity',
             arguments: <String, dynamic>{'phoneNumber': phoneNumber},
             flags: <int>[Flag.FLAG_ACTIVITY_NEW_TASK],
           );
@@ -330,7 +329,6 @@ Map<String, String> _handleNotificationPayload(
         }
       } catch (e) {
         print('Error launching CallActivity: $e');
-        // Final fallback to direct caller if proxy fails
         try {
           print('Attempting fallback to FlutterPhoneDirectCaller');
           await FlutterPhoneDirectCaller.callNumber(phoneNumber!);
@@ -372,8 +370,8 @@ class FCMService extends GetxService {
 
     await flutterLocalNotificationsPlugin!
         .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-        >()
+        AndroidFlutterLocalNotificationsPlugin
+    >()
         ?.createNotificationChannel(channel!);
   }
 
@@ -385,7 +383,6 @@ class FCMService extends GetxService {
     print('FCM Token: $token');
     await Storage.saveValue(AppConstants.FCM_TOKEN, token);
 
-    // Always attempt to save to API if we have an auth token
     String? authToken = await Storage.getValue(AppConstants.TOKEN);
     if (authToken != null && authToken.isNotEmpty) {
       try {
@@ -415,6 +412,9 @@ class FCMService extends GetxService {
 
     OneSignal.Notifications.addClickListener((event) {
       print('Notification Clicked: ${event.notification.jsonRepresentation()}');
+      // ✅ FIX: Notification click થાય ત્યારે lock screen check
+      // App open ન કરો, notification dismiss કરો
+      print('📵 Notification tapped — no app launch from lock screen');
     });
 
     OneSignal.Notifications.addForegroundWillDisplayListener((event) {
@@ -446,8 +446,8 @@ class FCMService extends GetxService {
     FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
     FirebaseMessaging.instance.getInitialMessage().then((
-      RemoteMessage? message,
-    ) {
+        RemoteMessage? message,
+        ) {
       if (message != null) {
         print("Initial Message: ${message.messageId}");
         final strings = _handleNotificationPayload(message);
@@ -461,10 +461,19 @@ class FCMService extends GetxService {
       showNotification(message, strings['title'], strings['body']);
     });
 
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+    // ✅ FIX: onMessageOpenedApp — screen locked હોય તો MainActivity ન ખોલો
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
       print('Message Opened App: ${message.data}');
-      final strings = _handleNotificationPayload(message);
-      // No need to show notification here as it's already clicked
+
+      final bool locked = await _isScreenLocked();
+      if (locked) {
+        // Screen locked છે — app open ન કરો, ફક્ત payload process કરો
+        print('📵 Screen is locked — skipping app launch from notification tap');
+        return;
+      }
+
+      // Screen unlocked છે — safe to process
+      _handleNotificationPayload(message);
     });
 
     Stream<String> tokenStream = FirebaseMessaging.instance.onTokenRefresh;
@@ -474,10 +483,10 @@ class FCMService extends GetxService {
   }
 
   void showNotification(
-    RemoteMessage message, [
-    String? title,
-    String? body,
-  ]) async {
+      RemoteMessage message, [
+        String? title,
+        String? body,
+      ]) async {
     RemoteNotification? notification = message.notification;
 
     String finalTitle = title ?? notification?.title ?? 'Auto Call';
@@ -499,6 +508,8 @@ class FCMService extends GetxService {
           category: AndroidNotificationCategory.call,
           playSound: true,
           enableVibration: true,
+          // ✅ FIX: foreground notification માટે પણ fullScreenIntent નહીં
+          fullScreenIntent: false,
         ),
       ),
     );

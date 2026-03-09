@@ -65,13 +65,17 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="call_tasks_channel" />
-        <!-- Proxy activity for background calls -->
+
+        <!-- ✅ FIXED: Removed showWhenLocked/turnScreenOn from manifest -->
+        <!-- Lock screen behaviour is now handled programmatically in CallActivity.kt -->
         <activity
             android:name=".CallActivity"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:exported="true"
             android:excludeFromRecents="true"
-            android:noHistory="true" />
+            android:noHistory="true"
+            android:taskAffinity=""
+            android:launchMode="singleInstance" />
 
         <receiver
             android:name=".PhoneStateReceiver"
