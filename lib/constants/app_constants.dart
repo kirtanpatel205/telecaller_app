@@ -3,8 +3,9 @@ import 'package:flutter/foundation.dart';
 class AppConstants {
   const AppConstants._();
 
-  static const String BASE_URL = 'https://wa-test.digibulkmarketing.com/api';
+  static const String BASE_URL = 'https://tu-test.digibulkmarketing.com/api';
   // static const String _baseUrlRelease = 'https://api.digibulkmarketing.com';
+  static const String BASE_SOCKET_URL = 'https://api-test.digibulkmarketing.com';
 
   // Dynamic API URL based on build mode
   // static String get API_URL => kDebugMode ? BASE_URL : _baseUrlRelease;
@@ -17,8 +18,7 @@ class AppConstants {
       'd8426638-0e2b-493a-aee1-9fcee2f1990b';
 
   // Cache storage
-  static const String TOKEN =
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1YzFjODFlZGExNTUzNTZhZGQ3NDY0NyIsImlhdCI6MTcyMDA4MjAxNiwiZXhwIjoxNzIyNjc0MDE2fQ.EfqLVHpalTysNm-7YOhjvDD-K9ZZkZH92VxWfEaP7Hg';
+  static const String TOKEN = 'auth_token';
   static const String PROFILE_TOKEN = 'profileToken';
   static const String DL_REFER_USER = 'dlReferUser';
   static const String TOKEN_TIMESTAMP = 'authTokenTimestamp';

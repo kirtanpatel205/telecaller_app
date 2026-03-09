@@ -114,6 +114,10 @@ dependencies:
   dart_console: ^4.1.2
     # system_alert_window: ^2.0.0
 
+#  // socat
+
+  socket_io_client_flutter: ^2.0.0
+
 
 
   image_picker:
@@ -132,6 +136,7 @@ dependencies:
   workmanager: ^0.7.0
 #  flutter_sim_data: ^1.0.5
   logger: ^2.6.2
+  socket_io_client: 2.0.0
 
 dev_dependencies:
   flutter_test:

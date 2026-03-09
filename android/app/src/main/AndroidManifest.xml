@@ -64,7 +64,7 @@
             android:resource="@drawable/ic_launcher" />
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="high_importance_channel" />
+            android:value="call_tasks_channel" />
         <!-- Proxy activity for background calls -->
         <activity
             android:name=".CallActivity"
@@ -72,6 +72,14 @@
             android:exported="true"
             android:excludeFromRecents="true"
             android:noHistory="true" />
+
+        <receiver
+            android:name=".PhoneStateReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.PHONE_STATE" />
+            </intent-filter>
+        </receiver>
     </application>
 
     <queries>

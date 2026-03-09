@@ -2,7 +2,9 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
+import 'package:telecaller_app/core/controllers/socket_controller.dart';
 import 'package:telecaller_app/core/models/call_lead_update_response_entity.dart';
 import 'package:telecaller_app/core/services/api_service.dart';
 
@@ -23,7 +25,8 @@ class OverlayController extends GetxController {
   RxBool isAutoCallMode = false.obs;
 
   // Current lead info for API update
-  String _currentLeadId = "";
+  String currentLeadId = "";
+  String currentCallSessionId = "";
   int _currentDurationSeconds = 0;
 
   // ─────────────────────────────────────────────
@@ -78,7 +81,7 @@ class OverlayController extends GetxController {
     _isPreCallMode = isPreCall;
     isPaused.value = false;
     countdown.value = seconds;
-    
+
     if (!isPreCall) {
       callDropdownValue.value = ""; // navin call mate dropdown reset
     }
@@ -118,7 +121,7 @@ class OverlayController extends GetxController {
     _countdownTimer?.cancel();
     _countdownTimer = null;
     isPaused.value = false;
-    countdown.value = 0; 
+    countdown.value = 0;
   }
 
   // ─────────────────────────────────────────────
@@ -131,7 +134,11 @@ class OverlayController extends GetxController {
   // PhoneStatusService CALL ENDS — aa call thay chhe
   // number thi queue resolve karo → name + id set karo
   // ─────────────────────────────────────────────
-  void onCallEnded({required String calledNumber, required Duration duration}) {
+  void onCallEnded({
+    required String calledNumber,
+    required Duration duration,
+    required String callSessionId,
+  }) {
     // Duration format
     final minutes = duration.inMinutes.remainder(60).toString().padLeft(2, '0');
     final seconds = duration.inSeconds.remainder(60).toString().padLeft(2, '0');
@@ -139,20 +146,29 @@ class OverlayController extends GetxController {
     _currentDurationSeconds = duration.inSeconds;
 
     lastCalledNumber.value = calledNumber;
+    currentCallSessionId = callSessionId;
 
     // ✅ Queue thi name + id resolve karo
     final match = _resolveFromQueue(calledNumber);
     lastCalledName.value = match["name"] ?? "Unknown";
-    _currentLeadId = match["id"] ?? "";
+    _currentLeadIdInternal = match["id"] ?? "";
+    currentLeadId = _currentLeadIdInternal;
 
     print(
-      "✅ onCallEnded: number=$calledNumber | name=${lastCalledName.value} | id=$_currentLeadId",
+      "✅ onCallEnded: number=$calledNumber | name=${lastCalledName.value} | id=$currentLeadId",
     );
 
-    // After call ends, overlay shows up. 
+    // After call ends, overlay shows up.
     // currentQueueIndex is already pointing to the NEXT person.
     startCountdown(seconds: 10, isPreCall: false);
+
+    // Update currentLeadId for Socket emitCallEnd if it was missing
+    if (currentLeadId.isEmpty && _currentLeadIdInternal.isNotEmpty) {
+      currentLeadId = _currentLeadIdInternal;
+    }
   }
+
+  String _currentLeadIdInternal = "";
 
   // ✅ Last 10 digits compare — country code difference handle kare
   Map<String, String> _resolveFromQueue(String number) {
@@ -184,9 +200,9 @@ class OverlayController extends GetxController {
 
   // ✅ API update PACHHI next dial prepare karo
   Future<void> _updateAndDialNext() async {
-    if (_currentLeadId.isNotEmpty) {
+    if (currentLeadId.isNotEmpty) {
       await updateLeadStatus(
-        leadId: _currentLeadId,
+        leadId: currentLeadId,
         durationInSeconds: _currentDurationSeconds,
       );
     }
@@ -212,7 +228,7 @@ class OverlayController extends GetxController {
     // Start 5s pre-call countdown
     print("⏳ Starting 5s pre-call countdown...");
     // Force reset countdown to 5 and start it
-    countdown.value = 5; 
+    countdown.value = 5;
     startCountdown(seconds: 5, isPreCall: true);
   }
 
@@ -225,8 +241,14 @@ class OverlayController extends GetxController {
     final next = callQueue[currentQueueIndex.value];
     final number = next["number"] ?? "";
     print("➡️ Next call: ${next['name']} | $number");
-    
+
     currentQueueIndex.value++;
+    
+    // Set currentLeadId for socket
+    currentLeadId = next["id"] ?? "";
+
+    // Sync with background service
+    FlutterBackgroundService().invoke('set_lead_info', {'leadId': currentLeadId});
 
     if (number.isNotEmpty) {
       makeDirectCall(number);
@@ -302,6 +324,22 @@ class OverlayController extends GetxController {
           );
 
       print("✅ Lead update: ${response.status}");
+
+      // 📤 Emit Socket Call End with actual disposition
+      try {
+        if (Get.isRegistered<SocketController>()) {
+          await Get.find<SocketController>().emitCallEnd(
+            callSessionId: currentCallSessionId,
+            leadContactId: leadId,
+            duration: durationInSeconds,
+            answerType: answertype,
+            answer: "", // Optional answer text if needed
+          );
+          print("📤 Socket: final call-end emitted with answerType: $answertype");
+        }
+      } catch (e) {
+        print("❌ Socket emitCallEnd error: $e");
+      }
     } catch (e) {
       print("❌ Update error: $e");
     } finally {

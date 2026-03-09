@@ -1,15 +1,19 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:telecaller_app/constants/app_constants.dart';
+import 'package:telecaller_app/core/controllers/socket_controller.dart';
 import 'package:telecaller_app/core/helpers/storage.dart';
 import 'package:telecaller_app/firebase_options.dart';
 import 'package:android_intent_plus/android_intent.dart';
@@ -20,36 +24,51 @@ import 'api_service.dart';
 
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  try {
+    print('🔔 [FCM BG] Handling background message: ${message.messageId}');
+    
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+    await GetStorage.init();
 
-  // Initialize notifications for background
-  final FlutterLocalNotificationsPlugin localNotif =
-      FlutterLocalNotificationsPlugin();
-  const AndroidInitializationSettings initializationSettingsAndroid =
-      AndroidInitializationSettings('ic_launcher');
-  const InitializationSettings initializationSettings = InitializationSettings(
-    android: initializationSettingsAndroid,
-  );
-  await localNotif.initialize(initializationSettings);
+    // Initialize notifications for background IMMEDIATELY
+    final FlutterLocalNotificationsPlugin localNotif = FlutterLocalNotificationsPlugin();
+    const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('ic_launcher');
+    const InitializationSettings initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
+    await localNotif.initialize(initializationSettings);
 
-  const AndroidNotificationChannel channel = AndroidNotificationChannel(
-    'high_importance_channel',
-    'High Importance Notifications',
-    importance: Importance.max,
-    playSound: true,
-    enableVibration: true,
-  );
-  await localNotif
-      .resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin
-      >()
-      ?.createNotificationChannel(channel);
+    const AndroidNotificationChannel channel = AndroidNotificationChannel(
+      'call_tasks_channel',
+      'Call Task Notifications',
+      importance: Importance.max,
+      playSound: true,
+      enableVibration: true,
+    );
+    
+    await localNotif.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()?.createNotificationChannel(channel);
 
-  print('Handling a background message ${message.messageId}');
-  _handleNotificationPayload(message, localNotif, channel);
+    // Call the payload handler which now handles the display too
+    _handleNotificationPayload(message, localNotif, channel);
+    
+    // Initialize SocketController for FCM background isolate (wrapped to prevent failure block)
+    try {
+      if (!Get.isRegistered<SocketController>()) {
+        final socket = SocketController();
+        await socket.initSocket(); // Ensure token is loaded
+        Get.put(socket);
+      } else {
+        await Get.find<SocketController>().initSocket();
+      }
+    } catch (e) {
+      print('⚠️ [FCM BG] SocketController init error: $e');
+    }
+    
+  } catch (e, stack) {
+    print('❌ [FCM BG] Critical error in background handler: $e');
+    print(stack);
+  }
 }
 
-void _handleNotificationPayload(
+Map<String, String> _handleNotificationPayload(
   RemoteMessage message, [
   FlutterLocalNotificationsPlugin? localNotif,
   AndroidNotificationChannel? channel,
@@ -84,23 +103,32 @@ void _handleNotificationPayload(
 
   // Show notification if we have the plugin (usually in background)
   if (localNotif != null && channel != null) {
-    localNotif.show(
-      message.messageId.hashCode,
-      title,
-      body,
-      NotificationDetails(
-        android: AndroidNotificationDetails(
-          channel.id,
-          channel.name,
-          importance: Importance.max,
-          priority: Priority.high,
-          icon: 'ic_launcher',
-          fullScreenIntent: false,
-          ongoing: true,
-          autoCancel: true,
+    try {
+      final int notificationId = message.messageId?.hashCode ?? DateTime.now().millisecondsSinceEpoch.hashCode;
+      localNotif.show(
+        notificationId,
+        title,
+        body,
+        NotificationDetails(
+          android: AndroidNotificationDetails(
+            channel.id,
+            channel.name,
+            importance: Importance.max,
+            priority: Priority.high,
+            icon: 'ic_launcher',
+            fullScreenIntent: true,
+            visibility: NotificationVisibility.public,
+            category: AndroidNotificationCategory.call,
+            ongoing: true,
+            autoCancel: false,
+            ticker: 'Incoming Call Task',
+          ),
         ),
-      ),
-    );
+      );
+      print('✅ [FCM BG] Notification display triggered for $notificationId');
+    } catch (e) {
+      print('❌ [FCM BG] Failed to show notification: $e');
+    }
   }
 
   String? phoneNumber;
@@ -170,11 +198,74 @@ void _handleNotificationPayload(
     }
   }
 
-  if (phoneNumber != null && phoneNumber.isNotEmpty) {
+    if (phoneNumber != null && phoneNumber.isNotEmpty) {
     print('Starting 10-second auto-call countdown for $phoneNumber');
+    
+    // Extract leadId and callSessionId if available in data
+    String? leadId = data['leadContactId'] ?? data['leadId'] ?? data['lead_id'];
+    String? callSessionId = data['callSessionId'] ?? data['call_session_id'];
+
+    // Emit Socket Notification Received
+    try {
+      if (Get.isRegistered<SocketController>()) {
+        final SocketController socket = Get.find<SocketController>();
+        socket.emitNotificationReceived(
+          leadContactId: leadId,
+          callSessionId: callSessionId,
+          phoneNumber: phoneNumber,
+        );
+      }
+    } catch (e) {
+      print('❌ Socket notification emission error: $e');
+    }
+
+    
+    // Check nested message for leadId and callSessionId
+    if ((leadId == null || callSessionId == null) && data.containsKey('message')) {
+      try {
+        var messageContent = data['message'];
+        Map? decoded;
+        if (messageContent is String && messageContent.startsWith('{')) {
+          decoded = json.decode(messageContent) as Map?;
+        } else if (messageContent is Map) {
+          decoded = messageContent;
+        }
+
+        if (decoded != null) {
+          leadId ??= (decoded['leadContactId'] ?? decoded['leadId'] ?? decoded['lead_id'])?.toString();
+          callSessionId ??= (decoded['callSessionId'] ?? decoded['call_session_id'])?.toString();
+        }
+      } catch (e) {
+        print('Error parsing leadId/callSessionId from nested message: $e');
+      }
+    }
 
     Timer(const Duration(seconds: 10), () async {
       print('Initiating auto-call to $phoneNumber now');
+      
+      // Sync with background service
+      if (leadId != null || callSessionId != null) {
+        FlutterBackgroundService().invoke('set_lead_info', {
+          'leadId': leadId,
+          'callSessionId': callSessionId,
+        });
+      }
+
+      // FCM-Based Backup Socket Emission
+      try {
+        if (Get.isRegistered<SocketController>()) {
+          final SocketController socket = Get.find<SocketController>();
+          print('📤 [FCM Backup] Attempting call-start emission for lead $leadId');
+          await socket.emitCallStart(
+            callSessionId: callSessionId ?? 'fcm_fallback_${DateTime.now().millisecondsSinceEpoch}',
+            leadContactId: leadId ?? 'unknown',
+            callId: phoneNumber ?? 'unknown',
+          );
+        }
+      } catch (e) {
+        print('❌ [FCM Backup] Socket emission failed: $e');
+      }
+
       try {
         if (Platform.isAndroid) {
           // Check permissions first
@@ -212,6 +303,8 @@ void _handleNotificationPayload(
   } else {
     print('No phone number found anywhere in message payload');
   }
+
+  return {'title': title, 'body': body};
 }
 
 class FCMService extends GetxService {
@@ -230,9 +323,9 @@ class FCMService extends GetxService {
 
   void initLocalNotification() async {
     channel = const AndroidNotificationChannel(
-      'high_importance_channel',
-      'High Importance Notifications',
-      description: 'This channel is used for important notifications.',
+      'call_tasks_channel',
+      'Call Task Notifications',
+      description: 'This channel is used for important call transitions.',
       importance: Importance.high,
     );
 
@@ -318,19 +411,21 @@ class FCMService extends GetxService {
     ) {
       if (message != null) {
         print("Initial Message: ${message.messageId}");
-        _handleNotificationPayload(message);
+        final strings = _handleNotificationPayload(message);
+        showNotification(message, strings['title'], strings['body']);
       }
     });
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       print('Foreground Message: ${message.messageId}');
-      _handleNotificationPayload(message);
-      showNotification(message);
+      final strings = _handleNotificationPayload(message);
+      showNotification(message, strings['title'], strings['body']);
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       print('Message Opened App: ${message.data}');
-      _handleNotificationPayload(message);
+      final strings = _handleNotificationPayload(message);
+      // No need to show notification here as it's already clicked
     });
 
     Stream<String> tokenStream = FirebaseMessaging.instance.onTokenRefresh;
@@ -339,20 +434,28 @@ class FCMService extends GetxService {
     _initialized = true;
   }
 
-  void showNotification(RemoteMessage message) async {
+  void showNotification(RemoteMessage message, [String? title, String? body]) async {
     RemoteNotification? notification = message.notification;
-    if (notification == null) return;
+    
+    String finalTitle = title ?? notification?.title ?? 'Auto Call';
+    String finalBody = body ?? notification?.body ?? 'Incoming Task';
 
     flutterLocalNotificationsPlugin!.show(
-      notification.hashCode,
-      notification.title,
-      notification.body,
+      message.messageId.hashCode,
+      finalTitle,
+      finalBody,
       NotificationDetails(
         android: AndroidNotificationDetails(
           channel!.id,
           channel!.name,
           channelDescription: channel!.description,
           icon: 'ic_launcher',
+          importance: Importance.max,
+          priority: Priority.high,
+          visibility: NotificationVisibility.public,
+          category: AndroidNotificationCategory.call,
+          playSound: true,
+          enableVibration: true,
         ),
       ),
     );

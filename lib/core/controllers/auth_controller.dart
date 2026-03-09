@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:flutter_background_service/flutter_background_service.dart';
 
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -9,6 +10,7 @@ import 'package:telecaller_app/constants/app_constants.dart';
 import 'package:telecaller_app/constants/app_routes.dart';
 import 'package:telecaller_app/core/models/login_response_entity.dart';
 
+import '../controllers/socket_controller.dart';
 import '../helpers/storage.dart';
 import '../services/api_service.dart';
 
@@ -65,13 +67,24 @@ class AuthController extends GetxController {
       Storage.saveToSharedPrefs(AppConstants.ISLOGGING, true);
       Storage.saveValue(AppConstants.USER_ID, entity.profile?.id);
       Storage.saveValue(AppConstants.FIRE_USER_ID, entity.profile?.id);
-      Storage.saveValue(AppConstants.TOKEN, entity.token);
+      await Storage.saveToken(entity.token!);
       Storage.saveValue(AppConstants.PHONE, entity.profile?.phone);
       print(
           "save user ${entity.profile?.id} ${entity.profile?.id} ${entity.token}");
       profile.value = entity.profile;
 
+      // Trigger Socket Connection with new token
+      if (Get.isRegistered<SocketController>()) {
+        Get.find<SocketController>().connectWithToken(entity.token!);
+      }
 
+      // Sync token to background service so it can connect socket
+      try {
+        FlutterBackgroundService().invoke('set_token', {'token': entity.token!});
+        print('🔑 Auth: Token synced to background service');
+      } catch (e) {
+        print('⚠️ Auth: Failed to sync token to background service: $e');
+      }
 
       Get.offAllNamed(Routes.HOME);
 
