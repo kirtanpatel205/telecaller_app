@@ -46,16 +46,11 @@ class AppConstants {
   static const String REGEX_USERNAME = r'\B@[a-zA-Z0-9_.]+\b';
   static const String REGEX_HASHTAG = r'\B#[a-zA-Z0-9]+\b';
 
-
-
-
-
   static String API_SEND_OTP = '$API_URL/telecaller/send-otp';
   static String API_VERYFY_OTP = '$API_URL/telecaller/verify-otp';
   static String API_PROFILE = '$API_URL/auth/profile';
   static String API_UPDATE_PROFILE = '$API_URL/auth/profile/save';
   static String API_UPDATE_PROFILE_IMAGE = '$API_URL/app/upload-image';
-
 
   // lead all
 
@@ -63,15 +58,14 @@ class AppConstants {
   static String API_GET_CALL = '$API_URL/telecaller/lead-contact/all';
   static String API_LEADS_UPDATE = '$API_URL/telecaller/lead/log/update';
 
-
-
-
   // fcm token
 
   static String SAVE_FCM_TOKEN = '$API_URL/telecaller/save/fcm-token';
 
-
-
-
-
+  //dashboard overview
+  static String API_GET_DASHBOARD_STATISTICS =
+      '$API_URL/telecaller/dashboard-statistics';
+  //chart data
+  static String API_CALL_CHART = '$API_URL/telecaller/calls/analytics';
+  static String API_LEAD_CHART = '$API_URL/telecaller/lead-contacts/analytics';
 }

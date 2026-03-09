@@ -6,7 +6,10 @@
 import 'package:flutter/material.dart' show debugPrint;
 import 'package:telecaller_app/core/models/all_lead_entity.dart';
 import 'package:telecaller_app/core/models/api_response_entity.dart';
+import 'package:telecaller_app/core/models/call_chart_entity.dart';
 import 'package:telecaller_app/core/models/call_lead_update_response_entity.dart';
+import 'package:telecaller_app/core/models/get_static_entity.dart';
+import 'package:telecaller_app/core/models/lead_chart_entity.dart';
 import 'package:telecaller_app/core/models/lead_contact_id_entity.dart';
 import 'package:telecaller_app/core/models/login_response_entity.dart';
 
@@ -179,6 +182,26 @@ class JsonConvert {
       return data.map<ApiResponseEntity>((Map<String, dynamic> e) =>
           ApiResponseEntity.fromJson(e)).toList() as M;
     }
+    if (<CallChartEntity>[] is M) {
+      return data.map<CallChartEntity>((Map<String, dynamic> e) =>
+          CallChartEntity.fromJson(e)).toList() as M;
+    }
+    if (<CallChartBarChart>[] is M) {
+      return data.map<CallChartBarChart>((Map<String, dynamic> e) =>
+          CallChartBarChart.fromJson(e)).toList() as M;
+    }
+    if (<CallChartBarChartIncoming>[] is M) {
+      return data.map<CallChartBarChartIncoming>((Map<String, dynamic> e) =>
+          CallChartBarChartIncoming.fromJson(e)).toList() as M;
+    }
+    if (<CallChartBarChartOutgoing>[] is M) {
+      return data.map<CallChartBarChartOutgoing>((Map<String, dynamic> e) =>
+          CallChartBarChartOutgoing.fromJson(e)).toList() as M;
+    }
+    if (<CallChartPieChart>[] is M) {
+      return data.map<CallChartPieChart>((Map<String, dynamic> e) =>
+          CallChartPieChart.fromJson(e)).toList() as M;
+    }
     if (<CallLeadUpdateResponseEntity>[] is M) {
       return data.map<CallLeadUpdateResponseEntity>((Map<String, dynamic> e) =>
           CallLeadUpdateResponseEntity.fromJson(e)).toList() as M;
@@ -197,6 +220,30 @@ class JsonConvert {
           .map<CallLeadUpdateResponseDataLogs>((
           Map<String, dynamic> e) => CallLeadUpdateResponseDataLogs.fromJson(e))
           .toList() as M;
+    }
+    if (<GetStaticEntity>[] is M) {
+      return data.map<GetStaticEntity>((Map<String, dynamic> e) =>
+          GetStaticEntity.fromJson(e)).toList() as M;
+    }
+    if (<GetStaticStatistics>[] is M) {
+      return data.map<GetStaticStatistics>((Map<String, dynamic> e) =>
+          GetStaticStatistics.fromJson(e)).toList() as M;
+    }
+    if (<LeadChartEntity>[] is M) {
+      return data.map<LeadChartEntity>((Map<String, dynamic> e) =>
+          LeadChartEntity.fromJson(e)).toList() as M;
+    }
+    if (<LeadChartLeads>[] is M) {
+      return data.map<LeadChartLeads>((Map<String, dynamic> e) =>
+          LeadChartLeads.fromJson(e)).toList() as M;
+    }
+    if (<LeadChartBarChart>[] is M) {
+      return data.map<LeadChartBarChart>((Map<String, dynamic> e) =>
+          LeadChartBarChart.fromJson(e)).toList() as M;
+    }
+    if (<LeadChartPieChart>[] is M) {
+      return data.map<LeadChartPieChart>((Map<String, dynamic> e) =>
+          LeadChartPieChart.fromJson(e)).toList() as M;
     }
     if (<LeadContactIdEntity>[] is M) {
       return data.map<LeadContactIdEntity>((Map<String, dynamic> e) =>
@@ -275,6 +322,11 @@ class JsonConvertClassCollection {
     (AllLeadLeadsFormId).toString(): AllLeadLeadsFormId.fromJson,
     (AllLeadLeadsFormIdFields).toString(): AllLeadLeadsFormIdFields.fromJson,
     (ApiResponseEntity).toString(): ApiResponseEntity.fromJson,
+    (CallChartEntity).toString(): CallChartEntity.fromJson,
+    (CallChartBarChart).toString(): CallChartBarChart.fromJson,
+    (CallChartBarChartIncoming).toString(): CallChartBarChartIncoming.fromJson,
+    (CallChartBarChartOutgoing).toString(): CallChartBarChartOutgoing.fromJson,
+    (CallChartPieChart).toString(): CallChartPieChart.fromJson,
     (CallLeadUpdateResponseEntity).toString(): CallLeadUpdateResponseEntity
         .fromJson,
     (CallLeadUpdateResponseData).toString(): CallLeadUpdateResponseData
@@ -283,6 +335,12 @@ class JsonConvertClassCollection {
         .toString(): CallLeadUpdateResponseDataContact.fromJson,
     (CallLeadUpdateResponseDataLogs).toString(): CallLeadUpdateResponseDataLogs
         .fromJson,
+    (GetStaticEntity).toString(): GetStaticEntity.fromJson,
+    (GetStaticStatistics).toString(): GetStaticStatistics.fromJson,
+    (LeadChartEntity).toString(): LeadChartEntity.fromJson,
+    (LeadChartLeads).toString(): LeadChartLeads.fromJson,
+    (LeadChartBarChart).toString(): LeadChartBarChart.fromJson,
+    (LeadChartPieChart).toString(): LeadChartPieChart.fromJson,
     (LeadContactIdEntity).toString(): LeadContactIdEntity.fromJson,
     (LeadContactIdLeadContacts).toString(): LeadContactIdLeadContacts.fromJson,
     (LeadContactIdLeadContactsAssignedTo)
