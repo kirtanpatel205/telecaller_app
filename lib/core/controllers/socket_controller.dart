@@ -135,7 +135,20 @@ class SocketController extends GetxController {
         connectionStatus.value = 'Disconnected';
         socketId.value = '';
 
-        print('❌ Socket Disconnected');
+        print('❌ Socket Disconnected. Will attempt to reconnect automatically...');
+      });
+
+      socket!.onReconnect((_) {
+        isConnected.value = true;
+        connectionStatus.value = 'Connected';
+        socketId.value = socket?.id ?? 'N/A';
+
+        print('🔄 ✅ Socket Reconnected Successfully: ${socketId.value}');
+      });
+
+      socket!.onReconnectAttempt((attempt) {
+        connectionStatus.value = 'Reconnecting...';
+        print('🔄 Socket Reconnection Attempt: $attempt');
       });
 
       socket!.onConnectError((err) {
