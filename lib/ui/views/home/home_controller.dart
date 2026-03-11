@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:telecaller_app/constants/app_routes.dart';
 import 'package:telecaller_app/core/controllers/auth_controller.dart';
+import 'package:telecaller_app/core/controllers/call_form_controller.dart';
 import 'package:telecaller_app/core/services/fcm_service.dart';
 import 'package:telecaller_app/ui/views/auto_dialer/autodialer_controller.dart';
 import 'package:telecaller_app/ui/views/dashboard/dashboard_controller.dart';
@@ -18,6 +19,7 @@ class HomeController extends GetxController {
   AutoDialerController autoDialerController = Get.put(AutoDialerController());
   SettingController settingController = Get.put(SettingController());
   DashboardController dashboardController = Get.put(DashboardController());
+  CallFormController callFormController = Get.put(CallFormController());
   // FCMService fcmService = Get.put(FCMService().init());
 
   // FCMService FcmToken = Get.find();

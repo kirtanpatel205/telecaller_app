@@ -3,36 +3,47 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:phone_state/phone_state.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:telecaller_app/core/controllers/call_form_controller.dart';
 import 'package:telecaller_app/core/controllers/overlay_controller.dart';
 import 'package:telecaller_app/core/controllers/socket_controller.dart';
+import 'package:telecaller_app/ui/views/call_form/call_form_page.dart';
 import 'package:telecaller_app/ui/views/home/overlay/overlay_pages.dart';
-import 'package:android_intent_plus/android_intent.dart';
-import 'package:android_intent_plus/flag.dart';
 import 'dart:io';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// UI state machine for the call lifecycle.
+//
+//   IDLE  ──CALL_STARTED──▶  CALL_ACTIVE  ──CALL_ENDED──▶  SHOWING_OVERLAY
+//                                                                  │
+//                                               overlay closed ◀──┘  (→ IDLE)
+// ─────────────────────────────────────────────────────────────────────────────
+enum _CallUIState { idle, callActive, showingOverlay }
 
 class PhoneStatusService extends GetxService {
   StreamSubscription<PhoneState>? _phoneStateSub;
 
+  // ── Reactive state (for external observers) ───────────────────────────────
   var callStatus = "Idle".obs;
   var phoneNumber = "".obs;
   var isCallActive = false.obs;
 
-  // ✅ Background flag to avoid UI calls in isolate
+  // ── Background flag ───────────────────────────────────────────────────────
   bool _isBackground = false;
 
+  // ── Call session ──────────────────────────────────────────────────────────
   String? _currentCallSessionId;
+  String? _externalCallSessionId;
   String? currentLeadId;
 
+  // ── Timing ────────────────────────────────────────────────────────────────
   DateTime? _callStartTime;
-  bool _dialogOpen = false;
-  bool _callEndedProcessed = false;
 
-  String? _externalCallSessionId;
+  // ── UI state machine ──────────────────────────────────────────────────────
+  _CallUIState _uiState = _CallUIState.idle;
 
-  // ✅ App start pachhi actually call started thayo ke nahi
-  // Jyare CALL_STARTED aave tyare true thay
-  // Aa false hoy to CALL_ENDED ignore karo (app start fake event)
-  bool _callWasStarted = false;
+  // ─────────────────────────────────────────────────────────────────────────
+  // PUBLIC API
+  // ─────────────────────────────────────────────────────────────────────────
 
   void setExternalCallSessionId(String? sessionId) {
     _externalCallSessionId = sessionId;
@@ -48,6 +59,10 @@ class PhoneStatusService extends GetxService {
     return this;
   }
 
+  // ─────────────────────────────────────────────────────────────────────────
+  // PERMISSIONS
+  // ─────────────────────────────────────────────────────────────────────────
+
   Future<void> _checkAndRequestPermissions() async {
     PermissionStatus status = await Permission.phone.status;
     if (!status.isGranted) {
@@ -59,120 +74,51 @@ class PhoneStatusService extends GetxService {
     }
   }
 
+  // ─────────────────────────────────────────────────────────────────────────
+  // PHONE STATE STREAM — flutter phone_state package
+  // ─────────────────────────────────────────────────────────────────────────
+
   void _startListening() async {
     final hasPermission = await Permission.phone.isGranted;
-    print("📋 PhoneStatusService: Checking phone permission: $hasPermission");
+    print("📋 PhoneStatusService: phone permission=$hasPermission");
 
-    // In background isolates, we'll try to listen regardless of what the permission check says,
-    // as it can sometimes be unreliable in separate isolates, and the main app already has it.
     if (!hasPermission && !_isBackground) {
       print("🚫 Permission not granted, not listening (foreground).");
       return;
     }
 
-    _phoneStateSub = PhoneState.stream.listen((PhoneState state) async {
-      final prefix = _isBackground ? "🔔 [BG EVENT]" : "🔔 [EVENT]";
-      print(
-        "$prefix PhoneState: ${state.status} | number: ${state.number}",
-      );
+    _phoneStateSub = PhoneState.stream.listen((PhoneState state) {
+      final prefix = _isBackground ? "🔔 [BG]" : "🔔";
+      print("$prefix PhoneState: ${state.status} | number: ${state.number}");
 
       switch (state.status) {
         case PhoneStateStatus.CALL_INCOMING:
           callStatus.value = "Incoming";
-          print("📞 Incoming call detected: ${state.number}");
           if (state.number != null && state.number!.isNotEmpty) {
             phoneNumber.value = state.number!;
           }
           break;
 
         case PhoneStateStatus.CALL_STARTED:
-          isCallActive.value = true;
-          callStatus.value = "Call Started";
-          _callEndedProcessed = false;
-          _callWasStarted = true; // ✅ Real call started
-
-          if (_callStartTime == null) {
-            _callStartTime = DateTime.now();
-          }
-
-          if (state.number != null && state.number!.isNotEmpty) {
-            phoneNumber.value = state.number!;
-          }
-
-          print("📞 CALL_STARTED: ${phoneNumber.value} | Lead: $currentLeadId");
-
-          // Emit Socket Call Start
-          _emitCallStart();
+          _handleCallStarted(state.number);
           break;
 
         case PhoneStateStatus.CALL_ENDED:
-          if (!_callWasStarted) {
-            print(
-              "🚫 CALL_ENDED ignored — no CALL_STARTED before this (app start fake event)",
-            );
-            return;
-          }
-
-          if (_callEndedProcessed) {
-            print("🔄 CALL_ENDED already processed, skip");
-            return;
-          }
-          _callEndedProcessed = true;
-          _callWasStarted = false;
-
-          isCallActive.value = false;
-          callStatus.value = "Call Ended";
-
-          final endedNumber =
-              (state.number != null && state.number!.isNotEmpty)
-                  ? state.number!
-                  : phoneNumber.value;
-
-          Duration callDuration = Duration.zero;
-          if (_callStartTime != null) {
-            callDuration = DateTime.now().difference(_callStartTime!);
-            _callStartTime = null;
-          }
-
-          print(
-            "📴 CALL_ENDED: number=$endedNumber | duration=${callDuration.inSeconds}s | Lead: $currentLeadId",
-          );
-
-          phoneNumber.value = "";
-
-          // Capture session ID before clearing for the overlay
-          final sessionIdForOverlay = _currentCallSessionId ?? "";
-
-          // Emit Socket Call End
-          _emitCallEnd(sessionIdForOverlay, callDuration);
-
-          // Only show overlay if we are NOT in the background isolate
-          if (!_isBackground) {
-            _showOverlayAfterCall(
-              number: endedNumber, 
-              duration: callDuration,
-              callSessionId: sessionIdForOverlay,
-            );
-          } else {
-            print("ℹ️ Background mode: No overlay/ui shown");
-            _callEndedProcessed = false; // Reset for next call in background
-          }
+          _handleCallEnded(state.number);
           break;
 
         default:
-          if (callStatus.value != "Idle") {
-            callStatus.value = "Idle";
-            _callEndedProcessed = false;
-          }
+          callStatus.value = "Idle";
       }
     });
   }
 
-  /// ✅ Handle native events from PhoneStateReceiver (via BackgroundServiceManager)
-  void handleNativeEvent({String? state, String? number}) {
-    final prefix = "📡 [NATIVE EVENT]";
-    print("$prefix PhoneState: $state | number: $number");
+  // ─────────────────────────────────────────────────────────────────────────
+  // NATIVE EVENTS — from BackgroundServiceManager / PhoneStateReceiver
+  // ─────────────────────────────────────────────────────────────────────────
 
+  void handleNativeEvent({String? state, String? number}) {
+    print("📡 [NATIVE] state=$state | number=$number");
     if (state == null) return;
 
     switch (state) {
@@ -184,82 +130,217 @@ class PhoneStatusService extends GetxService {
         break;
 
       case "OFFHOOK":
-        // This maps to CALL_STARTED
-        if (_callEndedProcessed) {
-           _callEndedProcessed = false;
-        }
-        isCallActive.value = true;
-        callStatus.value = "Call Started";
-        _callWasStarted = true;
-
-        if (_callStartTime == null) {
-          _callStartTime = DateTime.now();
-        }
-
-        if (number != null && number.isNotEmpty) {
-          phoneNumber.value = number;
-        }
-
-        print("📞 NATIVE CALL_STARTED: ${phoneNumber.value} | Lead: $currentLeadId");
-
-        // Emit Socket Call Start
-        _emitCallStart();
+        _handleCallStarted(number);
         break;
 
       case "IDLE":
-        // This maps to CALL_ENDED
-        if (!_callWasStarted) {
-          print("$prefix IDLE ignored — no call was started");
-          return;
-        }
-
-        if (_callEndedProcessed) {
-          print("$prefix IDLE already processed, skip");
-          return;
-        }
-        _callEndedProcessed = true;
-        _callWasStarted = false;
-
-        isCallActive.value = false;
-        callStatus.value = "Call Ended";
-
-        final endedNumber = (number != null && number.isNotEmpty) ? number : phoneNumber.value;
-
-        Duration callDuration = Duration.zero;
-        if (_callStartTime != null) {
-          callDuration = DateTime.now().difference(_callStartTime!);
-          _callStartTime = null;
-        }
-
-        print("📴 NATIVE CALL_ENDED: number=$endedNumber | duration=${callDuration.inSeconds}s | Lead: $currentLeadId");
-
-        final sessionIdForOverlay = _currentCallSessionId ?? "";
-        
-        // Emit Socket Call End
-        _emitCallEnd(sessionIdForOverlay, callDuration);
-
-        phoneNumber.value = "";
-        _currentCallSessionId = null;
-
-        if (!_isBackground) {
-           _showOverlayAfterCall(
-              number: endedNumber, 
-              duration: callDuration,
-              callSessionId: sessionIdForOverlay,
-            );
-        } else {
-           _callEndedProcessed = false; // Reset for next call
-        }
+        _handleCallEnded(number);
         break;
     }
   }
 
-  void _emitCallStart() async {
+  // ─────────────────────────────────────────────────────────────────────────
+  // CALL STARTED — single entry point
+  // ─────────────────────────────────────────────────────────────────────────
 
+  void _handleCallStarted(String? number) {
+    // Ignore duplicate CALL_STARTED events (stream + native can fire together)
+    if (_uiState != _CallUIState.idle) {
+      print("⚠️ CALL_STARTED ignored — already in state $_uiState");
+      return;
+    }
+
+    _uiState = _CallUIState.callActive;
+    isCallActive.value = true;
+    callStatus.value = "Call Started";
+    _callStartTime = DateTime.now();
+
+    if (number != null && number.isNotEmpty) {
+      phoneNumber.value = number;
+    }
+
+    print("📞 CALL_STARTED: ${phoneNumber.value} | Lead: $currentLeadId");
+
+    _emitCallStart();
+
+    if (!_isBackground) {
+      // unawaited — runs in background, manages its own lifecycle
+      _openCallForm();
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // CALL ENDED — single entry point
+  // ─────────────────────────────────────────────────────────────────────────
+
+  void _handleCallEnded(String? number) {
+    // Only process if a call was actually started
+    if (_uiState == _CallUIState.idle) {
+      print("⚠️ CALL_ENDED ignored — no active call (idle state)");
+      return;
+    }
+
+    // Already transitioning to overlay — ignore duplicate end events
+    if (_uiState == _CallUIState.showingOverlay) {
+      print("⚠️ CALL_ENDED ignored — overlay already open");
+      return;
+    }
+
+    // ── Capture data ───────────────────────────────────────────────────────
+    final endedNumber = (number != null && number.isNotEmpty)
+        ? number
+        : phoneNumber.value;
+
+    Duration callDuration = Duration.zero;
+    if (_callStartTime != null) {
+      callDuration = DateTime.now().difference(_callStartTime!);
+      _callStartTime = null;
+    }
+
+    final sessionId = _currentCallSessionId ?? "";
+
+    // ── Update reactive state ──────────────────────────────────────────────
+    _uiState = _CallUIState.showingOverlay;
+    isCallActive.value = false;
+    callStatus.value = "Call Ended";
+    phoneNumber.value = "";
+    _currentCallSessionId = null;
+
+    print(
+      "📴 CALL_ENDED: number=$endedNumber | duration=${callDuration.inSeconds}s | Lead: $currentLeadId | session=$sessionId",
+    );
+
+    _emitCallEnd(sessionId, callDuration);
+
+    if (!_isBackground) {
+      // unawaited — manages its own lifecycle
+      _openOverlay(
+        number: endedNumber,
+        duration: callDuration,
+        callSessionId: sessionId,
+      );
+    } else {
+      print("ℹ️ Background mode: no UI shown");
+      _resetToIdle();
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // OPEN CALL FORM (shown while call is active)
+  // ─────────────────────────────────────────────────────────────────────────
+
+  Future<void> _openCallForm() async {
+    if (Get.context == null) {
+      print("❌ context is NULL — cannot show CallFormPage");
+      return;
+    }
+
+    // Brief delay so the native phone dialer surfaces first
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    // If call already ended during the delay, skip opening the form.
+    // _openOverlay will handle the UI instead.
+    if (_uiState != _CallUIState.callActive) {
+      print("⚠️ Call ended during delay — skipping CallFormPage");
+      return;
+    }
+
+    // Fresh controller each call to avoid stale TextEditingControllers
+    if (Get.isRegistered<CallFormController>()) {
+      await Get.delete<CallFormController>(force: true);
+    }
+    Get.put(CallFormController());
+
+    print("✅ Opening CallFormPage...");
+    try {
+      await Get.dialog(
+        CallFormPage(),
+        barrierDismissible: false,
+        barrierColor: Colors.black54,
+      );
+      print("✅ CallFormPage closed");
+    } catch (e) {
+      print("❌ CallFormPage error: $e");
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // OPEN OVERLAY (shown after call ends)
+  // ─────────────────────────────────────────────────────────────────────────
+
+  Future<void> _openOverlay({
+    required String number,
+    required Duration duration,
+    required String callSessionId,
+  }) async {
+    if (Get.context == null) {
+      print("❌ context is NULL — cannot show OverlayPages");
+      _resetToIdle();
+      return;
+    }
+
+    // ── Step 1: Close CallFormPage if it is currently open ─────────────────
+    if (Get.isDialogOpen ?? false) {
+      print("🔒 Closing CallFormPage before showing overlay...");
+      Get.back();
+      // Allow the pop animation to complete
+      await Future.delayed(const Duration(milliseconds: 350));
+    }
+
+    // ── Step 2: Short pause so the screen settles ──────────────────────────
+    await Future.delayed(const Duration(milliseconds: 300));
+
+    // ── Step 3: Notify OverlayController about the ended call ──────────────
+    try {
+      if (!Get.isRegistered<OverlayController>()) {
+        Get.put(OverlayController());
+      }
+      Get.find<OverlayController>().onCallEnded(
+        calledNumber: number,
+        duration: duration,
+        callSessionId: callSessionId,
+      );
+    } catch (e) {
+      print("❌ OverlayController.onCallEnded error: $e");
+      _resetToIdle();
+      return;
+    }
+
+    // ── Step 4: Show the overlay ───────────────────────────────────────────
+    print("✅ Opening OverlayPages...");
+    try {
+      await Get.dialog(
+        OverlayPages(),
+        barrierDismissible: false,
+        barrierColor: Colors.black54,
+      );
+      print("✅ OverlayPages closed");
+    } catch (e) {
+      print("❌ OverlayPages error: $e");
+    } finally {
+      _resetToIdle();
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // RESET — called after overlay closes, ready for the next call
+  // ─────────────────────────────────────────────────────────────────────────
+
+  void _resetToIdle() {
+    _uiState = _CallUIState.idle;
+    print("🔓 PhoneStatusService: ready for next call");
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // SOCKET — emit call-start
+  // ─────────────────────────────────────────────────────────────────────────
+
+  void _emitCallStart() async {
     try {
       if (Get.isRegistered<SocketController>()) {
-        final SocketController socketCtrl = Get.find<SocketController>();
-        _currentCallSessionId = _externalCallSessionId ?? DateTime.now().millisecondsSinceEpoch.toString();
+        final socketCtrl = Get.find<SocketController>();
+        _currentCallSessionId = _externalCallSessionId ??
+            DateTime.now().millisecondsSinceEpoch.toString();
         _externalCallSessionId = null;
 
         await socketCtrl.emitCallStart(
@@ -267,18 +348,23 @@ class PhoneStatusService extends GetxService {
           leadContactId: currentLeadId ?? "",
           callId: "",
         );
-        final prefix = _isBackground ? "📤 [BG Socket]" : "📤 Socket";
-        print("$prefix: call-start emitted with session: $_currentCallSessionId");
+        print(
+          "📤 Socket: call-start emitted | session=$_currentCallSessionId",
+        );
       }
     } catch (e) {
       print("❌ Socket emitCallStart error: $e");
     }
   }
 
+  // ─────────────────────────────────────────────────────────────────────────
+  // SOCKET — emit call-end
+  // ─────────────────────────────────────────────────────────────────────────
+
   void _emitCallEnd(String sessionId, Duration duration) async {
     try {
       if (Get.isRegistered<SocketController>()) {
-        final SocketController socketCtrl = Get.find<SocketController>();
+        final socketCtrl = Get.find<SocketController>();
         await socketCtrl.emitCallEnd(
           callSessionId: sessionId,
           leadContactId: currentLeadId ?? "",
@@ -286,71 +372,18 @@ class PhoneStatusService extends GetxService {
           answerType: "completed",
           answer: "",
         );
-        final prefix = _isBackground ? "📤 [BG Socket]" : "📤 Socket";
-        print("$prefix: call-end emitted for lead $currentLeadId");
+        print(
+          "📤 Socket: call-end emitted | lead=$currentLeadId | session=$sessionId",
+        );
       }
     } catch (e) {
       print("❌ Socket emitCallEnd error: $e");
     }
   }
 
-  Future<void> _showOverlayAfterCall({
-    required String number,
-    required Duration duration,
-    required String callSessionId,
-  }) async {
-    if (_dialogOpen) {
-      print("⚠️ Dialog already open — skip");
-      return;
-    }
-
-    print("⏳ Waiting 900ms...");
-    await Future.delayed(const Duration(milliseconds: 900));
-
-    try {
-      if (Get.isRegistered<OverlayController>()) {
-        Get.find<OverlayController>().onCallEnded(
-          calledNumber: number,
-          duration: duration,
-          callSessionId: callSessionId,
-        );
-      } else {
-        Get.put(
-          OverlayController(),
-        ).onCallEnded(
-          calledNumber: number, 
-          duration: duration, 
-          callSessionId: callSessionId
-        );
-      }
-    } catch (e) {
-      print("❌ OverlayController error: $e");
-      return;
-    }
-
-    if (Get.context == null) {
-      print("❌ Get.context is NULL");
-      return;
-    }
-
-    print("✅ Opening dialog...");
-    _dialogOpen = true;
-
-    try {
-      await Get.dialog(
-        OverlayPages(),
-        barrierDismissible: false,
-        barrierColor: Colors.black54,
-      );
-      print("✅ Dialog closed");
-    } catch (e) {
-      print("❌ Dialog error: $e");
-    } finally {
-      _dialogOpen = false;
-      _callEndedProcessed = false;
-      print("🔓 Ready for next call");
-    }
-  }
+  // ─────────────────────────────────────────────────────────────────────────
+  // LIFECYCLE
+  // ─────────────────────────────────────────────────────────────────────────
 
   @override
   void onClose() {
