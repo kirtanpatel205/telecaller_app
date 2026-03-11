@@ -105,6 +105,8 @@ class WelcomePage extends GetView<WelcomeController> {
                             controller.onBoardingData.length - 1)
                         ? CustomButton(
 
+                          // isLoading: true,
+
                           onClick: () => Get.toNamed(Routes.LOGIN),
                             title: 'Get Started',
                           )

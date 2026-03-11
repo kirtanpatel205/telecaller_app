@@ -23,8 +23,8 @@ class AppTextStyle {
   static TextStyle get buttonTextStyle => TextStyle(
         fontSize: AppDimens.fontSize17,
         fontWeight: FontWeight.w500,
-        //fontFamily: AppFonts.POPPINS,
-        //  color: AppColors.themeColor.textColor
+      // fontFamily: AppFonts.POPPINS,
+          color: AppColors.themeColor.textPrimaryColor
       );
   static TextStyle get Smalltext => TextStyle(
       fontSize: AppDimens.fontSize10,
