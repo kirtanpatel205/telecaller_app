@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:telecaller_app/constants/app_colors.dart';
 import 'package:telecaller_app/constants/app_text_style.dart';
 import 'package:telecaller_app/core/controllers/call_form_controller.dart';
+import 'package:telecaller_app/core/models/all_lead_entity.dart';
 
 class CallFormPage extends StatelessWidget {
   final CallFormController controller = Get.find<CallFormController>();
@@ -16,7 +17,8 @@ class CallFormPage extends StatelessWidget {
       canPop: false,
       child: Dialog(
         insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        elevation: 8,
         clipBehavior: Clip.antiAlias,
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -35,11 +37,12 @@ class CallFormPage extends StatelessWidget {
                     children: [
                       // ── Title ─────────────────────────────────
                       Text(
-                        "Customer Lead Form",
+                        "Call Survey Form",
                         style: AppTextStyle.semiBold8.copyWith(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.themeColor.textPrimaryColor,
+                          fontSize: 24,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.themeColor.primaryColor,
+                          letterSpacing: -0.5,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -56,106 +59,18 @@ class CallFormPage extends StatelessWidget {
                       _buildNoticeBanner(),
                       const SizedBox(height: 24),
 
-                      // ── Full Name ─────────────────────────────
-                      _buildRequiredLabel("Full Name"),
-                      const SizedBox(height: 8),
-                      _buildTextField(
-                        controller: controller.fullNameController,
-                        hint: "Enter full name",
-                        validator: (val) {
-                          if (val == null || val.trim().isEmpty) {
-                            return "Full name is required";
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 20),
-
-                      // ── Phone Number ──────────────────────────
-                      _buildRequiredLabel("Phone Number"),
-                      const SizedBox(height: 8),
-                      _buildTextField(
-                        controller: controller.phoneNumberController,
-                        hint: "Enter phone number",
-                        keyboardType: TextInputType.phone,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                          LengthLimitingTextInputFormatter(15),
-                        ],
-                        validator: (val) {
-                          if (val == null || val.trim().isEmpty) {
-                            return "Phone number is required";
-                          }
-                          if (val.trim().length < 10) {
-                            return "Enter a valid phone number";
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 20),
-
-                      // ── Interested Product ────────────────────
-                      _buildRequiredLabel("Interested Product"),
-                      const SizedBox(height: 8),
-                      _buildDropdown(
-                        selectedValue: controller.selectedProduct,
-                        items: controller.productOptions,
-                        hint: "Select a product",
-                      ),
-                      const SizedBox(height: 20),
-
-                      // ── Contact Preference ────────────────────
-                      _buildRequiredLabel("Contact Preference"),
-                      const SizedBox(height: 8),
-                      _buildRadioGroup(
-                        options: controller.contactPreferences,
-                        selectedValue: controller.selectedContactPreference,
-                      ),
-                      const SizedBox(height: 20),
-
-                      // ── Documents Available ───────────────────
-                      Text(
-                        "Documents Available",
-                        style: AppTextStyle.semiBold8.copyWith(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.themeColor.textPrimaryColor,
+                      // ── Dynamic Fields ────────────────────────
+                      Obx(
+                        () => Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children:
+                              controller.formFields.map((field) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 20),
+                                  child: _buildDynamicField(context, field),
+                                );
+                              }).toList(),
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      _buildRadioGroup(
-                        options: controller.documentOptions,
-                        selectedValue: controller.selectedDocument,
-                      ),
-                      const SizedBox(height: 20),
-
-                      // ── Preferred Callback Date ───────────────
-                      Text(
-                        "Preferred Callback Date",
-                        style: AppTextStyle.semiBold8.copyWith(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.themeColor.textPrimaryColor,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      _buildDateField(context),
-                      const SizedBox(height: 20),
-
-                      // ── Customer Interest Level ───────────────
-                      Text(
-                        "Customer Interest Level",
-                        style: AppTextStyle.semiBold8.copyWith(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.themeColor.textPrimaryColor,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      _buildDropdown(
-                        selectedValue: controller.selectedInterestLevel,
-                        items: controller.interestLevelOptions,
-                        hint: "Enter customer interest level",
                       ),
                       const SizedBox(height: 10),
                     ],
@@ -186,7 +101,11 @@ class CallFormPage extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(Icons.settings, size: 18, color: AppColors.themeColor.textSecondaryColor),
+          Icon(
+            Icons.settings,
+            size: 18,
+            color: AppColors.themeColor.textSecondaryColor,
+          ),
           const SizedBox(width: 8),
           Text(
             "Form Preview",
@@ -300,10 +219,84 @@ class CallFormPage extends StatelessWidget {
   }
 
   // ─────────────────────────────────────────────────────────────────
+  // DYNAMIC FIELD BUILDER
+  // ─────────────────────────────────────────────────────────────────
+  Widget _buildDynamicField(
+    BuildContext context,
+    AllLeadLeadsFormIdFields field,
+  ) {
+    final String type = field.type ?? "";
+    final String label = field.label ?? "Unknown Field";
+    final String hint = field.placeholder ?? "Enter $label";
+    final bool isRequired = field.required ?? false;
+    final String fieldId = field.id ?? "";
+
+    if (fieldId.isEmpty) return const SizedBox.shrink();
+
+    Widget labelWidget =
+        isRequired
+            ? _buildRequiredLabel(label)
+            : Text(
+              label,
+              style: AppTextStyle.semiBold8.copyWith(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: AppColors.themeColor.textPrimaryColor,
+              ),
+            );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        labelWidget,
+        const SizedBox(height: 8),
+        if (type == FORM_FIELD_TYPES["TEXT"] ||
+            type == FORM_FIELD_TYPES["NUMBER"] ||
+            type == FORM_FIELD_TYPES["TEXTAREA"])
+          _buildTextField(
+            controller: controller.dynamicControllers[fieldId],
+            hint: hint,
+            keyboardType:
+                type == FORM_FIELD_TYPES["NUMBER"]
+                    ? TextInputType.number
+                    : TextInputType.text,
+            maxLines: type == FORM_FIELD_TYPES["TEXTAREA"] ? 3 : 1,
+            validator:
+                isRequired
+                    ? (val) {
+                      if (val == null || val.trim().isEmpty) {
+                        return "$label is required";
+                      }
+                      return null;
+                    }
+                    : null,
+          )
+        else if (type == FORM_FIELD_TYPES["SELECT"])
+          _buildDropdown(
+            selectedValue: controller.dynamicValues[fieldId],
+            options: field.options ?? [],
+            hint: hint,
+          )
+        else if (type == FORM_FIELD_TYPES["RADIO"])
+          _buildRadioGroup(
+            options: field.options ?? [],
+            selectedValue: controller.dynamicValues[fieldId],
+          )
+        else if (type == FORM_FIELD_TYPES["DATE"])
+          _buildDateField(context, fieldId, hint)
+        else if (type == FORM_FIELD_TYPES["TIME"])
+          _buildTimeField(context, fieldId, hint)
+        else
+          Text("Unsupported field type: $type"),
+      ],
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────
   // TEXT FIELD
   // ─────────────────────────────────────────────────────────────────
   Widget _buildTextField({
-    required TextEditingController controller,
+    required TextEditingController? controller,
     required String hint,
     TextInputType keyboardType = TextInputType.text,
     List<TextInputFormatter>? inputFormatters,
@@ -311,14 +304,16 @@ class CallFormPage extends StatelessWidget {
     bool readOnly = false,
     VoidCallback? onTap,
     Widget? suffixIcon,
+    int maxLines = 1,
   }) {
     return TextFormField(
-      controller: controller,
+      controller: controller ?? TextEditingController(),
       keyboardType: keyboardType,
       inputFormatters: inputFormatters,
       validator: validator,
       readOnly: readOnly,
       onTap: onTap,
+      maxLines: maxLines,
       textInputAction: TextInputAction.next,
       decoration: InputDecoration(
         hintText: hint,
@@ -328,27 +323,30 @@ class CallFormPage extends StatelessWidget {
         ),
         filled: true,
         fillColor: const Color(0xFFFFFDE7),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        contentPadding: const EdgeInsets.all(16),
         suffixIcon: suffixIcon,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: const Color(0xFFFFE082), width: 1),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: const Color(0xFFFFE082), width: 1),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: AppColors.themeColor.primaryColor, width: 1.5),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(
+            color: AppColors.themeColor.primaryColor,
+            width: 2,
+          ),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Colors.red.shade400, width: 1),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.red.shade300, width: 1),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Colors.red.shade400, width: 1.5),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.red.shade400, width: 2),
         ),
       ),
     );
@@ -358,10 +356,11 @@ class CallFormPage extends StatelessWidget {
   // DROPDOWN
   // ─────────────────────────────────────────────────────────────────
   Widget _buildDropdown({
-    required RxString selectedValue,
-    required List<Map<String, String>> items,
+    required RxString? selectedValue,
+    required List<String> options,
     required String hint,
   }) {
+    if (selectedValue == null) return const SizedBox();
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14),
       decoration: BoxDecoration(
@@ -369,40 +368,43 @@ class CallFormPage extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: const Color(0xFFFFE082), width: 1),
       ),
-      child: Obx(() => DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              isExpanded: true,
-              value: selectedValue.value.isEmpty ? null : selectedValue.value,
-              hint: Text(
-                hint,
-                style: AppTextStyle.medium8.copyWith(
-                  fontSize: 14,
-                  color: AppColors.themeColor.textSecondaryColor,
-                ),
-              ),
-              icon: Icon(
-                Icons.keyboard_arrow_down,
+      child: Obx(
+        () => DropdownButtonHideUnderline(
+          child: DropdownButton<String>(
+            isExpanded: true,
+            value: selectedValue.value.isEmpty ? null : selectedValue.value,
+            hint: Text(
+              hint,
+              style: AppTextStyle.medium8.copyWith(
+                fontSize: 14,
                 color: AppColors.themeColor.textSecondaryColor,
               ),
-              onChanged: (value) {
-                if (value != null) {
-                  selectedValue.value = value;
-                }
-              },
-              items: items.map<DropdownMenuItem<String>>((option) {
-                return DropdownMenuItem<String>(
-                  value: option["value"],
-                  child: Text(
-                    option["label"] ?? "",
-                    style: AppTextStyle.medium8.copyWith(
-                      fontSize: 14,
-                      color: AppColors.themeColor.textPrimaryColor,
-                    ),
-                  ),
-                );
-              }).toList(),
             ),
-          )),
+            icon: Icon(
+              Icons.keyboard_arrow_down,
+              color: AppColors.themeColor.textSecondaryColor,
+            ),
+            onChanged: (value) {
+              if (value != null) {
+                selectedValue.value = value;
+              }
+            },
+            items:
+                options.map<DropdownMenuItem<String>>((option) {
+                  return DropdownMenuItem<String>(
+                    value: option,
+                    child: Text(
+                      option,
+                      style: AppTextStyle.medium8.copyWith(
+                        fontSize: 14,
+                        color: AppColors.themeColor.textPrimaryColor,
+                      ),
+                    ),
+                  );
+                }).toList(),
+          ),
+        ),
+      ),
     );
   }
 
@@ -411,71 +413,96 @@ class CallFormPage extends StatelessWidget {
   // ─────────────────────────────────────────────────────────────────
   Widget _buildRadioGroup({
     required List<String> options,
-    required RxString selectedValue,
+    required RxString? selectedValue,
   }) {
-    return Obx(() => Column(
-          children: options.map((option) {
-            final isSelected = selectedValue.value == option;
-            return InkWell(
-              onTap: () => selectedValue.value = option,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 20,
-                      height: 20,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: isSelected
-                              ? Colors.green
-                              : AppColors.themeColor.textSecondaryColor,
-                          width: 2,
+    if (selectedValue == null) return const SizedBox();
+    return Obx(
+      () => Column(
+        children:
+            options.map((option) {
+              final isSelected = selectedValue.value == option;
+              return InkWell(
+                onTap: () => selectedValue.value = option,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 20,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color:
+                                isSelected
+                                    ? Colors.green
+                                    : AppColors.themeColor.textSecondaryColor,
+                            width: 2,
+                          ),
+                        ),
+                        child:
+                            isSelected
+                                ? Center(
+                                  child: Container(
+                                    width: 10,
+                                    height: 10,
+                                    decoration: const BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors.green,
+                                    ),
+                                  ),
+                                )
+                                : null,
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        option,
+                        style: AppTextStyle.medium8.copyWith(
+                          fontSize: 14,
+                          color: AppColors.themeColor.textPrimaryColor,
                         ),
                       ),
-                      child: isSelected
-                          ? Center(
-                              child: Container(
-                                width: 10,
-                                height: 10,
-                                decoration: const BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors.green,
-                                ),
-                              ),
-                            )
-                          : null,
-                    ),
-                    const SizedBox(width: 10),
-                    Text(
-                      option,
-                      style: AppTextStyle.medium8.copyWith(
-                        fontSize: 14,
-                        color: AppColors.themeColor.textPrimaryColor,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            );
-          }).toList(),
-        ));
+              );
+            }).toList(),
+      ),
+    );
   }
 
   // ─────────────────────────────────────────────────────────────────
   // DATE FIELD
   // ─────────────────────────────────────────────────────────────────
-  Widget _buildDateField(BuildContext context) {
+  Widget _buildDateField(BuildContext context, String fieldId, String hint) {
     return _buildTextField(
-      controller: controller.callbackDateController,
-      hint: "Enter preferred callback date",
+      controller: controller.dynamicControllers[fieldId],
+      hint: hint,
       readOnly: true,
-      onTap: () => controller.pickCallbackDate(context),
+      onTap: () => controller.pickDate(context, fieldId),
       suffixIcon: InkWell(
-        onTap: () => controller.pickCallbackDate(context),
+        onTap: () => controller.pickDate(context, fieldId),
         child: Icon(
           Icons.calendar_month,
+          color: AppColors.themeColor.textSecondaryColor,
+        ),
+      ),
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  // TIME FIELD
+  // ─────────────────────────────────────────────────────────────────
+  Widget _buildTimeField(BuildContext context, String fieldId, String hint) {
+    return _buildTextField(
+      controller: controller.dynamicControllers[fieldId],
+      hint: hint,
+      readOnly: true,
+      onTap: () => controller.pickTime(context, fieldId),
+      suffixIcon: InkWell(
+        onTap: () => controller.pickTime(context, fieldId),
+        child: Icon(
+          Icons.access_time,
           color: AppColors.themeColor.textSecondaryColor,
         ),
       ),
@@ -490,9 +517,7 @@ class CallFormPage extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: AppColors.themeColor.cardColor,
-        border: Border(
-          top: BorderSide(color: Colors.grey.shade200, width: 1),
-        ),
+        border: Border(top: BorderSide(color: Colors.grey.shade200, width: 1)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
@@ -509,7 +534,11 @@ class CallFormPage extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.close, size: 16, color: AppColors.themeColor.textPrimaryColor),
+                  Icon(
+                    Icons.close,
+                    size: 16,
+                    color: AppColors.themeColor.textPrimaryColor,
+                  ),
                   const SizedBox(width: 6),
                   Text(
                     "Cancel",
@@ -525,42 +554,48 @@ class CallFormPage extends StatelessWidget {
           const SizedBox(width: 10),
 
           // ── Save & Submit Button ──────────────────────
-          Obx(() => InkWell(
-                onTap: controller.isLoading.value
-                    ? null
-                    : () => controller.onSaveAndSubmit(),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF4CAF50),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      controller.isLoading.value
-                          ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : const Icon(Icons.save, size: 16, color: Colors.white),
-                      const SizedBox(width: 6),
-                      Text(
-                        "Save & Submit",
-                        style: AppTextStyle.medium8.copyWith(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
+          Obx(
+            () => InkWell(
+              onTap:
+                  controller.isLoading.value
+                      ? null
+                      : () => controller.onSaveAndSubmit(),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 10,
                 ),
-              )),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF4CAF50),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    controller.isLoading.value
+                        ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                        : const Icon(Icons.save, size: 16, color: Colors.white),
+                    const SizedBox(width: 6),
+                    Text(
+                      "Save & Submit",
+                      style: AppTextStyle.medium8.copyWith(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );

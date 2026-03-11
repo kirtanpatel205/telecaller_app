@@ -8,6 +8,7 @@ import 'package:telecaller_app/core/controllers/overlay_controller.dart';
 import 'package:telecaller_app/core/controllers/socket_controller.dart';
 import 'package:telecaller_app/ui/views/call_form/call_form_page.dart';
 import 'package:telecaller_app/ui/views/home/overlay/overlay_pages.dart';
+import 'package:telecaller_app/core/models/all_lead_entity.dart';
 import 'dart:io';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -34,6 +35,9 @@ class PhoneStatusService extends GetxService {
   String? _currentCallSessionId;
   String? _externalCallSessionId;
   String? currentLeadId;
+  String? currentFormId;
+  String? currentLeadContactId;
+  List<AllLeadLeadsFormIdFields> currentFormFields = [];
 
   // ── Timing ────────────────────────────────────────────────────────────────
   DateTime? _callStartTime;
@@ -239,24 +243,26 @@ class PhoneStatusService extends GetxService {
     await Future.delayed(const Duration(milliseconds: 500));
 
     // If call already ended during the delay, skip opening the form.
-    // _openOverlay will handle the UI instead.
     if (_uiState != _CallUIState.callActive) {
       print("⚠️ Call ended during delay — skipping CallFormPage");
       return;
     }
 
-    // Fresh controller each call to avoid stale TextEditingControllers
-    if (Get.isRegistered<CallFormController>()) {
-      await Get.delete<CallFormController>(force: true);
+    // If a dialog is already open (e.g. from AutoDialerController), don't open another one
+    if (Get.isDialogOpen ?? false) {
+      print("ℹ️ Dialog already open, skipping redundant _openCallForm");
+      return;
     }
-    Get.put(CallFormController());
 
-    print("✅ Opening CallFormPage...");
+    print("✅ Opening CallFormPage via PhoneStatusService...");
     try {
-      await Get.dialog(
-        CallFormPage(),
-        barrierDismissible: false,
-        barrierColor: Colors.black54,
+      // Show form using synced metadata (populated by AutoDialer or defaults)
+      await CallFormController.show(
+        formid: currentFormId ?? "",
+        leadId: currentLeadId ?? "",
+        leadContactId: currentLeadContactId ?? "",
+        formFields: currentFormFields,
+        showUI: true,
       );
       print("✅ CallFormPage closed");
     } catch (e) {
@@ -328,6 +334,16 @@ class PhoneStatusService extends GetxService {
 
   void _resetToIdle() {
     _uiState = _CallUIState.idle;
+    currentLeadId = null;
+    currentFormId = null;
+    currentLeadContactId = null;
+    currentFormFields = [];
+
+    // Also reset CallFormController if it exists
+    if (Get.isRegistered<CallFormController>()) {
+      Get.find<CallFormController>().resetForm();
+    }
+
     print("🔓 PhoneStatusService: ready for next call");
   }
 

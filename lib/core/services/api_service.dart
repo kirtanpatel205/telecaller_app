@@ -255,4 +255,14 @@ print("callChart request data $data");
     return LeadChartEntity.fromJson(response);
   }
 
+  Future<ApiResponseEntity> submitCallForm(Map<String, dynamic> data) async {
+    print("📡 Submitting call form data: $data");
+    Map<String, dynamic> response = await client.post(
+      AppConstants.API_LEAD_FORM_SUBMIT,
+      isRaw: true,
+      data: data,
+    );
+    print("✅ Form submission response: $response");
+    return ApiResponseEntity.fromJson(response);
+  }
 }

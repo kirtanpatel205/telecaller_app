@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter_pagewise/flutter_pagewise.dart';
 import 'package:get/get.dart';
 import 'package:collection/collection.dart';
+import 'package:telecaller_app/core/controllers/call_form_controller.dart';
 import 'package:telecaller_app/core/controllers/overlay_controller.dart';
 import 'package:telecaller_app/core/models/all_lead_entity.dart';
 import 'package:telecaller_app/core/models/lead_contact_id_entity.dart';
@@ -168,7 +169,8 @@ class AutoDialerController extends GetxController {
         leadsDropdownList.assignAll(leads);
 
         // Auto-select if navigated here with an id argument
-        if (_pendingIncomingLeadId != null && selectedLeadDataset.value == null) {
+        if (_pendingIncomingLeadId != null &&
+            selectedLeadDataset.value == null) {
           final match = leads.firstWhereOrNull(
             (d) => d.id == _pendingIncomingLeadId,
           );
@@ -230,48 +232,60 @@ class AutoDialerController extends GetxController {
 
     pagewiseContactsController =
         PagewiseLoadController<LeadContactIdLeadContacts>(
-      pageSize: 10,
-      pageFuture: (pageNumber) async {
-        try {
-          final response = await _apiService.getCallLead(
-            id: leadId,
-            page: pageNumber ?? 0,
-            limit: 10,
-          );
-          if (response.status ?? false) {
-            totalContacts.value = response.total ?? 0;
-            final items = response.leadContacts ?? [];
+          pageSize: 10,
+          pageFuture: (pageNumber) async {
+            try {
+              final response = await _apiService.getCallLead(
+                id: leadId,
+                page: pageNumber ?? 0,
+                limit: 10,
+              );
+              if (response.status ?? false) {
+                totalContacts.value = response.total ?? 0;
+                final items = response.leadContacts ?? [];
 
-            // Keep flat list in sync for startDialing()
-            if (pageNumber == 0) {
-              contactQueue.assignAll(items);
-            } else {
-              // Avoid duplicates on refetch
-              final existing = contactQueue.map((e) => e.id).toSet();
-              final newItems = items.where((i) => !existing.contains(i.id));
-              contactQueue.addAll(newItems);
+                // Keep flat list in sync for startDialing()
+                if (pageNumber == 0) {
+                  contactQueue.assignAll(items);
+                } else {
+                  // Avoid duplicates on refetch
+                  final existing = contactQueue.map((e) => e.id).toSet();
+                  final newItems = items.where((i) => !existing.contains(i.id));
+                  contactQueue.addAll(newItems);
+                }
+
+                return items;
+              }
+              return [];
+            } catch (e) {
+              print('❌ Contacts pagewise error: $e');
+              rethrow;
             }
-
-            return items;
-          }
-          return [];
-        } catch (e) {
-          print('❌ Contacts pagewise error: $e');
-          rethrow;
-        }
-      },
-    );
+          },
+        );
 
     update(); // notify GetBuilder/Obx about new controller
   }
 
-  // ─────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────────
   // LEAD SELECTION
-  // ─────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────────
   void onLeadSelected(AllLeadLeads dataset) {
     selectedLeadDataset.value = dataset;
     if (dataset.id != null && dataset.id!.isNotEmpty) {
       _initContactsPagewise(dataset.id!);
+    }
+
+    final List<AllLeadLeadsFormIdFields> formFields =
+        dataset.formId?.fields ?? [];
+    final String formId = dataset.formId?.id ?? "";
+
+    // Sync with PhoneStatusService (Single Point of Truth for Call Form)
+    if (Get.isRegistered<PhoneStatusService>()) {
+      final phoneService = Get.find<PhoneStatusService>();
+      phoneService.currentLeadId = dataset.id;
+      phoneService.currentFormId = formId;
+      phoneService.currentFormFields = formFields;
     }
   }
 
@@ -284,9 +298,9 @@ class AutoDialerController extends GetxController {
     update();
   }
 
-  // ─────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────────
   // CALL TIMER
-  // ─────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────────
   void _startActiveTimer() {
     _stopActiveTimer();
     _seconds = 0;
@@ -304,9 +318,9 @@ class AutoDialerController extends GetxController {
     _activeCallTimer = null;
   }
 
-  // ─────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────────
   // AUTO-DIAL START
-  // ─────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────────
   void startDialing() {
     if (contactQueue.isEmpty) {
       Get.snackbar(
@@ -323,16 +337,21 @@ class AutoDialerController extends GetxController {
     }
     final overlayCtrl = Get.find<OverlayController>();
 
-    final queue = contactQueue
-        .where((l) => l.contact?.phone != null && l.contact!.phone!.isNotEmpty)
-        .map(
-          (l) => {
-            'id': l.id ?? '',
-            'name': l.contact?.name ?? 'Unknown',
-            'number': l.contact?.phone ?? '',
-          },
-        )
-        .toList();
+    final queue =
+        contactQueue
+            .where(
+              (l) => l.contact?.phone != null && l.contact!.phone!.isNotEmpty,
+            )
+            .map(
+              (l) => {
+                'leadId': l.leadId ?? '', // This is the parent lead record ID
+                'leadContactId':
+                    l.id ?? '', // Use l.id for the specific contact ID
+                'name': l.contact?.name ?? 'Unknown',
+                'number': l.contact?.phone ?? '',
+              },
+            )
+            .toList();
 
     if (queue.isEmpty) {
       Get.snackbar('Error', 'No valid phone numbers found in selected lead.');
@@ -346,8 +365,17 @@ class AutoDialerController extends GetxController {
 
     _syncWithOverlay(overlayCtrl);
 
+    final firstLead = queue.first;
+
+    // Sync metadata with PhoneStatusService BEFORE dialing
+    if (Get.isRegistered<PhoneStatusService>()) {
+      final phoneService = Get.find<PhoneStatusService>();
+      phoneService.currentLeadContactId = firstLead['leadContactId'] ?? '';
+      phoneService.currentLeadId = firstLead['leadId'] ?? '';
+    }
+
     // Dial first contact
-    overlayCtrl.makeDirectCall(queue.first['number']!);
+    overlayCtrl.makeDirectCall(firstLead['number']!);
   }
 
   void _syncWithOverlay(OverlayController overlayCtrl) {
@@ -368,14 +396,16 @@ class AutoDialerController extends GetxController {
       if (cdValue > 0) {
         if (index < overlayCtrl.callQueue.length) {
           final next = overlayCtrl.callQueue[index];
-          currentContact.value =
-              contactQueue.firstWhereOrNull((l) => l.id == next['id']);
+          currentContact.value = contactQueue.firstWhereOrNull(
+            (l) => l.id == next['id'],
+          );
         }
       } else {
         if (index > 0 && index <= overlayCtrl.callQueue.length) {
           final current = overlayCtrl.callQueue[index - 1];
-          currentContact.value =
-              contactQueue.firstWhereOrNull((l) => l.id == current['id']);
+          currentContact.value = contactQueue.firstWhereOrNull(
+            (l) => l.id == current['id'],
+          );
         }
       }
     }
@@ -385,9 +415,9 @@ class AutoDialerController extends GetxController {
     refreshCurrentContact();
   }
 
-  // ─────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────────
   // CONTROLS
-  // ─────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────────
   void pauseDialing() {
     if (status.value == 'dialing') {
       status.value = 'paused';
@@ -406,9 +436,9 @@ class AutoDialerController extends GetxController {
     }
   }
 
-  // ─────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────────
   // MANUAL SINGLE CALL
-  // ─────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────────
   void makeManualCall(LeadContactIdLeadContacts lead) {
     currentContact.value = lead;
     final number = lead.contact?.phone ?? '';
@@ -421,13 +451,27 @@ class AutoDialerController extends GetxController {
 
     overlayCtrl.callQueue = [
       {
-        'id': lead.id ?? '',
+        'leadId': lead.leadId ?? '',
+        'leadContactId': lead.id ?? '',
         'name': lead.contact?.name ?? 'Unknown',
         'number': number,
       },
     ];
     overlayCtrl.currentQueueIndex.value = 0;
     overlayCtrl.isAutoCallMode.value = false;
+
+    // Sync metadata with PhoneStatusService
+    if (Get.isRegistered<PhoneStatusService>()) {
+      final phoneService = Get.find<PhoneStatusService>();
+      phoneService.currentLeadContactId = lead.id ?? "";
+      phoneService.currentLeadId = lead.leadId ?? "";
+      // formId and fields already synced via onLeadSelected, but we can ensure it here
+      final currentDataset = selectedLeadDataset.value;
+      if (currentDataset != null) {
+        phoneService.currentFormId = currentDataset.formId?.id ?? "";
+        phoneService.currentFormFields = currentDataset.formId?.fields ?? [];
+      }
+    }
 
     overlayCtrl.makeDirectCall(number);
   }

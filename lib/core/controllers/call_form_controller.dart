@@ -1,6 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:telecaller_app/core/models/all_lead_entity.dart';
+import 'package:telecaller_app/core/services/api_service.dart';
 import 'package:telecaller_app/ui/views/call_form/call_form_page.dart';
+
+const FORM_FIELD_TYPES = {
+  "TEXT": "text",
+  "NUMBER": "number",
+  "TEXTAREA": "textarea",
+  "PARAGRAPH": "paragraph",
+  "SELECT": "select",
+  "RADIO": "radio",
+  "CHECKBOX": "checkbox",
+  "DATE": "date",
+  "TIME": "time",
+  "SLIDER": "slider",
+  "RATING": "rating",
+  "FILE": "file",
+  "IMAGE": "image",
+  "VIDEO": "video",
+  "LOCATION": "location",
+  "LINK": "link",
+};
 
 class CallFormController extends GetxController {
   // ─────────────────────────────────────────────
@@ -9,41 +30,15 @@ class CallFormController extends GetxController {
   final formKey = GlobalKey<FormState>();
 
   // ─────────────────────────────────────────────
-  // TEXT CONTROLLERS
+  // DYNAMIC FIELDS
   // ─────────────────────────────────────────────
-  final fullNameController = TextEditingController();
-  final phoneNumberController = TextEditingController();
-  final callbackDateController = TextEditingController();
-
-  // ─────────────────────────────────────────────
-  // DROPDOWNS
-  // ─────────────────────────────────────────────
-  RxString selectedProduct = "".obs;
-  RxString selectedInterestLevel = "".obs;
-
-  final List<Map<String, String>> productOptions = [
-    {"label": "Loan", "value": "loan"},
-    {"label": "Insurance", "value": "insurance"},
-    {"label": "Credit Card", "value": "credit_card"},
-    {"label": "Savings Account", "value": "savings_account"},
-    {"label": "Fixed Deposit", "value": "fixed_deposit"},
-    {"label": "Other", "value": "other"},
-  ];
-
-  final List<Map<String, String>> interestLevelOptions = [
-    {"label": "High", "value": "high"},
-    {"label": "Medium", "value": "medium"},
-    {"label": "Low", "value": "low"},
-  ];
-
-  // ─────────────────────────────────────────────
-  // RADIO GROUPS
-  // ─────────────────────────────────────────────
-  RxString selectedContactPreference = "".obs;
-  RxString selectedDocument = "".obs;
-
-  final List<String> contactPreferences = ["Call", "WhatsApp", "Email"];
-  final List<String> documentOptions = ["Aadhar", "PAN", "Bank Statement"];
+  final RxList<AllLeadLeadsFormIdFields> formFields =
+      <AllLeadLeadsFormIdFields>[].obs;
+  final Map<String, TextEditingController> dynamicControllers = {};
+  final Map<String, RxString> dynamicValues = {};
+  final RxString formId = "".obs;
+  final RxString leadId = "".obs;
+  final RxString leadContactId = "".obs;
 
   // ─────────────────────────────────────────────
   // LOADING
@@ -51,84 +46,74 @@ class CallFormController extends GetxController {
   RxBool isLoading = false.obs;
 
   // ─────────────────────────────────────────────
-  // DATE PICKER
-  // ─────────────────────────────────────────────
-  final rescheduleDate = "".obs;
-
-  Future<void> pickCallbackDate(BuildContext context) async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now().add(const Duration(days: 1)),
-      firstDate: DateTime.now(),
-      lastDate: DateTime(2100),
-    );
-    if (picked != null) {
-      final formatted =
-          "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
-      rescheduleDate.value = formatted;
-      callbackDateController.text = formatted;
-    }
-  }
-
-  // ─────────────────────────────────────────────
   // SAVE & SUBMIT
   // ─────────────────────────────────────────────
   Future<void> onSaveAndSubmit() async {
     if (!formKey.currentState!.validate()) return;
 
-    if (selectedProduct.value.isEmpty) {
-      Get.snackbar(
-        "Validation Error",
-        "Please select an interested product",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red[400],
-        colorText: Colors.white,
-      );
-      return;
-    }
-
-    if (selectedContactPreference.value.isEmpty) {
-      Get.snackbar(
-        "Validation Error",
-        "Please select a contact preference",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red[400],
-        colorText: Colors.white,
-      );
-      return;
+    // Check required dynamic dropdowns/radios that aren't text-based
+    for (var field in formFields) {
+      if (field.required ?? false) {
+        if (field.type == FORM_FIELD_TYPES["SELECT"] ||
+            field.type == FORM_FIELD_TYPES["RADIO"]) {
+          if ((dynamicValues[field.id]?.value ?? "").isEmpty) {
+            Get.snackbar(
+              "Validation Error",
+              "Please select a value for ${field.label}",
+              snackPosition: SnackPosition.BOTTOM,
+              backgroundColor: Colors.red[400],
+              colorText: Colors.white,
+            );
+            return;
+          }
+        }
+      }
     }
 
     isLoading.value = true;
 
     try {
-      // Collect form data
-      final formData = {
-        "fullName": fullNameController.text.trim(),
-        "phoneNumber": phoneNumberController.text.trim(),
-        "interestedProduct": selectedProduct.value,
-        "contactPreference": selectedContactPreference.value,
-        "documentsAvailable": selectedDocument.value,
-        "preferredCallbackDate": callbackDateController.text.trim(),
-        "customerInterestLevel": selectedInterestLevel.value,
+      // Collect dynamic form data
+      final Map<String, dynamic> formData = {
+        "formId": formId.value,
+        "leadId": leadId.value,
+        "leadContactId": leadContactId.value,
+        "fields": {},
       };
+
+      for (var field in formFields) {
+        final fieldId = field.id ?? "";
+        if (fieldId.isEmpty) continue;
+
+        if (dynamicControllers.containsKey(fieldId)) {
+          formData["fields"][fieldId] =
+              dynamicControllers[fieldId]!.text.trim();
+        } else if (dynamicValues.containsKey(fieldId)) {
+          formData["fields"][fieldId] = dynamicValues[fieldId]!.value;
+        }
+      }
 
       print("📋 Call Form Submitted: $formData");
 
-      // TODO: Add API call here
-      // await apiService.submitCallForm(formData);
+      final apiService = Get.find<ApiService>();
+      final response = await apiService.submitCallForm(formData);
 
-      Get.snackbar(
-        "Success",
-        "Form submitted successfully!",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green[400],
-        colorText: Colors.white,
-        duration: const Duration(seconds: 2),
-      );
+      if (response.status ?? false) {
+        Get.snackbar(
+          "Success",
+          "Form submitted successfully!",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green[400],
+          colorText: Colors.white,
+          duration: const Duration(seconds: 2),
+        );
 
-      // Close dialog after successful submission
-      if (Get.isDialogOpen ?? false) {
-        Get.back();
+        // Close dialog after successful submission
+        if (Get.isDialogOpen ?? false) {
+          Get.back();
+        }
+      } else {
+        throw response.message ?? "Failed to submit form";
       }
     } catch (e) {
       print("❌ Form submit error: $e");
@@ -148,32 +133,130 @@ class CallFormController extends GetxController {
   // RESET FORM
   // ─────────────────────────────────────────────
   void resetForm() {
-    fullNameController.clear();
-    phoneNumberController.clear();
-    callbackDateController.clear();
-    selectedProduct.value = "";
-    selectedContactPreference.value = "";
-    selectedDocument.value = "";
-    selectedInterestLevel.value = "";
-    rescheduleDate.value = "";
+    for (var controller in dynamicControllers.values) {
+      controller.dispose();
+    }
+    dynamicControllers.clear();
+    dynamicValues.clear();
+    formFields.clear();
+    formId.value = "";
+    leadId.value = "";
+    leadContactId.value = "";
+  }
+
+  // ─────────────────────────────────────────────
+  // DATE PICKER
+  // ─────────────────────────────────────────────
+  Future<void> pickDate(BuildContext context, String fieldId) async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+    if (picked != null) {
+      final formatted =
+          "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
+      dynamicControllers[fieldId]?.text = formatted;
+    }
+  }
+
+  // ─────────────────────────────────────────────
+  // TIME PICKER
+  // ─────────────────────────────────────────────
+  Future<void> pickTime(BuildContext context, String fieldId) async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+    if (picked != null) {
+      final formatted =
+          "${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}";
+      dynamicControllers[fieldId]?.text = formatted;
+      dynamicValues[fieldId]?.value = formatted;
+    }
   }
 
   // ─────────────────────────────────────────────
   // STATIC SHOW — open the dialog from anywhere
   // ─────────────────────────────────────────────
-  static Future<void> show() async {
-    // Register controller if not already registered
+  static Future<void> show({
+    required String formid,
+    required String leadId,
+    required String leadContactId,
+    List<AllLeadLeadsFormIdFields> formFields = const [],
+    bool showUI = true,
+  }) async {
+    print(
+      "🚀 CallFormController.show: Form=$formid, Lead=$leadId, Contact=$leadContactId, showUI=$showUI, fields=${formFields.length}",
+    );
     if (!Get.isRegistered<CallFormController>()) {
       Get.put(CallFormController());
-    } else {
-      Get.find<CallFormController>().resetForm();
+    }
+    final controller = Get.find<CallFormController>();
+
+    // ── Guard: Suppress Empty Form ──────────────────────────────────────────
+    // If showUI=true but no formid is passed AND no form is primed, skip showing.
+    // This prevents "wrong data" popups from PhoneStatusService for leads without forms.
+    if (showUI && (formid == null || formid.isEmpty) && controller.formId.value.isEmpty) {
+      print("🚫 Suppressing empty form popup (no primed data and no incoming formId)");
+      return;
     }
 
-    await Get.dialog(
-      CallFormPage(),
-      barrierDismissible: false,
-      barrierColor: Colors.black54,
-    );
+    // Detect if this is a "trigger" for an existing primed form
+    // (e.g., PhoneStatusService showing a form that AutoDialer already prepared)
+    bool isTriggeringPrimed =
+        (formid == null || formid.isEmpty) &&
+        controller.formId.value.isNotEmpty;
+
+    if (!isTriggeringPrimed) {
+      print("📝 Initializing form with new data...");
+      controller.resetForm();
+      controller.formId.value = formid;
+      controller.leadId.value = leadId;
+      controller.leadContactId.value = leadContactId;
+      controller.formFields.assignAll(formFields);
+
+      // Initialize dynamic controllers/values
+      for (var field in formFields) {
+        final fieldId = field.id ?? "";
+        if (fieldId.isEmpty) continue;
+
+        final type = field.type;
+
+        // 1. Initialize TextEditingControllers for text-based or display-as-text fields
+        if (type == FORM_FIELD_TYPES["TEXT"] ||
+            type == FORM_FIELD_TYPES["NUMBER"] ||
+            type == FORM_FIELD_TYPES["TEXTAREA"] ||
+            type == FORM_FIELD_TYPES["DATE"] ||
+            type == FORM_FIELD_TYPES["TIME"] ||
+            type == FORM_FIELD_TYPES["LINK"] ||
+            type == FORM_FIELD_TYPES["LOCATION"]) {
+          controller.dynamicControllers[fieldId] = TextEditingController();
+        }
+
+        // 2. Initialize RxString values for state-based fields
+        if (type == FORM_FIELD_TYPES["SELECT"] ||
+            type == FORM_FIELD_TYPES["RADIO"] ||
+            type == FORM_FIELD_TYPES["CHECKBOX"] ||
+            type == FORM_FIELD_TYPES["DATE"] ||
+            type == FORM_FIELD_TYPES["TIME"] ||
+            type == FORM_FIELD_TYPES["SLIDER"] ||
+            type == FORM_FIELD_TYPES["RATING"]) {
+          controller.dynamicValues[fieldId] = "".obs;
+        }
+      }
+    } else {
+      print("🔄 Using already primed form: ${controller.formId.value}");
+    }
+
+    if (showUI) {
+      await Get.dialog(
+        CallFormPage(),
+        barrierDismissible: false,
+        barrierColor: Colors.black54,
+      );
+    }
   }
 
   // ─────────────────────────────────────────────
@@ -181,9 +264,9 @@ class CallFormController extends GetxController {
   // ─────────────────────────────────────────────
   @override
   void onClose() {
-    fullNameController.dispose();
-    phoneNumberController.dispose();
-    callbackDateController.dispose();
+    for (var controller in dynamicControllers.values) {
+      controller.dispose();
+    }
     super.onClose();
   }
 }
