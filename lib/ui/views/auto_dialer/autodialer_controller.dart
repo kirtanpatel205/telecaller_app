@@ -344,9 +344,8 @@ class AutoDialerController extends GetxController {
             )
             .map(
               (l) => {
-                'leadId': l.leadId ?? '', // This is the parent lead record ID
-                'leadContactId':
-                    l.id ?? '', // Use l.id for the specific contact ID
+                'leadId': l.leadId ?? '', // Parent lead ID (for the form)
+                'leadContactId': l.id ?? '', // Specific contact record ID
                 'name': l.contact?.name ?? 'Unknown',
                 'number': l.contact?.phone ?? '',
               },
@@ -397,15 +396,47 @@ class AutoDialerController extends GetxController {
         if (index < overlayCtrl.callQueue.length) {
           final next = overlayCtrl.callQueue[index];
           currentContact.value = contactQueue.firstWhereOrNull(
-            (l) => l.id == next['id'],
+            (l) => l.id == next['leadContactId'],
           );
+
+          // ── SYNC: Update PhoneStatusService for the UPCOMING call ─────────
+          if (Get.isRegistered<PhoneStatusService>()) {
+            final ps = Get.find<PhoneStatusService>();
+            ps.currentLeadId = next['id'];
+            ps.currentLeadContactId = next['leadContactId'];
+            
+            // Restore form metadata
+            final dataset = selectedLeadDataset.value;
+            if (dataset != null) {
+              ps.currentFormId = dataset.formId?.id ?? "";
+              ps.currentFormFields = dataset.formId?.fields ?? [];
+            }
+            
+            print("🔄 Dialer Sync (Pre-Call): Lead=${ps.currentLeadId} | Contact=${ps.currentLeadContactId} | Form=${ps.currentFormId}");
+          }
         }
       } else {
         if (index > 0 && index <= overlayCtrl.callQueue.length) {
           final current = overlayCtrl.callQueue[index - 1];
           currentContact.value = contactQueue.firstWhereOrNull(
-            (l) => l.id == current['id'],
+            (l) => l.id == current['leadContactId'],
           );
+
+          // ── SYNC: Update PhoneStatusService for the CURRENT call ──────────
+          if (Get.isRegistered<PhoneStatusService>()) {
+            final ps = Get.find<PhoneStatusService>();
+            ps.currentLeadId = current['id'];
+            ps.currentLeadContactId = current['leadContactId'];
+
+            // Restore form metadata
+            final dataset = selectedLeadDataset.value;
+            if (dataset != null) {
+              ps.currentFormId = dataset.formId?.id ?? "";
+              ps.currentFormFields = dataset.formId?.fields ?? [];
+            }
+
+            print("🔄 Dialer Sync (Active): Lead=${ps.currentLeadId} | Contact=${ps.currentLeadContactId} | Form=${ps.currentFormId}");
+          }
         }
       }
     }

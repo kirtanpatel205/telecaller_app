@@ -7,6 +7,8 @@ import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:telecaller_app/core/controllers/socket_controller.dart';
 import 'package:telecaller_app/core/models/call_lead_update_response_entity.dart';
 import 'package:telecaller_app/core/services/api_service.dart';
+import 'package:telecaller_app/core/services/phone_status_service.dart';
+import 'package:telecaller_app/ui/views/auto_dialer/autodialer_controller.dart';
 
 class OverlayController extends GetxController {
   // ─────────────────────────────────────────────
@@ -246,6 +248,25 @@ class OverlayController extends GetxController {
     
     // Set currentLeadId for socket
     currentLeadId = next["id"] ?? "";
+
+    // ── SYNC: Update PhoneStatusService for the next dial ─────────────────
+    if (Get.isRegistered<PhoneStatusService>()) {
+      final ps = Get.find<PhoneStatusService>();
+      ps.currentLeadId = next["id"];
+      ps.currentLeadContactId = next["leadContactId"];
+      
+      // Restore form metadata from AutoDialerController if available
+      if (Get.isRegistered<AutoDialerController>()) {
+        final ad = Get.find<AutoDialerController>();
+        final dataset = ad.selectedLeadDataset.value;
+        if (dataset != null) {
+          ps.currentFormId = dataset.formId?.id ?? "";
+          ps.currentFormFields = dataset.formId?.fields ?? [];
+        }
+      }
+      
+      print("🔄 Overlay Sync: Lead=${ps.currentLeadId} | Contact=${ps.currentLeadContactId} | Form=${ps.currentFormId}");
+    }
 
     // Sync with background service
     FlutterBackgroundService().invoke('set_lead_info', {'leadId': currentLeadId});
