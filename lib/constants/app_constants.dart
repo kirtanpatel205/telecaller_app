@@ -57,7 +57,7 @@ class AppConstants {
   static String API_ALL_LEAD = '$API_URL/telecaller/lead/all';
   static String API_GET_CALL = '$API_URL/telecaller/lead-contact/all';
   static String API_LEADS_UPDATE = '$API_URL/telecaller/lead/log/update';
-  static String API_LEAD_FORM_SUBMIT = '$API_URL/telecaller/lead/form-data/save';
+  static String API_LEAD_FORM_SUBMIT = '$API_URL/telecaller/submit/form';
 
   // fcm token
 

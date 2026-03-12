@@ -75,22 +75,36 @@ class CallFormController extends GetxController {
     try {
       // Collect dynamic form data
       final Map<String, dynamic> formData = {
-        "formId": formId.value,
         "leadId": leadId.value,
+        "formId": formId.value,
         "leadContactId": leadContactId.value,
-        "fields": {},
+        "answers": [],
       };
 
       for (var field in formFields) {
         final fieldId = field.id ?? "";
         if (fieldId.isEmpty) continue;
 
+        dynamic value = "";
         if (dynamicControllers.containsKey(fieldId)) {
-          formData["fields"][fieldId] =
-              dynamicControllers[fieldId]!.text.trim();
+          value = dynamicControllers[fieldId]!.text.trim();
         } else if (dynamicValues.containsKey(fieldId)) {
-          formData["fields"][fieldId] = dynamicValues[fieldId]!.value;
+          value = dynamicValues[fieldId]!.value;
         }
+
+        // Handle specific types if needed (e.g. converting numeric strings to numbers)
+        if (field.type == FORM_FIELD_TYPES["NUMBER"] || 
+            field.type == FORM_FIELD_TYPES["RATING"] || 
+            field.type == FORM_FIELD_TYPES["SLIDER"]) {
+          value = num.tryParse(value.toString()) ?? value;
+        }
+
+        formData["answers"].add({
+          "fieldId": fieldId,
+          "label": field.label ?? "",
+          "type": field.type ?? "",
+          "value": value,
+        });
       }
 
       print("📋 Call Form Submitted: $formData");
