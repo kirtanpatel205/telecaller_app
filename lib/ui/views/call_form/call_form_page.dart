@@ -13,8 +13,8 @@ class CallFormPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
+    return Obx(() => PopScope(
+      canPop: controller.canClose.value,
       child: Dialog(
         insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -115,7 +115,7 @@ class CallFormPage extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ));
   }
 
   // ─────────────────────────────────────────────────────────────────
@@ -149,7 +149,10 @@ class CallFormPage extends StatelessWidget {
           ),
           const Spacer(),
           InkWell(
-            onTap: () => Get.back(),
+            onTap: () {
+              controller.canClose.value = true;
+              Get.back();
+            },
             borderRadius: BorderRadius.circular(20),
             child: Container(
               padding: const EdgeInsets.all(4),
@@ -723,7 +726,10 @@ class CallFormPage extends StatelessWidget {
           // ── Cancel Button ─────────────────────────────
           Expanded(
             child: OutlinedButton(
-              onPressed: () => Get.back(),
+              onPressed: () {
+                controller.canClose.value = true;
+                Get.back();
+              },
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

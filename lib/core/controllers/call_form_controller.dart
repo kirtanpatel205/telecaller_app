@@ -48,6 +48,8 @@ class CallFormController extends GetxController {
   // LOADING
   // ─────────────────────────────────────────────
   RxBool isLoading = false.obs;
+  RxBool canClose = true.obs;
+  RxBool isFormVisible = false.obs;
 
   // ─────────────────────────────────────────────
   // SAVE & SUBMIT
@@ -126,6 +128,17 @@ class CallFormController extends GetxController {
       final response = await apiService.submitCallForm(formData);
 
       if (response.status ?? false) {
+        // ── Close dialog immediately ─────────────────────────────
+        canClose.value = true;
+        if (Get.isDialogOpen == true) {
+          Get.back();
+        } else {
+          try {
+            Navigator.of(Get.overlayContext!).pop();
+          } catch (_) {}
+        }
+
+        // ── Then show success message ────────────────────────────
         Get.snackbar(
           "Success",
           "Form submitted successfully!",
@@ -134,11 +147,6 @@ class CallFormController extends GetxController {
           colorText: Colors.white,
           duration: const Duration(seconds: 2),
         );
-
-        // Close dialog after successful submission
-        if (Get.isDialogOpen ?? false) {
-          Get.back();
-        }
       } else {
         throw response.message ?? "Failed to submit form";
       }
@@ -169,6 +177,7 @@ class CallFormController extends GetxController {
     formId.value = "";
     leadId.value = "";
     leadContactId.value = "";
+    canClose.value = true;
   }
 
   // ─────────────────────────────────────────────
@@ -421,11 +430,18 @@ class CallFormController extends GetxController {
     }
 
     if (showUI) {
-      await Get.dialog(
-        CallFormPage(),
-        barrierDismissible: false,
-        barrierColor: Colors.black54,
-      );
+      controller.canClose.value = false; // Lock the form initially
+      controller.isFormVisible.value = true;
+      try {
+        await Get.dialog(
+          CallFormPage(),
+          barrierDismissible: false,
+          barrierColor: Colors.black54,
+        );
+      } finally {
+        controller.isFormVisible.value = false;
+        print("📥 CallFormController.show: isFormVisible = false");
+      }
     }
   }
 

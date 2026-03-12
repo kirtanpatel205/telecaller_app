@@ -44,6 +44,12 @@ class PhoneStatusService extends GetxService {
 
   // ── UI state machine ──────────────────────────────────────────────────────
   _CallUIState _uiState = _CallUIState.idle;
+  
+  // ── Pending Overlay ──────────────────────────────────────────────────────
+  bool _isOverlayPending = false;
+  String _pendingOverlayNumber = "";
+  Duration _pendingOverlayDuration = Duration.zero;
+  String _pendingOverlaySessionId = "";
 
   // ─────────────────────────────────────────────────────────────────────────
   // PUBLIC API
@@ -217,12 +223,22 @@ class PhoneStatusService extends GetxService {
     _emitCallEnd(sessionId, callDuration);
 
     if (!_isBackground) {
-      // unawaited — manages its own lifecycle
-      _openOverlay(
-        number: endedNumber,
-        duration: callDuration,
-        callSessionId: sessionId,
-      );
+      final isFormShowing = _isFormShowing();
+      print("🔍 Overlay check: Get.isDialogOpen=${Get.isDialogOpen}, isFormShowing=$isFormShowing");
+      
+      if (isFormShowing) {
+        print("⏳ CallFormPage is open. Delaying overlay...");
+        _isOverlayPending = true;
+        _pendingOverlayNumber = endedNumber;
+        _pendingOverlayDuration = callDuration;
+        _pendingOverlaySessionId = sessionId;
+      } else {
+        _openOverlay(
+          number: endedNumber,
+          duration: callDuration,
+          callSessionId: sessionId,
+        );
+      }
     } else {
       print("ℹ️ Background mode: no UI shown");
       _resetToIdle();
@@ -249,7 +265,7 @@ class PhoneStatusService extends GetxService {
     }
 
     // If a dialog is already open (e.g. from AutoDialerController), don't open another one
-    if (Get.isDialogOpen ?? false) {
+    if (Get.isDialogOpen == true) {
       print("ℹ️ Dialog already open, skipping redundant _openCallForm");
       return;
     }
@@ -265,6 +281,22 @@ class PhoneStatusService extends GetxService {
         showUI: true,
       );
       print("✅ CallFormPage closed");
+
+      // ── Trigger pending overlay if call ended while form was open ───────
+      if (_isOverlayPending) {
+        print("🔔 Showing delayed post-call overlay...");
+        final number = _pendingOverlayNumber;
+        final duration = _pendingOverlayDuration;
+        final sessionId = _pendingOverlaySessionId;
+
+        _isOverlayPending = false; // Reset
+        
+        await _openOverlay(
+          number: number,
+          duration: duration,
+          callSessionId: sessionId,
+        );
+      }
     } catch (e) {
       print("❌ CallFormPage error: $e");
     }
@@ -285,12 +317,16 @@ class PhoneStatusService extends GetxService {
       return;
     }
 
-    // ── Step 1: Close CallFormPage if it is currently open ─────────────────
-    if (Get.isDialogOpen ?? false) {
-      print("🔒 Closing CallFormPage before showing overlay...");
+    // ── Step 1: Ensure any residual dialogs are closed ────────────────────
+    if (Get.isRegistered<CallFormController>()) {
+      Get.find<CallFormController>().canClose.value = true;
+    }
+    
+    // Safety check: sometimes dialogs linger in GetX
+    while (Get.isDialogOpen == true) {
+      print("🔒 Closing lingering dialog before overlay...");
       Get.back();
-      // Allow the pop animation to complete
-      await Future.delayed(const Duration(milliseconds: 350));
+      await Future.delayed(const Duration(milliseconds: 100));
     }
 
     // ── Step 2: Short pause so the screen settles ──────────────────────────
@@ -338,6 +374,7 @@ class PhoneStatusService extends GetxService {
     currentFormId = null;
     currentLeadContactId = null;
     currentFormFields = [];
+    _isOverlayPending = false;
 
     // Also reset CallFormController if it exists
     if (Get.isRegistered<CallFormController>()) {
@@ -345,6 +382,18 @@ class PhoneStatusService extends GetxService {
     }
 
     print("🔓 PhoneStatusService: ready for next call");
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // HELPERS
+  // ─────────────────────────────────────────────────────────────────────────
+
+  bool _isFormShowing() {
+    if (Get.isDialogOpen == true) return true;
+    if (Get.isRegistered<CallFormController>()) {
+      return Get.find<CallFormController>().isFormVisible.value;
+    }
+    return false;
   }
 
   // ─────────────────────────────────────────────────────────────────────────

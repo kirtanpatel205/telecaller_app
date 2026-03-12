@@ -173,7 +173,7 @@ class Utils {
 
 
   static void closeDialog() {
-    if (Get.isDialogOpen!) {
+    if (Get.isDialogOpen == true) {
       Get.back();
     }
   }
