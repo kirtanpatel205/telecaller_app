@@ -97,8 +97,8 @@ class CallFormController extends GetxController {
         }
 
         // Handle specific types if needed (e.g. converting numeric strings to numbers)
-        if (field.type == FORM_FIELD_TYPES["NUMBER"] || 
-            field.type == FORM_FIELD_TYPES["RATING"] || 
+        if (field.type == FORM_FIELD_TYPES["NUMBER"] ||
+            field.type == FORM_FIELD_TYPES["RATING"] ||
             field.type == FORM_FIELD_TYPES["SLIDER"]) {
           value = num.tryParse(value.toString()) ?? value;
         }
@@ -209,7 +209,7 @@ class CallFormController extends GetxController {
   // ─────────────────────────────────────────────────────────────────
   Future<void> pickMedia(String fieldId, String type) async {
     final ImagePicker picker = ImagePicker();
-    
+
     Get.bottomSheet(
       Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
@@ -217,7 +217,11 @@ class CallFormController extends GetxController {
           color: Colors.white,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10, offset: const Offset(0, -2))
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(0, -2),
+            ),
           ],
         ),
         child: Column(
@@ -226,13 +230,18 @@ class CallFormController extends GetxController {
           children: [
             Text(
               "Select ${type.toUpperCase()} Source",
-              style: AppTextStyle.bold11.copyWith(fontSize: 18, color: AppColors.themeColor.textPrimaryColor),
+              style: AppTextStyle.bold11.copyWith(
+                fontSize: 18,
+                color: AppColors.themeColor.textPrimaryColor,
+              ),
             ),
             const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                if (type == FORM_FIELD_TYPES["FILE"] || type == FORM_FIELD_TYPES["IMAGE"] || type == FORM_FIELD_TYPES["VIDEO"]) ...[
+                if (type == FORM_FIELD_TYPES["FILE"] ||
+                    type == FORM_FIELD_TYPES["IMAGE"] ||
+                    type == FORM_FIELD_TYPES["VIDEO"]) ...[
                   _buildOptionTile(
                     icon: Icons.camera_alt_rounded,
                     label: "Camera",
@@ -240,10 +249,16 @@ class CallFormController extends GetxController {
                     onTap: () async {
                       Get.back();
                       // For generic FILE type, we'll default to Image picker for camera
-                      final XFile? file = type == FORM_FIELD_TYPES["VIDEO"] 
-                        ? await picker.pickVideo(source: ImageSource.camera)
-                        : await picker.pickImage(source: ImageSource.camera);
-                      if (file != null) dynamicValues[fieldId]?.value = file.name;
+                      final XFile? file =
+                          type == FORM_FIELD_TYPES["VIDEO"]
+                              ? await picker.pickVideo(
+                                source: ImageSource.camera,
+                              )
+                              : await picker.pickImage(
+                                source: ImageSource.camera,
+                              );
+                      if (file != null)
+                        dynamicValues[fieldId]?.value = file.name;
                     },
                   ),
                   _buildOptionTile(
@@ -253,10 +268,16 @@ class CallFormController extends GetxController {
                     onTap: () async {
                       Get.back();
                       // For generic FILE type, we'll search both but Image is safer default here
-                      final XFile? file = type == FORM_FIELD_TYPES["VIDEO"] 
-                        ? await picker.pickVideo(source: ImageSource.gallery)
-                        : await picker.pickImage(source: ImageSource.gallery);
-                      if (file != null) dynamicValues[fieldId]?.value = file.name;
+                      final XFile? file =
+                          type == FORM_FIELD_TYPES["VIDEO"]
+                              ? await picker.pickVideo(
+                                source: ImageSource.gallery,
+                              )
+                              : await picker.pickImage(
+                                source: ImageSource.gallery,
+                              );
+                      if (file != null)
+                        dynamicValues[fieldId]?.value = file.name;
                     },
                   ),
                 ],
@@ -267,13 +288,13 @@ class CallFormController extends GetxController {
                   onTap: () async {
                     Get.back();
                     FileType fileType = FileType.any;
-                    if (type == FORM_FIELD_TYPES["IMAGE"]) fileType = FileType.image;
-                    if (type == FORM_FIELD_TYPES["VIDEO"]) fileType = FileType.video;
-                    
-                    FilePickerResult? result = await FilePicker.platform.pickFiles(
-                      type: fileType,
-                      allowMultiple: false,
-                    );
+                    if (type == FORM_FIELD_TYPES["IMAGE"])
+                      fileType = FileType.image;
+                    if (type == FORM_FIELD_TYPES["VIDEO"])
+                      fileType = FileType.video;
+
+                    FilePickerResult? result = await FilePicker.platform
+                        .pickFiles(type: fileType, allowMultiple: false);
                     if (result != null) {
                       dynamicValues[fieldId]?.value = result.files.single.name;
                     }
@@ -337,8 +358,12 @@ class CallFormController extends GetxController {
     // ── Guard: Suppress Empty Form ──────────────────────────────────────────
     // If showUI=true but no formid is passed AND no form is primed, skip showing.
     // This prevents "wrong data" popups from PhoneStatusService for leads without forms.
-    if (showUI && (formid == null || formid.isEmpty) && controller.formId.value.isEmpty) {
-      print("🚫 Suppressing empty form popup (no primed data and no incoming formId)");
+    if (showUI &&
+        (formid == null || formid.isEmpty) &&
+        controller.formId.value.isEmpty) {
+      print(
+        "🚫 Suppressing empty form popup (no primed data and no incoming formId)",
+      );
       return;
     }
 
