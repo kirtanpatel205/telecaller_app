@@ -3,12 +3,15 @@ import 'package:get/get.dart';
 import 'package:telecaller_app/core/models/all_lead_entity.dart';
 import 'package:telecaller_app/core/services/api_service.dart';
 import 'package:telecaller_app/ui/views/call_form/call_form_page.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:telecaller_app/constants/app_colors.dart';
+import 'package:telecaller_app/constants/app_text_style.dart';
 
 const FORM_FIELD_TYPES = {
   "TEXT": "text",
   "NUMBER": "number",
   "TEXTAREA": "textarea",
-  "PARAGRAPH": "paragraph",
   "SELECT": "select",
   "RADIO": "radio",
   "CHECKBOX": "checkbox",
@@ -21,6 +24,7 @@ const FORM_FIELD_TYPES = {
   "VIDEO": "video",
   "LOCATION": "location",
   "LINK": "link",
+  "EXCEL": "excel",
 };
 
 class CallFormController extends GetxController {
@@ -97,6 +101,15 @@ class CallFormController extends GetxController {
             field.type == FORM_FIELD_TYPES["RATING"] || 
             field.type == FORM_FIELD_TYPES["SLIDER"]) {
           value = num.tryParse(value.toString()) ?? value;
+        }
+
+        // Handle Checkbox (send as List<String>)
+        if (field.type == FORM_FIELD_TYPES["CHECKBOX"]) {
+          if (value is String && value.isNotEmpty) {
+            value = value.split(",");
+          } else if (value == null || (value is String && value.isEmpty)) {
+            value = [];
+          }
         }
 
         formData["answers"].add({
@@ -191,6 +204,118 @@ class CallFormController extends GetxController {
     }
   }
 
+  // ─────────────────────────────────────────────────────────────────
+  // MEDIA PICKER (IMAGE/VIDEO/FILE)
+  // ─────────────────────────────────────────────────────────────────
+  Future<void> pickMedia(String fieldId, String type) async {
+    final ImagePicker picker = ImagePicker();
+    
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          boxShadow: [
+            BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10, offset: const Offset(0, -2))
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Select ${type.toUpperCase()} Source",
+              style: AppTextStyle.bold11.copyWith(fontSize: 18, color: AppColors.themeColor.textPrimaryColor),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                if (type == FORM_FIELD_TYPES["FILE"] || type == FORM_FIELD_TYPES["IMAGE"] || type == FORM_FIELD_TYPES["VIDEO"]) ...[
+                  _buildOptionTile(
+                    icon: Icons.camera_alt_rounded,
+                    label: "Camera",
+                    color: Colors.blue,
+                    onTap: () async {
+                      Get.back();
+                      // For generic FILE type, we'll default to Image picker for camera
+                      final XFile? file = type == FORM_FIELD_TYPES["VIDEO"] 
+                        ? await picker.pickVideo(source: ImageSource.camera)
+                        : await picker.pickImage(source: ImageSource.camera);
+                      if (file != null) dynamicValues[fieldId]?.value = file.name;
+                    },
+                  ),
+                  _buildOptionTile(
+                    icon: Icons.photo_library_rounded,
+                    label: "Gallery",
+                    color: Colors.purple,
+                    onTap: () async {
+                      Get.back();
+                      // For generic FILE type, we'll search both but Image is safer default here
+                      final XFile? file = type == FORM_FIELD_TYPES["VIDEO"] 
+                        ? await picker.pickVideo(source: ImageSource.gallery)
+                        : await picker.pickImage(source: ImageSource.gallery);
+                      if (file != null) dynamicValues[fieldId]?.value = file.name;
+                    },
+                  ),
+                ],
+                _buildOptionTile(
+                  icon: Icons.folder_rounded,
+                  label: "Files",
+                  color: Colors.orange,
+                  onTap: () async {
+                    Get.back();
+                    FileType fileType = FileType.any;
+                    if (type == FORM_FIELD_TYPES["IMAGE"]) fileType = FileType.image;
+                    if (type == FORM_FIELD_TYPES["VIDEO"]) fileType = FileType.video;
+                    
+                    FilePickerResult? result = await FilePicker.platform.pickFiles(
+                      type: fileType,
+                      allowMultiple: false,
+                    );
+                    if (result != null) {
+                      dynamicValues[fieldId]?.value = result.files.single.name;
+                    }
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+          ],
+        ),
+      ),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+    );
+  }
+
+  Widget _buildOptionTile({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: color, size: 28),
+          ),
+          const SizedBox(height: 8),
+          Text(label, style: AppTextStyle.medium8.copyWith(fontSize: 14)),
+        ],
+      ),
+    );
+  }
+
   // ─────────────────────────────────────────────
   // STATIC SHOW — open the dialog from anywhere
   // ─────────────────────────────────────────────
@@ -245,7 +370,10 @@ class CallFormController extends GetxController {
             type == FORM_FIELD_TYPES["DATE"] ||
             type == FORM_FIELD_TYPES["TIME"] ||
             type == FORM_FIELD_TYPES["LINK"] ||
-            type == FORM_FIELD_TYPES["LOCATION"]) {
+            type == FORM_FIELD_TYPES["LOCATION"] ||
+            type == FORM_FIELD_TYPES["IMAGE"] ||
+            type == FORM_FIELD_TYPES["VIDEO"] ||
+            type == FORM_FIELD_TYPES["EXCEL"]) {
           controller.dynamicControllers[fieldId] = TextEditingController();
         }
 
@@ -256,7 +384,10 @@ class CallFormController extends GetxController {
             type == FORM_FIELD_TYPES["DATE"] ||
             type == FORM_FIELD_TYPES["TIME"] ||
             type == FORM_FIELD_TYPES["SLIDER"] ||
-            type == FORM_FIELD_TYPES["RATING"]) {
+            type == FORM_FIELD_TYPES["RATING"] ||
+            type == FORM_FIELD_TYPES["FILE"] ||
+            type == FORM_FIELD_TYPES["IMAGE"] ||
+            type == FORM_FIELD_TYPES["VIDEO"]) {
           controller.dynamicValues[fieldId] = "".obs;
         }
       }
