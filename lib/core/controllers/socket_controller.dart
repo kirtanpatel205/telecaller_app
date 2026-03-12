@@ -1,26 +1,133 @@
 import 'dart:async';
 import 'dart:developer' as developer;
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:telecaller_app/constants/app_constants.dart';
 import 'package:telecaller_app/core/helpers/storage.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
+import 'package:telecaller_app/core/services/internetcheck.dart';
 
-class SocketController extends GetxController {
+class SocketController extends GetxController with WidgetsBindingObserver {
+  static bool isBackground = false;
+  static ServiceInstance? backgroundServiceInstance;
+
   IO.Socket? socket;
   RxBool isConnected = false.obs;
   RxString connectionStatus = 'Disconnected'.obs;
   RxString socketId = ''.obs;
 
+  final NetworkService _networkService = Get.find<NetworkService>();
+  StreamSubscription? _connectivitySubscription;
+
+  void _broadcastStatus() {
+    if (!isBackground) return;
+    
+    if (backgroundServiceInstance != null) {
+      backgroundServiceInstance!.invoke('socket_status', {
+        'isConnected': isConnected.value,
+        'connectionStatus': connectionStatus.value,
+        'socketId': socketId.value,
+      });
+    } else {
+      print('⚠️ [Socket-BG] Cannot broadcast: backgroundServiceInstance is null');
+    }
+  }
+
+  void _proxyEmit(String event, Map<String, dynamic> data) {
+    if (isBackground) {
+      socket?.emit(event, data);
+    } else {
+      FlutterBackgroundService().invoke('socket_emit', {
+        'event': event,
+        'data': data,
+      });
+    }
+  }
+
   @override
   void onInit() {
     super.onInit();
+    
+    if (isBackground) {
+      _initBackgroundMode();
+    } else {
+      _initUiMode();
+    }
+  }
+
+  void _initBackgroundMode() {
+    print('⚙️ [Socket] Initializing in BACKGROUND mode (Master)');
+    
+    // Listen to network changes
+    _connectivitySubscription = _networkService.isOnline.listen((isOnline) {
+      if (isOnline) {
+        print('🌐 [Socket-BG] Internet restored. Ensuring connection...');
+        ensureConnected();
+      } else {
+        print('🌐 [Socket-BG] Internet lost.');
+        connectionStatus.value = 'No Internet';
+        _broadcastStatus();
+      }
+    });
+
     initSocket();
+  }
+
+  void _initUiMode() {
+    print('🎨 [Socket] Initializing in UI mode (Proxy)');
+    WidgetsBinding.instance.addObserver(this);
+
+    // Listen to status updates from background service
+    FlutterBackgroundService().on('socket_status').listen((event) {
+      if (event != null) {
+        isConnected.value = event['isConnected'] ?? false;
+        connectionStatus.value = event['connectionStatus'] ?? 'Unknown';
+        socketId.value = event['socketId'] ?? '';
+      }
+    });
+
+    // Initial status request
+    FlutterBackgroundService().invoke('get_socket_status');
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (isBackground) return; // Background isolate doesn't care about UI lifecycle
+
+    developer.log('📱 [Socket-UI] App Lifecycle State: $state');
+    if (state == AppLifecycleState.resumed) {
+      print('📱 [Socket-UI] App resumed. Requesting status from background...');
+      FlutterBackgroundService().invoke('ensure_socket_connected');
+    }
+  }
+
+  Future<void> ensureConnected() async {
+    if (!isBackground) {
+      FlutterBackgroundService().invoke('ensure_socket_connected');
+      return;
+    }
+
+    if (isConnected.value && socket != null && socket!.connected) {
+      _broadcastStatus();
+      return;
+    }
+    
+    if (!_networkService.isOnline.value) {
+      print('⚠️ [Socket-BG] Cannot connect: No internet.');
+      return;
+    }
+
+    print('🔄 [Socket-BG] ensureConnected triggered.');
+    await initSocket();
   }
 
   // ================= INIT =================
   Future<void> initSocket() async {
+    if (!isBackground) return;
+
     // 1. Get token with high-reliability (SharedPrefs + GetStorage)
     String? token = await Storage.getToken();
 
@@ -64,19 +171,25 @@ class SocketController extends GetxController {
   }
 
   void disconnect() {
-    socket?.disconnect();
-    socket?.dispose();
+    if (isBackground) {
+      socket?.disconnect();
+      socket?.dispose();
+    }
     socket = null;
 
     isConnected.value = false;
     connectionStatus.value = 'Disconnected';
     socketId.value = '';
 
-    developer.log('🔌 Socket disconnected');
+    if (isBackground) {
+      developer.log('🔌 Socket disconnected (Master)');
+      _broadcastStatus();
+    }
   }
 
   // ================= CONNECT =================
   void connectWithToken(String token) {
+    if (!isBackground) return;
     try {
       if (socket != null && socket!.connected) {
         developer.log('📜 Already connected');
@@ -128,6 +241,7 @@ class SocketController extends GetxController {
         socketId.value = socket?.id ?? 'N/A';
 
         print('✅ Socket Connected: ${socketId.value}');
+        _broadcastStatus();
       });
 
       socket!.onDisconnect((_) {
@@ -136,6 +250,7 @@ class SocketController extends GetxController {
         socketId.value = '';
 
         print('❌ Socket Disconnected. Will attempt to reconnect automatically...');
+        _broadcastStatus();
       });
 
       socket!.onReconnect((_) {
@@ -144,21 +259,25 @@ class SocketController extends GetxController {
         socketId.value = socket?.id ?? 'N/A';
 
         print('🔄 ✅ Socket Reconnected Successfully: ${socketId.value}');
+        _broadcastStatus();
       });
 
       socket!.onReconnectAttempt((attempt) {
         connectionStatus.value = 'Reconnecting...';
         print('🔄 Socket Reconnection Attempt: $attempt');
+        _broadcastStatus();
       });
 
       socket!.onConnectError((err) {
         connectionStatus.value = 'Connection Error';
         print('❌ Socket Connect Error: $err');
+        _broadcastStatus();
       });
 
       socket!.onError((err) {
         connectionStatus.value = 'Socket Error';
         print('❌ Socket Error: $err');
+        _broadcastStatus();
       });
     } catch (e) {
       connectionStatus.value = 'Error';
@@ -187,19 +306,19 @@ class SocketController extends GetxController {
       'type': 'TELECALLER_NOTIFICATION_RECEIVED',
     };
 
-    socket!.emit('telecaller:notification-received', data);
-    print('📤 Notification Received emitted: $data');
+    _proxyEmit('telecaller:notification-received', data);
+    print('📤 Notification Received emitted (proxy-aware): $data');
   }
 
   // ================= HEARTBEAT =================
   void emitHeartbeat() {
-    if (socket != null && isConnected.value) {
-      socket!.emit('telecaller:heartbeat', {
+    if (isBackground && socket != null && isConnected.value) {
+      final data = {
         'timestamp': DateTime.now().toIso8601String(),
         'status': 'active',
         'socketId': socketId.value,
-      });
-
+      };
+      socket!.emit('telecaller:heartbeat', data);
       developer.log('📤 Heartbeat sent');
     }
   }
@@ -217,27 +336,8 @@ class SocketController extends GetxController {
       'timestamp': DateTime.now().toIso8601String(),
     };
 
-    // Ensure token is loaded for background emissions
-    if (!isConnected.value) {
-      print('ℹ️ Socket not connected for call-start. Forcing initSocket...');
-      await initSocket();
-    }
-
-    int retries = 0;
-    while (!isConnected.value && retries < 5) {
-      print(
-          '⚠️ Socket waiting for connection (call-start). Retry $retries...');
-      await Future.delayed(Duration(seconds: 1));
-      retries++;
-    }
-
-    if (socket != null && isConnected.value) {
-      socket!.emit('telecaller:call-start', data);
-      print('📤 Call Start emitted: $data');
-    } else {
-      print(
-          '❌ FAILED to emit call-start: Socket not connected after retries. Data: $data');
-    }
+    _proxyEmit('telecaller:call-start', data);
+    print('📤 Call Start emitted (proxy-aware): $data');
   }
 
   // ================= CALL END =================
@@ -257,31 +357,14 @@ class SocketController extends GetxController {
       'timestamp': DateTime.now().toIso8601String(),
     };
 
-    // Ensure token is loaded for background emissions
-    if (!isConnected.value) {
-      print('ℹ️ Socket not connected for call-end. Forcing initSocket...');
-      await initSocket();
-    }
-
-    int retries = 0;
-    while (!isConnected.value && retries < 5) {
-      print(
-          '⚠️ Socket waiting for connection (call-end). Retry $retries...');
-      await Future.delayed(Duration(seconds: 1));
-      retries++;
-    }
-
-    if (socket != null && isConnected.value) {
-      socket!.emit('telecaller:call-end', data);
-      print('📤 Call End emitted: $data');
-    } else {
-      print(
-          '❌ FAILED to emit call-end: Socket not connected after retries. Data: $data');
-    }
+    _proxyEmit('telecaller:call-end', data);
+    print('📤 Call End emitted (proxy-aware): $data');
   }
 
   @override
   void onClose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _connectivitySubscription?.cancel();
     disconnect();
     super.onClose();
   }

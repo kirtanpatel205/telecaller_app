@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 class NetworkService extends GetxService {
   final _isOnline = true.obs;
 
-  bool get isOnline => _isOnline.value;
+  RxBool get isOnline => _isOnline;
 
   @override
   void onInit() {
@@ -15,22 +15,35 @@ class NetworkService extends GetxService {
 
   void _checkInitialConnection() async {
     var connectivityResult = await Connectivity().checkConnectivity();
-    _updateConnectionStatus(connectivityResult as ConnectivityResult);
+    if (connectivityResult.isNotEmpty) {
+      _updateConnectionStatus(connectivityResult.first);
+    }
   }
 
   void _listenForConnectivityChanges() {
-    Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
-      _updateConnectionStatus(result);
-    } as void Function(List<ConnectivityResult> event)?);
+    Connectivity().onConnectivityChanged.listen((
+      List<ConnectivityResult> results,
+    ) {
+      if (results.isNotEmpty) {
+        _updateConnectionStatus(results.first);
+      }
+    });
   }
 
   void _updateConnectionStatus(ConnectivityResult result) {
     if (result == ConnectivityResult.none) {
       _isOnline.value = false;
-      Get.snackbar("Internet", "No connection. Please turn on your internet!");
+      Get.snackbar(
+        "Internet",
+        "No connection. Please turn on your internet!",
+        backgroundColor: Get.theme.colorScheme.error,
+        colorText: Get.theme.colorScheme.onError,
+      );
     } else {
       _isOnline.value = true;
-      Get.snackbar("Internet", "No connection. Please turn on your internet!");
+      // Get.snackbar("Internet", "Connected to internet",
+      //     backgroundColor: Get.theme.colorScheme.primary,
+      //     colorText: Get.theme.colorScheme.onPrimary);
     }
   }
 }

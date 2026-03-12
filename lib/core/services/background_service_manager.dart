@@ -17,6 +17,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:android_intent_plus/flag.dart';
 import 'package:telecaller_app/core/services/phone_status_service.dart';
+import 'package:telecaller_app/core/services/internetcheck.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
 
@@ -133,22 +134,19 @@ void onStart(ServiceInstance service) async {
   // For firebase messaging in background service
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
+  // Initialize NetworkService for connectivity awareness
+  if (!Get.isRegistered<NetworkService>()) {
+    Get.put(NetworkService());
+  }
+
   // Initialize SocketController for background
   if (!Get.isRegistered<SocketController>()) {
+    SocketController.isBackground = true; // Mark as background isolate
+    SocketController.backgroundServiceInstance = service; // Provide service instance for communication
     final socket = SocketController();
-    if (_cachedToken != null && _cachedToken!.isNotEmpty) {
-      socket.connectWithToken(_cachedToken!);
-    } else {
-      await socket.initSocket();
-    }
     Get.put(socket);
-  } else {
-    if (_cachedToken != null && _cachedToken!.isNotEmpty) {
-      Get.find<SocketController>().connectWithToken(_cachedToken!);
-    } else {
-      await Get.find<SocketController>().initSocket();
-    }
   }
+
 
   try {
     // Initialize PhoneStatusService for background tracking
@@ -171,6 +169,32 @@ void onStart(ServiceInstance service) async {
       final number = event['number'] as String?;
       
       phoneService.handleNativeEvent(state: state, number: number);
+    }
+  });
+
+  // ================= SOCKET PROXY HANDLERS =================
+  service.on('socket_emit').listen((event) {
+    if (event != null && Get.isRegistered<SocketController>()) {
+      final socket = Get.find<SocketController>();
+      final String? eventName = event['event'];
+      final Map<String, dynamic>? data = event['data'];
+      
+      if (eventName != null && data != null) {
+        print("📤 Background Socket Proxy Emit: $eventName");
+        socket.socket?.emit(eventName, data);
+      }
+    }
+  });
+
+  service.on('get_socket_status').listen((_) {
+    if (Get.isRegistered<SocketController>()) {
+      Get.find<SocketController>().ensureConnected(); // This also broadcasts status
+    }
+  });
+
+  service.on('ensure_socket_connected').listen((_) {
+    if (Get.isRegistered<SocketController>()) {
+      Get.find<SocketController>().ensureConnected();
     }
   });
 
@@ -226,11 +250,7 @@ void onStart(ServiceInstance service) async {
       print("🔌 Background Socket Connected: ${socket.isConnected.value}");
       if (!socket.isConnected.value) {
         print("🔄 Attempting background socket reconnect...");
-        if (_cachedToken != null && _cachedToken!.isNotEmpty) {
-          socket.connectWithToken(_cachedToken!);
-        } else {
-          socket.connect();
-        }
+        socket.ensureConnected();
       }
     }
   });

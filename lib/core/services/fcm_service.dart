@@ -14,6 +14,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:telecaller_app/constants/app_constants.dart';
 import 'package:telecaller_app/core/controllers/socket_controller.dart';
+import 'package:telecaller_app/core/services/internetcheck.dart';
 import 'package:telecaller_app/core/helpers/storage.dart';
 import 'package:telecaller_app/firebase_options.dart';
 import 'package:android_intent_plus/android_intent.dart';
@@ -23,7 +24,9 @@ import 'package:permission_handler/permission_handler.dart';
 import 'api_service.dart';
 
 // ✅ Platform channel to check lock screen status from native
-const _platform = MethodChannel('com.digibulkmarketing.telecaller_app/lockscreen');
+const _platform = MethodChannel(
+  'com.digibulkmarketing.telecaller_app/lockscreen',
+);
 
 int? _lastBgNotificationId;
 FlutterLocalNotificationsPlugin? _lastBgNotifPlugin;
@@ -50,11 +53,11 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     await GetStorage.init();
 
     final FlutterLocalNotificationsPlugin localNotif =
-    FlutterLocalNotificationsPlugin();
+        FlutterLocalNotificationsPlugin();
     const AndroidInitializationSettings initializationSettingsAndroid =
-    AndroidInitializationSettings('ic_launcher');
+        AndroidInitializationSettings('ic_launcher');
     const InitializationSettings initializationSettings =
-    InitializationSettings(android: initializationSettingsAndroid);
+        InitializationSettings(android: initializationSettingsAndroid);
     await localNotif.initialize(initializationSettings);
 
     const AndroidNotificationChannel channel = AndroidNotificationChannel(
@@ -67,17 +70,24 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
     await localNotif
         .resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin
-    >()
+          AndroidFlutterLocalNotificationsPlugin
+        >()
         ?.createNotificationChannel(channel);
 
     _handleNotificationPayload(message, localNotif, channel);
 
     try {
+      if (!Get.isRegistered<NetworkService>()) {
+        Get.put(NetworkService());
+      }
+
       if (!Get.isRegistered<SocketController>()) {
+        SocketController.isBackground =
+            true; // FCM BG acts as a master if no other isolate exists
         final socket = SocketController();
         await socket.initSocket();
         Get.put(socket);
+        print('🔌 [FCM BG] SocketController initialized and connected');
       } else {
         await Get.find<SocketController>().initSocket();
       }
@@ -91,10 +101,10 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 }
 
 Map<String, String> _handleNotificationPayload(
-    RemoteMessage message, [
-      FlutterLocalNotificationsPlugin? localNotif,
-      AndroidNotificationChannel? channel,
-    ]) {
+  RemoteMessage message, [
+  FlutterLocalNotificationsPlugin? localNotif,
+  AndroidNotificationChannel? channel,
+]) {
   print('Processing message: ${message.messageId}');
   final data = message.data;
   final notification = message.notification;
@@ -126,7 +136,7 @@ Map<String, String> _handleNotificationPayload(
     try {
       final int notificationId =
           message.messageId?.hashCode ??
-              DateTime.now().millisecondsSinceEpoch.hashCode;
+          DateTime.now().millisecondsSinceEpoch.hashCode;
 
       localNotif.show(
         notificationId,
@@ -182,15 +192,15 @@ Map<String, String> _handleNotificationPayload(
         if (decoded is Map) {
           phoneNumber =
               (decoded['phoneNumber'] ??
-                  decoded['phone_number'] ??
-                  decoded['phone'])
+                      decoded['phone_number'] ??
+                      decoded['phone'])
                   ?.toString();
         }
       } else if (messageContent is Map) {
         phoneNumber =
             (messageContent['phoneNumber'] ??
-                messageContent['phone_number'] ??
-                messageContent['phone'])
+                    messageContent['phone_number'] ??
+                    messageContent['phone'])
                 ?.toString();
       }
     } catch (e) {
@@ -253,8 +263,8 @@ Map<String, String> _handleNotificationPayload(
         if (decoded != null) {
           leadId ??=
               (decoded['leadContactId'] ??
-                  decoded['leadId'] ??
-                  decoded['lead_id'])
+                      decoded['leadId'] ??
+                      decoded['lead_id'])
                   ?.toString();
           callSessionId ??=
               (decoded['callSessionId'] ?? decoded['call_session_id'])
@@ -294,7 +304,7 @@ Map<String, String> _handleNotificationPayload(
           );
           await socket.emitCallStart(
             callSessionId:
-            callSessionId ??
+                callSessionId ??
                 'fcm_fallback_${DateTime.now().millisecondsSinceEpoch}',
             leadContactId: leadId ?? 'unknown',
             callId: phoneNumber ?? 'unknown',
@@ -316,8 +326,7 @@ Map<String, String> _handleNotificationPayload(
           final intent = AndroidIntent(
             action: 'android.intent.action.MAIN',
             package: 'com.digibulkmarketing.telecaller_app',
-            componentName:
-            'com.digibulkmarketing.telecaller_app.CallActivity',
+            componentName: 'com.digibulkmarketing.telecaller_app.CallActivity',
             arguments: <String, dynamic>{'phoneNumber': phoneNumber},
             flags: <int>[Flag.FLAG_ACTIVITY_NEW_TASK],
           );
@@ -370,8 +379,8 @@ class FCMService extends GetxService {
 
     await flutterLocalNotificationsPlugin!
         .resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin
-    >()
+          AndroidFlutterLocalNotificationsPlugin
+        >()
         ?.createNotificationChannel(channel!);
   }
 
@@ -446,8 +455,8 @@ class FCMService extends GetxService {
     FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
     FirebaseMessaging.instance.getInitialMessage().then((
-        RemoteMessage? message,
-        ) {
+      RemoteMessage? message,
+    ) {
       if (message != null) {
         print("Initial Message: ${message.messageId}");
         final strings = _handleNotificationPayload(message);
@@ -468,7 +477,9 @@ class FCMService extends GetxService {
       final bool locked = await _isScreenLocked();
       if (locked) {
         // Screen locked છે — app open ન કરો, ફક્ત payload process કરો
-        print('📵 Screen is locked — skipping app launch from notification tap');
+        print(
+          '📵 Screen is locked — skipping app launch from notification tap',
+        );
         return;
       }
 
@@ -483,10 +494,10 @@ class FCMService extends GetxService {
   }
 
   void showNotification(
-      RemoteMessage message, [
-        String? title,
-        String? body,
-      ]) async {
+    RemoteMessage message, [
+    String? title,
+    String? body,
+  ]) async {
     RemoteNotification? notification = message.notification;
 
     String finalTitle = title ?? notification?.title ?? 'Auto Call';
