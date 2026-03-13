@@ -12,6 +12,7 @@ import 'package:telecaller_app/core/models/get_static_entity.dart';
 import 'package:telecaller_app/core/models/lead_chart_entity.dart';
 import 'package:telecaller_app/core/models/lead_contact_id_entity.dart';
 import 'package:telecaller_app/core/models/login_response_entity.dart';
+import 'package:telecaller_app/core/models/save_form_entity.dart';
 
 JsonConvert jsonConvert = JsonConvert();
 
@@ -293,6 +294,18 @@ class JsonConvert {
           Map<String, dynamic> e) =>
           LoginResponseProfileSubscription.fromJson(e)).toList() as M;
     }
+    if (<SaveFormEntity>[] is M) {
+      return data.map<SaveFormEntity>((Map<String, dynamic> e) =>
+          SaveFormEntity.fromJson(e)).toList() as M;
+    }
+    if (<SaveFormResponse>[] is M) {
+      return data.map<SaveFormResponse>((Map<String, dynamic> e) =>
+          SaveFormResponse.fromJson(e)).toList() as M;
+    }
+    if (<SaveFormResponseAnswers>[] is M) {
+      return data.map<SaveFormResponseAnswers>((Map<String, dynamic> e) =>
+          SaveFormResponseAnswers.fromJson(e)).toList() as M;
+    }
 
     debugPrint("$M not found");
 
@@ -359,6 +372,9 @@ class JsonConvertClassCollection {
         .fromJson,
     (LoginResponseProfileSubscription)
         .toString(): LoginResponseProfileSubscription.fromJson,
+    (SaveFormEntity).toString(): SaveFormEntity.fromJson,
+    (SaveFormResponse).toString(): SaveFormResponse.fromJson,
+    (SaveFormResponseAnswers).toString(): SaveFormResponseAnswers.fromJson,
   };
 
   bool containsKey(String type) {

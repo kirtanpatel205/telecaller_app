@@ -15,6 +15,7 @@ import 'package:telecaller_app/core/models/lead_chart_entity.dart';
 import 'package:telecaller_app/core/models/lead_contact_id_entity.dart';
 import 'package:telecaller_app/core/models/login_response_entity.dart';
 import 'package:telecaller_app/core/models/call_chart_entity.dart';
+import 'package:telecaller_app/core/models/save_form_entity.dart';
 
 import 'package:telecaller_app/core/network/dio_client.dart';
 
@@ -255,7 +256,7 @@ print("callChart request data $data");
     return LeadChartEntity.fromJson(response);
   }
 
-  Future<ApiResponseEntity> submitCallForm(Map<String, dynamic> data) async {
+  Future<SaveFormEntity> submitCallForm(Map<String, dynamic> data) async {
     print("📡 Submitting call form data: $data");
     Map<String, dynamic> response = await client.post(
       AppConstants.API_LEAD_FORM_SUBMIT,
@@ -263,6 +264,6 @@ print("callChart request data $data");
       data: data,
     );
     print("✅ Form submission response: $response");
-    return ApiResponseEntity.fromJson(response);
+    return SaveFormEntity.fromJson(response);
   }
 }

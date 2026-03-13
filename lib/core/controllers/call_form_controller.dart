@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:telecaller_app/core/models/all_lead_entity.dart';
+import 'package:telecaller_app/core/models/save_form_entity.dart';
 import 'package:telecaller_app/core/services/api_service.dart';
 import 'package:telecaller_app/ui/views/call_form/call_form_page.dart';
 import 'package:image_picker/image_picker.dart';
@@ -43,6 +44,41 @@ class CallFormController extends GetxController {
   final RxString formId = "".obs;
   final RxString leadId = "".obs;
   final RxString leadContactId = "".obs;
+  Rxn<SaveFormResponse> formResponse = Rxn<SaveFormResponse>();
+
+  /// Checks if [formResponse] contains an existing submission for the current IDs
+  /// and populates the form fields accordingly.
+  void _checkAndPopulateFromResponse() {
+    final response = formResponse.value;
+    if (response == null) return;
+
+    // Direct match check - ensure we only populate if it's the right form/lead/contact
+    if (response.formId == formId.value &&
+        response.leadId == leadId.value &&
+        response.leadContactId == leadContactId.value) {
+      print("🎯 Matching existing form response found. Populating fields...");
+
+      for (var answer in response.answers ?? []) {
+        final fieldId = answer.fieldId ?? "";
+        final val = answer.value ?? "";
+
+        // Populate controllers (for text, textarea, date, time, etc.)
+        if (dynamicControllers.containsKey(fieldId)) {
+          dynamicControllers[fieldId]!.text = val;
+        }
+
+        // Populate Rx values (for select, radio, checkbox, slider, etc.)
+        if (dynamicValues.containsKey(fieldId)) {
+          dynamicValues[fieldId]!.value = val;
+        }
+      }
+    } else {
+      print(
+        "ℹ️ Existing formResponse (Form:${response.formId}, Lead:${response.leadId}) does not match current IDs. Skipping population.",
+      );
+    }
+  }
+
 
   // ─────────────────────────────────────────────
   // LOADING
@@ -129,6 +165,10 @@ class CallFormController extends GetxController {
 
       if (response.status ?? false) {
         // ── Close dialog immediately ─────────────────────────────
+        
+        formResponse.value = response.response;
+        
+        print("✅ Form submitted successfully: ${formResponse.value}");
         canClose.value = true;
         if (Get.isDialogOpen == true) {
           Get.back();
@@ -425,6 +465,9 @@ class CallFormController extends GetxController {
           controller.dynamicValues[fieldId] = "".obs;
         }
       }
+
+      // ── Populate from existing response if available ───────────────────────
+      controller._checkAndPopulateFromResponse();
     } else {
       print("🔄 Using already primed form: ${controller.formId.value}");
     }

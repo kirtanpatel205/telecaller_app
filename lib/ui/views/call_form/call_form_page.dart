@@ -269,6 +269,7 @@ class CallFormPage extends StatelessWidget {
     AllLeadLeadsFormIdFields field,
   ) {
     final String type = field.type ?? "";
+
     final String label = field.label ?? "Untitled Field";
     final String hint = field.placeholder ?? "Enter $label";
     final bool isRequired = field.required ?? false;
