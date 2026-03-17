@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer' as developer;
+import 'dart:isolate';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -59,7 +60,7 @@ class SocketController extends GetxController with WidgetsBindingObserver {
   }
 
   void _initBackgroundMode() {
-    print('⚙️ [Socket] Initializing in BACKGROUND mode (Master)');
+    print('⚙️ [Socket] Initializing in BACKGROUND mode (Master - Isolate: ${Isolate.current.debugName})');
     
     // Listen to network changes
     _connectivitySubscription = _networkService.isOnline.listen((isOnline) {
@@ -329,6 +330,20 @@ class SocketController extends GetxController with WidgetsBindingObserver {
     required String leadContactId,
     required String callId,
   }) async {
+    if (callSessionId.isEmpty) {
+      print('⚠️ [Socket] Skipping call-start: Empty callSessionId');
+      return;
+    }
+
+    // Prevent duplicate emissions across isolates (FCM isolate vs BG service isolate)
+    print('🔍 [Socket] Checking call-start de-dupe for session: $callSessionId');
+    if (await Storage.isEventProcessed('call-start', callSessionId)) {
+      print('⏳ [Socket] De-dupe HIT: Skipping duplicate call-start for session: $callSessionId');
+      return;
+    }
+    await Storage.markEventProcessed('call-start', callSessionId);
+    print('✅ [Socket] De-dupe MISS: Marking call-start processed for session: $callSessionId');
+
     final data = {
       'callSessionId': callSessionId,
       'leadContactId': leadContactId,
@@ -348,6 +363,20 @@ class SocketController extends GetxController with WidgetsBindingObserver {
     required String answerType,
     required String answer,
   }) async {
+    if (callSessionId.isEmpty) {
+      print('⚠️ [Socket] Skipping call-end: Empty callSessionId');
+      return;
+    }
+
+    // Prevent duplicate emissions across isolates
+    print('🔍 [Socket] Checking call-end de-dupe for session: $callSessionId');
+    if (await Storage.isEventProcessed('call-end', callSessionId)) {
+      print('⏳ [Socket] De-dupe HIT: Skipping duplicate call-end for session: $callSessionId');
+      return;
+    }
+    await Storage.markEventProcessed('call-end', callSessionId);
+    print('✅ [Socket] De-dupe MISS: Marking call-end processed for session: $callSessionId');
+
     final data = {
       'callSessionId': callSessionId,
       'leadContactId': leadContactId,

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:call_log/call_log.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:phone_state/phone_state.dart';
@@ -6,6 +7,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:telecaller_app/core/controllers/call_form_controller.dart';
 import 'package:telecaller_app/core/controllers/overlay_controller.dart';
 import 'package:telecaller_app/core/controllers/socket_controller.dart';
+import 'package:telecaller_app/core/helpers/storage.dart';
 import 'package:telecaller_app/ui/views/call_form/call_form_page.dart';
 import 'package:telecaller_app/ui/views/home/overlay/overlay_pages.dart';
 import 'package:telecaller_app/core/models/all_lead_entity.dart';
@@ -44,12 +46,16 @@ class PhoneStatusService extends GetxService {
 
   // ── UI state machine ──────────────────────────────────────────────────────
   _CallUIState _uiState = _CallUIState.idle;
-  
+
   // ── Pending Overlay ──────────────────────────────────────────────────────
   bool _isOverlayPending = false;
   String _pendingOverlayNumber = "";
   Duration _pendingOverlayDuration = Duration.zero;
   String _pendingOverlaySessionId = "";
+
+  // ── Concurrency & Event Filtering (Minimal) ──────────────────────────────
+  // Removed strict locks that blocked legitimate Call End events
+  int _lastEventTimestamp = 0;
 
   // ─────────────────────────────────────────────────────────────────────────
   // PUBLIC API
@@ -128,8 +134,13 @@ class PhoneStatusService extends GetxService {
   // ─────────────────────────────────────────────────────────────────────────
 
   void handleNativeEvent({String? state, String? number}) {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    
+    // Throttle only if it's the EXACT same event within 200ms
+    // to allow rapid START -> END transitions
+    _lastEventTimestamp = now;
+
     print("📡 [NATIVE] state=$state | number=$number");
-    if (state == null) return;
 
     switch (state) {
       case "RINGING":
@@ -160,22 +171,72 @@ class PhoneStatusService extends GetxService {
       return;
     }
 
-    _uiState = _CallUIState.callActive;
-    isCallActive.value = true;
-    callStatus.value = "Call Started";
-    _callStartTime = DateTime.now();
+    try {
+      _uiState = _CallUIState.callActive;
+      isCallActive.value = true;
+      callStatus.value = "Call Started";
+      _callStartTime = DateTime.now();
 
-    if (number != null && number.isNotEmpty) {
-      phoneNumber.value = number;
+      if (number != null && number.isNotEmpty) {
+        phoneNumber.value = number;
+      }
+
+      print("📞 CALL_STARTED: ${phoneNumber.value} | Lead: $currentLeadId");
+
+      _emitCallStart();
+
+      if (!_isBackground) {
+        // unawaited — runs in background, manages its own lifecycle
+        _openCallForm();
+      }
+    } catch (e) {
+      print("❌ Error in _handleCallStarted: $e");
     }
+  }
 
-    print("📞 CALL_STARTED: ${phoneNumber.value} | Lead: $currentLeadId");
+  // ─────────────────────────────────────────────────────────────────────────
+  // CALL LOG — fetch actual duration after call ends
+  // ─────────────────────────────────────────────────────────────────────────
 
-    _emitCallStart();
+  Future<Duration> _getCallDurationFromLog(String number) async {
+    try {
+      // CallLog read  1-2 seconds wait  (OS write
+      await Future.delayed(const Duration(seconds: 2));
 
-    if (!_isBackground) {
-      // unawaited — runs in background, manages its own lifecycle
-      _openCallForm();
+      final Iterable<CallLogEntry> entries = await CallLog.query(
+        dateFrom:
+            DateTime.now()
+                .subtract(const Duration(minutes: 5))
+                .millisecondsSinceEpoch,
+      );
+
+      // સૌથી recent matching entry શોધો
+      for (final entry in entries) {
+        final logNumber = entry.number ?? "";
+        // number ના last 10 digits compare કરો
+        if (logNumber.endsWith(
+              number.length > 10
+                  ? number.substring(number.length - 10)
+                  : number,
+            ) ||
+            number.endsWith(
+              logNumber.length > 10
+                  ? logNumber.substring(logNumber.length - 10)
+                  : logNumber,
+            )) {
+          final seconds = entry.duration ?? 0;
+          print(
+            "📋 CallLog found: number=$logNumber | duration=${seconds}s | type=${entry.callType}",
+          );
+          return Duration(seconds: seconds);
+        }
+      }
+
+      print("⚠️ CallLog: no matching entry found for $number");
+      return Duration.zero;
+    } catch (e) {
+      print("❌ CallLog error: $e");
+      return Duration.zero;
     }
   }
 
@@ -183,10 +244,13 @@ class PhoneStatusService extends GetxService {
   // CALL ENDED — single entry point
   // ─────────────────────────────────────────────────────────────────────────
 
-  void _handleCallEnded(String? number) {
-    // Only process if a call was actually started
-    if (_uiState == _CallUIState.idle) {
-      print("⚠️ CALL_ENDED ignored — no active call (idle state)");
+  void _handleCallEnded(String? number) async {
+    // Allow processing if not idle OR if we can recover a session ID
+    // (This handles cases where the isolate started mid-call)
+    final savedSessionId = await Storage.getActiveSessionId();
+    
+    if (_uiState == _CallUIState.idle && savedSessionId == null) {
+      print("⚠️ CALL_ENDED ignored — no active call and no saved session");
       return;
     }
 
@@ -196,52 +260,59 @@ class PhoneStatusService extends GetxService {
       return;
     }
 
-    // ── Capture data ───────────────────────────────────────────────────────
-    final endedNumber = (number != null && number.isNotEmpty)
-        ? number
-        : phoneNumber.value;
+    try {
+      // ── Capture data ───────────────────────────────────────────────────────
+      final endedNumber =
+          (number != null && number.isNotEmpty) ? number : phoneNumber.value;
 
-    Duration callDuration = Duration.zero;
-    if (_callStartTime != null) {
-      callDuration = DateTime.now().difference(_callStartTime!);
+      Duration callDuration = await _getCallDurationFromLog(endedNumber);
       _callStartTime = null;
-    }
 
-    final sessionId = _currentCallSessionId ?? "";
-
-    // ── Update reactive state ──────────────────────────────────────────────
-    _uiState = _CallUIState.showingOverlay;
-    isCallActive.value = false;
-    callStatus.value = "Call Ended";
-    phoneNumber.value = "";
-    _currentCallSessionId = null;
-
-    print(
-      "📴 CALL_ENDED: number=$endedNumber | duration=${callDuration.inSeconds}s | Lead: $currentLeadId | session=$sessionId",
-    );
-
-    _emitCallEnd(sessionId, callDuration);
-
-    if (!_isBackground) {
-      final isFormShowing = _isFormShowing();
-      print("🔍 Overlay check: Get.isDialogOpen=${Get.isDialogOpen}, isFormShowing=$isFormShowing");
-      
-      if (isFormShowing) {
-        print("⏳ CallFormPage is open. Delaying overlay...");
-        _isOverlayPending = true;
-        _pendingOverlayNumber = endedNumber;
-        _pendingOverlayDuration = callDuration;
-        _pendingOverlaySessionId = sessionId;
-      } else {
-        _openOverlay(
-          number: endedNumber,
-          duration: callDuration,
-          callSessionId: sessionId,
-        );
+      // Recover session ID if missing
+      final sessionId = _currentCallSessionId ?? savedSessionId ?? "";
+      if (_currentCallSessionId == null && savedSessionId != null) {
+        print("🔄 Recovered sessionId from storage: $sessionId");
       }
-    } else {
-      print("ℹ️ Background mode: no UI shown");
-      _resetToIdle();
+
+      // ── Update reactive state ──────────────────────────────────────────────
+      _uiState = _CallUIState.showingOverlay;
+      isCallActive.value = false;
+      callStatus.value = "Call Ended";
+      phoneNumber.value = "";
+      _currentCallSessionId = null;
+      await Storage.clearActiveSessionId(); // Done with this session
+
+      print(
+        "📴 CALL_ENDED: number=$endedNumber | duration=${callDuration.inSeconds}s | Lead: $currentLeadId | session=$sessionId",
+      );
+
+      _emitCallEnd(sessionId, callDuration);
+
+      if (!_isBackground) {
+        final isFormShowing = _isFormShowing();
+        print(
+          "🔍 Overlay check: Get.isDialogOpen=${Get.isDialogOpen}, isFormShowing=$isFormShowing",
+        );
+
+        if (isFormShowing) {
+          print("⏳ CallFormPage is open. Delaying overlay...");
+          _isOverlayPending = true;
+          _pendingOverlayNumber = endedNumber;
+          _pendingOverlayDuration = callDuration;
+          _pendingOverlaySessionId = sessionId;
+        } else {
+          _openOverlay(
+            number: endedNumber,
+            duration: callDuration,
+            callSessionId: sessionId,
+          );
+        }
+      } else {
+        print("ℹ️ Background mode: no UI shown");
+        _resetToIdle();
+      }
+    } catch (e) {
+      print("❌ Error in _handleCallEnded: $e");
     }
   }
 
@@ -290,7 +361,7 @@ class PhoneStatusService extends GetxService {
         final sessionId = _pendingOverlaySessionId;
 
         _isOverlayPending = false; // Reset
-        
+
         await _openOverlay(
           number: number,
           duration: duration,
@@ -321,7 +392,7 @@ class PhoneStatusService extends GetxService {
     if (Get.isRegistered<CallFormController>()) {
       Get.find<CallFormController>().canClose.value = true;
     }
-    
+
     // Safety check: sometimes dialogs linger in GetX
     while (Get.isDialogOpen == true) {
       print("🔒 Closing lingering dialog before overlay...");
@@ -404,18 +475,20 @@ class PhoneStatusService extends GetxService {
     try {
       if (Get.isRegistered<SocketController>()) {
         final socketCtrl = Get.find<SocketController>();
-        _currentCallSessionId = _externalCallSessionId ??
+        _currentCallSessionId =
+            _externalCallSessionId ??
             DateTime.now().millisecondsSinceEpoch.toString();
         _externalCallSessionId = null;
+
+        // Persist for reliability
+        await Storage.saveActiveSessionId(_currentCallSessionId!);
 
         await socketCtrl.emitCallStart(
           callSessionId: _currentCallSessionId!,
           leadContactId: currentLeadId ?? "",
           callId: "",
         );
-        print(
-          "📤 Socket: call-start emitted | session=$_currentCallSessionId",
-        );
+        print("📤 Socket: call-start emitted | session=$_currentCallSessionId");
       }
     } catch (e) {
       print("❌ Socket emitCallStart error: $e");
@@ -430,11 +503,14 @@ class PhoneStatusService extends GetxService {
     try {
       if (Get.isRegistered<SocketController>()) {
         final socketCtrl = Get.find<SocketController>();
+
+        final answerType = duration.inSeconds > 0 ? "completed" : "failed";
+
         await socketCtrl.emitCallEnd(
           callSessionId: sessionId,
           leadContactId: currentLeadId ?? "",
           duration: duration.inSeconds,
-          answerType: "completed",
+          answerType: answerType,
           answer: "",
         );
         print(

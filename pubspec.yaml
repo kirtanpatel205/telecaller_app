@@ -54,7 +54,7 @@ dependencies:
   # background_service
   flutter_background_service: ^5.0.10
 
-#  call_log: ^6.0.1
+  call_log: ^6.0.1
 
 
   ##------ UI ---------##

@@ -62,4 +62,34 @@ class Storage {
     
     return token;
   }
+
+  // Cross-isolate Event De-duplication
+  static Future<bool> isEventProcessed(String type, String sessionId) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.reload(); // IMPORTANT: Force-load latest data from disk
+    // Use a composite key: eventType_sessionId
+    return prefs.getBool('event_${type}_$sessionId') ?? false;
+  }
+
+  static Future<void> markEventProcessed(String type, String sessionId) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('event_${type}_$sessionId', true);
+  }
+
+  // Active Session Persistence
+  static Future<void> saveActiveSessionId(String sessionId) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('active_call_session_id', sessionId);
+  }
+
+  static Future<String?> getActiveSessionId() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.reload();
+    return prefs.getString('active_call_session_id');
+  }
+
+  static Future<void> clearActiveSessionId() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('active_call_session_id');
+  }
 }
