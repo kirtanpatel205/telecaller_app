@@ -42,6 +42,33 @@ Future<bool> _isScreenLocked() async {
   }
 }
 
+/// ✅ Wake screen from native
+Future<void> _wakeScreen() async {
+  try {
+    // Try MethodChannel first (if app is running)
+    await _platform.invokeMethod('wakeScreen');
+  } catch (e) {
+    print('⚠️ MethodChannel wakeScreen failed, using CallActivity fallback: $e');
+  }
+
+  // Robust fallback: Launch invisible CallActivity just to wake screen
+  if (Platform.isAndroid) {
+    try {
+      final intent = AndroidIntent(
+        action: 'android.intent.action.MAIN',
+        package: 'com.digibulkmarketing.telecaller_app',
+        componentName: 'com.digibulkmarketing.telecaller_app.CallActivity',
+        arguments: <String, dynamic>{'wakeOnly': true},
+        flags: <int>[Flag.FLAG_ACTIVITY_NEW_TASK],
+      );
+      await intent.launch();
+      print('✅ Launched robust wake screen intent');
+    } catch (e) {
+      print('❌ Failed to launch robust wake intent: $e');
+    }
+  }
+}
+
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   try {
@@ -132,6 +159,9 @@ Map<String, String> _handleNotificationPayload(
 
   print('Final Notification Title: $title, Body: $body');
 
+  // ✅ Wake screen without opening app immediately
+  _wakeScreen();
+
   if (localNotif != null && channel != null) {
     try {
       final int notificationId =
@@ -149,13 +179,12 @@ Map<String, String> _handleNotificationPayload(
             importance: Importance.max,
             priority: Priority.high,
             icon: 'ic_launcher',
-            // ✅ FIX: fullScreenIntent દૂર કર્યો — lock screen પર app launch ન થાય
-            // fullScreenIntent: true,  // <-- આ જ problem હતો!
+            // ✅ Wake screen via native wakeScreen() above, NO fullScreenIntent here
             fullScreenIntent: false,
             visibility: NotificationVisibility.public,
             category: AndroidNotificationCategory.call,
-            ongoing: false,
-            autoCancel: true,
+            ongoing: true,
+            autoCancel: false,
             ticker: 'Incoming Call Task',
           ),
         ),
@@ -372,10 +401,11 @@ class FCMService extends GetxService {
       'call_tasks_channel',
       'Call Task Notifications',
       description: 'This channel is used for important call transitions.',
-      importance: Importance.high,
+      importance: Importance.max,
     );
 
     flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+    _lastBgNotifPlugin = flutterLocalNotificationsPlugin;
 
     await flutterLocalNotificationsPlugin!
         .resolvePlatformSpecificImplementation<
@@ -503,8 +533,15 @@ class FCMService extends GetxService {
     String finalTitle = title ?? notification?.title ?? 'Auto Call';
     String finalBody = body ?? notification?.body ?? 'Incoming Task';
 
+    // ✅ Wake screen without opening app immediately
+    _wakeScreen();
+
+    final int notificationId = message.messageId.hashCode;
+    _lastBgNotificationId = notificationId;
+    // _lastBgNotifPlugin is already set in initLocalNotification
+
     flutterLocalNotificationsPlugin!.show(
-      message.messageId.hashCode,
+      notificationId,
       finalTitle,
       finalBody,
       NotificationDetails(
@@ -514,13 +551,16 @@ class FCMService extends GetxService {
           channelDescription: channel!.description,
           icon: 'ic_launcher',
           importance: Importance.max,
+
           priority: Priority.high,
           visibility: NotificationVisibility.public,
           category: AndroidNotificationCategory.call,
           playSound: true,
           enableVibration: true,
-          // ✅ FIX: foreground notification માટે પણ fullScreenIntent નહીં
+          // ✅ Wake screen via native wakeScreen(), NO fullScreenIntent here
           fullScreenIntent: false,
+          ongoing: true,
+          autoCancel: false,
         ),
       ),
     );

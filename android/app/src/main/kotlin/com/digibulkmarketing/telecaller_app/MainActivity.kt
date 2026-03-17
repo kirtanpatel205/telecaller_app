@@ -13,6 +13,7 @@ import android.content.Context
 import android.util.Log
 import android.view.WindowManager
 import android.os.Build
+import android.os.PowerManager
 
 class MainActivity : FlutterActivity() {
 
@@ -30,6 +31,23 @@ class MainActivity : FlutterActivity() {
                     val keyguardManager =
                         getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
                     result.success(keyguardManager.isKeyguardLocked)
+                }
+                "wakeScreen" -> {
+                    try {
+                        val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+                        val wakeLock = powerManager.newWakeLock(
+                            PowerManager.FULL_WAKE_LOCK or
+                                    PowerManager.ACQUIRE_CAUSES_WAKEUP or
+                                    PowerManager.ON_AFTER_RELEASE,
+                            "TelecallerApp::NotificationWakeLock"
+                        )
+                        wakeLock.acquire(3000) // Wake for 3 seconds
+                        Log.d("MainActivity", "Screen wake-lock acquired")
+                        result.success(true)
+                    } catch (e: Exception) {
+                        Log.e("MainActivity", "Failed to wake screen: ${e.message}")
+                        result.error("WAKE_FAILED", e.message, null)
+                    }
                 }
                 else -> result.notImplemented()
             }

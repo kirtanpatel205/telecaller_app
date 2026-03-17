@@ -14,9 +14,31 @@ class CallActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // ✅ Check if we only want to wake the screen
+        val wakeOnly = intent.getBooleanExtra("wakeOnly", false)
+        Log.d("CallActivity", "onCreate - wakeOnly: $wakeOnly")
+
         // ✅ Check if screen is locked
         val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
         val isLocked = keyguardManager.isKeyguardLocked
+
+        if (wakeOnly) {
+            Log.d("CallActivity", "Waking screen only. Locked=$isLocked")
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+                setShowWhenLocked(true)
+                setTurnScreenOn(true)
+            } else {
+                window.addFlags(
+                    WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
+                            WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or
+                            WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD or
+                            WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                )
+            }
+            // Finish shortly after to stay out of the way
+            window.decorView.postDelayed({ finish() }, 500)
+            return
+        }
 
         if (isLocked) {
             // Screen is locked: initiate call silently, do NOT unlock or show app
