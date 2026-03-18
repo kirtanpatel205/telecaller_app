@@ -20,6 +20,7 @@ import 'package:telecaller_app/core/services/phone_status_service.dart';
 import 'package:telecaller_app/core/services/internetcheck.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
+import 'dart:isolate';
 
 @pragma('vm:entry-point')
 class BackgroundServiceManager {
@@ -140,15 +141,28 @@ void onStart(ServiceInstance service) async {
   }
 
   // Initialize SocketController for background
-  if (!Get.isRegistered<SocketController>()) {
-    SocketController.isBackground = true; // Mark as background isolate
-    SocketController.backgroundServiceInstance =
-        service; // Provide service instance for communication
+    SocketController.isBackground = true; 
+    SocketController.backgroundServiceInstance = service;
     final socket = SocketController();
     Get.put(socket);
-  }
 
-  try {
+    // Register this Master isolate's SendPort so Satellites can proxy emissions to us
+    final ReceivePort socketPort = ReceivePort();
+    IsolateNameServer.removePortNameMapping('socket_master_port');
+    IsolateNameServer.registerPortWithName(socketPort.sendPort, 'socket_master_port');
+    
+    socketPort.listen((message) {
+      if (message is Map) {
+        final event = message['event'] as String?;
+        final data = message['data'] as Map<String, dynamic>?;
+        if (event != null && data != null) {
+          print("📥 [Background Master] Received proxy emission from SendPort: $event");
+          socket.socket?.emit(event, data);
+        }
+      }
+    });
+
+    try {
     // Initialize PhoneStatusService for background tracking
     if (!Get.isRegistered<PhoneStatusService>()) {
       print("🚀 Initializing PhoneStatusService in background...");
@@ -186,12 +200,6 @@ void onStart(ServiceInstance service) async {
     }
   });
 
-  service.on('socket_hub_status').listen((event) {
-    if (event != null) {
-      print("📡 [Background Hub] Proxying socket status to UI: $event");
-      service.invoke('socket_status', event);
-    }
-  });
 
   service.on('get_socket_status').listen((_) {
     if (Get.isRegistered<SocketController>()) {

@@ -10,6 +10,7 @@ import 'package:telecaller_app/constants/app_constants.dart';
 import 'package:telecaller_app/core/helpers/storage.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:telecaller_app/core/services/internetcheck.dart';
+import 'dart:ui';
 
 class SocketController extends GetxController with WidgetsBindingObserver {
   static bool isBackground = false;
@@ -32,19 +33,35 @@ class SocketController extends GetxController with WidgetsBindingObserver {
 
     if (isBackground) {
       if (backgroundServiceInstance != null) {
+        // Only the Master background isolate (Foreground Service) broadcasts to UI
         backgroundServiceInstance!.invoke('socket_status', statusData);
       } else {
-        // FCM isolate or other background isolate without direct service access
-        print('📡 [Socket-BG] No direct service instance. Hub-casting status...');
-        FlutterBackgroundService().invoke('socket_hub_status', statusData);
+        // Satellite isolates (like FCM) should not overwrite the Master status in the UI
+        print('📡 [Socket-Satellite] Isolate Status: ${connectionStatus.value}');
       }
     }
   }
 
   void _proxyEmit(String event, Map<String, dynamic> data) {
     if (isBackground) {
-      socket?.emit(event, data);
+      if (backgroundServiceInstance != null) {
+        // I am the MASTER isolate (Foreground Service)
+        socket?.emit(event, data);
+      } else {
+        // I am a SATELLITE isolate (FCM handler etc.)
+        // Priority 1: Proxy to the Master isolate for high-reliability emission
+        final SendPort? masterPort = IsolateNameServer.lookupPortByName('socket_master_port');
+        if (masterPort != null) {
+          print('📤 [Socket-Satellite] Proxying $event to Master via SendPort');
+          masterPort.send({'event': event, 'data': data});
+        } else {
+          // Fallback: Try to emit directly if no master is found
+          print('📤 [Socket-Satellite] No Master found. Emitting directly: $event');
+          socket?.emit(event, data);
+        }
+      }
     } else {
+      // UI Mode: Always proxy via the background service bus
       FlutterBackgroundService().invoke('socket_emit', {
         'event': event,
         'data': data,
