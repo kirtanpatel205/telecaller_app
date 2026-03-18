@@ -72,7 +72,6 @@ class SocketController extends GetxController with WidgetsBindingObserver {
   @override
   void onInit() {
     super.onInit();
-    
     if (isBackground) {
       _initBackgroundMode();
     } else {
