@@ -142,11 +142,11 @@ void onStart(ServiceInstance service) async {
   // Initialize SocketController for background
   if (!Get.isRegistered<SocketController>()) {
     SocketController.isBackground = true; // Mark as background isolate
-    SocketController.backgroundServiceInstance = service; // Provide service instance for communication
+    SocketController.backgroundServiceInstance =
+        service; // Provide service instance for communication
     final socket = SocketController();
     Get.put(socket);
   }
-
 
   try {
     // Initialize PhoneStatusService for background tracking
@@ -167,7 +167,7 @@ void onStart(ServiceInstance service) async {
       final phoneService = Get.find<PhoneStatusService>();
       final state = event['state'] as String?;
       final number = event['number'] as String?;
-      
+
       phoneService.handleNativeEvent(state: state, number: number);
     }
   });
@@ -178,7 +178,7 @@ void onStart(ServiceInstance service) async {
       final socket = Get.find<SocketController>();
       final String? eventName = event['event'];
       final Map<String, dynamic>? data = event['data'];
-      
+
       if (eventName != null && data != null) {
         print("📤 Background Socket Proxy Emit: $eventName");
         socket.socket?.emit(eventName, data);
@@ -186,9 +186,16 @@ void onStart(ServiceInstance service) async {
     }
   });
 
+  service.on('socket_hub_status').listen((event) {
+    if (event != null) {
+      print("📡 [Background Hub] Proxying socket status to UI: $event");
+      service.invoke('socket_status', event);
+    }
+  });
+
   service.on('get_socket_status').listen((_) {
     if (Get.isRegistered<SocketController>()) {
-      Get.find<SocketController>().ensureConnected(); // This also broadcasts status
+      Get.find<SocketController>().broadcastStatus();
     }
   });
 
@@ -228,10 +235,10 @@ void onStart(ServiceInstance service) async {
     if (event != null && event['token'] != null) {
       final String newToken = event['token'];
       _cachedToken = newToken;
-      
+
       // Save for future reboots in this isolate using reliable SharedPrefs
       await Storage.saveToken(newToken);
-      
+
       if (Get.isRegistered<SocketController>()) {
         Get.find<SocketController>().connectWithToken(newToken);
       }
@@ -262,7 +269,9 @@ void onStart(ServiceInstance service) async {
       await prefs.reload(); // Force fresh read
       final pendingEvent = prefs.getString('pending_phone_event');
       if (pendingEvent != null && pendingEvent.isNotEmpty) {
-        print("📥 [SharedPrefs Bridge] Found pending phone event: $pendingEvent");
+        print(
+          "📥 [SharedPrefs Bridge] Found pending phone event: $pendingEvent",
+        );
         final event = json.decode(pendingEvent);
         final timestamp = event['timestamp'] as int? ?? 0;
         // Only process if recent (< 30 seconds old)

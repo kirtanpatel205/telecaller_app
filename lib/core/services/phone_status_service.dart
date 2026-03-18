@@ -134,8 +134,10 @@ class PhoneStatusService extends GetxService {
   // ─────────────────────────────────────────────────────────────────────────
 
   void handleNativeEvent({String? state, String? number}) {
-    final now = DateTime.now().millisecondsSinceEpoch;
-    
+    final now = DateTime
+        .now()
+        .millisecondsSinceEpoch;
+
     // Throttle only if it's the EXACT same event within 200ms
     // to allow rapid START -> END transitions
     _lastEventTimestamp = now;
@@ -164,7 +166,7 @@ class PhoneStatusService extends GetxService {
   // CALL STARTED — single entry point
   // ─────────────────────────────────────────────────────────────────────────
 
-  void _handleCallStarted(String? number) {
+  void _handleCallStarted(String? number) async {
     // Ignore duplicate CALL_STARTED events (stream + native can fire together)
     if (_uiState != _CallUIState.idle) {
       print("⚠️ CALL_STARTED ignored — already in state $_uiState");
@@ -183,7 +185,7 @@ class PhoneStatusService extends GetxService {
 
       print("📞 CALL_STARTED: ${phoneNumber.value} | Lead: $currentLeadId");
 
-      _emitCallStart();
+      await _emitCallStart();
 
       if (!_isBackground) {
         // unawaited — runs in background, manages its own lifecycle
@@ -205,9 +207,10 @@ class PhoneStatusService extends GetxService {
 
       final Iterable<CallLogEntry> entries = await CallLog.query(
         dateFrom:
-            DateTime.now()
-                .subtract(const Duration(minutes: 5))
-                .millisecondsSinceEpoch,
+        DateTime
+            .now()
+            .subtract(const Duration(minutes: 5))
+            .millisecondsSinceEpoch,
       );
 
       // સૌથી recent matching entry શોધો
@@ -215,10 +218,10 @@ class PhoneStatusService extends GetxService {
         final logNumber = entry.number ?? "";
         // number ના last 10 digits compare કરો
         if (logNumber.endsWith(
-              number.length > 10
-                  ? number.substring(number.length - 10)
-                  : number,
-            ) ||
+          number.length > 10
+              ? number.substring(number.length - 10)
+              : number,
+        ) ||
             number.endsWith(
               logNumber.length > 10
                   ? logNumber.substring(logNumber.length - 10)
@@ -226,7 +229,8 @@ class PhoneStatusService extends GetxService {
             )) {
           final seconds = entry.duration ?? 0;
           print(
-            "📋 CallLog found: number=$logNumber | duration=${seconds}s | type=${entry.callType}",
+            "📋 CallLog found: number=$logNumber | duration=${seconds}s | type=${entry
+                .callType}",
           );
           return Duration(seconds: seconds);
         }
@@ -248,7 +252,7 @@ class PhoneStatusService extends GetxService {
     // Allow processing if not idle OR if we can recover a session ID
     // (This handles cases where the isolate started mid-call)
     final savedSessionId = await Storage.getActiveSessionId();
-    
+
     if (_uiState == _CallUIState.idle && savedSessionId == null) {
       print("⚠️ CALL_ENDED ignored — no active call and no saved session");
       return;
@@ -263,7 +267,13 @@ class PhoneStatusService extends GetxService {
     try {
       // ── Capture data ───────────────────────────────────────────────────────
       final endedNumber =
-          (number != null && number.isNotEmpty) ? number : phoneNumber.value;
+      (number != null && number.isNotEmpty) ? number : phoneNumber.value;
+
+      // 🚨 RACE PROTECTION: Update state immediately before any async await
+      // to block concurrent events from entering this block.
+      _uiState = _CallUIState.showingOverlay;
+      isCallActive.value = false;
+      callStatus.value = "Call Ended";
 
       Duration callDuration = await _getCallDurationFromLog(endedNumber);
       _callStartTime = null;
@@ -274,24 +284,23 @@ class PhoneStatusService extends GetxService {
         print("🔄 Recovered sessionId from storage: $sessionId");
       }
 
-      // ── Update reactive state ──────────────────────────────────────────────
-      _uiState = _CallUIState.showingOverlay;
-      isCallActive.value = false;
-      callStatus.value = "Call Ended";
+      // ── Finalize reactive state ──────────────────────────────────────────
       phoneNumber.value = "";
       _currentCallSessionId = null;
       await Storage.clearActiveSessionId(); // Done with this session
 
       print(
-        "📴 CALL_ENDED: number=$endedNumber | duration=${callDuration.inSeconds}s | Lead: $currentLeadId | session=$sessionId",
+        "📴 CALL_ENDED: number=$endedNumber | duration=${callDuration
+            .inSeconds}s | Lead: $currentLeadId | session=$sessionId",
       );
 
-      _emitCallEnd(sessionId, callDuration);
+      await _emitCallEnd(sessionId, callDuration, currentLeadId ?? "");
 
       if (!_isBackground) {
         final isFormShowing = _isFormShowing();
         print(
-          "🔍 Overlay check: Get.isDialogOpen=${Get.isDialogOpen}, isFormShowing=$isFormShowing",
+          "🔍 Overlay check: Get.isDialogOpen=${Get
+              .isDialogOpen}, isFormShowing=$isFormShowing",
         );
 
         if (isFormShowing) {
@@ -390,7 +399,10 @@ class PhoneStatusService extends GetxService {
 
     // ── Step 1: Ensure any residual dialogs are closed ────────────────────
     if (Get.isRegistered<CallFormController>()) {
-      Get.find<CallFormController>().canClose.value = true;
+      Get
+          .find<CallFormController>()
+          .canClose
+          .value = true;
     }
 
     // Safety check: sometimes dialogs linger in GetX
@@ -462,7 +474,10 @@ class PhoneStatusService extends GetxService {
   bool _isFormShowing() {
     if (Get.isDialogOpen == true) return true;
     if (Get.isRegistered<CallFormController>()) {
-      return Get.find<CallFormController>().isFormVisible.value;
+      return Get
+          .find<CallFormController>()
+          .isFormVisible
+          .value;
     }
     return false;
   }
@@ -471,13 +486,16 @@ class PhoneStatusService extends GetxService {
   // SOCKET — emit call-start
   // ─────────────────────────────────────────────────────────────────────────
 
-  void _emitCallStart() async {
+  Future<void> _emitCallStart() async {
     try {
       if (Get.isRegistered<SocketController>()) {
         final socketCtrl = Get.find<SocketController>();
         _currentCallSessionId =
             _externalCallSessionId ??
-            DateTime.now().millisecondsSinceEpoch.toString();
+                DateTime
+                    .now()
+                    .millisecondsSinceEpoch
+                    .toString();
         _externalCallSessionId = null;
 
         // Persist for reliability
@@ -486,7 +504,7 @@ class PhoneStatusService extends GetxService {
         await socketCtrl.emitCallStart(
           callSessionId: _currentCallSessionId!,
           leadContactId: currentLeadId ?? "",
-          callId: "",
+          callId: phoneNumber.value,
         );
         print("📤 Socket: call-start emitted | session=$_currentCallSessionId");
       }
@@ -499,7 +517,9 @@ class PhoneStatusService extends GetxService {
   // SOCKET — emit call-end
   // ─────────────────────────────────────────────────────────────────────────
 
-  void _emitCallEnd(String sessionId, Duration duration) async {
+  Future<void> _emitCallEnd(String sessionId,
+      Duration duration,
+      String leadId,) async {
     try {
       if (Get.isRegistered<SocketController>()) {
         final socketCtrl = Get.find<SocketController>();
@@ -508,13 +528,13 @@ class PhoneStatusService extends GetxService {
 
         await socketCtrl.emitCallEnd(
           callSessionId: sessionId,
-          leadContactId: currentLeadId ?? "",
+          leadContactId: leadId,
           duration: duration.inSeconds,
           answerType: answerType,
           answer: "",
         );
         print(
-          "📤 Socket: call-end emitted | lead=$currentLeadId | session=$sessionId",
+          "📤 Socket: call-end emitted | lead=$leadId | session=$sessionId",
         );
       }
     } catch (e) {

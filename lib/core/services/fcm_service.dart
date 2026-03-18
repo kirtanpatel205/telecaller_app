@@ -47,6 +47,8 @@ Future<void> _wakeScreen() async {
   try {
     // Try MethodChannel first (if app is running)
     await _platform.invokeMethod('wakeScreen');
+  } on MissingPluginException {
+    print('ℹ️ [FCM BG] MethodChannel wakeScreen not available in this isolate. Using CallActivity fallback.');
   } catch (e) {
     print('⚠️ MethodChannel wakeScreen failed, using CallActivity fallback: $e');
   }

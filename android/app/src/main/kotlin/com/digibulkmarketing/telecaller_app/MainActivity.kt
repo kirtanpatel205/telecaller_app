@@ -34,15 +34,17 @@ class MainActivity : FlutterActivity() {
                 }
                 "wakeScreen" -> {
                     try {
-                        val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
-                        val wakeLock = powerManager.newWakeLock(
-                            PowerManager.FULL_WAKE_LOCK or
-                                    PowerManager.ACQUIRE_CAUSES_WAKEUP or
-                                    PowerManager.ON_AFTER_RELEASE,
-                            "TelecallerApp::NotificationWakeLock"
-                        )
-                        wakeLock.acquire(3000) // Wake for 3 seconds
-                        Log.d("MainActivity", "Screen wake-lock acquired")
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+                            setTurnScreenOn(true)
+                            setShowWhenLocked(true)
+                        } else {
+                            window.addFlags(
+                                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or
+                                        WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
+                                        WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                            )
+                        }
+                        Log.d("MainActivity", "Screen wake-up flags applied")
                         result.success(true)
                     } catch (e: Exception) {
                         Log.e("MainActivity", "Failed to wake screen: ${e.message}")

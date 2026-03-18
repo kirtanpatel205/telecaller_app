@@ -23,17 +23,21 @@ class SocketController extends GetxController with WidgetsBindingObserver {
   final NetworkService _networkService = Get.find<NetworkService>();
   StreamSubscription? _connectivitySubscription;
 
-  void _broadcastStatus() {
-    if (!isBackground) return;
-    
-    if (backgroundServiceInstance != null) {
-      backgroundServiceInstance!.invoke('socket_status', {
-        'isConnected': isConnected.value,
-        'connectionStatus': connectionStatus.value,
-        'socketId': socketId.value,
-      });
-    } else {
-      print('⚠️ [Socket-BG] Cannot broadcast: backgroundServiceInstance is null');
+  void broadcastStatus() {
+    final statusData = {
+      'isConnected': isConnected.value,
+      'connectionStatus': connectionStatus.value,
+      'socketId': socketId.value,
+    };
+
+    if (isBackground) {
+      if (backgroundServiceInstance != null) {
+        backgroundServiceInstance!.invoke('socket_status', statusData);
+      } else {
+        // FCM isolate or other background isolate without direct service access
+        print('📡 [Socket-BG] No direct service instance. Hub-casting status...');
+        FlutterBackgroundService().invoke('socket_hub_status', statusData);
+      }
     }
   }
 
@@ -70,8 +74,14 @@ class SocketController extends GetxController with WidgetsBindingObserver {
       } else {
         print('🌐 [Socket-BG] Internet lost.');
         connectionStatus.value = 'No Internet';
-        _broadcastStatus();
+        broadcastStatus();
       }
+    });
+
+    // Handle hub status requests from other isolates
+    FlutterBackgroundService().on('get_socket_status').listen((_) {
+      print('📥 [Socket-BG] Received hub status request');
+      broadcastStatus();
     });
 
     initSocket();
@@ -112,7 +122,7 @@ class SocketController extends GetxController with WidgetsBindingObserver {
     }
 
     if (isConnected.value && socket != null && socket!.connected) {
-      _broadcastStatus();
+      broadcastStatus();
       return;
     }
     
@@ -184,7 +194,7 @@ class SocketController extends GetxController with WidgetsBindingObserver {
 
     if (isBackground) {
       developer.log('🔌 Socket disconnected (Master)');
-      _broadcastStatus();
+      broadcastStatus();
     }
   }
 
@@ -226,7 +236,7 @@ class SocketController extends GetxController with WidgetsBindingObserver {
       socket = IO.io(
         baseUrl,
         IO.OptionBuilder()
-            .setTransports(['websocket']) // websocket only
+            .setTransports(['websocket', 'polling']) // Allow polling fallback
             .setPath(socketPath)
             .setQuery({'token': token})
             .enableForceNew()
@@ -242,7 +252,7 @@ class SocketController extends GetxController with WidgetsBindingObserver {
         socketId.value = socket?.id ?? 'N/A';
 
         print('✅ Socket Connected: ${socketId.value}');
-        _broadcastStatus();
+        broadcastStatus();
       });
 
       socket!.onDisconnect((_) {
@@ -251,7 +261,7 @@ class SocketController extends GetxController with WidgetsBindingObserver {
         socketId.value = '';
 
         print('❌ Socket Disconnected. Will attempt to reconnect automatically...');
-        _broadcastStatus();
+        broadcastStatus();
       });
 
       socket!.onReconnect((_) {
@@ -260,25 +270,25 @@ class SocketController extends GetxController with WidgetsBindingObserver {
         socketId.value = socket?.id ?? 'N/A';
 
         print('🔄 ✅ Socket Reconnected Successfully: ${socketId.value}');
-        _broadcastStatus();
+        broadcastStatus();
       });
 
       socket!.onReconnectAttempt((attempt) {
         connectionStatus.value = 'Reconnecting...';
         print('🔄 Socket Reconnection Attempt: $attempt');
-        _broadcastStatus();
+        broadcastStatus();
       });
 
       socket!.onConnectError((err) {
         connectionStatus.value = 'Connection Error';
         print('❌ Socket Connect Error: $err');
-        _broadcastStatus();
+        broadcastStatus();
       });
 
       socket!.onError((err) {
         connectionStatus.value = 'Socket Error';
         print('❌ Socket Error: $err');
-        _broadcastStatus();
+        broadcastStatus();
       });
     } catch (e) {
       connectionStatus.value = 'Error';
