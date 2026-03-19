@@ -29,7 +29,7 @@ class ApiService extends GetxService {
   late DioClient client;
 
   static ApiService to = Get.find();
-  RxString search = "".obs;
+
 
   Future<void> init() async {
     //_dio.interceptors.add(LoggingInterceptor());
@@ -144,14 +144,25 @@ class ApiService extends GetxService {
     }
   }
 
-  Future<AllLeadEntity> allLead({int? page = 0, int? limit = 10}) async {
+  Future<AllLeadEntity> allLead({
+    int? page = 0,
+    int? limit = 10,
+    String? search,
+    Map<String, dynamic>? filterBy,
+    String? sortBy,
+  }) async {
+    Map<String, dynamic> data = {
+      "page": page,
+      "limit": limit,
+      "search": search ?? "",
+      "sort_by": sortBy,
+      "filter_by": filterBy,
+    };
+    print("allLead request data $data");
     Map<String, dynamic> response = await client.post(
       AppConstants.API_ALL_LEAD,
-      data: {
-        "page": page,
-        "limit": limit,
-        // "search": search.value,
-      },
+      isRaw: true,
+      data: data,
     );
     return AllLeadEntity.fromJson(response);
   }

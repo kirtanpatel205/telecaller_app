@@ -14,6 +14,15 @@ class LeadsController extends GetxController {
   var selectedLeadId = ''.obs;
   var selectedDateString = DateFormat('yyyy-MM-dd').format(DateTime.now()).obs;
 
+  // Filter variables
+  RxBool isApplyFilter = false.obs;
+  RxString filterType = "all_time".obs; // all_time, specific_time
+  RxString status = "all".obs;
+  Rx<DateTime?> startDate = Rxn<DateTime>();
+  Rx<DateTime?> endDate = Rxn<DateTime>();
+  RxString searchText = "".obs;
+  RxString sortBy = "newest".obs;
+
   late ApiService apiService;
   late PagewiseLoadController<AllLeadLeads> pagewiseAllLeadLoadController;
 
@@ -54,13 +63,35 @@ class LeadsController extends GetxController {
       pageSize: 10,
       pageFuture: (pageNumber) async {
         try {
+          // Build filter payload
+          Map<String, dynamic>? filterBy;
+          if (isApplyFilter.value) {
+            filterBy = {
+              "date_type": filterType.value,
+              "date":
+                  filterType.value == "all_time"
+                      ? null
+                      : {
+                        "start_date":
+                            startDate.value != null
+                                ? DateFormat('yyyy-MM-dd').format(startDate.value!)
+                                : null,
+                        "end_date":
+                            endDate.value != null
+                                ? DateFormat('yyyy-MM-dd').format(endDate.value!)
+                                : null,
+                      },
+              "status": status.value != "all" ? status.value : null,
+            };
+          }
+
           // Fetch leads from API
           final AllLeadEntity allCustomersEntity = await apiService.allLead(
             page: pageNumber ?? 1,
             limit: 10,
-            // search: searchQuery.value.isNotEmpty ? searchQuery.value : null,
-            // Uncomment if your API supports filtering
-            // filter: selectedFilter.value != 'all' ? selectedFilter.value : null,
+            search: searchText.value.isNotEmpty ? searchText.value : null,
+            filterBy: filterBy,
+            sortBy: sortBy.value,
           );
 
           if (allCustomersEntity.status ?? false) {
@@ -85,7 +116,22 @@ class LeadsController extends GetxController {
   /// Reset pagination and reload leads
   resetAndReload() {
     pagewiseAllLeadLoadController.reset();
-    initPagewise();
+  }
+
+  void applyFilters() {
+    isApplyFilter.value = true;
+    resetAndReload();
+    Get.back(); // Close bottom sheet
+  }
+
+  void resetFilters() {
+    isApplyFilter.value = false;
+    filterType.value = "all_time";
+    status.value = "all";
+    startDate.value = null;
+    endDate.value = null;
+    searchText.value = "";
+    resetAndReload();
   }
 
   // id arguments
@@ -94,7 +140,7 @@ class LeadsController extends GetxController {
     print("LeadContact id $id");
     Get.toNamed(
       Routes.LEADSCONTACT,
-      arguments: {"id": id, "buttonShow":buttonShow},
+      arguments: {"id": id, "buttonShow": buttonShow},
     );
   }
 }

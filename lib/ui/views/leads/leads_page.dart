@@ -59,13 +59,17 @@ class LeadsPage extends GetView<LeadsController> {
                           CustomActionButton(
                             title: "Reset",
                             icon: Icons.refresh,
-                            onTap: () {},
+                            onTap: () {
+                              controller.resetFilters();
+                            },
                           ),
                           SizedBox(width: 5),
                           CustomActionButton(
                             title: "Filter",
-                            icon: Icons.filter,
-                            onTap: () {},
+                            icon: Icons.filter_alt_outlined,
+                            onTap: () {
+                              _showFilterBottomSheet(context);
+                            },
                           ),
                           SizedBox(width: 5,),
                           CustomActionButton(
@@ -185,7 +189,8 @@ class LeadsPage extends GetView<LeadsController> {
     return PagewiseSliverList<AllLeadLeads>(
       pageLoadController: controller.pagewiseAllLeadLoadController!,
       noItemsFoundBuilder: (context) {
-        return SliverFillRemaining(
+        return Padding(
+          padding: const EdgeInsets.all(40.0),
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -210,7 +215,8 @@ class LeadsPage extends GetView<LeadsController> {
         );
       },
       retryBuilder: (context, retryFn) {
-        return SliverFillRemaining(
+        return Padding(
+          padding: const EdgeInsets.all(40.0),
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -460,5 +466,216 @@ class LeadsPage extends GetView<LeadsController> {
       default:
         return const Color(0xFF6B7280);
     }
+  }
+
+  void _showFilterBottomSheet(BuildContext context) {
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Filter Leads",
+                    style: AppTextStyle.appBarTitleStyle.copyWith(
+                      color: Colors.black,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Get.back(),
+                    icon: const Icon(Icons.close),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Obx(() => Row(
+                children: [
+                  Radio<String>(
+                    value: "all_time",
+                    groupValue: controller.filterType.value,
+                    onChanged: (value) {
+                      controller.filterType.value = value!;
+                    },
+                  ),
+                  const Text("All Time"),
+                  const SizedBox(width: 20),
+                  Radio<String>(
+                    value: "specific_time",
+                    groupValue: controller.filterType.value,
+                    onChanged: (value) {
+                      controller.filterType.value = value!;
+                    },
+                  ),
+                  const Text("Specific Time"),
+                ],
+              )),
+              const SizedBox(height: 20),
+              const Text(
+                "Filter by Status",
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Obx(() => Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey.shade300),
+                  borderRadius: BorderRadius.circular(25),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    isExpanded: true,
+                    value: controller.status.value,
+                    items: [
+                      {"key": "all", "label": "All"},
+                      {"key": "completed", "label": "Completed"},
+                      {"key": "scheduled", "label": "Scheduled"},
+                      {"key": "pending", "label": "Pending"},
+                    ].map((status) {
+                      return DropdownMenuItem<String>(
+                        value: status["key"],
+                        child: Text(status["label"]!),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      controller.status.value = value!;
+                    },
+                  ),
+                ),
+              )),
+              Obx(() {
+                if (controller.filterType.value == "specific_time") {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 20),
+                      const Text(
+                        "Filter by Date",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      GestureDetector(
+                        onTap: () async {
+                          final DateTimeRange? picked = await showDateRangePicker(
+                            context: context,
+                            firstDate: DateTime(2000),
+                            lastDate: DateTime(2100),
+                            initialDateRange: controller.startDate.value != null &&
+                                    controller.endDate.value != null
+                                ? DateTimeRange(
+                                    start: controller.startDate.value!,
+                                    end: controller.endDate.value!,
+                                  )
+                                : null,
+                          );
+                          if (picked != null) {
+                            controller.startDate.value = picked.start;
+                            controller.endDate.value = picked.end;
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey.shade300),
+                            borderRadius: BorderRadius.circular(25),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  controller.startDate.value != null &&
+                                          controller.endDate.value != null
+                                      ? "${DateFormat('yyyy-MM-dd').format(controller.startDate.value!)}   →   ${DateFormat('yyyy-MM-dd').format(controller.endDate.value!)}"
+                                      : "Start date   →   End date",
+                                  style: TextStyle(
+                                    color: controller.startDate.value != null
+                                        ? Colors.black
+                                        : Colors.grey,
+                                  ),
+                                ),
+                              ),
+                              const Icon(Icons.calendar_today_outlined,
+                                  size: 18, color: Colors.grey),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                } else {
+                  return const SizedBox.shrink();
+                }
+              }),
+              const SizedBox(height: 30),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Get.back(),
+                      style: OutlinedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                        side: BorderSide(color: Colors.grey.shade300),
+                        padding: const EdgeInsets.symmetric(vertical: 15),
+                      ),
+                      child: const Text(
+                        "Cancel",
+                        style: TextStyle(color: Colors.black),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 15),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        controller.applyFilters();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.themeColor.primaryColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 15),
+                      ),
+                      child: const Text(
+                        "Apply",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+            ],
+          ),
+        ),
+      ),
+      isScrollControlled: true,
+    );
   }
 }
