@@ -2,6 +2,7 @@ import 'package:flutter_pagewise/flutter_pagewise.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:get/get.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:telecaller_app/core/helpers/utils.dart';
 import 'package:telecaller_app/core/models/lead_contact_id_entity.dart';
 import 'package:telecaller_app/core/services/api_service.dart';
@@ -18,15 +19,26 @@ class LeadsContactController extends GetxController {
   RxInt followUpCount = 0.obs;
   RxInt invalidCount = 0.obs;
   RxInt noResponseCount = 0.obs;
-  RxBool buttonShow = false.obs;
 
-  RxString searchQuery = ''.obs;
-  RxString selectedFilter = 'all'.obs;
-  RxString selectedSort = 'name'.obs;
-
-  RxBool isLoading = false.obs;
-  var optionsCall = ["updated-at", "created-at", "name", "phone"].obs;
   RxString selectedOptionCall = "updated-at".obs;
+  RxBool isLoading = false.obs;
+
+  // Filter & Sort variables
+  RxBool isApplyFilter = false.obs;
+  RxString filterType = "all_time".obs;
+  RxString status = "all".obs;
+  Rx<DateTime?> startDate = Rxn<DateTime>();
+  Rx<DateTime?> endDate = Rxn<DateTime>();
+  RxString searchText = "".obs;
+  RxString sortBy = "create".obs;
+
+  final Map<String, String> sortOptions = {
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone Number",
+    "create": "Created Date",
+    "update": "Updated Date",
+  };
 
   late PagewiseLoadController<LeadContactIdLeadContacts>
   pagewiseLoadLeadIdController;
@@ -41,8 +53,6 @@ class LeadsContactController extends GetxController {
   void argumnetGet() {
     if (Get.arguments != null && Get.arguments["id"] != null) {
       final String id = Get.arguments["id"];
-      buttonShow.value = Get.arguments["buttonShow"] ?? false;
-      print("Button show value: ${buttonShow.value}");
       initPagewise(id);
     } else {
       print("Lead ID not found in arguments");
@@ -57,8 +67,41 @@ class LeadsContactController extends GetxController {
           pageSize: 10,
           pageFuture: (pageNumber) async {
             try {
+              // Build filter payload
+              Map<String, dynamic>? filterBy;
+              if (isApplyFilter.value) {
+                filterBy = {
+                  "date_type": filterType.value,
+                  "date":
+                      filterType.value == "all_time"
+                          ? null
+                          : {
+                            "start_date":
+                                startDate.value != null
+                                    ? DateFormat('yyyy-MM-dd').format(
+                                      startDate.value!,
+                                    )
+                                    : null,
+                            "end_date":
+                                endDate.value != null
+                                    ? DateFormat('yyyy-MM-dd').format(
+                                      endDate.value!,
+                                    )
+                                    : null,
+                          },
+                  "status": status.value != "all" ? status.value : null,
+                };
+              }
+
               final LeadContactIdEntity allCustomersEntity = await apiService
-                  .getCallLead(page: pageNumber ?? 1, limit: 10, id: leadId);
+                  .getCallLead(
+                    page: pageNumber ?? 1,
+                    limit: 10,
+                    id: leadId,
+                    search: searchText.value.isNotEmpty ? searchText.value : null,
+                    filterBy: filterBy,
+                    sortBy: sortBy.value,
+                  );
 
               if (allCustomersEntity.status ?? false) {
                 totalLeadsId.value = allCustomersEntity.total ?? 0;
@@ -84,12 +127,7 @@ class LeadsContactController extends GetxController {
   // ─────────────────────────────────────────────────────────
   // Manual Call (buttonShow == true)
   // ─────────────────────────────────────────────────────────
-  void onManualCallTapped(LeadContactIdLeadContacts lead) {
-    final number = lead.contact?.phone ?? "";
-    if (number.isEmpty) return;
-    
-    makeDirectCall(number);
-  }
+
 
   void _calculateStatistics(List<LeadContactIdLeadContacts> leads) {
     completedCount.value =
@@ -114,7 +152,7 @@ class LeadsContactController extends GetxController {
     List<LeadContactIdLeadContacts> leads,
   ) {
     final sortedLeads = List<LeadContactIdLeadContacts>.from(leads);
-    switch (selectedSort.value) {
+    switch (sortBy.value) {
       case 'name':
         sortedLeads.sort(
           (a, b) => (a.contact?.name ?? '').compareTo(b.contact?.name ?? ''),
@@ -142,22 +180,38 @@ class LeadsContactController extends GetxController {
   }
 
   void updateSearch(String query) {
-    searchQuery.value = query;
+    searchText.value = query;
     resetAndReload();
   }
 
   void updateFilter(String filter) {
-    selectedFilter.value = filter;
+    status.value = filter;
     resetAndReload();
   }
 
   void updateSort(String sort) {
-    selectedSort.value = sort;
+    sortBy.value = sort;
     resetAndReload();
   }
 
   void resetAndReload() {
     pagewiseLoadLeadIdController.reset();
+  }
+
+  void applyFilters() {
+    isApplyFilter.value = true;
+    resetAndReload();
+    Get.back();
+  }
+
+  void resetFilters() {
+    isApplyFilter.value = false;
+    filterType.value = "all_time";
+    status.value = "all";
+    startDate.value = null;
+    endDate.value = null;
+    searchText.value = "";
+    resetAndReload();
   }
 
   String getStatusColor(String status) {
@@ -200,11 +254,5 @@ class LeadsContactController extends GetxController {
     selectedOptionCall.value = value;
   }
 
-  Future<void> makeDirectCall(String phoneNumber) async {
-    try {
-      await FlutterPhoneDirectCaller.callNumber(phoneNumber);
-    } catch (e) {
-      Utils.showToast("Failed to make call: $e");
-    }
-  }
+
 }

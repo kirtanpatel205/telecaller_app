@@ -178,12 +178,24 @@ class ApiService extends GetxService {
   Future<LeadContactIdEntity> getCallLead({
     String? id,
     int? page = 0,
-
     int? limit = 10,
+    String? search,
+    Map<String, dynamic>? filterBy,
+    String? sortBy,
   }) async {
+    Map<String, dynamic> data = {
+      "lead_id": id,
+      "page": page,
+      "limit": limit,
+      "search": search ?? "",
+      "sort_by": sortBy,
+      "filter_by": filterBy,
+    };
+    print("getCallLead request data $data");
     Map<String, dynamic> response = await client.post(
       AppConstants.API_GET_CALL,
-      data: {"lead_id": id, "page": page, "limit": limit},
+      isRaw: true,
+      data: data,
     );
     return LeadContactIdEntity.fromJson(response);
   }

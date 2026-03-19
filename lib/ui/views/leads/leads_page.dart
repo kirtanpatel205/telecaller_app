@@ -71,14 +71,16 @@ class LeadsPage extends GetView<LeadsController> {
                               _showFilterBottomSheet(context);
                             },
                           ),
-                          SizedBox(width: 5,),
+                          SizedBox(width: 5),
                           CustomActionButton(
-                            title: "Auto Dial Next",
-                            icon: Icons.call,
-                            onTap: () {},
-                            isFullWidth: false,
-                            isPrimary: true,
+                            title: "Sort",
+                            icon: Icons.sort,
+                            onTap: () {
+                              _showSortBottomSheet(context);
+                            },
                           ),
+                          SizedBox(width: 5,),
+
                         ],
                       ),
                     ),
@@ -252,7 +254,7 @@ class LeadsPage extends GetView<LeadsController> {
           child: GestureDetector(
             onTap: () {
               controller.selectedLeadId.value = lead.id ?? '';
-              controller.LedadContectId(id: lead.id.toString(),buttonShow: true);
+              controller.LedadContectId(id: lead.id.toString());
             },
             child: Card(
               child: Padding(
@@ -393,19 +395,7 @@ class LeadsPage extends GetView<LeadsController> {
                     //     ),
                     //   ),
                     // ),
-                    CustomActionButton(
-                      title: "Call Lead",
-                      icon: Icons.call,
-                      isPrimary: true,
-                      isFullWidth: true,
-                      onTap: () {
-                        print("Auto Dial Click");
 
-
-
-                        controller.LedadContectId(id: lead.id.toString(),buttonShow: false,);
-                      },
-                    ),
                   ],
                 ),
               ),
@@ -676,6 +666,59 @@ class LeadsPage extends GetView<LeadsController> {
         ),
       ),
       isScrollControlled: true,
+    );
+  }
+
+  void _showSortBottomSheet(BuildContext context) {
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Sort Leads By",
+                  style: AppTextStyle.appBarTitleStyle.copyWith(
+                    color: Colors.black,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                IconButton(
+                  onPressed: () => Get.back(),
+                  icon: const Icon(Icons.close),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            ...controller.sortOptions.entries.map((entry) {
+              return Obx(() => RadioListTile<String>(
+                title: Text(entry.value),
+                value: entry.key,
+                groupValue: controller.sortBy.value,
+                activeColor: AppColors.themeColor.primaryColor,
+                onChanged: (value) {
+                  controller.sortBy.value = value!;
+                  controller.resetAndReload();
+                  Get.back();
+                },
+              ));
+            }).toList(),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
     );
   }
 }

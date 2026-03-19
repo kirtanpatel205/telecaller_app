@@ -21,7 +21,14 @@ class LeadsController extends GetxController {
   Rx<DateTime?> startDate = Rxn<DateTime>();
   Rx<DateTime?> endDate = Rxn<DateTime>();
   RxString searchText = "".obs;
-  RxString sortBy = "newest".obs;
+  RxString sortBy = "create".obs;
+
+  final Map<String, String> sortOptions = {
+    "name": "Name",
+    "create": "Recently Created",
+    "start_date": "Start Date",
+    "end_date": "End Date",
+  };
 
   late ApiService apiService;
   late PagewiseLoadController<AllLeadLeads> pagewiseAllLeadLoadController;
@@ -136,11 +143,11 @@ class LeadsController extends GetxController {
 
   // id arguments
 
-  LedadContectId({String id = '', bool buttonShow = false}) {
+  LedadContectId({String id = ''}) {
     print("LeadContact id $id");
     Get.toNamed(
       Routes.LEADSCONTACT,
-      arguments: {"id": id, "buttonShow": buttonShow},
+      arguments: {"id": id,},
     );
   }
 }
