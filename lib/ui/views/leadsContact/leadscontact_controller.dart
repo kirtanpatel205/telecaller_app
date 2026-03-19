@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_pagewise/flutter_pagewise.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:get/get.dart';
@@ -31,6 +32,7 @@ class LeadsContactController extends GetxController {
   Rx<DateTime?> endDate = Rxn<DateTime>();
   RxString searchText = "".obs;
   RxString sortBy = "create".obs;
+  final TextEditingController searchController = TextEditingController();
 
   final Map<String, String> sortOptions = {
     "name": "Name",
@@ -48,6 +50,10 @@ class LeadsContactController extends GetxController {
     super.onInit();
     argumnetGet();
     apiService = Get.find<ApiService>();
+
+    // Debounce search to avoid multiple redundant calls
+    debounce(searchText, (_) => resetAndReload(),
+        time: const Duration(milliseconds: 500));
   }
 
   void argumnetGet() {
@@ -158,20 +164,29 @@ class LeadsContactController extends GetxController {
           (a, b) => (a.contact?.name ?? '').compareTo(b.contact?.name ?? ''),
         );
         break;
+      case 'email':
+        sortedLeads.sort(
+          (a, b) => (a.contact?.email ?? '').compareTo(b.contact?.email ?? ''),
+        );
+        break;
       case 'phone':
         sortedLeads.sort(
           (a, b) => (a.contact?.phone ?? '').compareTo(b.contact?.phone ?? ''),
         );
         break;
-      case 'date':
+      case 'create':
         sortedLeads.sort((a, b) {
           final dateA = DateTime.tryParse(a.createdAt ?? '') ?? DateTime.now();
           final dateB = DateTime.tryParse(b.createdAt ?? '') ?? DateTime.now();
           return dateB.compareTo(dateA);
         });
         break;
-      case 'status':
-        sortedLeads.sort((a, b) => (a.status ?? '').compareTo(b.status ?? ''));
+      case 'update':
+        sortedLeads.sort((a, b) {
+          final dateA = DateTime.tryParse(a.updatedAt ?? '') ?? DateTime.now();
+          final dateB = DateTime.tryParse(b.updatedAt ?? '') ?? DateTime.now();
+          return dateB.compareTo(dateA);
+        });
         break;
       default:
         break;
@@ -211,6 +226,7 @@ class LeadsContactController extends GetxController {
     startDate.value = null;
     endDate.value = null;
     searchText.value = "";
+    searchController.clear();
     resetAndReload();
   }
 

@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_pagewise/flutter_pagewise.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -22,6 +23,7 @@ class LeadsController extends GetxController {
   Rx<DateTime?> endDate = Rxn<DateTime>();
   RxString searchText = "".obs;
   RxString sortBy = "create".obs;
+  final TextEditingController searchController = TextEditingController();
 
   final Map<String, String> sortOptions = {
     "name": "Name",
@@ -39,6 +41,10 @@ class LeadsController extends GetxController {
     apiService = Get.find<ApiService>();
     initPagewise();
     generatePastDatesFromStartOfYear();
+
+    // Debounce search to avoid multiple redundant calls
+    debounce(searchText, (_) => resetAndReload(),
+        time: const Duration(milliseconds: 500));
   }
 
   @override
@@ -138,6 +144,7 @@ class LeadsController extends GetxController {
     startDate.value = null;
     endDate.value = null;
     searchText.value = "";
+    searchController.clear();
     resetAndReload();
   }
 

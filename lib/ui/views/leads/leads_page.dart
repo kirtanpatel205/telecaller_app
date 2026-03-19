@@ -43,7 +43,13 @@ class LeadsPage extends GetView<LeadsController> {
                 child: Column(
                   children: [
                     const SizedBox(height: 10),
-                    CustomSearchBar(),
+                    CustomSearchBar(
+                      controller: controller.searchController,
+                      onSearch: () {
+                        controller.searchText.value =
+                            controller.searchController.text;
+                      },
+                    ),
                     const SizedBox(height: 10),
                     Padding(
                       padding: const EdgeInsets.only(left: 8),

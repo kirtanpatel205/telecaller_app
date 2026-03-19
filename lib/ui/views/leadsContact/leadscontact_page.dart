@@ -44,7 +44,13 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                         'No Response': controller.noResponseCount.value,
                       },
                     ),
-                    const CustomSearchBar(),
+                    CustomSearchBar(
+                      controller: controller.searchController,
+                      onSearch: () {
+                        controller.searchText.value =
+                            controller.searchController.text;
+                      },
+                    ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       child: Row(
