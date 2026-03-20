@@ -1,6 +1,7 @@
 import 'package:bounce/bounce.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:telecaller_app/constants/app_colors.dart';
 
 class CustomCard extends StatelessWidget {
   final Widget? child;
@@ -78,8 +79,8 @@ class CustomCard extends StatelessWidget {
                   //   ],
                   // ),
                   width: double.infinity,
-                  child: Card(
-                      color: this.bgColor,
+                   child: Card(
+                      color: this.bgColor ?? AppColors.themeColor.cardColor,
                       margin: this.showLine ? EdgeInsets.zero : this.margin,
                       child: this.child))
             ]));

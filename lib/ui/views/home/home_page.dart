@@ -23,7 +23,7 @@ class HomePage extends GetView<HomeController> {
     return AppSafeArea(
       child: Obx(
             () => Scaffold(
-          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          backgroundColor: AppColors.themeColor.scaffoldBackgroundColor,
 
           body: CustomScrollView(
             physics: const BouncingScrollPhysics(),

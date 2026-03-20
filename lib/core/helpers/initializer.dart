@@ -16,6 +16,7 @@ import 'package:telecaller_app/core/services/internetcheck.dart';
 import 'package:telecaller_app/core/services/phone_status_service.dart';
 import 'package:telecaller_app/core/services/background_service_manager.dart';
 import 'package:telecaller_app/core/controllers/socket_controller.dart';
+import 'package:telecaller_app/core/services/theme_service.dart';
 
 class Initializer {
   static final Initializer instance = Initializer._internal();
@@ -55,6 +56,11 @@ class Initializer {
       await Get.putAsync<FCMService>(() async => FCMService());
       await Get.putAsync<NetworkService>(() async => NetworkService());
       Get.put(SocketController());
+      await Get.putAsync<ThemeService>(() async {
+        final service = ThemeService();
+        service.init();
+        return service;
+      });
 
       // await Get.putAsync<FCMService>(() async => FCMService());
       await Get.putAsync<PhoneStatusService>(

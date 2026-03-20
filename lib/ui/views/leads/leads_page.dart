@@ -206,14 +206,14 @@ class LeadsPage extends GetView<LeadsController> {
                 Icon(
                   Icons.inbox_outlined,
                   size: 48,
-                  color: Colors.grey.shade400,
+                  color: AppColors.themeColor.textSecondaryColor.withOpacity(0.5),
                 ),
                 const SizedBox(height: 16),
                 Text(
                   'No leads found',
                   style: TextStyle(
                     fontSize: 16,
-                    color: Colors.grey.shade600,
+                    color: AppColors.themeColor.textSecondaryColor,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -235,7 +235,7 @@ class LeadsPage extends GetView<LeadsController> {
                   'Failed to load leads',
                   style: TextStyle(
                     fontSize: 16,
-                    color: Colors.grey.shade600,
+                    color: AppColors.themeColor.textSecondaryColor,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -322,7 +322,7 @@ class LeadsPage extends GetView<LeadsController> {
                         Icon(
                           Icons.description_outlined,
                           size: 14,
-                          color: Colors.grey.shade500,
+                          color: AppColors.themeColor.textSecondaryColor,
                         ),
                         const SizedBox(width: 6),
                         Expanded(
@@ -330,7 +330,7 @@ class LeadsPage extends GetView<LeadsController> {
                             lead.formId?.title ?? 'No form',
                             style: TextStyle(
                               fontSize: 12,
-                              color: Colors.grey.shade700,
+                              color: AppColors.themeColor.textSecondaryColor,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -430,17 +430,17 @@ class LeadsPage extends GetView<LeadsController> {
           label,
           style: TextStyle(
             fontSize: 10,
-            color: Colors.grey.shade600,
+            color: AppColors.themeColor.textSecondaryColor,
             fontWeight: FontWeight.w500,
           ),
         ),
         const SizedBox(height: 4),
         Text(
           formattedDate,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w500,
-            color: Colors.black87,
+            color: AppColors.themeColor.textPrimaryColor,
           ),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
@@ -469,7 +469,7 @@ class LeadsPage extends GetView<LeadsController> {
       Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.themeColor.cardColor,
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(20),
             topRight: Radius.circular(20),
@@ -486,7 +486,7 @@ class LeadsPage extends GetView<LeadsController> {
                   Text(
                     "Filter Leads",
                     style: AppTextStyle.appBarTitleStyle.copyWith(
-                      color: Colors.black,
+                      color: AppColors.themeColor.textPrimaryColor,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
@@ -520,19 +520,19 @@ class LeadsPage extends GetView<LeadsController> {
                 ],
               )),
               const SizedBox(height: 20),
-              const Text(
+              Text(
                 "Filter by Status",
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: Colors.black87,
+                  color: AppColors.themeColor.textPrimaryColor.withOpacity(0.8),
                 ),
               ),
               const SizedBox(height: 10),
               Obx(() => Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.shade300),
+                  border: Border.all(color: AppColors.themeColor.bordercolror),
                   borderRadius: BorderRadius.circular(25),
                 ),
                 child: DropdownButtonHideUnderline(
@@ -562,12 +562,12 @@ class LeadsPage extends GetView<LeadsController> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 20),
-                      const Text(
+                      Text(
                         "Filter by Date",
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
-                          color: Colors.black87,
+                          color: AppColors.themeColor.textPrimaryColor.withOpacity(0.8),
                         ),
                       ),
                       const SizedBox(height: 10),
@@ -596,7 +596,7 @@ class LeadsPage extends GetView<LeadsController> {
                             vertical: 12,
                           ),
                           decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey.shade300),
+                            border: Border.all(color: AppColors.themeColor.bordercolror),
                             borderRadius: BorderRadius.circular(25),
                           ),
                           child: Row(
@@ -609,13 +609,13 @@ class LeadsPage extends GetView<LeadsController> {
                                       : "Start date   →   End date",
                                   style: TextStyle(
                                     color: controller.startDate.value != null
-                                        ? Colors.black
-                                        : Colors.grey,
+                                        ? AppColors.themeColor.textPrimaryColor
+                                        : AppColors.themeColor.textSecondaryColor,
                                   ),
                                 ),
                               ),
-                              const Icon(Icons.calendar_today_outlined,
-                                  size: 18, color: Colors.grey),
+                              Icon(Icons.calendar_today_outlined,
+                                  size: 18, color: AppColors.themeColor.textSecondaryColor),
                             ],
                           ),
                         ),
@@ -636,12 +636,12 @@ class LeadsPage extends GetView<LeadsController> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(25),
                         ),
-                        side: BorderSide(color: Colors.grey.shade300),
+                        side: BorderSide(color: AppColors.themeColor.bordercolror),
                         padding: const EdgeInsets.symmetric(vertical: 15),
                       ),
-                      child: const Text(
+                      child: Text(
                         "Cancel",
-                        style: TextStyle(color: Colors.black),
+                        style: TextStyle(color: AppColors.themeColor.textPrimaryColor),
                       ),
                     ),
                   ),
@@ -680,7 +680,7 @@ class LeadsPage extends GetView<LeadsController> {
       Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.themeColor.cardColor,
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(20),
             topRight: Radius.circular(20),
@@ -696,7 +696,7 @@ class LeadsPage extends GetView<LeadsController> {
                 Text(
                   "Sort Leads By",
                   style: AppTextStyle.appBarTitleStyle.copyWith(
-                    color: Colors.black,
+                    color: AppColors.themeColor.textPrimaryColor,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),

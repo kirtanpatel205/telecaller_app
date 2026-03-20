@@ -33,11 +33,11 @@ class CustomActionButton extends StatelessWidget {
             : Colors.transparent,
 
         foregroundColor:
-        isPrimary ? Colors.white : Colors.black87,
+        isPrimary ? Colors.white : AppColors.themeColor.textPrimaryColor,
 
         side: isPrimary
             ? BorderSide.none
-            : BorderSide(color: Colors.grey.shade400),
+            : BorderSide(color: AppColors.themeColor.bordercolror),
 
         padding: const EdgeInsets.symmetric(
           horizontal: 18,

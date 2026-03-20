@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pagewise/flutter_pagewise.dart';
 import 'package:get/get.dart';
+import 'package:telecaller_app/constants/app_colors.dart';
 import 'package:telecaller_app/core/models/all_lead_entity.dart';
 import 'package:telecaller_app/core/models/lead_contact_id_entity.dart';
 import 'package:telecaller_app/ui/views/auto_dialer/autodialer_controller.dart';
@@ -16,13 +17,13 @@ class AutoDialerPage extends GetView<AutoDialerController> {
     final bool isTablet = MediaQuery.of(context).size.shortestSide > 600;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF1F5F9),
+      backgroundColor: AppColors.themeColor.scaffoldBackgroundColor,
       appBar: CustomAppBar(
         leading: const SizedBox(),
-        title: const Text(
+        title:  Text(
           'Auto Dialer Pro',
           style: TextStyle(
-            color: Color(0xFF0F172A),
+            color: AppColors.themeColor.textPrimaryColor,
             fontWeight: FontWeight.bold,
             fontFamily: 'Poppins',
           ),
@@ -102,11 +103,11 @@ class AutoDialerPage extends GetView<AutoDialerController> {
       return Container(
         padding: EdgeInsets.all(isTablet ? 24 : 16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.themeColor.cardColor,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: AppColors.themeColor.scaffoldBackgroundColor.withOpacity(0.5),
               blurRadius: 20,
               offset: const Offset(0, 8),
             ),
@@ -133,7 +134,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                   style: TextStyle(
                     fontSize: isTablet ? 16 : 14,
                     fontWeight: FontWeight.bold,
-                    color: const Color(0xFF1E293B),
+                    color: AppColors.themeColor.textPrimaryColor,
                     fontFamily: 'Poppins',
                   ),
                 ),
@@ -154,9 +155,9 @@ class AutoDialerPage extends GetView<AutoDialerController> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14),
               decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC),
+                color: AppColors.themeColor.scaffoldBackgroundColor,
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
+                border: Border.all(color: AppColors.themeColor.bordercolror),
               ),
               child: leads.isEmpty
                   ? const Padding(
@@ -167,9 +168,9 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                       child: DropdownButton<String>(
                         isExpanded: true,
                         value: selected?.id,
-                        hint: const Text(
+                        hint: Text(
                           'Choose a dataset…',
-                          style: TextStyle(color: Color(0xFF94A3B8)),
+                          style: TextStyle(color: AppColors.themeColor.textSecondaryColor),
                         ),
                         icon: const Icon(Icons.keyboard_arrow_down_rounded,
                             color: Colors.indigo),
@@ -200,19 +201,19 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                                       children: [
                                         Text(
                                           lead.name ?? 'Unnamed',
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             fontWeight: FontWeight.w600,
                                             fontSize: 14,
-                                            color: Color(0xFF1E293B),
+                                            color: AppColors.themeColor.textPrimaryColor,
                                           ),
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                         if ((lead.status ?? '').isNotEmpty)
                                           Text(
                                             lead.status!,
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               fontSize: 11,
-                                              color: Color(0xFF94A3B8),
+                                              color: AppColors.themeColor.textSecondaryColor,
                                             ),
                                           ),
                                       ],
@@ -284,10 +285,10 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                 padding: const EdgeInsets.symmetric(
                     horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
-                  color: Colors.indigo.withOpacity(0.06),
+                  color: AppColors.themeColor.primaryColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                      color: Colors.indigo.withOpacity(0.2)),
+                      color: AppColors.themeColor.primaryColor.withOpacity(0.2)),
                 ),
                 child: Row(
                   children: [
@@ -340,7 +341,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
             style: TextStyle(
               fontSize: isTablet ? 18 : 16,
               fontWeight: FontWeight.bold,
-              color: const Color(0xFF1E293B),
+                  color: AppColors.themeColor.textPrimaryColor,
               fontFamily: 'Poppins',
             ),
             overflow: TextOverflow.ellipsis,
@@ -393,19 +394,19 @@ class AutoDialerPage extends GetView<AutoDialerController> {
             child: Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Colors.white,
+        color: AppColors.themeColor.cardColor,
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(Icons.contact_phone_outlined,
-                      size: 48, color: Colors.blueGrey[300]),
+                      size: 48, color: AppColors.themeColor.textSecondaryColor),
                   const SizedBox(height: 12),
                   Text(
                     'No contacts found for this lead',
                     style: TextStyle(
-                      color: Colors.blueGrey[400],
+                      color: AppColors.themeColor.textSecondaryColor,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -425,7 +426,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
               ElevatedButton(
                 onPressed: retryFn,
                 style:
-                    ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                    ElevatedButton.styleFrom(backgroundColor: AppColors.themeColor.primaryColor),
                 child: const Text('Retry',
                     style: TextStyle(color: Colors.white)),
               ),
@@ -444,16 +445,16 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                   decoration: BoxDecoration(
                     color: isCurrent
                         ? Colors.green.withOpacity(0.08)
-                        : Colors.white,
+                        : AppColors.themeColor.cardColor,
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
                       color: isCurrent
                           ? Colors.green.withOpacity(0.4)
-                          : const Color(0xFFE2E8F0),
+                          : AppColors.themeColor.bordercolror,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.03),
+                        color: AppColors.themeColor.scaffoldBackgroundColor.withOpacity(0.5),
                         blurRadius: 8,
                         offset: const Offset(0, 3),
                       ),
@@ -464,12 +465,12 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                       CircleAvatar(
                         backgroundColor: isCurrent
                             ? Colors.green.withOpacity(0.15)
-                            : Colors.indigo.withOpacity(0.1),
+                            : AppColors.themeColor.primaryColor.withOpacity(0.1),
                         child: Text(
                           (lead.contact?.name ?? '?')[0].toUpperCase(),
                           style: TextStyle(
-                            color:
-                                isCurrent ? Colors.green : Colors.indigo,
+                                color:
+                                    isCurrent ? Colors.green : AppColors.themeColor.primaryColor,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -481,9 +482,9 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                           children: [
                             Text(
                               lead.contact?.name ?? 'Unknown',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF0F172A),
+                                color: AppColors.themeColor.textPrimaryColor,
                                 fontSize: 14,
                               ),
                             ),
@@ -518,6 +519,13 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                           decoration: BoxDecoration(
                             color: Colors.green.withOpacity(0.1),
                             shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.themeColor.textSecondaryColor.withOpacity(0.1),
+                                blurRadius: 8,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
                           ),
                           child: const Icon(
                             Icons.call,
@@ -544,11 +552,11 @@ class AutoDialerPage extends GetView<AutoDialerController> {
     return Container(
       padding: EdgeInsets.all(isTablet ? 24 : 20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.themeColor.cardColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: AppColors.themeColor.textSecondaryColor.withOpacity(0.04),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -565,8 +573,8 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                   color: Colors.indigo.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.analytics_outlined,
-                    color: Colors.indigo, size: 20),
+                child: Icon(Icons.analytics_outlined,
+                    color: AppColors.themeColor.primaryColor, size: 20),
               ),
               const SizedBox(width: 12),
               Text(
@@ -574,7 +582,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                 style: TextStyle(
                   fontSize: isTablet ? 18 : 16,
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFF1E293B),
+                      color: AppColors.themeColor.textPrimaryColor,
                   fontFamily: 'Poppins',
                 ),
               ),
@@ -586,7 +594,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
               Expanded(
                   child: _buildStatItem(
                       'Attempts', controller.totalAttempts, isTablet, Colors.indigo)),
-              Container(width: 1, height: 40, color: Colors.grey[200]),
+              Container(width: 1, height: 40, color: AppColors.themeColor.bordercolror),
               Expanded(
                   child: _buildStatItem(
                       'Connected', controller.connected, isTablet, Colors.green)),
@@ -601,7 +609,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
               Expanded(
                   child: _buildStatItem(
                       'Successful', controller.successful, isTablet, Colors.blue)),
-              Container(width: 1, height: 40, color: Colors.grey[200]),
+              Container(width: 1, height: 40, color: AppColors.themeColor.bordercolror),
               Expanded(
                   child: _buildStatItem(
                       'Failed', controller.failed, isTablet, Colors.red)),
@@ -655,7 +663,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
           gradient: LinearGradient(
             colors: isDialing
                 ? [const Color(0xFF6366F1), const Color(0xFF4F46E5)]
-                : [Colors.white, Colors.white],
+                : [AppColors.themeColor.cardColor, AppColors.themeColor.cardColor],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -664,7 +672,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
             BoxShadow(
               color: isDialing
                   ? Colors.indigo.withOpacity(0.3)
-                  : Colors.black.withOpacity(0.04),
+                  : AppColors.themeColor.textSecondaryColor.withOpacity(0.04),
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),
@@ -680,7 +688,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                   decoration: BoxDecoration(
                     color: isDialing
                         ? Colors.white.withOpacity(0.2)
-                        : const Color(0xFFF1F5F9),
+                        : AppColors.themeColor.scaffoldBackgroundColor,
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -705,7 +713,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                         style: TextStyle(
                           color: isDialing
                               ? Colors.white70
-                              : Colors.blue[500],
+                              : AppColors.themeColor.primaryColor,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                           letterSpacing: 0.5,
@@ -716,7 +724,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                         style: TextStyle(
                           color: isDialing
                               ? Colors.white
-                              : const Color(0xFF1E293B),
+                              : AppColors.themeColor.textPrimaryColor,
                           fontSize: isTablet ? 20 : 18,
                           fontWeight: FontWeight.bold,
                           fontFamily: 'Poppins',
@@ -755,12 +763,12 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                 decoration: BoxDecoration(
                   color: isDialing
                       ? Colors.white.withOpacity(0.1)
-                      : const Color(0xFFF8FAFC),
+                      : AppColors.themeColor.scaffoldBackgroundColor,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
                     color: isDialing
                         ? Colors.white.withOpacity(0.2)
-                        : const Color(0xFFE2E8F0),
+                        : AppColors.themeColor.bordercolror,
                   ),
                 ),
                 child: Row(
@@ -776,7 +784,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                       style: TextStyle(
                         color: isDialing
                             ? Colors.white
-                            : const Color(0xFF475569),
+                            : AppColors.themeColor.textSecondaryColor,
                         fontWeight: FontWeight.bold,
                         fontSize: 15,
                         letterSpacing: 1,
@@ -786,8 +794,8 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                     if (isDialing)
                       Obx(() => Text(
                             controller.callTimer.value,
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                      color: AppColors.themeColor.cardColor,
                               fontWeight: FontWeight.bold,
                               fontFamily: 'monospace',
                             ),
@@ -809,11 +817,11 @@ class AutoDialerPage extends GetView<AutoDialerController> {
     return Container(
       padding: EdgeInsets.all(isTablet ? 24 : 20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.themeColor.cardColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: AppColors.themeColor.textSecondaryColor.withOpacity(0.04),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -827,7 +835,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
             style: TextStyle(
               fontSize: isTablet ? 18 : 16,
               fontWeight: FontWeight.bold,
-              color: const Color(0xFF1E293B),
+              color: AppColors.themeColor.textPrimaryColor,
               fontFamily: 'Poppins',
             ),
           ),
@@ -839,12 +847,12 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                 decoration: BoxDecoration(
                   color: controller.status.value == 'dialing'
                       ? Colors.blue.withOpacity(0.05)
-                      : const Color(0xFFF8FAFC),
+                      : AppColors.themeColor.scaffoldBackgroundColor,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
                     color: controller.status.value == 'dialing'
                         ? Colors.blue.withOpacity(0.2)
-                        : const Color(0xFFE2E8F0),
+                        : AppColors.themeColor.bordercolror,
                   ),
                 ),
                 child: Row(
@@ -860,7 +868,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                         boxShadow: [
                           if (controller.status.value == 'dialing')
                             BoxShadow(
-                              color: Colors.green.withOpacity(0.4),
+                              color: AppColors.themeColor.textSecondaryColor.withOpacity(0.04),
                               blurRadius: 8,
                               spreadRadius: 2,
                             ),
@@ -875,7 +883,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                         letterSpacing: 1.2,
                         color: controller.status.value == 'dialing'
                             ? Colors.blue
-                            : Colors.blueGrey[600],
+                            : AppColors.themeColor.textSecondaryColor,
                       ),
                     ),
                     const Spacer(),

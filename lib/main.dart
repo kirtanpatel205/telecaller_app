@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:ui';
+import 'package:animated_theme_switcher/animated_theme_switcher.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +20,8 @@ import 'package:telecaller_app/core/services/background_service_manager.dart';
 import 'package:telecaller_app/core/services/fcm_service.dart';
 import 'core/helpers/initializer.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+
+import 'core/services/theme_service.dart';
 final logger = Logger();
 
 Future<void> main() async {
@@ -90,24 +93,32 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.sizeOf(context);
-    return ScreenUtilInit(
-      designSize: Size(size.width, size.height),
-      builder:
-          (context, child) => GetMaterialApp(
-            title: AppStrings.appName,
-            debugShowCheckedModeBanner: false,
-            theme: AppTheme.theme,
-            darkTheme: AppTheme.darkTheme,
-            themeMode: ThemeMode.light,
-            initialRoute: AppPages.INITIAL,
-            getPages: AppPages.routes,
-            unknownRoute: GetPage(
-              name: Paths.SPLASH,
-              page: () => SplashPage(),
-              binding: SplashBinding(),
+    final ThemeService themeService = Get.find();
+
+    return ThemeProvider(
+      initTheme: themeService.isDarkMode.value ? AppTheme.darkTheme : AppTheme.theme,
+      builder: (context, theme) {
+        return ScreenUtilInit(
+          designSize: Size(size.width, size.height),
+          builder: (context, child) => Obx(
+            () => GetMaterialApp(
+              title: AppStrings.appName,
+              debugShowCheckedModeBanner: false,
+              theme: theme, // Use theme from ThemeProvider
+              darkTheme: AppTheme.darkTheme,
+              themeMode: themeService.isDarkMode.value ? ThemeMode.dark : ThemeMode.light,
+              initialRoute: AppPages.INITIAL,
+              getPages: AppPages.routes,
+              unknownRoute: GetPage(
+                name: Paths.SPLASH,
+                page: () => SplashPage(),
+                binding: SplashBinding(),
+              ),
+              home: child,
             ),
-            home: child,
           ),
+        );
+      },
     );
   }
 }

@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/services.dart';
@@ -20,7 +19,6 @@ import 'package:telecaller_app/firebase_options.dart';
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:android_intent_plus/flag.dart';
 import 'package:permission_handler/permission_handler.dart';
-
 import 'api_service.dart';
 
 // ✅ Platform channel to check lock screen status from native

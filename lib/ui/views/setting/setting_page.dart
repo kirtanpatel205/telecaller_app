@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:animated_theme_switcher/animated_theme_switcher.dart';
 import 'package:day_night_switcher/day_night_switcher.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -37,7 +38,7 @@ class SettingPage extends GetView<HomeController> {
                 titleSpacing: 0,
                 collapsedHeight: 200.h,
                 leadingWidth: 0,
-                backgroundColor: Colors.blue,
+                backgroundColor: AppColors.themeColor.primaryColor,
                 shape: OutlineInputBorder(
                   borderRadius: BorderRadius.only(
                     bottomLeft: Radius.circular(40),
@@ -68,22 +69,24 @@ class SettingPage extends GetView<HomeController> {
                       Text(
                         "settings".tr,
                         style: AppTextStyle.bold7.copyWith(
-                            color: AppColors.themeColor.cardColor, fontSize: 15),
+                          color: AppColors.themeColor.cardColor,
+                          fontSize: 15,
+                        ),
                       ),
                       Obx(
-                            () => Row(
+                        () => Row(
                           children: [
-                            SizedBox(
-                              width: 20,
-                            ),
+                            SizedBox(width: 20),
                             Stack(
                               children: [
                                 Container(
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     border: Border.all(
-                                      color: AppColors.themeColor
-                                          .primaryColor, // Border color
+                                      color:
+                                          AppColors
+                                              .themeColor
+                                              .primaryColor, // Border color
                                       width: 3.0, // Border width
                                     ),
                                   ),
@@ -108,40 +111,57 @@ class SettingPage extends GetView<HomeController> {
                                           // ),
                                         ),
                                         // padding: EdgeInsets.all(2),
-                                        clipBehavior: Clip
-                                            .antiAlias, // ensures child respects circle shape
-                                        child: controller.authController.profile
-                                            .value?.profile?.isNotEmpty ==
-                                            true
-                                            ? Image.network(
-                                          "https://api-test.digibulkmarketing.com${controller.authController.profile.value!.profile!}",
-                                          fit: BoxFit.cover,
-                                          errorBuilder:
-                                              (context, error, stackTrace) {
-                                            return const Icon(Icons.error);
-                                          },
-                                        )
-                                            : Center(
-                                          child: Text(
+                                        clipBehavior: Clip.antiAlias,
+                                        // ensures child respects circle shape
+                                        child:
                                             controller
-                                                .authController
-                                                .profile
-                                                .value
-                                                ?.name
-                                                ?.isNotEmpty ==
-                                                true
-                                                ? controller.authController
-                                                .profile.value!.name![0]
-                                                : "N",
-                                            style: AppTextStyle.regular12
-                                                .copyWith(
-                                              fontSize: 40,
-                                              color: AppColors
-                                                  .themeColor.primaryColor,
-                                              fontWeight: FontWeight.w400,
-                                            ),
-                                          ),
-                                        ),
+                                                        .authController
+                                                        .profile
+                                                        .value
+                                                        ?.profile
+                                                        ?.isNotEmpty ==
+                                                    true
+                                                ? Image.network(
+                                                  "https://api-test.digibulkmarketing.com${controller.authController.profile.value!.profile!}",
+                                                  fit: BoxFit.cover,
+                                                  errorBuilder: (
+                                                    context,
+                                                    error,
+                                                    stackTrace,
+                                                  ) {
+                                                    return const Icon(
+                                                      Icons.error,
+                                                    );
+                                                  },
+                                                )
+                                                : Center(
+                                                  child: Text(
+                                                    controller
+                                                                .authController
+                                                                .profile
+                                                                .value
+                                                                ?.name
+                                                                ?.isNotEmpty ==
+                                                            true
+                                                        ? controller
+                                                            .authController
+                                                            .profile
+                                                            .value!
+                                                            .name![0]
+                                                        : "N",
+                                                    style: AppTextStyle
+                                                        .regular12
+                                                        .copyWith(
+                                                          fontSize: 40,
+                                                          color:
+                                                              AppColors
+                                                                  .themeColor
+                                                                  .primaryColor,
+                                                          fontWeight:
+                                                              FontWeight.w400,
+                                                        ),
+                                                  ),
+                                                ),
                                       ).paddingAll(1),
                                     ),
                                     onTap: () {
@@ -151,67 +171,81 @@ class SettingPage extends GetView<HomeController> {
                                   // ),
                                 ),
                                 Positioned(
-                                    bottom: 0,
-                                    right: 0,
-                                    child: Container(
-                                        padding: EdgeInsets.all(4),
-                                        decoration: BoxDecoration(
-                                            border: Border.all(
-                                              color: AppColors
-                                                  .themeColor.bordercolror,
-                                              width: 3,
-                                            ),
-                                            borderRadius:
-                                            BorderRadius.circular(50),
-                                            color: AppColors.themeColor.bgColor),
-                                        child: InkWell(
-                                          onTap: () {
-                                            Get.toNamed(Routes.EDITPROFILE);
-                                          },
-                                          child: Icon(
-                                            Icons.edit,
-                                            color:
+                                  bottom: 0,
+                                  right: 0,
+                                  child: Container(
+                                    padding: EdgeInsets.all(4),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color:
                                             AppColors.themeColor.bordercolror,
-                                            size: 20,
-                                          ),
-                                        ))),
+                                        width: 3,
+                                      ),
+                                      borderRadius: BorderRadius.circular(50),
+                                      color: AppColors.themeColor.bgColor,
+                                    ),
+                                    child: InkWell(
+                                      onTap: () {
+                                        Get.toNamed(Routes.EDITPROFILE);
+                                      },
+                                      child: Icon(
+                                        Icons.edit,
+                                        color:
+                                            AppColors.themeColor.bordercolror,
+                                        size: 20,
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ],
                             ),
-                            SizedBox(
-                              width: 10,
-                            ),
+                            SizedBox(width: 10),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  controller.authController.profile.value?.name
-                                      ?.isNotEmpty ==
-                                      true
+                                  controller
+                                              .authController
+                                              .profile
+                                              .value
+                                              ?.name
+                                              ?.isNotEmpty ==
+                                          true
                                       ? controller
-                                      .authController.profile.value!.name
-                                      .toString()
+                                          .authController
+                                          .profile
+                                          .value!
+                                          .name
+                                          .toString()
                                       : "No Name",
                                   style: AppTextStyle.bold9.copyWith(
-                                      color: AppColors.themeColor.cardColor,
-                                      fontSize: 18),
+                                    color: AppColors.themeColor.cardColor,
+                                    fontSize: 18,
+                                  ),
                                 ),
-                                SizedBox(
-                                  height: 5,
-                                ),
+                                SizedBox(height: 5),
                                 Text(
-                                  controller.authController.profile.value?.phone
-                                      ?.isNotEmpty ==
-                                      true
+                                  controller
+                                              .authController
+                                              .profile
+                                              .value
+                                              ?.phone
+                                              ?.isNotEmpty ==
+                                          true
                                       ? controller
-                                      .authController.profile.value!.phone
-                                      .toString()
+                                          .authController
+                                          .profile
+                                          .value!
+                                          .phone
+                                          .toString()
                                       : "",
                                   style: AppTextStyle.bold7.copyWith(
-                                      color: AppColors.themeColor.cardColor,
-                                      fontSize: 11),
+                                    color: AppColors.themeColor.cardColor,
+                                    fontSize: 11,
+                                  ),
                                 ),
                               ],
-                            )
+                            ),
                           ],
                         ),
                       ),
@@ -220,103 +254,170 @@ class SettingPage extends GetView<HomeController> {
                 ),
               ),
 
-              Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        height: 10,
+              Obx(() {
+                controller.isDarkMode.value; // Access observable to register dependency
+                return Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 10),
+                    SizedBox(height: 20),
+                    Text(
+                      "Background Reliability",
+                      style: AppTextStyle.bold7.copyWith(
+                        color: AppColors.themeColor.primaryColor,
+                        fontSize: 16,
                       ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Text(
-                        "Background Reliability",
-                        style: AppTextStyle.bold7.copyWith(
-                            color: AppColors.themeColor.primaryColor, fontSize: 16),
-                      ),
-                      SizedBox(height: 10),
-                      Container(
-                        padding: EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.blue.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(15),
-                          border: Border.all(color: Colors.blue.withOpacity(0.3)),
+                    ),
+                    SizedBox(height: 10),
+                    Container(
+                      padding: EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppColors.themeColor.primaryColor.withOpacity(
+                          0.1,
                         ),
-                        child: Column(
-                          children: [
-                            Text(
-                              "To ensure 24/7 auto-calling works correctly, please disable battery optimization and enable 'Auto-start' for this app.",
-                              style: TextStyle(fontSize: 12),
-                            ),
-                            SizedBox(height: 15),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                ElevatedButton.icon(
-                                  onPressed: () => BackgroundServiceManager.requestBatteryOptimizationExclusion(),
-                                  icon: Icon(Icons.battery_alert, size: 18),
-                                  label: Text("Disable Battery Optimization", style: TextStyle(fontSize: 10)),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.blue,
-                                    foregroundColor: Colors.white,
-                                    padding: EdgeInsets.symmetric(horizontal: 10),
-                                  ),
+                        borderRadius: BorderRadius.circular(15),
+                        border: Border.all(
+                          color: AppColors.themeColor.primaryColor.withOpacity(
+                            0.3,
+                          ),
+                        ),
+                      ),
+                      child: Column(
+                        children: [
+                          Text(
+                            "To ensure 24/7 auto-calling works correctly, please disable battery optimization and enable 'Auto-start' for this app.",
+                            style: TextStyle(fontSize: 12),
+                          ),
+                          SizedBox(height: 15),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              ElevatedButton.icon(
+                                onPressed:
+                                    () =>
+                                        BackgroundServiceManager.requestBatteryOptimizationExclusion(),
+                                icon: Icon(Icons.battery_alert, size: 18),
+                                label: Text(
+                                  "Disable Battery Optimization",
+                                  style: TextStyle(fontSize: 10),
                                 ),
-                              ],
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      AppColors.themeColor.primaryColor,
+                                  foregroundColor:
+                                      AppColors.themeColor.cardColor,
+                                  padding: EdgeInsets.symmetric(horizontal: 10),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 10),
+                          ElevatedButton.icon(
+                            onPressed:
+                                () =>
+                                    BackgroundServiceManager.openManufacturerSettings(),
+                            icon: Icon(Icons.settings_applications, size: 18),
+                            label: Text(
+                              "Open Manufacturer Settings (Auto-start)",
+                              style: TextStyle(fontSize: 10),
                             ),
-                            SizedBox(height: 10),
-                            ElevatedButton.icon(
-                              onPressed: () => BackgroundServiceManager.openManufacturerSettings(),
-                              icon: Icon(Icons.settings_applications, size: 18),
-                              label: Text("Open Manufacturer Settings (Auto-start)", style: TextStyle(fontSize: 10)),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.orange,
-                                foregroundColor: Colors.white,
-                                padding: EdgeInsets.symmetric(horizontal: 10),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.orange,
+                              foregroundColor: Colors.white,
+                              padding: EdgeInsets.symmetric(horizontal: 10),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 20),
+
+                    InkWell(
+                      onTap: () {
+                        // Optional: Add onTap if needed
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(left: 2.0),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.nightlight_round,
+                                    color: AppColors.themeColor.primaryColor,
+                                  ),
+                                  SizedBox(width: 3),
+                                  Text(
+                                    "dark mode".tr,
+                                    style: AppTextStyle.medium9.copyWith(
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(right: 8.0),
+                              child: Container(
+                                height: 40,
+                                width: 50,
+                                child: ThemeSwitcher(
+                                  builder:
+                                      (context) => DayNightSwitcher(
+                                        isDarkModeEnabled:
+                                            controller.isDarkMode.value,
+                                        onStateChanged: (value) {
+                                          controller.toggleTheme(
+                                            value,
+                                            context,
+                                          );
+                                        },
+                                      ),
+                                ),
                               ),
                             ),
                           ],
                         ),
                       ),
-                      SizedBox(height: 20),
-                      InkWell(
-                        onTap: () {
-                          Storage.clearStorage();
-                          Get.offAllNamed(Routes.WELCOME);
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.logout,
+                    ),
+
+                    SizedBox(height: 20),
+                    InkWell(
+                      onTap: () {
+                        Storage.clearStorage();
+                        Get.offAllNamed(Routes.WELCOME);
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.logout, color: Colors.red),
+                            SizedBox(width: 8),
+                            Text(
+                              "logout".tr,
+                              style: TextStyle(
                                 color: Colors.red,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
                               ),
-                              SizedBox(width: 8),
-                              Text(
-                                "logout".tr,
-                                style: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
+                    ),
 
-                      SizedBox(
-                        height: 10,
-                      ),
-                    ],
-                  ),
+                    SizedBox(height: 10),
+                  ],
                 ),
-
+              );
+            }),
             ],
           ),
         ],

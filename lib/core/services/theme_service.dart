@@ -29,17 +29,12 @@ class ThemeService extends GetxService {
       final theme = isDarkMode.value ? AppTheme.darkTheme : AppTheme.theme;
       ThemeSwitcher.of(context).changeTheme(
         theme: theme,
-        //reverseAnimation: true
       );
-      //Get.changeThemeMode(isDarkMode.value ? ThemeMode.dark :ThemeMode.light);
+      Get.changeThemeMode(isDarkMode.value ? ThemeMode.dark : ThemeMode.light);
       getCurrentStatusNavigationBarColor();
 
       await Future.delayed(Duration(milliseconds: 1500));
       inProgress.value = false;
-
-      //Future.delayed(Duration(seconds: 1)).then((value) {
-      //Get.changeThemeMode(isDarkMode.value ? ThemeMode.dark :ThemeMode.light);
-      //});
 
       return true;
     } else {

@@ -8,6 +8,8 @@ import 'package:telecaller_app/ui/views/auto_dialer/autodialer_controller.dart';
 import 'package:telecaller_app/ui/views/dashboard/dashboard_controller.dart';
 import 'package:telecaller_app/ui/views/leads/leads_controller.dart';
 import 'package:telecaller_app/ui/views/setting/setting_controller.dart';
+import 'package:telecaller_app/core/services/theme_service.dart';
+import 'package:flutter/material.dart';
 
 class HomeController extends GetxController {
   RxInt currentTab = 0.obs;
@@ -20,6 +22,16 @@ class HomeController extends GetxController {
   SettingController settingController = Get.put(SettingController());
   DashboardController dashboardController = Get.put(DashboardController());
   CallFormController callFormController = Get.put(CallFormController());
+
+  // Theme support
+  final ThemeService themeService = Get.find();
+  RxBool get isDarkMode => themeService.isDarkMode;
+
+  Future<void> toggleTheme(bool value, BuildContext context) async {
+    // value is from DayNightSwitcher, but we use ThemeService to toggle
+    // Context is needed for AnimatedThemeSwitcher
+    await themeService.toggleTheme(context);
+  }
   // FCMService fcmService = Get.put(FCMService().init());
 
   // FCMService FcmToken = Get.find();

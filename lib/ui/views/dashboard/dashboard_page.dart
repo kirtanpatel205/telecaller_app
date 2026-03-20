@@ -103,9 +103,9 @@ class DashboardPage extends GetView<HomeController> {
               radius: 18,
               backgroundColor:
               AppColors.themeColor.primaryColor,
-              child: const Icon(
+              child: Icon(
                 Icons.notifications_none_outlined,
-                color: Colors.white,
+                color: AppColors.themeColor.cardColor,
               ),
             ).paddingAll(10),
           ),
@@ -170,7 +170,7 @@ class DashboardPage extends GetView<HomeController> {
                   title,
                   style: AppTextStyle.semiBold8.copyWith(
                     fontSize: 14,
-                    color: AppColors.themeColor.textPrimaryColor,
+                    color: Get.isDarkMode ? Colors.black87 : AppColors.themeColor.textPrimaryColor,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -180,7 +180,7 @@ class DashboardPage extends GetView<HomeController> {
                   value,
                   style: AppTextStyle.semiBold8.copyWith(
                     fontSize: 28,
-                    color: AppColors.themeColor.textPrimaryColor,
+                    color: Get.isDarkMode ? Colors.black : AppColors.themeColor.textPrimaryColor,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -190,7 +190,7 @@ class DashboardPage extends GetView<HomeController> {
                   subtitle,
                   style: AppTextStyle.regular6.copyWith(
                     fontSize: 12,
-                    color: AppColors.themeColor.textPrimaryColor.withAlpha(178),
+                    color: Get.isDarkMode ? Colors.black54 : AppColors.themeColor.textPrimaryColor.withAlpha(178),
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -265,9 +265,9 @@ class DashboardPage extends GetView<HomeController> {
     return Container(
       padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.themeColor.cardColor,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: AppColors.themeColor.bordercolror),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -275,14 +275,14 @@ class DashboardPage extends GetView<HomeController> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: Colors.grey.shade100,
+              color: AppColors.themeColor.scaffoldBackgroundColor,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
               title,
               style: AppTextStyle.semiBold8.copyWith(
                 fontSize: 12,
-                color: Colors.black87,
+                color: AppColors.themeColor.textPrimaryColor,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -303,13 +303,13 @@ class DashboardPage extends GetView<HomeController> {
                     ),
                     Text(
                       "Today",
-                      style: AppTextStyle.regular6.copyWith(fontSize: 12, color: Colors.grey),
+                      style: AppTextStyle.regular6.copyWith(fontSize: 12, color: AppColors.themeColor.textSecondaryColor),
                     ),
                   ],
                 ),
               ),
               SizedBox(width: 5,),
-              Container(width: 1, height: 40, color: Colors.grey.shade400),
+              Container(width: 1, height: 40, color: AppColors.themeColor.bordercolror),
               SizedBox(width: 5,),
               Expanded(
                 child: Column(
@@ -322,7 +322,7 @@ class DashboardPage extends GetView<HomeController> {
                     ),
                     Text(
                       "Total",
-                      style: AppTextStyle.regular6.copyWith(fontSize: 12, color: Colors.grey),
+                      style: AppTextStyle.regular6.copyWith(fontSize: 12, color: AppColors.themeColor.textSecondaryColor),
                     ),
                   ],
                 ),
@@ -337,12 +337,12 @@ class DashboardPage extends GetView<HomeController> {
   Widget _buildLeadContactSection(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.themeColor.cardColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: AppColors.themeColor.bordercolror),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.shade100,
+            color: AppColors.themeColor.scaffoldBackgroundColor,
             blurRadius: 4,
             offset: const Offset(0, 2),
             spreadRadius: 1,
@@ -365,7 +365,7 @@ class DashboardPage extends GetView<HomeController> {
               "Lead Contact",
               style: AppTextStyle.semiBold8.copyWith(
                 fontSize: 16,
-                color: const Color(0xFF1890FF),
+                color: AppColors.themeColor.primaryColor,
               ),
             ),
           ),
@@ -417,12 +417,12 @@ class DashboardPage extends GetView<HomeController> {
   Widget _buildCallsSection(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.themeColor.cardColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: AppColors.themeColor.bordercolror),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.shade100,
+            color: AppColors.themeColor.scaffoldBackgroundColor.withOpacity(0.5),
             blurRadius: 4,
             offset: const Offset(0, 2),
             spreadRadius: 1,
@@ -549,9 +549,9 @@ class DashboardPage extends GetView<HomeController> {
       width: isMobile ? double.infinity : null,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.themeColor.cardColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: AppColors.themeColor.bordercolror),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -629,7 +629,7 @@ class DashboardPage extends GetView<HomeController> {
                           horizontalInterval: interval,
                           getDrawingHorizontalLine: (value) {
                             return FlLine(
-                              color: Colors.grey.shade300,
+                              color: AppColors.themeColor.bordercolror,
                               strokeWidth: 1,
                               dashArray: [4, 4],
                             );
@@ -695,13 +695,13 @@ class DashboardPage extends GetView<HomeController> {
                             barRods: [
                               BarChartRodData(
                                 toY: spot.incoming.count.toDouble(),
-                                color: const Color(0xFF52C41A),
+                                color: AppColors.themeColor.completedColor,
                                 width: 14,
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               BarChartRodData(
                                 toY: spot.outgoing.count.toDouble(),
-                                color: const Color(0xFF1890FF),
+                                color: AppColors.themeColor.primaryColor,
                                 width: 14,
                                 borderRadius: BorderRadius.circular(4),
                               ),
@@ -713,7 +713,7 @@ class DashboardPage extends GetView<HomeController> {
                         barTouchData: BarTouchData(
                           enabled: true,
                           touchTooltipData: BarTouchTooltipData(
-                            tooltipBgColor: Colors.white,
+                            tooltipBgColor: AppColors.themeColor.cardColor,
                             getTooltipItem:
                                 (group, groupIndex, rod, rodIndex) {
 
@@ -732,8 +732,8 @@ class DashboardPage extends GetView<HomeController> {
 
                               return BarTooltipItem(
                                 title,
-                                const TextStyle(
-                                    color: Colors.black,
+                                TextStyle(
+                                    color: AppColors.themeColor.textPrimaryColor,
                                     fontSize: 12),
                               );
                             },
@@ -756,9 +756,9 @@ class DashboardPage extends GetView<HomeController> {
               spacing: 20,
               children: [
                 _buildLegendItem(
-                    const Color(0xFF52C41A), "Incoming"),
+                    AppColors.themeColor.completedColor, "Incoming"),
                 _buildLegendItem(
-                    const Color(0xFF1890FF), "Outgoing"),
+                    AppColors.themeColor.primaryColor, "Outgoing"),
               ],
             ),
           ),
@@ -804,7 +804,7 @@ class DashboardPage extends GetView<HomeController> {
                   padding:
                   const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    border: Border.all(color: const Color(0xFF1890FF)),
+                    border: Border.all(color: AppColors.themeColor.primaryColor),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Row(
@@ -815,7 +815,7 @@ class DashboardPage extends GetView<HomeController> {
                       ),
                       const SizedBox(width: 8),
                       Icon(Icons.calendar_today,
-                          size: 14, color: Colors.grey.shade500),
+                          size: 14, color: AppColors.themeColor.textSecondaryColor),
                     ],
                   ),
                 ),
@@ -830,7 +830,7 @@ class DashboardPage extends GetView<HomeController> {
           height: 32,
           padding: const EdgeInsets.symmetric(horizontal: 8),
           decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey.shade300),
+            border: Border.all(color: AppColors.themeColor.bordercolror),
             borderRadius: BorderRadius.circular(6),
           ),
           child: Obx(() => DropdownButtonHideUnderline(
@@ -839,8 +839,8 @@ class DashboardPage extends GetView<HomeController> {
                   .dashboardController.selectedTimeFilter.value,
               icon:
               const Icon(Icons.keyboard_arrow_down, size: 16),
-              style: const TextStyle(
-                  fontSize: 12, color: Colors.black87),
+              style: TextStyle(
+                  fontSize: 12, color: AppColors.themeColor.textPrimaryColor),
               onChanged: (String? newValue) {
                 if (newValue != null) {
                   controller.dashboardController
@@ -885,9 +885,9 @@ class DashboardPage extends GetView<HomeController> {
       width: isMobile ? double.infinity : null,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.themeColor.cardColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: AppColors.themeColor.bordercolror),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -916,10 +916,10 @@ class DashboardPage extends GetView<HomeController> {
 
                 // ── Build valid data list ──────────────────────────────────
                 List<Map<String, dynamic>> validData = [];
-                if (incoming > 0)    validData.add({"value": incoming,    "color": const Color(0xFF52C41A)});
-                if (missed > 0)      validData.add({"value": missed,      "color": const Color(0xFFFAAD14)});
-                if (notAnswered > 0) validData.add({"value": notAnswered, "color": const Color(0xFFFF4D4F)});
-                if (outgoing > 0)    validData.add({"value": outgoing,    "color": const Color(0xFF1890FF)});
+                if (incoming > 0)    validData.add({"value": incoming,    "color": AppColors.themeColor.completedColor});
+                if (missed > 0)      validData.add({"value": missed,      "color": AppColors.themeColor.activekeyiconColor});
+                if (notAnswered > 0) validData.add({"value": notAnswered, "color": AppColors.themeColor.failColor});
+                if (outgoing > 0)    validData.add({"value": outgoing,    "color": AppColors.themeColor.primaryColor});
 
                 // ── FIX: enforce minimum 2.5% so tiny slices stay visible ─
                 // Without this, "Not Answered: 12" out of 3235 total = 0.37%
@@ -949,10 +949,10 @@ class DashboardPage extends GetView<HomeController> {
                           ? (validData[i]["value"] as int).toString()  // ← show real value on touch
                           : '',
                       radius: isTouched ? 100 : 90,
-                      titleStyle: const TextStyle(
+                      titleStyle: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: AppColors.themeColor.cardColor,
                       ),
                     ),
                   );
@@ -986,18 +986,10 @@ class DashboardPage extends GetView<HomeController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildLegendItemm(color: const Color(0xFF52C41A), text: "Incoming"),
-              const SizedBox(width: 16),
-              _buildLegendItemm(color: const Color(0xFFFAAD14), text: "Missed"),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _buildLegendItemm(color: const Color(0xFFFF4D4F), text: "Not Answered"),
-              const SizedBox(width: 16),
-              _buildLegendItemm(color: const Color(0xFF1890FF), text: "Outgoing"),
+              _buildLegendItem(AppColors.themeColor.completedColor, "Incoming"),
+              _buildLegendItem(AppColors.themeColor.activekeyiconColor, "Missed"),
+              _buildLegendItem(AppColors.themeColor.failColor, "Not Answered"),
+              _buildLegendItem(AppColors.themeColor.primaryColor, "Outgoing"),
             ],
           ),
         ],
@@ -1013,9 +1005,9 @@ class DashboardPage extends GetView<HomeController> {
       width: isMobile ? double.infinity : null,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.themeColor.cardColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: AppColors.themeColor.bordercolror),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1077,7 +1069,7 @@ class DashboardPage extends GetView<HomeController> {
                           horizontalInterval: interval,
                           getDrawingHorizontalLine: (value) {
                             return FlLine(
-                              color: Colors.grey.shade300,
+                              color: AppColors.themeColor.bordercolror,
                               strokeWidth: 1,
                               dashArray: [4, 4],
                             );
@@ -1131,7 +1123,7 @@ class DashboardPage extends GetView<HomeController> {
                             barRods: [
                               BarChartRodData(
                                 toY: spot.count.toDouble(),
-                                color: const Color(0xFF1890FF),
+                                color: AppColors.themeColor.primaryColor,
                                 width: 14,
                                 borderRadius: BorderRadius.circular(4),
                               ),
@@ -1141,12 +1133,12 @@ class DashboardPage extends GetView<HomeController> {
                         barTouchData: BarTouchData(
                           enabled: true,
                           touchTooltipData: BarTouchTooltipData(
-                            tooltipBgColor: Colors.white,
+                            tooltipBgColor: AppColors.themeColor.cardColor,
                             getTooltipItem: (group, groupIndex, rod, rodIndex) {
                               final dataItem = data[group.x.toInt()];
                               return BarTooltipItem(
                                 "Leads: ${dataItem.count}",
-                                const TextStyle(color: Colors.black, fontSize: 12),
+                                TextStyle(color: AppColors.themeColor.textPrimaryColor, fontSize: 12),
                               );
                             },
                           ),
@@ -1165,7 +1157,7 @@ class DashboardPage extends GetView<HomeController> {
               spacing: 20,
               children: [
                 _buildLegendItem(
-                    const Color(0xFF1890FF), "TotalLeads"),
+                    AppColors.themeColor.primaryColor, "TotalLeads"),
               ],
             ),
           ),
@@ -1202,14 +1194,14 @@ class DashboardPage extends GetView<HomeController> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    border: Border.all(color: const Color(0xFF1890FF)),
+                    border: Border.all(color: AppColors.themeColor.primaryColor),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Row(
                     children: [
                       Text(dateText, style: const TextStyle(fontSize: 12)),
                       const SizedBox(width: 8),
-                      Icon(Icons.calendar_today, size: 14, color: Colors.grey.shade500),
+                      Icon(Icons.calendar_today, size: 14, color: AppColors.themeColor.textSecondaryColor),
                     ],
                   ),
                 ),
@@ -1222,14 +1214,14 @@ class DashboardPage extends GetView<HomeController> {
           height: 32,
           padding: const EdgeInsets.symmetric(horizontal: 8),
           decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey.shade300),
+            border: Border.all(color: AppColors.themeColor.bordercolror),
             borderRadius: BorderRadius.circular(6),
           ),
           child: Obx(() => DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               value: controller.dashboardController.selectedLeadTimeFilter.value,
               icon: const Icon(Icons.keyboard_arrow_down, size: 16),
-              style: const TextStyle(fontSize: 12, color: Colors.black87),
+              style: TextStyle(fontSize: 12, color: AppColors.themeColor.textPrimaryColor),
               onChanged: (String? newValue) {
                 if (newValue != null) {
                   controller.dashboardController.updateLeadTimeFilter(newValue);
@@ -1264,9 +1256,9 @@ class DashboardPage extends GetView<HomeController> {
       width: isMobile ? double.infinity : null,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.themeColor.cardColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: AppColors.themeColor.bordercolror),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1295,9 +1287,9 @@ class DashboardPage extends GetView<HomeController> {
                 List<PieChartSectionData> pieChartSections = [];
                 List<Map<String, dynamic>> validData = [];
                 
-                if (completed > 0) validData.add({"value": completed, "color": const Color(0xFF52C41A)});
-                if (scheduled > 0) validData.add({"value": scheduled, "color": const Color(0xFFFAAD14)});
-                if (pending > 0) validData.add({"value": pending, "color": const Color(0xFFFF4D4F)});
+                if (completed > 0) validData.add({"value": completed, "color": AppColors.themeColor.completedColor});
+                if (scheduled > 0) validData.add({"value": scheduled, "color": AppColors.themeColor.activekeyiconColor});
+                if (pending > 0) validData.add({"value": pending, "color": AppColors.themeColor.failColor});
 
                 for (int i = 0; i < validData.length; i++) {
                   bool isTouched = controller.dashboardController.touchedLeadPieIndex.value == i;
@@ -1339,16 +1331,7 @@ class DashboardPage extends GetView<HomeController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildLegendItemm(color: const Color(0xFF52C41A), text: "Completed"),
-              const SizedBox(width: 16),
-              _buildLegendItemm(color: const Color(0xFFFAAD14), text: "Scheduled"),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-               _buildLegendItemm(color: const Color(0xFFFF4D4F), text: "Pending"),
+               _buildLegendItem(AppColors.themeColor.failColor, "Pending"),
             ],
           ),
         ],
@@ -1381,14 +1364,4 @@ class DashboardPage extends GetView<HomeController> {
     );
   }
 
-  Widget _buildLegendItemm({required Color color, required String text}) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(width: 12, height: 12, color: color),
-        const SizedBox(width: 6),
-        Text(text, style: TextStyle(color: color, fontSize: 13, fontWeight: FontWeight.w500)),
-      ],
-    );
-  }
 }

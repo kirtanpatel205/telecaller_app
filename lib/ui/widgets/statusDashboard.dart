@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:telecaller_app/constants/app_colors.dart';
 import 'package:telecaller_app/ui/widgets/custom_card.dart';
 
 /// Minimal Stats Dashboard Widget
@@ -37,13 +38,13 @@ class StatsDashboard extends StatelessWidget {
             child: _StatColumn(
               label: entry.key,
               value: entry.value.toString(),
-              color: colors?[entry.key] ?? Colors.blue,
+              color: colors?[entry.key] ?? AppColors.themeColor.primaryColor,
             ),
           );
         } else {
           return SizedBox(
             height: 40,
-            child: VerticalDivider(color: Colors.grey[300]),
+            child: VerticalDivider(color: AppColors.themeColor.bordercolror),
           );
         }
       },
@@ -71,7 +72,7 @@ class _StatColumn extends StatelessWidget {
           label,
           style: TextStyle(
             fontSize: 12,
-            color: Colors.grey[600],
+            color: AppColors.themeColor.textSecondaryColor,
             fontWeight: FontWeight.w500,
           ),
         ),

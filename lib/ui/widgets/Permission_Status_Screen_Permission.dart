@@ -4,6 +4,7 @@ import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:telecaller_app/constants/app_colors.dart';
 import 'package:telecaller_app/constants/app_constants.dart';
 import 'package:telecaller_app/core/helpers/storage.dart';
 import 'package:telecaller_app/core/services/fcm_service.dart';
@@ -186,13 +187,8 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
               Container(
                 padding: EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Colors.blue.shade50, Colors.blue.shade100],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.blue.shade200, width: 1.5),
+                  color: AppColors.themeColor.primaryColor.withOpacity(0.1),
+                  border: Border.all(color: AppColors.themeColor.primaryColor.withOpacity(0.3), width: 1.5),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -244,8 +240,8 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
               _requestPermission(permission);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue.shade700,
-              foregroundColor: Colors.white,
+              backgroundColor: AppColors.themeColor.primaryColor,
+              foregroundColor: AppColors.themeColor.cardColor,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
@@ -354,7 +350,7 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.blue.shade700),
+                    valueColor: AlwaysStoppedAnimation<Color>(AppColors.themeColor.primaryColor),
                   ),
                   SizedBox(height: 16),
                   Text(
