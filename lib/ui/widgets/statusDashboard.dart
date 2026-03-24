@@ -15,7 +15,10 @@ class StatsDashboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomCard(
+    return Card(
+       elevation: 0,
+      color: Colors.grey.withOpacity(0.1),
+
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Row(

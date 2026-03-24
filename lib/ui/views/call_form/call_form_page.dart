@@ -21,7 +21,7 @@ class CallFormPage extends StatelessWidget {
         elevation: 12,
         clipBehavior: Clip.antiAlias,
         child: Container(
-          color: AppColors.themeColor.cardColor,
+          color: AppColors.themeColor.cardBgColor,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -125,7 +125,7 @@ class CallFormPage extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       decoration: BoxDecoration(
-        color: AppColors.themeColor.cardColor,
+        color: AppColors.themeColor.cardBgColor,
         border: Border(
           bottom: BorderSide(color: Colors.grey.withOpacity(0.1), width: 1.5),
         ),
@@ -712,7 +712,7 @@ class CallFormPage extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.themeColor.cardColor,
+        color: AppColors.themeColor.cardBgColor,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),

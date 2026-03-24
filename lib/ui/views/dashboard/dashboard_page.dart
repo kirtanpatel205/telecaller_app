@@ -265,7 +265,7 @@ class DashboardPage extends GetView<HomeController> {
     return Container(
       padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
-        color: AppColors.themeColor.cardColor,
+        color: AppColors.themeColor.cardBgColor,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: AppColors.themeColor.bordercolror),
       ),
@@ -337,7 +337,7 @@ class DashboardPage extends GetView<HomeController> {
   Widget _buildLeadContactSection(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.themeColor.cardColor,
+        color: AppColors.themeColor.cardBgColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.themeColor.bordercolror),
         boxShadow: [
@@ -417,7 +417,7 @@ class DashboardPage extends GetView<HomeController> {
   Widget _buildCallsSection(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.themeColor.cardColor,
+        color: AppColors.themeColor.cardBgColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.themeColor.bordercolror),
         boxShadow: [
@@ -549,7 +549,7 @@ class DashboardPage extends GetView<HomeController> {
       width: isMobile ? double.infinity : null,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.themeColor.cardColor,
+        color: AppColors.themeColor.cardBgColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.themeColor.bordercolror),
       ),
@@ -885,7 +885,7 @@ class DashboardPage extends GetView<HomeController> {
       width: isMobile ? double.infinity : null,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.themeColor.cardColor,
+        color: AppColors.themeColor.cardBgColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.themeColor.bordercolror),
       ),
@@ -1005,7 +1005,7 @@ class DashboardPage extends GetView<HomeController> {
       width: isMobile ? double.infinity : null,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.themeColor.cardColor,
+        color: AppColors.themeColor.cardBgColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.themeColor.bordercolror),
       ),
@@ -1256,7 +1256,7 @@ class DashboardPage extends GetView<HomeController> {
       width: isMobile ? double.infinity : null,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.themeColor.cardColor,
+        color: AppColors.themeColor.cardBgColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.themeColor.bordercolror),
       ),

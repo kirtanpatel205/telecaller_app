@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'package:flutter_pagewise/flutter_pagewise.dart';
 import 'package:get/get.dart';
-import 'package:collection/collection.dart';
-import 'package:telecaller_app/core/controllers/call_form_controller.dart';
 import 'package:telecaller_app/core/controllers/overlay_controller.dart';
 import 'package:telecaller_app/core/models/all_lead_entity.dart';
 import 'package:telecaller_app/core/models/lead_contact_id_entity.dart';
@@ -62,6 +60,7 @@ class AutoDialerController extends GetxController {
 
   // Current displayed contact
   final currentContact = Rxn<LeadContactIdLeadContacts>();
+  final nextContact = Rxn<LeadContactIdLeadContacts>();
   final countdown = 0.obs;
 
   // ─────────────────────────────────────────────
@@ -93,10 +92,13 @@ class AutoDialerController extends GetxController {
     ever(phoneService.isCallActive, (bool active) {
       if (active) {
         _startActiveTimer();
-        if (status.value == 'idle') status.value = 'dialing';
+        if (status.value != 'dialing') status.value = 'dialing';
       } else {
         _stopActiveTimer();
-        if (status.value == 'dialing') status.value = 'idle';
+        // When call ends, we transition to "settled" (overlay showing)
+        if (status.value == 'dialing') {
+           status.value = 'settled';
+        }
       }
     });
   }
@@ -247,6 +249,13 @@ class AutoDialerController extends GetxController {
                 // Keep flat list in sync for startDialing()
                 if (pageNumber == 0) {
                   contactQueue.assignAll(items);
+                  // Populate initial current and next if we are idle
+                  if (status.value == 'idle' && items.isNotEmpty) {
+                    currentContact.value = items[0];
+                    if (items.length > 1) {
+                      nextContact.value = items[1];
+                    }
+                  }
                 } else {
                   // Avoid duplicates on refetch
                   final existing = contactQueue.map((e) => e.id).toSet();
@@ -344,7 +353,7 @@ class AutoDialerController extends GetxController {
             )
             .map(
               (l) => {
-                'leadId': l.leadId ?? '', // Parent lead ID (for the form)
+                'id': l.leadId ?? '', // Parent lead ID (consistent key across app)
                 'leadContactId': l.id ?? '', // Specific contact record ID
                 'name': l.contact?.name ?? 'Unknown',
                 'number': l.contact?.phone ?? '',
@@ -370,7 +379,7 @@ class AutoDialerController extends GetxController {
     if (Get.isRegistered<PhoneStatusService>()) {
       final phoneService = Get.find<PhoneStatusService>();
       phoneService.currentLeadContactId = firstLead['leadContactId'] ?? '';
-      phoneService.currentLeadId = firstLead['leadId'] ?? '';
+      phoneService.currentLeadId = firstLead['id'] ?? '';
     }
 
     // Dial first contact
@@ -380,47 +389,45 @@ class AutoDialerController extends GetxController {
   void _syncWithOverlay(OverlayController overlayCtrl) {
     countdown.bindStream(overlayCtrl.countdown.stream);
 
-    ever(overlayCtrl.isPaused, (bool paused) {
-      if (paused) {
-        if (status.value == 'dialing') status.value = 'paused';
-      } else {
-        if (status.value == 'paused') status.value = 'dialing';
-      }
-    });
 
     void refreshCurrentContact() {
       final index = overlayCtrl.currentQueueIndex.value;
       final cdValue = overlayCtrl.countdown.value;
 
+      // Update status based on countdown
+      if (cdValue > 0 && !overlayCtrl.isPaused.value) {
+        status.value = 'counting_down';
+      } else if (overlayCtrl.isPaused.value) {
+        status.value = 'paused';
+      } else if (status.value == 'counting_down' && cdValue == 0) {
+        status.value = 'dialing';
+      }
+
       if (cdValue > 0) {
+        // We are in countdown to NEXT lead
         if (index < overlayCtrl.callQueue.length) {
           final next = overlayCtrl.callQueue[index];
-          currentContact.value = contactQueue.firstWhereOrNull(
+          nextContact.value = contactQueue.firstWhereOrNull(
             (l) => l.id == next['leadContactId'],
           );
-
-          // ── SYNC: Update PhoneStatusService for the UPCOMING call ─────────
-          if (Get.isRegistered<PhoneStatusService>()) {
-            final ps = Get.find<PhoneStatusService>();
-            ps.currentLeadId = next['id'];
-            ps.currentLeadContactId = next['leadContactId'];
-            
-            // Restore form metadata
-            final dataset = selectedLeadDataset.value;
-            if (dataset != null) {
-              ps.currentFormId = dataset.formId?.id ?? "";
-              ps.currentFormFields = dataset.formId?.fields ?? [];
-            }
-            
-            print("🔄 Dialer Sync (Pre-Call): Lead=${ps.currentLeadId} | Contact=${ps.currentLeadContactId} | Form=${ps.currentFormId}");
-          }
         }
       } else {
+        // We are DIALING or IDLE
         if (index > 0 && index <= overlayCtrl.callQueue.length) {
           final current = overlayCtrl.callQueue[index - 1];
           currentContact.value = contactQueue.firstWhereOrNull(
             (l) => l.id == current['leadContactId'],
           );
+
+          // Get the "Next" one too if available
+          if (index < overlayCtrl.callQueue.length) {
+             final next = overlayCtrl.callQueue[index];
+             nextContact.value = contactQueue.firstWhereOrNull(
+                (l) => l.id == next['leadContactId'],
+             );
+          } else {
+             nextContact.value = null;
+          }
 
           // ── SYNC: Update PhoneStatusService for the CURRENT call ──────────
           if (Get.isRegistered<PhoneStatusService>()) {
@@ -443,6 +450,7 @@ class AutoDialerController extends GetxController {
 
     ever(overlayCtrl.currentQueueIndex, (_) => refreshCurrentContact());
     ever(overlayCtrl.countdown, (_) => refreshCurrentContact());
+    ever(overlayCtrl.isPaused, (_) => refreshCurrentContact());
     refreshCurrentContact();
   }
 
@@ -450,10 +458,18 @@ class AutoDialerController extends GetxController {
   // CONTROLS
   // ─────────────────────────────────────────────────────────────────
   void pauseDialing() {
-    if (status.value == 'dialing') {
+    if (status.value == 'dialing' || status.value == 'counting_down') {
       status.value = 'paused';
       if (Get.isRegistered<OverlayController>()) {
         Get.find<OverlayController>().pauseCountdown();
+      }
+    }
+  }
+
+  void resumeDialing() {
+    if (status.value == 'paused') {
+      if (Get.isRegistered<OverlayController>()) {
+        Get.find<OverlayController>().resumeCountdown();
       }
     }
   }
@@ -482,8 +498,8 @@ class AutoDialerController extends GetxController {
 
     overlayCtrl.callQueue = [
       {
-        'leadId': lead.leadId ?? '',
-        'leadContactId': lead.id ?? '',
+        'id': lead.leadId ?? '', // Parent Lead ID
+        'leadContactId': lead.id ?? '', // Specific Contact ID
         'name': lead.contact?.name ?? 'Unknown',
         'number': number,
       },

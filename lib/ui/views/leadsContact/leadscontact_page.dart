@@ -110,7 +110,7 @@ class LeadsContactPage extends GetView<LeadsContactController> {
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.themeColor.cardColor,
+        color: AppColors.themeColor.cardBgColor,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: AppColors.themeColor.bordercolror),
         boxShadow: [
@@ -280,7 +280,7 @@ class LeadsContactPage extends GetView<LeadsContactController> {
       Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: AppColors.themeColor.cardColor,
+          color: AppColors.themeColor.cardBgColor,
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(20),
             topRight: Radius.circular(20),
@@ -505,7 +505,7 @@ class LeadsContactPage extends GetView<LeadsContactController> {
       Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: AppColors.themeColor.cardColor,
+          color: AppColors.themeColor.cardBgColor,
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(20),
             topRight: Radius.circular(20),

@@ -80,7 +80,7 @@ class CustomCard extends StatelessWidget {
                   // ),
                   width: double.infinity,
                    child: Card(
-                      color: this.bgColor ?? AppColors.themeColor.cardColor,
+                      color: this.bgColor ?? AppColors.themeColor.cardBgColor,
                       margin: this.showLine ? EdgeInsets.zero : this.margin,
                       child: this.child))
             ]));

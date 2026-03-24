@@ -50,11 +50,11 @@ class LeadsPage extends GetView<LeadsController> {
                             controller.searchController.text;
                       },
                     ),
-                    const SizedBox(height: 10),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8),
-                      child: buildHorizontalDateList(),
-                    ),
+                    // const SizedBox(height: 10),
+                    // Padding(
+                    //   padding: const EdgeInsets.only(left: 8),
+                    //   child: buildHorizontalDateList(),
+                    // ),
                     const SizedBox(height: 10),
 
                     Padding(
@@ -85,8 +85,7 @@ class LeadsPage extends GetView<LeadsController> {
                               _showSortBottomSheet(context);
                             },
                           ),
-                          SizedBox(width: 5,),
-
+                          SizedBox(width: 5),
                         ],
                       ),
                     ),
@@ -105,87 +104,87 @@ class LeadsPage extends GetView<LeadsController> {
     );
   }
 
-  Widget buildHorizontalDateList() {
-    return Obx(() {
-      final dates = controller.dates;
-
-      if (dates.isEmpty) {
-        return const SizedBox(
-          height: 50,
-          child: Center(child: Text("No dates")),
-        );
-      }
-
-      return SizedBox(
-        height: 50,
-        child: ListView.builder(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          scrollDirection: Axis.horizontal,
-          itemCount: dates.length,
-          reverse: true,
-          itemBuilder: (context, index) {
-            final isSelected = controller.selectedDateIndex.value == index;
-
-            final parts = dates[index].split('/');
-            final day = int.parse(parts[0]);
-            final month = int.parse(parts[1]);
-            final year = int.parse(parts[2]);
-
-            final date = DateTime(year, month, day);
-            final dayName = DateFormat('EEE').format(date);
-            final monthName = DateFormat('MMM').format(date);
-
-            return GestureDetector(
-              onTap: () {
-                controller.selectedDateIndex.value = index;
-                controller.selectedLeadId.value = "";
-                controller.selectedDateString.value = DateFormat(
-                  'yyyy-MM-dd',
-                ).format(date);
-              },
-              child: Container(
-                width: 70,
-                margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-                decoration: BoxDecoration(
-                  color:
-                      isSelected
-                          ? AppColors.themeColor.primaryColor
-                          : AppColors.themeColor.primaryColor.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      '$day $monthName',
-                      style: TextStyle(
-                        fontSize: 9,
-                        color:
-                            isSelected
-                                ? Colors.white
-                                : AppColors.themeColor.textPrimaryColor,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      dayName.toUpperCase(),
-                      style: TextStyle(
-                        fontSize: 9,
-                        color:
-                            isSelected
-                                ? Colors.white
-                                : AppColors.themeColor.textPrimaryColor,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        ),
-      );
-    });
-  }
+  // Widget buildHorizontalDateList() {
+  //   return Obx(() {
+  //     final dates = controller.dates;
+  //
+  //     if (dates.isEmpty) {
+  //       return const SizedBox(
+  //         height: 50,
+  //         child: Center(child: Text("No dates")),
+  //       );
+  //     }
+  //
+  //     return SizedBox(
+  //       height: 50,
+  //       child: ListView.builder(
+  //         padding: const EdgeInsets.symmetric(horizontal: 8),
+  //         scrollDirection: Axis.horizontal,
+  //         itemCount: dates.length,
+  //         reverse: true,
+  //         itemBuilder: (context, index) {
+  //           final isSelected = controller.selectedDateIndex.value == index;
+  //
+  //           final parts = dates[index].split('/');
+  //           final day = int.parse(parts[0]);
+  //           final month = int.parse(parts[1]);
+  //           final year = int.parse(parts[2]);
+  //
+  //           final date = DateTime(year, month, day);
+  //           final dayName = DateFormat('EEE').format(date);
+  //           final monthName = DateFormat('MMM').format(date);
+  //
+  //           return GestureDetector(
+  //             onTap: () {
+  //               controller.selectedDateIndex.value = index;
+  //               controller.selectedLeadId.value = "";
+  //               controller.selectedDateString.value = DateFormat(
+  //                 'yyyy-MM-dd',
+  //               ).format(date);
+  //             },
+  //             child: Container(
+  //               width: 70,
+  //               margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+  //               decoration: BoxDecoration(
+  //                 color:
+  //                     isSelected
+  //                         ? AppColors.themeColor.primaryColor
+  //                         : AppColors.themeColor.primaryColor.withOpacity(0.1),
+  //                 borderRadius: BorderRadius.circular(10),
+  //               ),
+  //               child: Column(
+  //                 mainAxisAlignment: MainAxisAlignment.center,
+  //                 children: [
+  //                   Text(
+  //                     '$day $monthName',
+  //                     style: TextStyle(
+  //                       fontSize: 9,
+  //                       color:
+  //                           isSelected
+  //                               ? Colors.white
+  //                               : AppColors.themeColor.textPrimaryColor,
+  //                     ),
+  //                   ),
+  //                   const SizedBox(height: 2),
+  //                   Text(
+  //                     dayName.toUpperCase(),
+  //                     style: TextStyle(
+  //                       fontSize: 9,
+  //                       color:
+  //                           isSelected
+  //                               ? Colors.white
+  //                               : AppColors.themeColor.textPrimaryColor,
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ),
+  //           );
+  //         },
+  //       ),
+  //     );
+  //   });
+  // }
 
   Widget LeadPaginatedListWidget(BuildContext context) {
     if (controller.pagewiseAllLeadLoadController == null) {
@@ -206,7 +205,9 @@ class LeadsPage extends GetView<LeadsController> {
                 Icon(
                   Icons.inbox_outlined,
                   size: 48,
-                  color: AppColors.themeColor.textSecondaryColor.withOpacity(0.5),
+                  color: AppColors.themeColor.textSecondaryColor.withOpacity(
+                    0.5,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 Text(
@@ -263,6 +264,9 @@ class LeadsPage extends GetView<LeadsController> {
               controller.LedadContectId(id: lead.id.toString());
             },
             child: Card(
+              elevation: 0,
+              color: Colors.grey.withOpacity(0.1),
+
               child: Padding(
                 padding: const EdgeInsets.all(14),
                 child: Column(
@@ -365,6 +369,7 @@ class LeadsPage extends GetView<LeadsController> {
                       ],
                     ),
                     const SizedBox(height: 12),
+
                     // Action Button
                     // SizedBox(
                     //   width: double.infinity,
@@ -401,7 +406,6 @@ class LeadsPage extends GetView<LeadsController> {
                     //     ),
                     //   ),
                     // ),
-
                   ],
                 ),
               ),
@@ -498,27 +502,29 @@ class LeadsPage extends GetView<LeadsController> {
                 ],
               ),
               const SizedBox(height: 10),
-              Obx(() => Row(
-                children: [
-                  Radio<String>(
-                    value: "all_time",
-                    groupValue: controller.filterType.value,
-                    onChanged: (value) {
-                      controller.filterType.value = value!;
-                    },
-                  ),
-                  const Text("All Time"),
-                  const SizedBox(width: 20),
-                  Radio<String>(
-                    value: "specific_time",
-                    groupValue: controller.filterType.value,
-                    onChanged: (value) {
-                      controller.filterType.value = value!;
-                    },
-                  ),
-                  const Text("Specific Time"),
-                ],
-              )),
+              Obx(
+                () => Row(
+                  children: [
+                    Radio<String>(
+                      value: "all_time",
+                      groupValue: controller.filterType.value,
+                      onChanged: (value) {
+                        controller.filterType.value = value!;
+                      },
+                    ),
+                    const Text("All Time"),
+                    const SizedBox(width: 20),
+                    Radio<String>(
+                      value: "specific_time",
+                      groupValue: controller.filterType.value,
+                      onChanged: (value) {
+                        controller.filterType.value = value!;
+                      },
+                    ),
+                    const Text("Specific Time"),
+                  ],
+                ),
+              ),
               const SizedBox(height: 20),
               Text(
                 "Filter by Status",
@@ -529,33 +535,38 @@ class LeadsPage extends GetView<LeadsController> {
                 ),
               ),
               const SizedBox(height: 10),
-              Obx(() => Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.themeColor.bordercolror),
-                  borderRadius: BorderRadius.circular(25),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    isExpanded: true,
-                    value: controller.status.value,
-                    items: [
-                      {"key": "all", "label": "All"},
-                      {"key": "completed", "label": "Completed"},
-                      {"key": "scheduled", "label": "Scheduled"},
-                      {"key": "pending", "label": "Pending"},
-                    ].map((status) {
-                      return DropdownMenuItem<String>(
-                        value: status["key"],
-                        child: Text(status["label"]!),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      controller.status.value = value!;
-                    },
+              Obx(
+                () => Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: AppColors.themeColor.bordercolror,
+                    ),
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      isExpanded: true,
+                      value: controller.status.value,
+                      items:
+                          [
+                            {"key": "all", "label": "All"},
+                            {"key": "completed", "label": "Completed"},
+                            {"key": "scheduled", "label": "Scheduled"},
+                            {"key": "pending", "label": "Pending"},
+                          ].map((status) {
+                            return DropdownMenuItem<String>(
+                              value: status["key"],
+                              child: Text(status["label"]!),
+                            );
+                          }).toList(),
+                      onChanged: (value) {
+                        controller.status.value = value!;
+                      },
+                    ),
                   ),
                 ),
-              )),
+              ),
               Obx(() {
                 if (controller.filterType.value == "specific_time") {
                   return Column(
@@ -567,24 +578,27 @@ class LeadsPage extends GetView<LeadsController> {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
-                          color: AppColors.themeColor.textPrimaryColor.withOpacity(0.8),
+                          color: AppColors.themeColor.textPrimaryColor
+                              .withOpacity(0.8),
                         ),
                       ),
                       const SizedBox(height: 10),
                       GestureDetector(
                         onTap: () async {
-                          final DateTimeRange? picked = await showDateRangePicker(
-                            context: context,
-                            firstDate: DateTime(2000),
-                            lastDate: DateTime(2100),
-                            initialDateRange: controller.startDate.value != null &&
-                                    controller.endDate.value != null
-                                ? DateTimeRange(
-                                    start: controller.startDate.value!,
-                                    end: controller.endDate.value!,
-                                  )
-                                : null,
-                          );
+                          final DateTimeRange? picked =
+                              await showDateRangePicker(
+                                context: context,
+                                firstDate: DateTime(2000),
+                                lastDate: DateTime(2100),
+                                initialDateRange:
+                                    controller.startDate.value != null &&
+                                            controller.endDate.value != null
+                                        ? DateTimeRange(
+                                          start: controller.startDate.value!,
+                                          end: controller.endDate.value!,
+                                        )
+                                        : null,
+                              );
                           if (picked != null) {
                             controller.startDate.value = picked.start;
                             controller.endDate.value = picked.end;
@@ -596,7 +610,9 @@ class LeadsPage extends GetView<LeadsController> {
                             vertical: 12,
                           ),
                           decoration: BoxDecoration(
-                            border: Border.all(color: AppColors.themeColor.bordercolror),
+                            border: Border.all(
+                              color: AppColors.themeColor.bordercolror,
+                            ),
                             borderRadius: BorderRadius.circular(25),
                           ),
                           child: Row(
@@ -608,14 +624,22 @@ class LeadsPage extends GetView<LeadsController> {
                                       ? "${DateFormat('yyyy-MM-dd').format(controller.startDate.value!)}   →   ${DateFormat('yyyy-MM-dd').format(controller.endDate.value!)}"
                                       : "Start date   →   End date",
                                   style: TextStyle(
-                                    color: controller.startDate.value != null
-                                        ? AppColors.themeColor.textPrimaryColor
-                                        : AppColors.themeColor.textSecondaryColor,
+                                    color:
+                                        controller.startDate.value != null
+                                            ? AppColors
+                                                .themeColor
+                                                .textPrimaryColor
+                                            : AppColors
+                                                .themeColor
+                                                .textSecondaryColor,
                                   ),
                                 ),
                               ),
-                              Icon(Icons.calendar_today_outlined,
-                                  size: 18, color: AppColors.themeColor.textSecondaryColor),
+                              Icon(
+                                Icons.calendar_today_outlined,
+                                size: 18,
+                                color: AppColors.themeColor.textSecondaryColor,
+                              ),
                             ],
                           ),
                         ),
@@ -636,12 +660,16 @@ class LeadsPage extends GetView<LeadsController> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(25),
                         ),
-                        side: BorderSide(color: AppColors.themeColor.bordercolror),
+                        side: BorderSide(
+                          color: AppColors.themeColor.bordercolror,
+                        ),
                         padding: const EdgeInsets.symmetric(vertical: 15),
                       ),
                       child: Text(
                         "Cancel",
-                        style: TextStyle(color: AppColors.themeColor.textPrimaryColor),
+                        style: TextStyle(
+                          color: AppColors.themeColor.textPrimaryColor,
+                        ),
                       ),
                     ),
                   ),
@@ -709,17 +737,19 @@ class LeadsPage extends GetView<LeadsController> {
             ),
             const SizedBox(height: 10),
             ...controller.sortOptions.entries.map((entry) {
-              return Obx(() => RadioListTile<String>(
-                title: Text(entry.value),
-                value: entry.key,
-                groupValue: controller.sortBy.value,
-                activeColor: AppColors.themeColor.primaryColor,
-                onChanged: (value) {
-                  controller.sortBy.value = value!;
-                  controller.resetAndReload();
-                  Get.back();
-                },
-              ));
+              return Obx(
+                () => RadioListTile<String>(
+                  title: Text(entry.value),
+                  value: entry.key,
+                  groupValue: controller.sortBy.value,
+                  activeColor: AppColors.themeColor.primaryColor,
+                  onChanged: (value) {
+                    controller.sortBy.value = value!;
+                    controller.resetAndReload();
+                    Get.back();
+                  },
+                ),
+              );
             }).toList(),
             const SizedBox(height: 20),
           ],

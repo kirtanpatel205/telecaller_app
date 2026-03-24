@@ -26,8 +26,14 @@ class OverlayController extends GetxController {
   final currentQueueIndex = 0.obs;
   RxBool isAutoCallMode = false.obs;
 
+  Map<String, String>? get nextLead {
+    if (callQueue.isEmpty || currentQueueIndex.value >= callQueue.length) return null;
+    return callQueue[currentQueueIndex.value];
+  }
+
   // Current lead info for API update
   String currentLeadId = "";
+  String currentLeadContactId = "";
   String currentCallSessionId = "";
   int _currentDurationSeconds = 0;
 
@@ -150,11 +156,30 @@ class OverlayController extends GetxController {
     lastCalledNumber.value = calledNumber;
     currentCallSessionId = callSessionId;
 
-    // ✅ Queue thi name + id resolve karo
-    final match = _resolveFromQueue(calledNumber);
-    lastCalledName.value = match["name"] ?? "Unknown";
-    _currentLeadIdInternal = match["id"] ?? "";
-    currentLeadId = _currentLeadIdInternal;
+    // ✅ Sync: Pre-resolve from PhoneStatusService if available
+    if (Get.isRegistered<PhoneStatusService>()) {
+      final ps = Get.find<PhoneStatusService>();
+      final psContactId = ps.currentLeadContactId;
+
+      if (psContactId != null && psContactId.isNotEmpty) {
+        final match = callQueue.firstWhereOrNull((e) => e["leadContactId"] == psContactId);
+        if (match != null) {
+          lastCalledName.value = match["name"] ?? "Unknown";
+          currentLeadId = match["id"] ?? "";
+          currentLeadContactId = match["leadContactId"] ?? psContactId;
+          print("🎯 Resolve: Used PhoneStatusService ContactId match");
+        }
+      }
+    }
+
+    // ✅ Fallback: Resolve from queue by number
+    if (lastCalledName.value == "No previous call" || lastCalledName.value == "Unknown") {
+      final match = _resolveFromQueue(calledNumber);
+      lastCalledName.value = match["name"] ?? "Unknown";
+      currentLeadId = match["id"] ?? "";
+      currentLeadContactId = match["leadContactId"] ?? "";
+      print("🎯 Resolve: Used Number lookup fallback");
+    }
 
     print(
       "✅ onCallEnded: number=$calledNumber | name=${lastCalledName.value} | id=$currentLeadId",
@@ -163,11 +188,6 @@ class OverlayController extends GetxController {
     // After call ends, overlay shows up.
     // currentQueueIndex is already pointing to the NEXT person.
     startCountdown(seconds: 10, isPreCall: false);
-
-    // Update currentLeadId for Socket emitCallEnd if it was missing
-    if (currentLeadId.isEmpty && _currentLeadIdInternal.isNotEmpty) {
-      currentLeadId = _currentLeadIdInternal;
-    }
   }
 
   String _currentLeadIdInternal = "";
@@ -246,8 +266,9 @@ class OverlayController extends GetxController {
 
     currentQueueIndex.value++;
     
-    // Set currentLeadId for socket
+    // Set IDs for socket/APIs
     currentLeadId = next["id"] ?? "";
+    currentLeadContactId = next["leadContactId"] ?? "";
 
     // ── SYNC: Update PhoneStatusService for the next dial ─────────────────
     if (Get.isRegistered<PhoneStatusService>()) {
@@ -333,25 +354,25 @@ class OverlayController extends GetxController {
               : "no_response";
 
       print(
-        "📡 Updating lead: id=$leadId | duration=$durationInSeconds | type=$answertype",
+        "📡 Updating lead log: id=$currentLeadContactId | duration=$durationInSeconds | type=$answertype",
       );
 
       CallLeadUpdateResponseEntity response = await apiService
           .callUpdateLeadById(
             type: "outgoing",
             duration: durationInSeconds,
-            lead_id: leadId,
+            lead_id: currentLeadContactId, // 🎯 USE CONTACT ID HERE
             answertype: answertype,
           );
 
-      print("✅ Lead update: ${response.status}");
+      print("✅ Lead log update: ${response.status}");
 
       // 📤 Emit Socket Call End with actual disposition
       try {
         if (Get.isRegistered<SocketController>()) {
           await Get.find<SocketController>().emitCallEnd(
             callSessionId: currentCallSessionId,
-            leadContactId: leadId,
+            leadContactId: currentLeadContactId, // 🎯 USE CONTACT ID HERE
             duration: durationInSeconds,
             answerType: answertype,
             answer: "", // Optional answer text if needed

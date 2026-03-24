@@ -18,9 +18,11 @@ class AutoDialerPage extends GetView<AutoDialerController> {
 
     return Scaffold(
       backgroundColor: AppColors.themeColor.scaffoldBackgroundColor,
+      extendBodyBehindAppBar: true,
       appBar: CustomAppBar(
         leading: const SizedBox(),
-        title:  Text(
+        // backgroundColor: Colors.transparent,
+        title: Text(
           'Auto Dialer Pro',
           style: TextStyle(
             color: AppColors.themeColor.textPrimaryColor,
@@ -29,63 +31,76 @@ class AutoDialerPage extends GetView<AutoDialerController> {
           ),
         ),
       ),
-      body: RefreshIndicator(
-        onRefresh: () async => controller.resetLeads(),
-        child: CustomScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          slivers: [
-            // ── Stats Card ───────────────────────────────
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(
-                    isTablet ? 32 : 16, isTablet ? 32 : 16, isTablet ? 32 : 16, 0),
-                child: Column(
-                  children: [
-                    _buildPerformanceStatsCard(isTablet),
-                    const SizedBox(height: 16),
-                    _buildCurrentCallCard(isTablet),
-                    const SizedBox(height: 16),
-                    _buildDialerControlsCard(isTablet),
-                    const SizedBox(height: 16),
-                  ],
+      body: Stack(
+        children: [
+          // Background Gradient decoration
+          // Positioned(
+          //   top: -100,
+          //   right: -50,
+          //   child: Container(
+          //     width: 300,
+          //     height: 300,
+          //     decoration: BoxDecoration(
+          //       shape: BoxShape.circle,
+          //       color: Colors.indigo.withOpacity(0.05),
+          //     ),
+          //   ),
+          // ),
+
+          RefreshIndicator(
+            onRefresh: () async => controller.resetLeads(),
+            displacement: 100,
+            child: CustomScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              slivers: [
+                const SliverToBoxAdapter(child: SizedBox(height: 100)),
+
+                // ── PREMIMUM DASHBOARD ──────────────────────
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: isTablet ? 32 : 16),
+                    child: _buildPremiumDashboard(isTablet),
+                  ),
                 ),
-              ),
-            ),
 
-            // ── Lead Dropdown Card + Contact section ─────
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(
-                    isTablet ? 32 : 16, 0, isTablet ? 32 : 16, 0),
-                child: Column(
-                  children: [
-                    _buildLeadDropdownCard(isTablet),
-                    const SizedBox(height: 16),
-                  ],
+                const SliverToBoxAdapter(child: SizedBox(height: 24)),
+
+                // ── Lead Dropdown Card ─────
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: isTablet ? 32 : 16),
+                    child: _buildLeadDropdownCard(isTablet),
+                  ),
                 ),
-              ),
+
+                const SliverToBoxAdapter(child: SizedBox(height: 24)),
+
+                // ── Contact Section header (only when lead selected) ─
+                SliverToBoxAdapter(
+                  child: Obx(() {
+                    final lead = controller.selectedLeadDataset.value;
+                    if (lead == null) return const SizedBox.shrink();
+                    return Padding(
+                      padding: EdgeInsets.symmetric(horizontal: isTablet ? 32 : 16),
+                      child: Column(
+                        children: [
+                           _buildContactSectionHeader(isTablet, lead),
+                           const SizedBox(height: 12),
+                        ],
+                      ),
+                    );
+                  }),
+                ),
+
+                // ── Pagewise Contacts List ────────────────────
+                _buildContactsPaginatedSliver(isTablet),
+
+                // bottom padding
+                const SliverToBoxAdapter(child: SizedBox(height: 40)),
+              ],
             ),
-
-            // ── Contact Section header (only when lead selected) ─
-            SliverToBoxAdapter(
-              child: Obx(() {
-                final lead = controller.selectedLeadDataset.value;
-                if (lead == null) return const SizedBox.shrink();
-                return Padding(
-                  padding: EdgeInsets.fromLTRB(
-                      isTablet ? 32 : 16, 0, isTablet ? 32 : 16, 8),
-                  child: _buildContactSectionHeader(isTablet, lead),
-                );
-              }),
-            ),
-
-            // ── Pagewise Contacts List ────────────────────
-            _buildContactsPaginatedSliver(isTablet),
-
-            // bottom padding
-            const SliverToBoxAdapter(child: SizedBox(height: 32)),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -101,14 +116,14 @@ class AutoDialerPage extends GetView<AutoDialerController> {
       final isLoadingMore = controller.isLeadsLoadingMore.value;
 
       return Container(
-        padding: EdgeInsets.all(isTablet ? 24 : 16),
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: AppColors.themeColor.cardColor,
-          borderRadius: BorderRadius.circular(20),
+          color: AppColors.themeColor.cardBgColor,
+          borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: AppColors.themeColor.scaffoldBackgroundColor.withOpacity(0.5),
-              blurRadius: 20,
+              color: Colors.black.withOpacity(0.02),
+              blurRadius: 15,
               offset: const Offset(0, 8),
             ),
           ],
@@ -116,158 +131,97 @@ class AutoDialerPage extends GetView<AutoDialerController> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header row
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.indigo.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Icon(Icons.folder_open,
-                      color: Colors.indigo, size: 20),
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.indigo.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(Icons.folder_copy_rounded, color: Colors.indigo, size: 18),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      'LEAD DATASET',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.themeColor.textPrimaryColor,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 12),
-                Text(
-                  'Select Lead Dataset',
-                  style: TextStyle(
-                    fontSize: isTablet ? 16 : 14,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.themeColor.textPrimaryColor,
-                    fontFamily: 'Poppins',
+                if (leads.isNotEmpty)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.indigo.withOpacity(0.05),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      '${leads.length} Active',
+                      style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.indigo),
+                    ),
                   ),
-                ),
-                const Spacer(),
-                Text(
-                  '${leads.length} / ${controller.totalLeads.value}',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.indigo,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
               ],
             ),
             const SizedBox(height: 16),
-
-            // Dropdown
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14),
               decoration: BoxDecoration(
                 color: AppColors.themeColor.scaffoldBackgroundColor,
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: AppColors.themeColor.bordercolror),
               ),
               child: leads.isEmpty
                   ? const Padding(
                       padding: EdgeInsets.symmetric(vertical: 14),
-                      child: Center(child: CircularProgressIndicator()),
+                      child: SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2)),
                     )
                   : DropdownButtonHideUnderline(
                       child: DropdownButton<String>(
                         isExpanded: true,
                         value: selected?.id,
                         hint: Text(
-                          'Choose a dataset…',
-                          style: TextStyle(color: AppColors.themeColor.textSecondaryColor),
+                          'Select a campaign…',
+                          style: TextStyle(color: AppColors.themeColor.textSecondaryColor, fontSize: 13),
                         ),
-                        icon: const Icon(Icons.keyboard_arrow_down_rounded,
-                            color: Colors.indigo),
+                        icon: const Icon(Icons.unfold_more_rounded, color: Colors.indigo, size: 20),
                         items: [
-                          // Normal lead items
-                          ...leads.map(
-                            (lead) => DropdownMenuItem<String>(
-                              value: lead.id,
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 32,
-                                    height: 32,
-                                    decoration: BoxDecoration(
-                                      color:
-                                          Colors.indigo.withOpacity(0.08),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(Icons.folder_rounded,
-                                        color: Colors.indigo, size: 16),
+                          ...leads.map((lead) => DropdownMenuItem<String>(
+                                value: lead.id,
+                                child: Text(
+                                  lead.name ?? 'Unnamed',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 14,
+                                    color: AppColors.themeColor.textPrimaryColor,
                                   ),
-                                  const SizedBox(width: 10),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          lead.name ?? 'Unnamed',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 14,
-                                            color: AppColors.themeColor.textPrimaryColor,
-                                          ),
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        if ((lead.status ?? '').isNotEmpty)
-                                          Text(
-                                            lead.status!,
-                                            style: TextStyle(
-                                              fontSize: 11,
-                                              color: AppColors.themeColor.textSecondaryColor,
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-
-                          // Load More entry
+                                ),
+                              )),
                           if (hasMore)
                             DropdownMenuItem<String>(
                               value: '__load_more__',
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  if (isLoadingMore)
-                                    const SizedBox(
-                                      width: 18,
-                                      height: 18,
-                                      child: CircularProgressIndicator(
-                                          strokeWidth: 2),
-                                    )
-                                  else
-                                    const Icon(Icons.expand_more,
-                                        color: Colors.indigo, size: 20),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    isLoadingMore
-                                        ? 'Loading…'
-                                        : 'Load More',
-                                    style: const TextStyle(
-                                      color: Colors.indigo,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ],
+                              child: Center(
+                                child: Text(
+                                  isLoadingMore ? 'Loading…' : 'Load More',
+                                  style: const TextStyle(fontSize: 12, color: Colors.indigo, fontWeight: FontWeight.bold),
+                                ),
                               ),
                             ),
                         ],
                         onChanged: (val) {
                           if (val == null) return;
                           if (val == '__load_more__') {
-                            // Trigger next page fetch
                             controller.loadMoreLeadsForDropdown();
                             return;
                           }
-                          // Select lead
-                          final match = leads.firstWhere(
-                            (l) => l.id == val,
-                            orElse: () => leads.first,
-                          );
+                          final match = leads.firstWhere((l) => l.id == val, orElse: () => leads.first);
                           if (selected?.id == match.id) {
                             controller.clearLeadSelection();
                           } else {
@@ -277,38 +231,27 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                       ),
                     ),
             ),
-
-            // Selected lead info chip
-            if (selected != null) ...[  
+            if (selected != null) ...[
               const SizedBox(height: 12),
               Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 14, vertical: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
-                  color: AppColors.themeColor.primaryColor.withOpacity(0.1),
+                  color: Colors.indigo.withOpacity(0.05),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                      color: AppColors.themeColor.primaryColor.withOpacity(0.2)),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.check_circle,
-                        color: Colors.indigo, size: 18),
+                    const Icon(Icons.check_circle_rounded, color: Colors.indigo, size: 16),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        selected.name ?? 'Selected',
-                        style: const TextStyle(
-                          color: Colors.indigo,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 13,
-                        ),
+                        'Active: ${selected.name}',
+                        style: const TextStyle(color: Colors.indigo, fontWeight: FontWeight.bold, fontSize: 12),
                       ),
                     ),
                     GestureDetector(
                       onTap: () => controller.clearLeadSelection(),
-                      child: const Icon(Icons.close,
-                          color: Colors.indigo, size: 16),
+                      child: const Icon(Icons.close_rounded, color: Colors.indigo, size: 16),
                     ),
                   ],
                 ),
@@ -327,39 +270,53 @@ class AutoDialerPage extends GetView<AutoDialerController> {
     return Row(
       children: [
         Container(
-          padding: const EdgeInsets.all(8),
+          width: 40,
+          height: 40,
           decoration: BoxDecoration(
-            color: Colors.green.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(10),
+            color: Colors.indigo.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12),
           ),
-          child: const Icon(Icons.contact_phone, color: Colors.green, size: 20),
+          child: const Icon(Icons.people_alt_rounded, color: Colors.indigo, size: 20),
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: Text(
-            'Contacts — ${lead.name ?? ''}',
-            style: TextStyle(
-              fontSize: isTablet ? 18 : 16,
-              fontWeight: FontWeight.bold,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'CONTACT QUEUE',
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.themeColor.textSecondaryColor,
+                  letterSpacing: 1.5,
+                ),
+              ),
+              Text(
+                lead.name ?? 'Dataset',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
                   color: AppColors.themeColor.textPrimaryColor,
-              fontFamily: 'Poppins',
-            ),
-            overflow: TextOverflow.ellipsis,
+                  fontFamily: 'Poppins',
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
           ),
         ),
         Obx(() => Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: Colors.green.withOpacity(0.1),
+                color: Colors.indigo.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
-                '${controller.contactQueue.length} / ${controller.totalContacts.value}',
+                '${controller.totalContacts.value} Reachable',
                 style: const TextStyle(
-                  fontSize: 12,
+                  fontSize: 11,
                   fontWeight: FontWeight.bold,
-                  color: Colors.green,
+                  color: Colors.indigo,
                 ),
               ),
             )),
@@ -394,7 +351,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
             child: Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-        color: AppColors.themeColor.cardColor,
+        color: AppColors.themeColor.cardBgColor,
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Column(
@@ -433,104 +390,146 @@ class AutoDialerPage extends GetView<AutoDialerController> {
               const SizedBox(height: 24),
             ],
           ),
-          itemBuilder:
-              (context, LeadContactIdLeadContacts lead, int index) {
+          itemBuilder: (context, LeadContactIdLeadContacts lead, int index) {
             return Obx(() {
-              final isCurrent =
-                  controller.currentContact.value?.id == lead.id;
+              final isCurrent = controller.currentContact.value?.id == lead.id;
+              final String name = lead.contact?.name ?? 'Unknown';
+              final String phone = lead.contact?.phone ?? 'No phone';
+              final String status = lead.status ?? '';
+
               return Padding(
-                padding: EdgeInsets.fromLTRB(hPad, 0, hPad, 10),
-                child: Container(
-                  padding: const EdgeInsets.all(14),
+                padding: EdgeInsets.fromLTRB(hPad, 0, hPad, 12),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: isCurrent
-                        ? Colors.green.withOpacity(0.08)
-                        : AppColors.themeColor.cardColor,
-                    borderRadius: BorderRadius.circular(14),
+                        ? AppColors.themeColor.primaryColor.withOpacity(0.05)
+                        : AppColors.themeColor.cardBgColor,
+                    borderRadius: BorderRadius.circular(20),
                     border: Border.all(
                       color: isCurrent
-                          ? Colors.green.withOpacity(0.4)
-                          : AppColors.themeColor.bordercolror,
+                          ? AppColors.themeColor.primaryColor.withOpacity(0.3)
+                          : AppColors.themeColor.bordercolror.withOpacity(0.5),
+                      width: isCurrent ? 1.5 : 1,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.themeColor.scaffoldBackgroundColor.withOpacity(0.5),
-                        blurRadius: 8,
-                        offset: const Offset(0, 3),
+                        color: isCurrent
+                            ? AppColors.themeColor.primaryColor.withOpacity(0.1)
+                            : Colors.black.withOpacity(0.03),
+                        blurRadius: 15,
+                        offset: const Offset(0, 8),
                       ),
                     ],
                   ),
                   child: Row(
                     children: [
-                      CircleAvatar(
-                        backgroundColor: isCurrent
-                            ? Colors.green.withOpacity(0.15)
-                            : AppColors.themeColor.primaryColor.withOpacity(0.1),
-                        child: Text(
-                          (lead.contact?.name ?? '?')[0].toUpperCase(),
-                          style: TextStyle(
-                                color:
-                                    isCurrent ? Colors.green : AppColors.themeColor.primaryColor,
-                            fontWeight: FontWeight.bold,
+                      // Modern Avatar
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: isCurrent
+                                ? [const Color(0xFF6366F1), const Color(0xFF4F46E5)]
+                                : [Colors.grey.shade200, Colors.grey.shade100],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            if (isCurrent)
+                              BoxShadow(
+                                color: const Color(0xFF6366F1).withOpacity(0.3),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              ),
+                          ],
+                        ),
+                        child: Center(
+                          child: Text(
+                            name[0].toUpperCase(),
+                            style: TextStyle(
+                              color: isCurrent ? Colors.white : AppColors.themeColor.textPrimaryColor,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              fontFamily: 'Poppins',
+                            ),
                           ),
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 16),
+                      // Information
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              lead.contact?.name ?? 'Unknown',
+                              name,
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: AppColors.themeColor.textPrimaryColor,
-                                fontSize: 14,
+                                fontSize: 15,
+                                fontFamily: 'Poppins',
+                                letterSpacing: 0.2,
                               ),
                             ),
-                            const SizedBox(height: 2),
-                            Text(
-                              lead.contact?.phone ?? 'No phone',
-                              style: TextStyle(
-                                color: Colors.blueGrey[500],
-                                fontSize: 13,
-                              ),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Icon(Icons.phone_outlined, size: 12, color: AppColors.themeColor.textSecondaryColor),
+                                const SizedBox(width: 4),
+                                Text(
+                                  phone,
+                                  style: TextStyle(
+                                    color: AppColors.themeColor.textSecondaryColor,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
                             ),
-                            if ((lead.status ?? '').isNotEmpty)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 4),
+                            if (status.isNotEmpty) ...[
+                              const SizedBox(height: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: Colors.orange.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
                                 child: Text(
-                                  lead.status!,
+                                  status,
                                   style: const TextStyle(
-                                    fontSize: 11,
+                                    fontSize: 10,
                                     color: Colors.orange,
-                                    fontWeight: FontWeight.w600,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 0.5,
                                   ),
                                 ),
                               ),
+                            ],
                           ],
                         ),
                       ),
-                      GestureDetector(
-                        onTap: () => controller.makeManualCall(lead),
-                        child: Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: Colors.green.withOpacity(0.1),
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppColors.themeColor.textSecondaryColor.withOpacity(0.1),
-                                blurRadius: 8,
-                                offset: const Offset(0, 3),
-                              ),
-                            ],
-                          ),
-                          child: const Icon(
-                            Icons.call,
-                            color: Colors.green,
-                            size: 20,
+                      // Action Button
+                      Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () => controller.makeManualCall(lead),
+                          borderRadius: BorderRadius.circular(14),
+                          child: Container(
+                            width: 44,
+                            height: 44,
+                            decoration: BoxDecoration(
+                              color: Colors.green.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            child: const Icon(
+                              Icons.call_rounded,
+                              color: Colors.green,
+                              size: 22,
+                            ),
                           ),
                         ),
                       ),
@@ -548,71 +547,100 @@ class AutoDialerPage extends GetView<AutoDialerController> {
   // ─────────────────────────────────────────────
   // PERFORMANCE STATS CARD
   // ─────────────────────────────────────────────
-  Widget _buildPerformanceStatsCard(bool isTablet) {
+  Widget _buildPremiumDashboard(bool isTablet) {
     return Container(
-      padding: EdgeInsets.all(isTablet ? 24 : 20),
       decoration: BoxDecoration(
-        color: AppColors.themeColor.cardColor,
-        borderRadius: BorderRadius.circular(20),
+        color: AppColors.themeColor.cardBgColor,
+        borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(
-            color: AppColors.themeColor.textSecondaryColor.withOpacity(0.04),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 30,
+            offset: const Offset(0, 15),
           ),
         ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildPerformanceStatsCard(isTablet),
+          const Divider(height: 1, indent: 20, endIndent: 20),
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: _buildCurrentCallCard(isTablet),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+            child: _buildDialerControlsCard(isTablet),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPerformanceStatsCard(bool isTablet) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      child: Column(
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.indigo.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(Icons.analytics_outlined,
-                    color: AppColors.themeColor.primaryColor, size: 20),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                'Performance',
-                style: TextStyle(
-                  fontSize: isTablet ? 18 : 16,
-                  fontWeight: FontWeight.bold,
+              Row(
+                children: [
+                  Container(
+                    width: 4,
+                    height: 16,
+                    decoration: BoxDecoration(
+                      color: AppColors.themeColor.primaryColor,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'CAMPAIGN PERFORMANCE',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
                       color: AppColors.themeColor.textPrimaryColor,
-                  fontFamily: 'Poppins',
-                ),
+                      letterSpacing: 1.5,
+                      fontFamily: 'Poppins',
+                    ),
+                  ),
+                ],
               ),
+              Obx(() {
+                final total = controller.totalAttempts.value;
+                final succ = controller.successful.value;
+                final rate = total > 0 ? (succ / total * 100).toStringAsFixed(1) : "0.0";
+                return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Colors.green.withOpacity(0.1), Colors.green.withOpacity(0.2)],
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.green.withOpacity(0.2)),
+                  ),
+                  child: Text(
+                    'Success Rate: $rate%',
+                    style: const TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green,
+                    ),
+                  ),
+                );
+              }),
             ],
           ),
-          SizedBox(height: isTablet ? 24 : 20),
+          const SizedBox(height: 24),
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Expanded(
-                  child: _buildStatItem(
-                      'Attempts', controller.totalAttempts, isTablet, Colors.indigo)),
-              Container(width: 1, height: 40, color: AppColors.themeColor.bordercolror),
-              Expanded(
-                  child: _buildStatItem(
-                      'Connected', controller.connected, isTablet, Colors.green)),
-            ],
-          ),
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 12),
-            child: Divider(),
-          ),
-          Row(
-            children: [
-              Expanded(
-                  child: _buildStatItem(
-                      'Successful', controller.successful, isTablet, Colors.blue)),
-              Container(width: 1, height: 40, color: AppColors.themeColor.bordercolror),
-              Expanded(
-                  child: _buildStatItem(
-                      'Failed', controller.failed, isTablet, Colors.red)),
+              _buildModernStatItem('Total', controller.totalAttempts, Icons.call_outlined, const Color(0xFF6366F1)),
+              _buildModernStatItem('Conn.', controller.connected, Icons.phone_callback_outlined, const Color(0xFF10B981)),
+              _buildModernStatItem('Succ.', controller.successful, Icons.star_outline_rounded, const Color(0xFFF59E0B)),
+              _buildModernStatItem('Failed', controller.failed, Icons.error_outline_rounded, const Color(0xFFEF4444)),
             ],
           ),
         ],
@@ -620,28 +648,34 @@ class AutoDialerPage extends GetView<AutoDialerController> {
     );
   }
 
-  Widget _buildStatItem(
-      String label, RxInt value, bool isTablet, Color color) {
+  Widget _buildModernStatItem(String label, RxInt value, IconData icon, Color color) {
     return Column(
       children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: isTablet ? 13 : 12,
-            color: Colors.blueGrey[500],
-            fontWeight: FontWeight.w500,
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            shape: BoxShape.circle,
           ),
+          child: Icon(icon, size: 20, color: color),
         ),
-        const SizedBox(height: 4),
-        Obx(
-          () => Text(
-            value.value.toString(),
-            style: TextStyle(
-              fontSize: isTablet ? 24 : 20,
-              fontWeight: FontWeight.bold,
-              color: color,
-              fontFamily: 'Poppins',
-            ),
+        const SizedBox(height: 10),
+        Obx(() => Text(
+              value.value.toString(),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppColors.themeColor.textPrimaryColor,
+                fontFamily: 'Poppins',
+              ),
+            )),
+        Text(
+          label.toUpperCase(),
+          style: TextStyle(
+            fontSize: 9,
+            fontWeight: FontWeight.bold,
+            color: AppColors.themeColor.textSecondaryColor,
+            letterSpacing: 1,
           ),
         ),
       ],
@@ -654,48 +688,88 @@ class AutoDialerPage extends GetView<AutoDialerController> {
   Widget _buildCurrentCallCard(bool isTablet) {
     return Obx(() {
       final lead = controller.currentContact.value;
-      final isDialing = controller.status.value == 'dialing';
+      final nextLead = controller.nextContact.value;
+      final status = controller.status.value;
+      final isDialing = status == 'dialing';
+      final isSettled = status == 'settled';
+      final isCountdown = status == 'counting_down';
+      final cdValue = controller.countdown.value;
+
+      Color mainColor = Colors.indigo;
+      IconData icon = Icons.person;
+      String statusText = 'Ready to Start';
+
+      if (isDialing) {
+        mainColor = const Color(0xFF6366F1);
+        statusText = 'Active Call';
+        icon = Icons.graphic_eq_rounded;
+      } else if (isSettled) {
+        mainColor = const Color(0xFF10B981);
+        statusText = 'Settled';
+        icon = Icons.check_circle_rounded;
+      } else if (isCountdown) {
+        mainColor = const Color(0xFFF59E0B);
+        statusText = 'Next in $cdValue';
+        icon = Icons.timer_rounded;
+      } else if (status == 'paused') {
+        mainColor = const Color(0xFF64748B);
+        statusText = 'Paused';
+        icon = Icons.pause_circle_rounded;
+      }
 
       return AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        padding: EdgeInsets.all(isTablet ? 24 : 20),
+        duration: const Duration(milliseconds: 500),
+        padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
           gradient: LinearGradient(
-            colors: isDialing
-                ? [const Color(0xFF6366F1), const Color(0xFF4F46E5)]
-                : [AppColors.themeColor.cardColor, AppColors.themeColor.cardColor],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
+            colors: [
+              mainColor.withOpacity(0.05),
+              mainColor.withOpacity(0.15),
+            ],
           ),
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: isDialing
-                  ? Colors.indigo.withOpacity(0.3)
-                  : AppColors.themeColor.textSecondaryColor.withOpacity(0.04),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            ),
-          ],
+          border: Border.all(
+            color: mainColor.withOpacity(0.2),
+            width: 1.5,
+          ),
         ),
         child: Column(
           children: [
             Row(
               children: [
-                Container(
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    color: isDialing
-                        ? Colors.white.withOpacity(0.2)
-                        : AppColors.themeColor.scaffoldBackgroundColor,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.person,
-                    color: isDialing ? Colors.white : Colors.indigo,
-                    size: 28,
-                  ),
+                Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    if (isDialing)
+                       TweenAnimationBuilder(
+                        tween: Tween(begin: 0.0, end: 1.0),
+                        duration: const Duration(seconds: 1),
+                        builder: (context, double value, child) {
+                          return Container(
+                            width: 50 + (value * 20),
+                            height: 50 + (value * 20),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: mainColor.withOpacity(0.2 * (1 - value)),
+                                width: 2,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: mainColor.withOpacity(0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(icon, color: mainColor, size: 26),
+                    ),
+                  ],
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -703,57 +777,27 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        isDialing
-                            ? 'Currently Calling'
-                            : controller.status.value == 'paused'
-                                ? 'Dialing Paused'
-                                : controller.countdown.value > 0
-                                    ? 'Next Call In'
-                                    : 'Next in Queue',
+                        statusText.toUpperCase(),
                         style: TextStyle(
-                          color: isDialing
-                              ? Colors.white70
-                              : AppColors.themeColor.primaryColor,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 0.5,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: mainColor,
+                          letterSpacing: 1.5,
                         ),
                       ),
+                      const SizedBox(height: 4),
                       Text(
-                        lead?.contact?.name ?? 'No active lead',
+                        lead?.contact?.name ?? 'Select a Lead',
                         style: TextStyle(
-                          color: isDialing
-                              ? Colors.white
-                              : AppColors.themeColor.textPrimaryColor,
-                          fontSize: isTablet ? 20 : 18,
+                          fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          fontFamily: 'Poppins',
+                          color: AppColors.themeColor.textPrimaryColor,
                         ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
                 ),
-                if (isDialing)
-                  const Icon(Icons.graphic_eq, color: Colors.white, size: 24),
-                if (!isDialing && controller.countdown.value > 0)
-                  Container(
-                    width: 40,
-                    height: 40,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: Colors.indigo.withOpacity(0.1),
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.indigo, width: 2),
-                    ),
-                    child: Text(
-                      '${controller.countdown.value}',
-                      style: const TextStyle(
-                        color: Colors.indigo,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
-                    ),
-                  ),
               ],
             ),
             if (lead != null) ...[
@@ -761,47 +805,59 @@ class AutoDialerPage extends GetView<AutoDialerController> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
-                  color: isDialing
-                      ? Colors.white.withOpacity(0.1)
-                      : AppColors.themeColor.scaffoldBackgroundColor,
+                  color: Colors.white.withOpacity(0.3),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: isDialing
-                        ? Colors.white.withOpacity(0.2)
-                        : AppColors.themeColor.bordercolror,
-                  ),
+                  border: Border.all(color: Colors.white.withOpacity(0.5)),
                 ),
                 child: Row(
                   children: [
-                    Icon(
-                      Icons.phone_in_talk,
-                      color: isDialing ? Colors.white : Colors.green,
-                      size: 18,
-                    ),
-                    const SizedBox(width: 12),
+                    Icon(Icons.phone_iphone_rounded, size: 16, color: mainColor),
+                    const SizedBox(width: 10),
                     Text(
                       lead.contact?.phone ?? 'N/A',
                       style: TextStyle(
-                        color: isDialing
-                            ? Colors.white
-                            : AppColors.themeColor.textSecondaryColor,
-                        fontWeight: FontWeight.bold,
                         fontSize: 15,
-                        letterSpacing: 1,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.themeColor.textSecondaryColor,
+                        letterSpacing: 0.5,
                       ),
                     ),
                     const Spacer(),
                     if (isDialing)
-                      Obx(() => Text(
-                            controller.callTimer.value,
-                            style: TextStyle(
-                      color: AppColors.themeColor.cardColor,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'monospace',
-                            ),
-                          )),
+                      Text(
+                        controller.callTimer.value,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: mainColor,
+                          fontFamily: 'monospace',
+                        ),
+                      ),
                   ],
                 ),
+              ),
+            ],
+            if (nextLead != null && !isDialing) ...[
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  const Text(
+                    'NEXT: ',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  Text(
+                    nextLead.contact?.name ?? 'Unknown',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.themeColor.textPrimaryColor.withOpacity(0.7),
+                    ),
+                  ),
+                ],
               ),
             ],
           ],
@@ -814,151 +870,103 @@ class AutoDialerPage extends GetView<AutoDialerController> {
   // DIALER CONTROLS CARD
   // ─────────────────────────────────────────────
   Widget _buildDialerControlsCard(bool isTablet) {
-    return Container(
-      padding: EdgeInsets.all(isTablet ? 24 : 20),
-      decoration: BoxDecoration(
-        color: AppColors.themeColor.cardColor,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.themeColor.textSecondaryColor.withOpacity(0.04),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return Obx(() {
+      final status = controller.status.value;
+      final isIdle = status == 'idle';
+      final isPaused = status == 'paused';
+
+      return Column(
         children: [
-          Text(
-            'Dialer Status',
-            style: TextStyle(
-              fontSize: isTablet ? 18 : 16,
-              fontWeight: FontWeight.bold,
-              color: AppColors.themeColor.textPrimaryColor,
-              fontFamily: 'Poppins',
-            ),
-          ),
-          const SizedBox(height: 20),
-          // Status indicator
-          Obx(() => Container(
-                padding: const EdgeInsets.all(16),
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: controller.status.value == 'dialing'
-                      ? Colors.blue.withOpacity(0.05)
-                      : AppColors.themeColor.scaffoldBackgroundColor,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: controller.status.value == 'dialing'
-                        ? Colors.blue.withOpacity(0.2)
-                        : AppColors.themeColor.bordercolror,
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 12,
-                      height: 12,
-                      decoration: BoxDecoration(
-                        color: controller.status.value == 'dialing'
-                            ? Colors.green
-                            : Colors.blueGrey[400],
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          if (controller.status.value == 'dialing')
-                            BoxShadow(
-                              color: AppColors.themeColor.textSecondaryColor.withOpacity(0.04),
-                              blurRadius: 8,
-                              spreadRadius: 2,
-                            ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      controller.status.value.toUpperCase(),
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.2,
-                        color: controller.status.value == 'dialing'
-                            ? Colors.blue
-                            : AppColors.themeColor.textSecondaryColor,
-                      ),
-                    ),
-                    const Spacer(),
-                    if (controller.status.value == 'dialing')
-                      Obx(() => Text(
-                            controller.callTimer.value,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'monospace',
-                            ),
-                          )),
-                  ],
-                ),
-              )),
-          const SizedBox(height: 24),
-          // Start button
-          SizedBox(
-            width: double.infinity,
-            height: 56,
-            child: Obx(() => ElevatedButton.icon(
-                  onPressed: controller.status.value == 'dialing'
-                      ? null
-                      : () => controller.startDialing(),
-                  icon: const Icon(Icons.play_arrow_rounded,
-                      color: Colors.white, size: 28),
-                  label: const Text(
-                    'Start Auto Dialer',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.indigo,
-                    disabledBackgroundColor: Colors.blueGrey[300],
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16)),
-                    elevation: 0,
-                  ),
-                )),
-          ),
-          const SizedBox(height: 12),
-          // Pause / Stop row
           Row(
             children: [
+              // MAIN ACTION BUTTON (Start / Pause / Resume)
               Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () => controller.pauseDialing(),
-                  icon: const Icon(Icons.pause_rounded, size: 20),
-                  label: const Text('Pause'),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
-                  ),
-                ),
+                flex: 2,
+                child: isIdle
+                    ? (controller.selectedLeadDataset.value != null
+                        ? _buildPremiumButton(
+                            onTap: () => controller.startDialing(),
+                            label: 'START DIALER',
+                            icon: Icons.rocket_launch_rounded,
+                            gradient: const [Color(0xFF6366F1), Color(0xFF4F46E5)],
+                          )
+                        : const SizedBox.shrink()) // Hide if no lead selected
+                    : _buildPremiumButton(
+                        onTap: () {
+                          if (isPaused) {
+                            controller.resumeDialing();
+                          } else {
+                            controller.pauseDialing();
+                          }
+                        },
+                        label: isPaused ? 'RESUME' : 'PAUSE',
+                        icon: isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded,
+                        gradient: isPaused
+                            ? const [Color(0xFF10B981), Color(0xFF059669)]
+                            : const [Color(0xFFF59E0B), Color(0xFFD97706)],
+                      ),
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () => controller.stopDialing(),
-                  icon: const Icon(Icons.stop_rounded,
-                      size: 20, color: Colors.red),
-                  label: const Text('Stop',
-                      style: TextStyle(color: Colors.red)),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
-                  ),
+              if (!isIdle) ...[
+                const SizedBox(width: 12),
+                // STOP BUTTON
+                _buildPremiumButton(
+                  onTap: () => controller.stopDialing(),
+                  label: 'STOP',
+                  icon: Icons.stop_rounded,
+                  gradient: const [Color(0xFFEF4444), Color(0xFFDC2626)],
+                  width: 100,
                 ),
-              ),
+              ],
             ],
           ),
         ],
+      );
+    });
+  }
+
+  Widget _buildPremiumButton({
+    required VoidCallback onTap,
+    required String label,
+    required IconData icon,
+    required List<Color> gradient,
+    double? width,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 56,
+        width: width,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: gradient,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: gradient.first.withOpacity(0.3),
+              blurRadius: 12,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: Colors.white, size: 22),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+                letterSpacing: 1,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

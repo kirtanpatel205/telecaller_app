@@ -143,7 +143,7 @@ class EditProfilePage extends GetView<EditProfileController> {
                                             width: 100.w,
                                             decoration: BoxDecoration(
                                                 color: AppColors
-                                                    .themeColor.cardColor,
+                                                    .themeColor.cardBgColor,
                                                 borderRadius: BorderRadius.only(
                                                     topLeft:
                                                         Radius.circular(20),
@@ -406,12 +406,14 @@ class EditProfilePage extends GetView<EditProfileController> {
                           }
 
                           return Card(
+                            color: AppColors.themeColor.cardBgColor,
+                            elevation: 0,
                             child: DropdownButton<String>(
                               padding: const EdgeInsets.symmetric(horizontal: 8),
                               value: selectedCode,
                               isExpanded: true,
                               underline: Container(),
-                              dropdownColor: AppColors.themeColor.cardColor,
+                              dropdownColor: AppColors.themeColor.cardBgColor,
                               hint: Text("Select Country".tr),
 
                               items: countries.map((country) {

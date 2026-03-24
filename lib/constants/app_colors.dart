@@ -16,6 +16,7 @@ class AppColors {
         otpRightColor: Color(0xFF00C853),
         otpWrongColor: Color(0xFFD50000),
         cardColor: Color(0xFFFFFFFF),
+        cardBgColor: Colors.grey.withOpacity(0.1),
         callPendingColor: Color(0xFFFF9871),
         closeLeadsColor: Color(0xFF029A95),
         totalOrderColor: Color(0xFFFFB64D),
@@ -56,6 +57,7 @@ class AppColors {
         otpRightColor: Color(0xFF00C853),
         otpWrongColor: Color(0xFFD50000),
         cardColor: Color(0xFF000000),
+        cardBgColor: Colors.grey.withOpacity(0.1),
         callPendingColor: Color(0xFFFF9871),
         closeLeadsColor: Color(0xFF029A95),
         totalOrderColor: Color(0xFFFFB64D),
@@ -94,6 +96,7 @@ class ThemeColor {
   Color otpRightColor;
   Color otpWrongColor;
   Color cardColor;
+  Color cardBgColor;
   Color totalOrderColor;
   Color closeLeadsColor;
   Color callPendingColor;
@@ -133,6 +136,7 @@ class ThemeColor {
     required this.otpRightColor,
     required this.otpWrongColor,
     required this.cardColor,
+    required this.cardBgColor,
     required this.bgColor,
     required this.callPendingColor,
     required this.closeLeadsColor,

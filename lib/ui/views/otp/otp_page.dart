@@ -91,8 +91,8 @@ class OtpPage extends GetView<OtpController> {
               selectedColor: AppColors.themeColor.primaryColor,
               activeColor: AppColors.themeColor.primaryColor,
               activeFillColor: AppColors.themeColor.primaryColor,
-              selectedFillColor: AppColors.themeColor.cardColor,
-              inactiveFillColor: AppColors.themeColor.cardColor,
+              selectedFillColor: AppColors.themeColor.cardBgColor,
+              inactiveFillColor: AppColors.themeColor.cardBgColor,
             ),
           ),
 

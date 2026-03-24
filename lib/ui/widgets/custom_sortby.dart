@@ -38,7 +38,7 @@ class _CustomSortbyState extends State<CustomSortby> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16.0)),
       ),
-      backgroundColor: AppColors.themeColor.cardColor,
+      backgroundColor: AppColors.themeColor.cardBgColor,
       builder: (BuildContext context) {
         // Calculate desired height dynamically
         final int itemCount = widget.items.length;
