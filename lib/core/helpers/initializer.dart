@@ -55,7 +55,6 @@ class Initializer {
 
       await Get.put<ApiService>(ApiService()).init();
       await Get.putAsync<AuthController>(() async => AuthController());
-      await Get.putAsync<FCMService>(() async => FCMService());
       await Get.putAsync<NetworkService>(() async => NetworkService());
       Get.put(SocketController());
       await Get.putAsync<ThemeService>(() async {
@@ -70,17 +69,27 @@ class Initializer {
       print('Notification setup done: $isNotificationSetup');
       print('BackgroundService setup done: $isBackgroundServiceSetup');
 
+      // ✅ Initialize services only if phone permission is granted
+
       if (isNotificationSetup) {
         var phonePermission = await Permission.phone.status;
         if (phonePermission.isGranted) {
-          Get.put<FCMService>(FCMService(), permanent: true);
-          await Get.putAsync<PhoneStatusService>(
-            () async => await PhoneStatusService().init(),
-          );
+          if (!Get.isRegistered<FCMService>()) {
+            Get.put<FCMService>(FCMService(), permanent: true);
+            await Get.find<FCMService>().init();
+          }
+
+          if (!Get.isRegistered<PhoneStatusService>()) {
+            await Get.putAsync<PhoneStatusService>(
+              () async => await PhoneStatusService().init(),
+              permanent: true,
+            );
+          }
         }
       } else {
         logger.i("app not a found fcm ");
       }
+
       if (isBackgroundServiceSetup) {
         var phonePermission = await Permission.phone.status;
 
@@ -93,18 +102,12 @@ class Initializer {
               FlutterBackgroundService().invoke('set_token', {'token': token});
             }
           } catch (e) {
-            print(
-              "⚠️ Initializer: Could not sync token to background service: $e",
-            );
+            print("⚠️ Initializer: Could not sync token: $e");
           }
         } else {
           logger.i("Phone permission not granted yet");
         }
       }
-
-      printInfo(info: '✅ All services ready');
-
-      printInfo(info: '✅ All services ready');
     } catch (err) {
       printInfo(info: '❌ Init error: $err');
       rethrow;

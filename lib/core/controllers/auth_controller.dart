@@ -62,48 +62,40 @@ class AuthController extends GetxController {
 
   Future<void> checkUserManually(LoginResponseEntity entity) async {
     if (entity.status == true) {
-      log("login success -  ${entity.token}");
-      Storage.saveToSharedPrefs(AppConstants.ISLOGGING, true);
+      log("login success - ${entity.token}");
       Storage.saveValue(AppConstants.USER_ID, entity.profile?.id);
       Storage.saveValue(AppConstants.FIRE_USER_ID, entity.profile?.id);
       await Storage.saveToken(entity.token!);
       Storage.saveValue(AppConstants.PHONE, entity.profile?.phone);
-      print(
-        "save user ${entity.profile?.id} ${entity.profile?.id} ${entity.token}",
-      );
       profile.value = entity.profile;
 
-      // Trigger Socket Connection with new token
       bool permissionsShown = Storage.getValue('permissions_shown') ?? false;
 
       if (!permissionsShown) {
         print("Showing permissions screen for first time");
-        Get.to(PermissionStatusScreen());
-      } else {
-        await Future.delayed(Duration(seconds: 2));
-
-        // Check if service is running
-        if (Get.isRegistered<SocketController>()) {
-          Get.find<SocketController>().connectWithToken(entity.token!);
-        }
-
-        // Sync token to background service so it can connect socket
-        try {
-          FlutterBackgroundService().invoke('set_token', {
-            'token': entity.token!,
-          });
-          print('🔑 Auth: Token synced to background service');
-        } catch (e) {
-          print('⚠️ Auth: Failed to sync token to background service: $e');
-        }
+        // ✅ Don't fall through — return after navigating
+        Get.to(() => PermissionStatusScreen());  // also fixed the GETX warning
+        return;
       }
-    } else {
-      print("⚠️ BackgroundService is not running!");
+
+      await Future.delayed(Duration(seconds: 2));
+
+      if (Get.isRegistered<SocketController>()) {
+        Get.find<SocketController>().connectWithToken(entity.token!);
+      }
+
+      try {
+        FlutterBackgroundService().invoke('set_token', {'token': entity.token!});
+        print('🔑 Auth: Token synced to background service');
+      } catch (e) {
+        print('⚠️ Auth: Failed to sync token to background service: $e');
+      }
     }
-    print("Permissions already shown, going to Welcome");
+
+    // ✅ Only reaches here when NOT showing permissions screen
+    print("Permissions already shown, going to Home");
     Get.offAllNamed(Routes.HOME);
   }
-
   Future refreshProfile() async {
     LoginResponseProfile profileEntity = await api.profile();
 

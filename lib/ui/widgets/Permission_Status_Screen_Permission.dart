@@ -7,6 +7,7 @@ import 'package:telecaller_app/constants/app_constants.dart';
 import 'package:telecaller_app/core/helpers/storage.dart';
 import 'package:telecaller_app/core/services/background_service_manager.dart';
 import 'package:telecaller_app/core/services/fcm_service.dart';
+import 'package:telecaller_app/core/services/phone_status_service.dart';
 import 'package:telecaller_app/main.dart';
 import '../../constants/app_routes.dart' show Routes;
 import 'common_safearea.dart';
@@ -454,8 +455,17 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
 
       try {
         await Get.put<FCMService>(FCMService()).init();
+        
+        // ✅ ADDED: Initialize PhoneStatusService once permissions are granted
+        if (!Get.isRegistered<PhoneStatusService>()) {
+          await Get.putAsync<PhoneStatusService>(
+            () async => await PhoneStatusService().init(),
+            permanent: true,
+          );
+          print("✅ PhoneStatusService initialized in PermissionScreen");
+        }
       } catch (e) {
-        print("⚠️ FCM service initialization error: $e");
+        print("⚠️ Service initialization error: $e");
       }
 
       await Future.delayed(Duration(milliseconds: 1000));
