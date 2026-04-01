@@ -297,8 +297,10 @@ class SettingPage extends GetView<HomeController> {
                             children: [
                               ElevatedButton.icon(
                                 onPressed:
-                                    () =>
-                                        BackgroundServiceManager.requestBatteryOptimizationExclusion(),
+                                    () {
+                                      // BackgroundServiceManager.requestBatteryOptimizationExclusion(),
+
+                                    },
                                 icon: Icon(Icons.battery_alert, size: 18),
                                 label: Text(
                                   "Disable Battery Optimization",

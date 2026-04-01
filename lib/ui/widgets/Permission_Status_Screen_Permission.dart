@@ -10,6 +10,7 @@ import 'package:telecaller_app/core/services/fcm_service.dart';
 import 'package:telecaller_app/main.dart';
 import '../../constants/app_routes.dart' show Routes;
 import 'common_safearea.dart';
+import 'dart:io'; // ✅ Added for Platform.isAndroid
 
 class PermissionStatusScreen extends StatefulWidget {
   @override
@@ -20,7 +21,7 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
     with SingleTickerProviderStateMixin {
   late Map<String, PermissionStatus> permissionStatuses;
   bool isLoading = true;
-  bool isContinuing = false; // Added to prevent double-tap
+  bool isContinuing = false;
   late AnimationController _animationController;
 
   final Map<String, List<Permission>> permissionGroups = {
@@ -46,6 +47,16 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
   void dispose() {
     _animationController.dispose();
     super.dispose();
+  }
+
+  // ✅ ADDED: Battery optimization exclusion method
+  static Future<void> requestBatteryOptimizationExclusion() async {
+    if (Platform.isAndroid) {
+      var status = await Permission.ignoreBatteryOptimizations.status;
+      if (status.isDenied) {
+        await Permission.ignoreBatteryOptimizations.request();
+      }
+    }
   }
 
   Future<void> _savePermissionsToStorage() async {
@@ -287,6 +298,9 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
 
   Future<void> _requestAllPermissions() async {
     try {
+      // ✅ ADDED: Request battery optimization exclusion first
+      await requestBatteryOptimizationExclusion();
+
       final allPermissions = <Permission>[];
       for (var group in permissionGroups.values) {
         allPermissions.addAll(group);
@@ -297,6 +311,10 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
       for (var permission in uniquePermissions) {
         try {
           final permName = permission.toString().split('.').last;
+
+          // ✅ Skip ignoreBatteryOptimizations here since already handled above
+          if (permName == 'ignoreBatteryOptimizations') continue;
+
           if (_isSensitivePermission(permName)) {
             await _showSensitivePermissionDialog(permission);
           } else {
@@ -341,17 +359,13 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
         permissionStatuses.isNotEmpty;
   }
 
-  // ✅ FIXED VERSION - Properly sends actual token value to background service
-
   Future<void> _continueToWelcome() async {
-    // Prevent double-tap
     if (isContinuing) return;
 
     if (!mounted) return;
     setState(() => isContinuing = true);
 
     try {
-      // Show loading indicator
       showDialog(
         context: context,
         barrierDismissible: false,
@@ -389,14 +403,13 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
             ),
       );
 
-      // Save permission status
       await Storage.saveValue('permissions_shown', true);
       await Storage.saveValue('notification_setup', true);
       await Storage.saveValue('backgroundService_setup', true);
 
-      // Initialize Background Service FIRST
+      // ✅ ADDED: Also ensure battery optimization is excluded during setup
+      await requestBatteryOptimizationExclusion();
 
-      // ==================== BACKGROUND SERVICE ====================
       try {
         await BackgroundServiceManager.initializeService();
         logger.i("✅ Background service initialized");
@@ -404,10 +417,8 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
         logger.e("❌ Background service error: $e");
       }
 
-      // Wait for service to be ready
       await Future.delayed(Duration(seconds: 2));
 
-      // Check if service is running
       final service = FlutterBackgroundService();
       final isServiceRunning = await service.isRunning();
 
@@ -415,7 +426,6 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
 
       if (isServiceRunning) {
         try {
-          // ✅ FIX: Get the actual token value from storage
           final token = await Storage.getValue(AppConstants.TOKEN);
 
           if (token != null && token.isNotEmpty) {
@@ -423,9 +433,7 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
             print("🔑 Token length: ${token.length} chars");
             print("🔑 Token prefix: ${token.substring(0, 30)}...");
 
-            service.invoke("updateToken", {
-              "token": token, // ✅ Send actual token, not constant name
-            });
+            service.invoke("updateToken", {"token": token});
 
             print("✅ Token sent successfully");
           } else {
@@ -444,37 +452,30 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
         print("⚠️ BackgroundService is not running!");
       }
 
-      // Initialize other services
       try {
         await Get.put<FCMService>(FCMService()).init();
       } catch (e) {
         print("⚠️ FCM service initialization error: $e");
       }
 
-      // Ensure all operations complete
       await Future.delayed(Duration(milliseconds: 1000));
 
-      // Close loading dialog
       if (mounted && Navigator.canPop(context)) {
         Navigator.of(context).pop();
       }
 
-      // Navigate to home
       Get.offAllNamed(Routes.HOME);
     } catch (e) {
       print("❌ Error in continue: $e");
 
-      // Close loading dialog on error
       if (mounted && Navigator.canPop(context)) {
         Navigator.of(context).pop();
       }
 
-      // Reset continuing state
       if (mounted) {
         setState(() => isContinuing = false);
       }
 
-      // Show error message
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -495,7 +496,7 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: () async => !isContinuing, // Prevent back during setup
+      onWillPop: () async => !isContinuing,
       child: AppSafeArea(
         child: Scaffold(
           appBar: AppBar(
@@ -541,7 +542,6 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
                   )
                   : Column(
                     children: [
-                      // Header Card
                       Container(
                         margin: EdgeInsets.all(16),
                         padding: EdgeInsets.all(20),
@@ -626,7 +626,6 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
                         ),
                       ),
 
-                      // Permissions List
                       Expanded(
                         child:
                             permissionStatuses.isEmpty

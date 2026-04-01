@@ -64,14 +64,6 @@ class BackgroundServiceManager {
     service.startService();
   }
 
-  static Future<void> requestBatteryOptimizationExclusion() async {
-    if (Platform.isAndroid) {
-      var status = await Permission.ignoreBatteryOptimizations.status;
-      if (status.isDenied) {
-        await Permission.ignoreBatteryOptimizations.request();
-      }
-    }
-  }
 
   static Future<void> openManufacturerSettings() async {
     if (Platform.isAndroid) {

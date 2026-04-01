@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
 import 'package:firebase_core/firebase_core.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:telecaller_app/constants/app_constants.dart';
 import 'package:telecaller_app/core/controllers/auth_controller.dart';
 import 'package:telecaller_app/core/helpers/storage.dart';
@@ -17,6 +18,7 @@ import 'package:telecaller_app/core/services/phone_status_service.dart';
 import 'package:telecaller_app/core/services/background_service_manager.dart';
 import 'package:telecaller_app/core/controllers/socket_controller.dart';
 import 'package:telecaller_app/core/services/theme_service.dart';
+import 'package:telecaller_app/main.dart';
 
 class Initializer {
   static final Initializer instance = Initializer._internal();
@@ -62,24 +64,45 @@ class Initializer {
         return service;
       });
 
-      // await Get.putAsync<FCMService>(() async => FCMService());
-      await Get.putAsync<PhoneStatusService>(
-        () async => await PhoneStatusService().init(),
-      );
+      bool isNotificationSetup = Storage.getValue('notification_setup') == true;
+      bool isBackgroundServiceSetup =
+          Storage.getValue('backgroundService_setup') == true;
+      print('Notification setup done: $isNotificationSetup');
+      print('BackgroundService setup done: $isBackgroundServiceSetup');
 
-      // Request background reliability permissions
-      await BackgroundServiceManager.requestBatteryOptimizationExclusion();
-
-      // Sync token to background service if it exists
-      try {
-        final token = await Storage.getToken();
-        if (token != null && token.isNotEmpty) {
-          print("🔑 Initializer: Syncing token to background service...");
-          FlutterBackgroundService().invoke('set_token', {'token': token});
+      if (isNotificationSetup) {
+        var phonePermission = await Permission.phone.status;
+        if (phonePermission.isGranted) {
+          Get.put<FCMService>(FCMService(), permanent: true);
+          await Get.putAsync<PhoneStatusService>(
+            () async => await PhoneStatusService().init(),
+          );
         }
-      } catch (e) {
-        print("⚠️ Initializer: Could not sync token to background service: $e");
+      } else {
+        logger.i("app not a found fcm ");
       }
+      if (isBackgroundServiceSetup) {
+        var phonePermission = await Permission.phone.status;
+
+        if (phonePermission.isGranted) {
+          await BackgroundServiceManager.initializeService();
+          try {
+            final token = await Storage.getToken();
+            if (token != null && token.isNotEmpty) {
+              print("🔑 Initializer: Syncing token to background service...");
+              FlutterBackgroundService().invoke('set_token', {'token': token});
+            }
+          } catch (e) {
+            print(
+              "⚠️ Initializer: Could not sync token to background service: $e",
+            );
+          }
+        } else {
+          logger.i("Phone permission not granted yet");
+        }
+      }
+
+      printInfo(info: '✅ All services ready');
 
       printInfo(info: '✅ All services ready');
     } catch (err) {

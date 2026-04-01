@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:telecaller_app/constants/app_constants.dart';
 import 'package:telecaller_app/constants/app_routes.dart';
 import 'package:telecaller_app/core/models/login_response_entity.dart';
+import 'package:telecaller_app/ui/widgets/Permission_Status_Screen_Permission.dart';
 
 import '../controllers/socket_controller.dart';
 import '../helpers/storage.dart';
@@ -19,27 +20,26 @@ class AuthController extends GetxController {
 
   bool get isSignedIn =>
       Storage.hasData(AppConstants.USER_ID) &&
-          GetStorage().hasData(AppConstants.TOKEN);
+      GetStorage().hasData(AppConstants.TOKEN);
 
   ApiService api = Get.find();
 
-  Rx<PhoneNumber> phoneNumber = Rx<PhoneNumber>(PhoneNumber(
-    countryISOCode: 'IN',
-    countryCode: '+91',
-    number: '',
-  ));
+  Rx<PhoneNumber> phoneNumber = Rx<PhoneNumber>(
+    PhoneNumber(countryISOCode: 'IN', countryCode: '+91', number: ''),
+  );
 
   void storePhoneNumber(PhoneNumber phoneNumber) {
     this.phoneNumber.value = phoneNumber;
     GetStorage().write(AppConstants.PHONE, {
       'countryISOCode': phoneNumber.countryISOCode,
       'countryCode': phoneNumber.countryCode,
-      'number': phoneNumber.number
+      'number': phoneNumber.number,
     });
   }
 
-  Rx<LoginResponseProfile?> profile =
-  Rx<LoginResponseProfile?>(LoginResponseProfile());
+  Rx<LoginResponseProfile?> profile = Rx<LoginResponseProfile?>(
+    LoginResponseProfile(),
+  );
 
   @override
   void onInit() {
@@ -60,7 +60,6 @@ class AuthController extends GetxController {
     super.onClose();
   }
 
-
   Future<void> checkUserManually(LoginResponseEntity entity) async {
     if (entity.status == true) {
       log("login success -  ${entity.token}");
@@ -70,25 +69,39 @@ class AuthController extends GetxController {
       await Storage.saveToken(entity.token!);
       Storage.saveValue(AppConstants.PHONE, entity.profile?.phone);
       print(
-          "save user ${entity.profile?.id} ${entity.profile?.id} ${entity.token}");
+        "save user ${entity.profile?.id} ${entity.profile?.id} ${entity.token}",
+      );
       profile.value = entity.profile;
 
       // Trigger Socket Connection with new token
-      if (Get.isRegistered<SocketController>()) {
-        Get.find<SocketController>().connectWithToken(entity.token!);
+      bool permissionsShown = Storage.getValue('permissions_shown') ?? false;
+
+      if (!permissionsShown) {
+        print("Showing permissions screen for first time");
+        Get.to(PermissionStatusScreen());
+      } else {
+        await Future.delayed(Duration(seconds: 2));
+
+        // Check if service is running
+        if (Get.isRegistered<SocketController>()) {
+          Get.find<SocketController>().connectWithToken(entity.token!);
+        }
+
+        // Sync token to background service so it can connect socket
+        try {
+          FlutterBackgroundService().invoke('set_token', {
+            'token': entity.token!,
+          });
+          print('🔑 Auth: Token synced to background service');
+        } catch (e) {
+          print('⚠️ Auth: Failed to sync token to background service: $e');
+        }
       }
-
-      // Sync token to background service so it can connect socket
-      try {
-        FlutterBackgroundService().invoke('set_token', {'token': entity.token!});
-        print('🔑 Auth: Token synced to background service');
-      } catch (e) {
-        print('⚠️ Auth: Failed to sync token to background service: $e');
-      }
-
-      Get.offAllNamed(Routes.HOME);
-
+    } else {
+      print("⚠️ BackgroundService is not running!");
     }
+    print("Permissions already shown, going to Welcome");
+    Get.offAllNamed(Routes.HOME);
   }
 
   Future refreshProfile() async {
