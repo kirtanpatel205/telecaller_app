@@ -9,6 +9,7 @@ import 'package:telecaller_app/core/models/api_response_entity.dart';
 import 'package:telecaller_app/core/models/call_chart_entity.dart';
 import 'package:telecaller_app/core/models/call_lead_update_response_entity.dart';
 import 'package:telecaller_app/core/models/get_static_entity.dart';
+import 'package:telecaller_app/core/models/language_entity.dart';
 import 'package:telecaller_app/core/models/lead_chart_entity.dart';
 import 'package:telecaller_app/core/models/lead_contact_id_entity.dart';
 import 'package:telecaller_app/core/models/login_response_entity.dart';
@@ -229,6 +230,10 @@ class JsonConvert {
       return data.map<GetStaticStatistics>((Map<String, dynamic> e) =>
           GetStaticStatistics.fromJson(e)).toList() as M;
     }
+    if (<LanguageEntity>[] is M) {
+      return data.map<LanguageEntity>((Map<String, dynamic> e) =>
+          LanguageEntity.fromJson(e)).toList() as M;
+    }
     if (<LeadChartEntity>[] is M) {
       return data.map<LeadChartEntity>((Map<String, dynamic> e) =>
           LeadChartEntity.fromJson(e)).toList() as M;
@@ -337,6 +342,7 @@ class JsonConvertClassCollection {
         .fromJson,
     (GetStaticEntity).toString(): GetStaticEntity.fromJson,
     (GetStaticStatistics).toString(): GetStaticStatistics.fromJson,
+    (LanguageEntity).toString(): LanguageEntity.fromJson,
     (LeadChartEntity).toString(): LeadChartEntity.fromJson,
     (LeadChartLeads).toString(): LeadChartLeads.fromJson,
     (LeadChartBarChart).toString(): LeadChartBarChart.fromJson,
