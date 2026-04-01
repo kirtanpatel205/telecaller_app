@@ -1,17 +1,15 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:telecaller_app/constants/app_colors.dart';
 import 'package:telecaller_app/constants/app_constants.dart';
 import 'package:telecaller_app/core/helpers/storage.dart';
+import 'package:telecaller_app/core/services/background_service_manager.dart';
 import 'package:telecaller_app/core/services/fcm_service.dart';
+import 'package:telecaller_app/main.dart';
 import '../../constants/app_routes.dart' show Routes;
-import '../../core/services/background_service_manager.dart';
-import 'app_safe_area.dart';
-
+import 'common_safearea.dart';
 
 class PermissionStatusScreen extends StatefulWidget {
   @override
@@ -26,12 +24,8 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
   late AnimationController _animationController;
 
   final Map<String, List<Permission>> permissionGroups = {
-    'Phone & Call': [
-      Permission.phone,
-    ],
-    'Notifications': [
-      Permission.notification,
-    ],
+    'Phone & Call': [Permission.phone],
+    'Notifications': [Permission.notification],
     'System & Overlay': [
       Permission.systemAlertWindow,
       Permission.ignoreBatteryOptimizations,
@@ -154,106 +148,128 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
     await showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Row(
-          children: [
-            Icon(Icons.security_rounded, color: Colors.orange, size: 28),
-            SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                'Sensitive Permission',
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontWeight: FontWeight.w700),
-              ),
+      builder:
+          (context) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
             ),
-          ],
-        ),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Why we need this:',
-                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
-              ),
-              SizedBox(height: 10),
-              Text(
-                _getPermissionDescription(permName),
-                style: TextStyle(fontSize: 13, height: 1.6, color: Colors.grey.shade700),
-              ),
-              SizedBox(height: 16),
-              Container(
-                padding: EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: AppColors.themeColor.primaryColor.withOpacity(0.1),
-                  border: Border.all(color: AppColors.themeColor.primaryColor.withOpacity(0.3), width: 1.5),
+            title: Row(
+              children: [
+                Icon(Icons.security_rounded, color: Colors.orange, size: 28),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Sensitive Permission',
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+              ],
+            ),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Why we need this:',
+                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    _getPermissionDescription(permName),
+                    style: TextStyle(
+                      fontSize: 13,
+                      height: 1.6,
+                      color: Colors.grey.shade700,
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  Container(
+                    padding: EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Colors.blue.shade50, Colors.blue.shade100],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: Colors.blue.shade200,
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.lock_rounded, color: Colors.blue.shade700, size: 20),
-                        SizedBox(width: 10),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.lock_rounded,
+                              color: Colors.blue.shade700,
+                              size: 20,
+                            ),
+                            SizedBox(width: 10),
+                            Text(
+                              'Your Privacy is Protected',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 13,
+                                color: Colors.blue.shade700,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 10),
                         Text(
-                          'Your Privacy is Protected',
+                          '✓ Encrypted and secure\n'
+                          '✓ Used only for spam blocking\n'
+                          '✓ Never sold to third parties\n'
+                          '✓ Revoke anytime in settings',
                           style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 13,
-                            color: Colors.blue.shade700,
+                            fontSize: 12,
+                            color: Colors.blue.shade800,
+                            fontWeight: FontWeight.w500,
+                            height: 1.8,
                           ),
                         ),
                       ],
                     ),
-                    SizedBox(height: 10),
-                    Text(
-                      '✓ Encrypted and secure\n'
-                          '✓ Used only for spam blocking\n'
-                          '✓ Never sold to third parties\n'
-                          '✓ Revoke anytime in settings',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.blue.shade800,
-                        fontWeight: FontWeight.w500,
-                        height: 1.8,
-                      ),
-                    ),
-                  ],
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(
+                  'Not Now',
+                  style: TextStyle(
+                    color: Colors.grey.shade600,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _requestPermission(permission);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue.shade700,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                ),
+                child: Text(
+                  'Allow Access',
+                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
                 ),
               ),
             ],
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(
-              'Not Now',
-              style: TextStyle(color: Colors.grey.shade600, fontWeight: FontWeight.w600),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              _requestPermission(permission);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.themeColor.primaryColor,
-              foregroundColor: AppColors.themeColor.cardColor,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            ),
-            child: Text(
-              'Allow Access',
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -300,7 +316,9 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
           content: Text('✅ Permission request completed'),
           backgroundColor: Colors.green.shade600,
           duration: Duration(seconds: 2),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
           behavior: SnackBarBehavior.floating,
           margin: EdgeInsets.all(16),
         ),
@@ -323,7 +341,7 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
         permissionStatuses.isNotEmpty;
   }
 
-// ✅ FIXED VERSION - Properly sends actual token value to background service
+  // ✅ FIXED VERSION - Properly sends actual token value to background service
 
   Future<void> _continueToWelcome() async {
     // Prevent double-tap
@@ -337,35 +355,38 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context) => WillPopScope(
-          onWillPop: () async => false,
-          child: Center(
-            child: Container(
-              padding: EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(AppColors.themeColor.primaryColor),
+        builder:
+            (context) => WillPopScope(
+              onWillPop: () async => false,
+              child: Center(
+                child: Container(
+                  padding: EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
                   ),
-                  SizedBox(height: 16),
-                  Text(
-                    'Setting up...',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.grey.shade700,
-                    ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Colors.blue.shade700,
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                      Text(
+                        'Setting up...',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey.shade700,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
-          ),
-        ),
       );
 
       // Save permission status
@@ -374,12 +395,13 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
       await Storage.saveValue('backgroundService_setup', true);
 
       // Initialize Background Service FIRST
+
+      // ==================== BACKGROUND SERVICE ====================
       try {
-        print("🔧 Initializing BackgroundService...");
         await BackgroundServiceManager.initializeService();
-        print("✅ BackgroundService initialized");
+        logger.i("✅ Background service initialized");
       } catch (e) {
-        print("⚠️ Background service initialization error: $e");
+        logger.e("❌ Background service error: $e");
       }
 
       // Wait for service to be ready
@@ -402,7 +424,7 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
             print("🔑 Token prefix: ${token.substring(0, 30)}...");
 
             service.invoke("updateToken", {
-              "token": token,  // ✅ Send actual token, not constant name
+              "token": token, // ✅ Send actual token, not constant name
             });
 
             print("✅ Token sent successfully");
@@ -428,8 +450,6 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
       } catch (e) {
         print("⚠️ FCM service initialization error: $e");
       }
-
-
 
       // Ensure all operations complete
       await Future.delayed(Duration(milliseconds: 1000));
@@ -461,7 +481,9 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
             content: Text('❌ Setup failed. Please try again.'),
             backgroundColor: Colors.red.shade600,
             duration: Duration(seconds: 3),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
             behavior: SnackBarBehavior.floating,
             margin: EdgeInsets.all(16),
           ),
@@ -469,6 +491,7 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
       }
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -492,238 +515,270 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
               ),
             ],
           ),
-          body: isLoading
-              ? Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    Colors.blue.shade700,
-                  ),
-                  strokeWidth: 3,
-                ),
-                SizedBox(height: 20),
-                Text(
-                  'Checking permissions...',
-                  style: TextStyle(
-                    fontSize: 15,
-                    color: Colors.grey.shade600,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          )
-              : Column(
-            children: [
-              // Header Card
-              Container(
-                margin: EdgeInsets.all(16),
-                padding: EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Colors.blue.shade50, Colors.blue.shade100],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.blue.shade200),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          body:
+              isLoading
+                  ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Setup Status',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.grey.shade700,
-                              ),
-                            ),
-                            SizedBox(height: 4),
-                            Text(
-                              '${_getGrantedCount()}/${permissionStatuses.length} Active',
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.blue.shade700,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Container(
-                          padding: EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.blue.withOpacity(0.2),
-                                blurRadius: 8,
-                                offset: Offset(0, 2),
-                              ),
-                            ],
+                        CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.blue.shade700,
                           ),
-                          child: Text(
-                            '${(((_getGrantedCount() / (permissionStatuses.isEmpty ? 1 : permissionStatuses.length)) * 100).toInt())}%',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.green.shade600,
-                            ),
+                          strokeWidth: 3,
+                        ),
+                        SizedBox(height: 20),
+                        Text(
+                          'Checking permissions...',
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Colors.grey.shade600,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ],
                     ),
-                    SizedBox(height: 16),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: LinearProgressIndicator(
-                        value: permissionStatuses.isEmpty
-                            ? 0
-                            : _getGrantedCount() / permissionStatuses.length,
-                        minHeight: 12,
-                        backgroundColor: Colors.white,
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          Colors.green.shade500,
+                  )
+                  : Column(
+                    children: [
+                      // Header Card
+                      Container(
+                        margin: EdgeInsets.all(16),
+                        padding: EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [Colors.blue.shade50, Colors.blue.shade100],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: Colors.blue.shade200),
                         ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // Permissions List
-              Expanded(
-                child: permissionStatuses.isEmpty
-                    ? Center(child: Text('No permissions to check'))
-                    : FadeTransition(
-                  opacity: _animationController,
-                  child: ListView.builder(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: permissionGroups.length,
-                    itemBuilder: (context, groupIndex) {
-                      final groupEntry =
-                      permissionGroups.entries.toList()[groupIndex];
-                      final groupName = groupEntry.key;
-                      final permissions = groupEntry.value;
-
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.fromLTRB(8, 16, 8, 12),
-                            child: Text(
-                              groupName,
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.grey.shade600,
-                                letterSpacing: 0.5,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Setup Status',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.grey.shade700,
+                                      ),
+                                    ),
+                                    SizedBox(height: 4),
+                                    Text(
+                                      '${_getGrantedCount()}/${permissionStatuses.length} Active',
+                                      style: TextStyle(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.blue.shade700,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Container(
+                                  padding: EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.blue.withOpacity(0.2),
+                                        blurRadius: 8,
+                                        offset: Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Text(
+                                    '${(((_getGrantedCount() / (permissionStatuses.isEmpty ? 1 : permissionStatuses.length)) * 100).toInt())}%',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.green.shade600,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 16),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: LinearProgressIndicator(
+                                value:
+                                    permissionStatuses.isEmpty
+                                        ? 0
+                                        : _getGrantedCount() /
+                                            permissionStatuses.length,
+                                minHeight: 12,
+                                backgroundColor: Colors.white,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.green.shade500,
+                                ),
                               ),
                             ),
-                          ),
-                          ...permissions.map((permission) {
-                            final permName =
-                                permission.toString().split('.').last;
-                            final status = permissionStatuses[permName] ??
-                                PermissionStatus.denied;
+                          ],
+                        ),
+                      ),
 
-                            return Padding(
-                              padding: EdgeInsets.only(bottom: 12),
-                              child: PermissionCard(
-                                title: _getPermissionTitle(permName),
-                                description:
-                                _getPermissionDescription(permName),
-                                icon: _getLeadingIcon(permName),
-                                isGranted: status.isGranted,
-                                onTap: status.isDenied ||
-                                    status.isPermanentlyDenied
-                                    ? () {
-                                  if (_isSensitivePermission(
-                                      permName)) {
-                                    _showSensitivePermissionDialog(
-                                        permission);
-                                  } else {
-                                    _requestPermission(permission);
-                                  }
-                                }
-                                    : null,
-                              ),
-                            );
-                          }).toList(),
-                        ],
-                      );
-                    },
+                      // Permissions List
+                      Expanded(
+                        child:
+                            permissionStatuses.isEmpty
+                                ? Center(child: Text('No permissions to check'))
+                                : FadeTransition(
+                                  opacity: _animationController,
+                                  child: ListView.builder(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                    ),
+                                    itemCount: permissionGroups.length,
+                                    itemBuilder: (context, groupIndex) {
+                                      final groupEntry =
+                                          permissionGroups.entries
+                                              .toList()[groupIndex];
+                                      final groupName = groupEntry.key;
+                                      final permissions = groupEntry.value;
+
+                                      return Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Padding(
+                                            padding: EdgeInsets.fromLTRB(
+                                              8,
+                                              16,
+                                              8,
+                                              12,
+                                            ),
+                                            child: Text(
+                                              groupName,
+                                              style: TextStyle(
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.w700,
+                                                color: Colors.grey.shade600,
+                                                letterSpacing: 0.5,
+                                              ),
+                                            ),
+                                          ),
+                                          ...permissions.map((permission) {
+                                            final permName =
+                                                permission
+                                                    .toString()
+                                                    .split('.')
+                                                    .last;
+                                            final status =
+                                                permissionStatuses[permName] ??
+                                                PermissionStatus.denied;
+
+                                            return Padding(
+                                              padding: EdgeInsets.only(
+                                                bottom: 12,
+                                              ),
+                                              child: PermissionCard(
+                                                title: _getPermissionTitle(
+                                                  permName,
+                                                ),
+                                                description:
+                                                    _getPermissionDescription(
+                                                      permName,
+                                                    ),
+                                                icon: _getLeadingIcon(permName),
+                                                isGranted: status.isGranted,
+                                                onTap:
+                                                    status.isDenied ||
+                                                            status
+                                                                .isPermanentlyDenied
+                                                        ? () {
+                                                          if (_isSensitivePermission(
+                                                            permName,
+                                                          )) {
+                                                            _showSensitivePermissionDialog(
+                                                              permission,
+                                                            );
+                                                          } else {
+                                                            _requestPermission(
+                                                              permission,
+                                                            );
+                                                          }
+                                                        }
+                                                        : null,
+                                              ),
+                                            );
+                                          }).toList(),
+                                        ],
+                                      );
+                                    },
+                                  ),
+                                ),
+                      ),
+                    ],
                   ),
-                ),
-              ),
-            ],
-          ),
           bottomNavigationBar: Padding(
             padding: EdgeInsets.all(16),
             child: SizedBox(
               height: 56,
-              child: _areAllPermissionsGranted()
-                  ? ElevatedButton.icon(
-                onPressed: isContinuing ? null : _continueToWelcome,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green.shade600,
-                  disabledBackgroundColor: Colors.green.shade300,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  elevation: 4,
-                ),
-                icon: isContinuing
-                    ? SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor:
-                    AlwaysStoppedAnimation<Color>(Colors.white),
-                  ),
-                )
-                    : Icon(Icons.check_circle_rounded, size: 24),
-                label: Text(
-                  isContinuing ? 'Setting up...' : 'Continue',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-              )
-                  : ElevatedButton.icon(
-                onPressed: isLoading ? null : _requestAllPermissions,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue.shade700,
-                  disabledBackgroundColor: Colors.blue.shade300,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  elevation: 4,
-                ),
-                icon: Icon(Icons.shield_rounded, size: 24),
-                label: Text(
-                  'Enable All',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-              ),
+              child:
+                  _areAllPermissionsGranted()
+                      ? ElevatedButton.icon(
+                        onPressed: isContinuing ? null : _continueToWelcome,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green.shade600,
+                          disabledBackgroundColor: Colors.green.shade300,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          elevation: 4,
+                        ),
+                        icon:
+                            isContinuing
+                                ? SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
+                                    ),
+                                  ),
+                                )
+                                : Icon(Icons.check_circle_rounded, size: 24),
+                        label: Text(
+                          isContinuing ? 'Setting up...' : 'Continue',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      )
+                      : ElevatedButton.icon(
+                        onPressed: isLoading ? null : _requestAllPermissions,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue.shade700,
+                          disabledBackgroundColor: Colors.blue.shade300,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          elevation: 4,
+                        ),
+                        icon: Icon(Icons.shield_rounded, size: 24),
+                        label: Text(
+                          'Enable All',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
             ),
           ),
         ),
@@ -731,6 +786,8 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
     );
   }
 }
+
+class BackgroundService {}
 
 class PermissionCard extends StatefulWidget {
   final String title;
@@ -799,9 +856,10 @@ class _PermissionCardState extends State<PermissionCard>
             color: Colors.white,
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
-              color: widget.isGranted
-                  ? Colors.green.shade300
-                  : Colors.grey.shade200,
+              color:
+                  widget.isGranted
+                      ? Colors.green.shade300
+                      : Colors.grey.shade200,
               width: 1.5,
             ),
             boxShadow: [
@@ -817,16 +875,18 @@ class _PermissionCardState extends State<PermissionCard>
               Container(
                 padding: EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: widget.isGranted
-                      ? Colors.green.shade50
-                      : Colors.grey.shade50,
+                  color:
+                      widget.isGranted
+                          ? Colors.green.shade50
+                          : Colors.grey.shade50,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
                   widget.icon,
-                  color: widget.isGranted
-                      ? Colors.green.shade600
-                      : Colors.grey.shade600,
+                  color:
+                      widget.isGranted
+                          ? Colors.green.shade600
+                          : Colors.grey.shade600,
                   size: 24,
                 ),
               ),

@@ -35,13 +35,7 @@ Future<void> main() async {
   // Register FCM background handler at the very top
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
-  // ==================== BACKGROUND SERVICE ====================
-  try {
-    await BackgroundServiceManager.initializeService();
-    logger.i("✅ Background service initialized");
-  } catch (e) {
-    logger.e("❌ Background service error: $e");
-  }
+
 
   // ==================== GESTURE RESAMPLING ====================
   GestureBinding.instance.resamplingEnabled = true;

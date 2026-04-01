@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -8,6 +7,7 @@ import 'package:telecaller_app/constants/app_colors.dart';
 import 'package:telecaller_app/constants/app_routes.dart';
 import 'package:telecaller_app/constants/app_text_style.dart';
 import 'package:telecaller_app/ui/views/welcome/welcome_controller.dart';
+import 'package:telecaller_app/ui/widgets/ProminentDisclosurePage.dart';
 import 'package:telecaller_app/ui/widgets/app_safe_area.dart';
 import 'package:telecaller_app/ui/widgets/custom_button.dart';
 
@@ -18,9 +18,16 @@ class WelcomePage extends GetView<WelcomeController> {
 
   @override
   Widget build(BuildContext context) {
-    double screenHeight = MediaQuery.of(context).size.height;
-    double screenWidth = MediaQuery.of(context).size.width;
-    return AppSafeArea(child: Obx(() => Scaffold(
+    double screenHeight = MediaQuery
+        .of(context)
+        .size
+        .height;
+    double screenWidth = MediaQuery
+        .of(context)
+        .size
+        .width;
+    return AppSafeArea(child: Obx(() =>
+        Scaffold(
           body: Stack(
             children: [
               PageView.builder(
@@ -51,7 +58,7 @@ class WelcomePage extends GetView<WelcomeController> {
                           child: Text(
                             controller.onBoardingData[index]['title'],
                             style:
-                                AppTextStyle.titleBold.copyWith(fontSize: 18),
+                            AppTextStyle.titleBold.copyWith(fontSize: 18),
                             //style: AppTextStyle.bold13.copyWith(fontSize: 20,color: AppColors.themeColor.textPrimaryColor),
                           ),
                         ),
@@ -60,7 +67,8 @@ class WelcomePage extends GetView<WelcomeController> {
                         Padding(
                           padding: EdgeInsets.all(4.0),
                           child: Text(
-                              "${controller.onBoardingData[index]['description']}"
+                              "${controller
+                                  .onBoardingData[index]['description']}"
                                   .trParams({"nl": "\n"}),
                               // (controller.onBoardingData[index]['description'],
                               textAlign: TextAlign.center,
@@ -68,7 +76,7 @@ class WelcomePage extends GetView<WelcomeController> {
                                   fontSize: 10,
                                   fontWeight: FontWeight.w600,
                                   color:
-                                      AppColors.themeColor.textPrimaryColor)),
+                                  AppColors.themeColor.textPrimaryColor)),
                         ),
                       ],
                     ),
@@ -102,60 +110,67 @@ class WelcomePage extends GetView<WelcomeController> {
                       height: screenHeight * 0.05,
                     ),
                     (controller.currentPage ==
-                            controller.onBoardingData.length - 1)
+                        controller.onBoardingData.length - 1)
                         ? CustomButton(
 
-                          // isLoading: true,
+                      // isLoading: true,
 
-                          onClick: () => Get.toNamed(Routes.LOGIN),
-                            title: 'Get Started',
-                          )
+                      onClick: () {
+                        Get.to(ProminentDisclosurePage());
+
+                        // Get.toNamed(Routes.LOGIN);
+                      },
+                      title: 'Get Started',
+                    )
                         : Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Padding(
-                                padding:
-                                    EdgeInsets.only(left: screenWidth * 0.01),
-                                child: TextButton(
-                                  onPressed: () {
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Padding(
+                          padding:
+                          EdgeInsets.only(left: screenWidth * 0.01),
+                          child: TextButton(
+                            onPressed: () {
+                              // Navigate to login page
+                              Get.to(ProminentDisclosurePage());
 
-                                    // Navigate to login page
-                                    Get.toNamed(Routes.LOGIN);
-                                  },
-                                  child: Text('Skip'.tr,
-                                      style: AppTextStyle.regular8.copyWith(
-                                          fontSize: 12,
-                                          color: AppColors
-                                              .themeColor.textPrimaryColor,
-                                          fontWeight: FontWeight.w500)),
-                                ),
-                              ),
+                              // Get.toNamed(Routes.LOGIN);
+                            },
+                            child: Text('Skip'.tr,
+                                style: AppTextStyle.regular8.copyWith(
+                                    fontSize: 12,
+                                    color: AppColors
+                                        .themeColor.textPrimaryColor,
+                                    fontWeight: FontWeight.w500)),
+                          ),
+                        ),
 
-                              Padding(
-                                padding:
-                                    EdgeInsets.only(right: screenWidth * 0.01),
-                                child: TextButton(
-                                  onPressed: () {
-                                    if (controller.pageController.page! <
-                                        controller.onBoardingData.length - 1) {
-                                      controller.pageController.nextPage(
-                                          duration: Duration(milliseconds: 300),
-                                          curve: Curves.ease);
-                                    } else {
-                                     Get.toNamed(Routes.LOGIN);
-                                    }
-                                  },
-                                  child: Text('Next'.tr,
-                                      style: AppTextStyle.regular8.copyWith(
-                                          fontSize: 12,
-                                          color:
-                                              AppColors.themeColor.primaryColor,
-                                          fontWeight: FontWeight.w500)),
-                                ),
-                              ),
-                              //  ),
-                            ],
-                          )
+                        Padding(
+                          padding:
+                          EdgeInsets.only(right: screenWidth * 0.01),
+                          child: TextButton(
+                            onPressed: () {
+                              if (controller.pageController.page! <
+                                  controller.onBoardingData.length - 1) {
+                                controller.pageController.nextPage(
+                                    duration: Duration(milliseconds: 300),
+                                    curve: Curves.ease);
+                              } else {
+                                Get.to(ProminentDisclosurePage());
+
+                                // Get.toNamed(Routes.LOGIN);
+                              }
+                            },
+                            child: Text('Next'.tr,
+                                style: AppTextStyle.regular8.copyWith(
+                                    fontSize: 12,
+                                    color:
+                                    AppColors.themeColor.primaryColor,
+                                    fontWeight: FontWeight.w500)),
+                          ),
+                        ),
+                        //  ),
+                      ],
+                    )
                   ],
                 ).paddingAll(8.r),
               )
