@@ -388,6 +388,58 @@ class SettingPage extends GetView<HomeController> {
                         ),
                       ),
                     ),
+                    SizedBox(height: 20),
+                    InkWell(
+                      onTap: () {
+                        Get.toNamed(Routes.LANGUAGE);
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisAlignment:
+                          MainAxisAlignment.spaceBetween,
+                          children: [
+                            Padding(
+                              padding:
+                              const EdgeInsets.only(left: 2.0),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.language_outlined,
+                                    color: AppColors
+                                        .themeColor.primaryColor,
+                                  ),
+                                  SizedBox(
+                                    width: 3,
+                                  ),
+                                  Text(
+                                    "language".tr,
+                                    style: AppTextStyle.medium9
+                                        .copyWith(fontSize: 14),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding:
+                              const EdgeInsets.only(right: 8.0),
+                              child: Container(
+                                  width: 25,
+                                  height: 25,
+                                  // padding: EdgeInsets.all(1),
+                                  color: AppColors
+                                      .themeColor.primaryColor,
+                                  child: Icon(
+                                    Icons.arrow_forward_ios,
+                                    size: 15,
+                                    color: AppColors
+                                        .themeColor.cardColor,
+                                  )),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
 
                     SizedBox(height: 20),
                     InkWell(

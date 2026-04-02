@@ -6,6 +6,8 @@ import 'package:telecaller_app/ui/views/edit_profile/edit_profile_binding.dart';
 import 'package:telecaller_app/ui/views/edit_profile/edit_profile_page.dart';
 import 'package:telecaller_app/ui/views/home/home_binding.dart';
 import 'package:telecaller_app/ui/views/home/home_page.dart';
+import 'package:telecaller_app/ui/views/language/language_binding.dart';
+import 'package:telecaller_app/ui/views/language/language_page.dart';
 import 'package:telecaller_app/ui/views/leads/leads_binding.dart';
 import 'package:telecaller_app/ui/views/leads/leads_page.dart';
 import 'package:telecaller_app/ui/views/leadsContact/leadscontact_binding.dart';
@@ -64,6 +66,11 @@ class AppPages {
       name: Paths.LEADSCONTACT,
       binding: LeadscontactBinding(),
       page: () => LeadsContactPage(),
+    ),
+    GetPage(
+      name: Paths.LANGUAGE,
+      binding: LanguageBinding(),
+      page: () => LanguagePage(),
     ),
 
     // GetPage(

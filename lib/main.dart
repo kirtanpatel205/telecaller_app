@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:ui';
 import 'package:animated_theme_switcher/animated_theme_switcher.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -21,6 +22,7 @@ import 'package:telecaller_app/core/services/fcm_service.dart';
 import 'core/helpers/initializer.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
+import 'core/helpers/utils.dart';
 import 'core/services/theme_service.dart';
 final logger = Logger();
 
@@ -48,6 +50,11 @@ Future<void> main() async {
     logger.e("❌ Local storage error: $e");
   }
 
+  String langDataString = await Utils.loadJsonData("assets/lang/lang.json");
+  final List<dynamic> jsonData = json.decode(langDataString);
+  logger.i("✅ Language data loaded");
+
+
   // ==================== KEEP SCREEN ON ====================
   try {
     await KeepScreenOn.turnOn();
@@ -64,7 +71,9 @@ Future<void> main() async {
 
 // ==================== MAIN APP ====================
 class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+  final List<dynamic>? jsonData;
+
+  const MyApp({super.key,this.jsonData});
 
   @override
   _MyAppState createState() => _MyAppState();
@@ -88,6 +97,12 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     Size size = MediaQuery.sizeOf(context);
     final ThemeService themeService = Get.find();
+    int selectedIndex = GetStorage().read('selectedLanguage') ?? 9;
+
+    int safeIndex = selectedIndex < (widget.jsonData?.length ?? 0)
+        ? selectedIndex
+        : 0;
+    String languageKey = widget.jsonData?[safeIndex]['key'] ?? 'en';
 
     return ThemeProvider(
       initTheme: themeService.isDarkMode.value ? AppTheme.darkTheme : AppTheme.theme,
@@ -99,6 +114,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
               title: AppStrings.appName,
               debugShowCheckedModeBanner: false,
               theme: theme, // Use theme from ThemeProvider
+              locale: Locale(languageKey),
               darkTheme: AppTheme.darkTheme,
               themeMode: themeService.isDarkMode.value ? ThemeMode.dark : ThemeMode.light,
               initialRoute: AppPages.INITIAL,

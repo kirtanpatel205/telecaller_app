@@ -13,6 +13,8 @@ abstract class Routes {
   static const NOTIFICATION = Paths.NOTIFICATION;
   static const LEADSCONTACT = Paths.LEADSCONTACT;
   static const OVERLAYS = Paths.OVERLAY;
+  static const LANGUAGE = Paths.LANGUAGE;
+
 }
 
 abstract class Paths {
@@ -23,11 +25,12 @@ abstract class Paths {
   static const OTP = '/otp';
   static const CONTACTMASTER = '/contactmaster';
   static const HOME = '/home';
+  static const LANGUAGE = '/language-page';
+
 
   static const CALL = '/call';
   static const EDITPROFILE = '/edit-profile-page';
   static const NOTIFICATION = '/Notification';
-  static const LANGUAGE = '/language-page';
   static const LEADS = '/leads';
   static const AUTO_DIAL = '/auto-dial';
   static const SETTING = '/setting';
