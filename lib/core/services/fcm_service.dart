@@ -85,11 +85,28 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
     final FlutterLocalNotificationsPlugin localNotif =
         FlutterLocalNotificationsPlugin();
-    const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('ic_launcher');
-    const InitializationSettings initializationSettings =
-        InitializationSettings(android: initializationSettingsAndroid);
-    await localNotif.initialize(initializationSettings);
+
+    // ✅ Robust initialization for background isolate
+    try {
+      const AndroidInitializationSettings initializationSettingsAndroid =
+          AndroidInitializationSettings('ic_launcher');
+      const InitializationSettings initializationSettings =
+          InitializationSettings(android: initializationSettingsAndroid);
+      await localNotif.initialize(initializationSettings);
+    } catch (e) {
+      print('⚠️ [FCM BG] Failed to initialize with ic_launcher: $e');
+      try {
+        // Fallback to @mipmap/ic_launcher which sometimes works better in debug isolates
+        const AndroidInitializationSettings initializationSettingsAndroid =
+            AndroidInitializationSettings('@mipmap/ic_launcher');
+        const InitializationSettings initializationSettings =
+            InitializationSettings(android: initializationSettingsAndroid);
+        await localNotif.initialize(initializationSettings);
+        print('✅ [FCM BG] Initialized with @mipmap/ic_launcher fallback');
+      } catch (e2) {
+        print('❌ [FCM BG] All notification initialization attempts failed: $e2');
+      }
+    }
 
     const AndroidNotificationChannel channel = AndroidNotificationChannel(
       'call_tasks_channel',
@@ -105,7 +122,7 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
         >()
         ?.createNotificationChannel(channel);
 
-    _handleNotificationPayload(message, localNotif, channel);
+    await _handleNotificationPayload(message, localNotif, channel);
 
     try {
       if (!Get.isRegistered<NetworkService>()) {
@@ -131,11 +148,11 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   }
 }
 
-Map<String, String> _handleNotificationPayload(
+Future<Map<String, String>> _handleNotificationPayload(
   RemoteMessage message, [
   FlutterLocalNotificationsPlugin? localNotif,
   AndroidNotificationChannel? channel,
-]) {
+]) async {
   print('Processing message: ${message.messageId}');
   final data = message.data;
   final notification = message.notification;
@@ -172,27 +189,54 @@ Map<String, String> _handleNotificationPayload(
           message.messageId?.hashCode ??
           DateTime.now().millisecondsSinceEpoch.hashCode;
 
-      localNotif.show(
-        notificationId,
-        title,
-        body,
-        NotificationDetails(
-          android: AndroidNotificationDetails(
-            channel.id,
-            channel.name,
-            importance: Importance.max,
-            priority: Priority.high,
-            icon: 'ic_launcher',
-            // ✅ Wake screen via native wakeScreen() above, NO fullScreenIntent here
-            fullScreenIntent: false,
-            visibility: NotificationVisibility.public,
-            category: AndroidNotificationCategory.call,
-            ongoing: true,
-            autoCancel: false,
-            ticker: 'Incoming Call Task',
+      try {
+        await localNotif.show(
+          notificationId,
+          title,
+          body,
+          NotificationDetails(
+            android: AndroidNotificationDetails(
+              channel.id,
+              channel.name,
+              importance: Importance.max,
+              priority: Priority.high,
+              icon: 'ic_launcher',
+              fullScreenIntent: false,
+              visibility: NotificationVisibility.public,
+              category: AndroidNotificationCategory.call,
+              ongoing: true,
+              autoCancel: false,
+              ticker: 'Incoming Call Task',
+            ),
           ),
-        ),
-      );
+        );
+      } catch (e) {
+        print('⚠️ [FCM Payload] Failed show with ic_launcher, trying @mipmap: $e');
+        try {
+          await localNotif.show(
+            notificationId,
+            title,
+            body,
+            NotificationDetails(
+              android: AndroidNotificationDetails(
+                channel.id,
+                channel.name,
+                importance: Importance.max,
+                priority: Priority.high,
+                icon: '@mipmap/ic_launcher',
+                fullScreenIntent: false,
+                visibility: NotificationVisibility.public,
+                category: AndroidNotificationCategory.call,
+                ongoing: true,
+                autoCancel: false,
+                ticker: 'Incoming Call Task',
+              ),
+            ),
+          );
+        } catch (e2) {
+          print('❌ [FCM Payload] Final show failed: $e2');
+        }
+      }
       _lastBgNotificationId = notificationId;
       _lastBgNotifPlugin = localNotif;
       print('✅ [FCM BG] Notification display triggered for $notificationId');
@@ -490,17 +534,17 @@ class FCMService extends GetxService {
 
     FirebaseMessaging.instance.getInitialMessage().then((
       RemoteMessage? message,
-    ) {
+    ) async {
       if (message != null) {
         print("Initial Message: ${message.messageId}");
-        final strings = _handleNotificationPayload(message);
+        final strings = await _handleNotificationPayload(message);
         showNotification(message, strings['title'], strings['body']);
       }
     });
 
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
       print('Foreground Message: ${message.messageId}');
-      final strings = _handleNotificationPayload(message);
+      final strings = await _handleNotificationPayload(message);
       showNotification(message, strings['title'], strings['body']);
     });
 
@@ -518,7 +562,7 @@ class FCMService extends GetxService {
       }
 
       // Screen unlocked છે — safe to process
-      _handleNotificationPayload(message);
+      await _handleNotificationPayload(message);
     });
 
     Stream<String> tokenStream = FirebaseMessaging.instance.onTokenRefresh;
@@ -544,30 +588,58 @@ class FCMService extends GetxService {
     _lastBgNotificationId = notificationId;
     // _lastBgNotifPlugin is already set in initLocalNotification
 
-    flutterLocalNotificationsPlugin!.show(
-      notificationId,
-      finalTitle,
-      finalBody,
-      NotificationDetails(
-        android: AndroidNotificationDetails(
-          channel!.id,
-          channel!.name,
-          channelDescription: channel!.description,
-          icon: 'ic_launcher',
-          importance: Importance.max,
-
-          priority: Priority.high,
-          visibility: NotificationVisibility.public,
-          category: AndroidNotificationCategory.call,
-          playSound: true,
-          enableVibration: true,
-          // ✅ Wake screen via native wakeScreen(), NO fullScreenIntent here
-          fullScreenIntent: false,
-          ongoing: true,
-          autoCancel: false,
+    try {
+      await flutterLocalNotificationsPlugin!.show(
+        notificationId,
+        finalTitle,
+        finalBody,
+        NotificationDetails(
+          android: AndroidNotificationDetails(
+            channel!.id,
+            channel!.name,
+            channelDescription: channel!.description,
+            icon: 'ic_launcher',
+            importance: Importance.max,
+            priority: Priority.high,
+            visibility: NotificationVisibility.public,
+            category: AndroidNotificationCategory.call,
+            playSound: true,
+            enableVibration: true,
+            fullScreenIntent: false,
+            ongoing: true,
+            autoCancel: false,
+          ),
         ),
-      ),
-    );
+      );
+    } catch (e) {
+      print('⚠️ [FCM] Failed to show with ic_launcher, trying @mipmap/ic_launcher: $e');
+      try {
+        await flutterLocalNotificationsPlugin!.show(
+          notificationId,
+          finalTitle,
+          finalBody,
+          NotificationDetails(
+            android: AndroidNotificationDetails(
+              channel!.id,
+              channel!.name,
+              channelDescription: channel!.description,
+              icon: '@mipmap/ic_launcher',
+              importance: Importance.max,
+              priority: Priority.high,
+              visibility: NotificationVisibility.public,
+              category: AndroidNotificationCategory.call,
+              playSound: true,
+              enableVibration: true,
+              fullScreenIntent: false,
+              ongoing: true,
+              autoCancel: false,
+            ),
+          ),
+        );
+      } catch (e2) {
+        print('❌ [FCM] Final showNotification failed: $e2');
+      }
+    }
   }
 
   void fcmSubscribe() {
@@ -606,7 +678,7 @@ class FCMService extends GetxService {
     }
 
     if (fcmToken == null && Storage.hasData(AppConstants.FCM_TOKEN)) {
-      fcmToken = await Storage.getValue(AppConstants.FCM_TOKEN);
+      fcmToken = Storage.getValue(AppConstants.FCM_TOKEN);
       await setToken(fcmToken);
     }
   }
