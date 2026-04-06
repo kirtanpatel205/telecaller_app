@@ -50,8 +50,8 @@ Future<void> main() async {
     logger.e("❌ Local storage error: $e");
   }
 
-  String langDataString = await Utils.loadJsonData("assets/lang/lang.json");
-  final List<dynamic> jsonData = json.decode(langDataString);
+  // String langDataString = await Utils.loadJsonData("assets/lang/lang.json");
+  // final List<dynamic> jsonData = json.decode(langDataString);
   logger.i("✅ Language data loaded");
 
 
@@ -97,12 +97,12 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     Size size = MediaQuery.sizeOf(context);
     final ThemeService themeService = Get.find();
-    int selectedIndex = GetStorage().read('selectedLanguage') ?? 9;
-
-    int safeIndex = selectedIndex < (widget.jsonData?.length ?? 0)
-        ? selectedIndex
-        : 0;
-    String languageKey = widget.jsonData?[safeIndex]['key'] ?? 'en';
+    // int selectedIndex = GetStorage().read('selectedLanguage') ?? 9;
+    //
+    // int safeIndex = selectedIndex < (widget.jsonData?.length ?? 0)
+    //     ? selectedIndex
+    //     : 0;
+    // String languageKey = widget.jsonData?[safeIndex]['key'] ?? 'en';
 
     return ThemeProvider(
       initTheme: themeService.isDarkMode.value ? AppTheme.darkTheme : AppTheme.theme,
@@ -114,7 +114,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
               title: AppStrings.appName,
               debugShowCheckedModeBanner: false,
               theme: theme, // Use theme from ThemeProvider
-              locale: Locale(languageKey),
+              // locale: Locale(languageKey),
               darkTheme: AppTheme.darkTheme,
               themeMode: themeService.isDarkMode.value ? ThemeMode.dark : ThemeMode.light,
               initialRoute: AppPages.INITIAL,
