@@ -69,7 +69,7 @@ class WelcomePage extends GetView<WelcomeController> {
                           child: Text(
                               "${controller
                                   .onBoardingData[index]['description']}"
-                                  .trParams({"nl": "\n"}),
+                                  .trParams({"nl": "n".tr}),
                               // (controller.onBoardingData[index]['description'],
                               textAlign: TextAlign.center,
                               style: AppTextStyle.regular9.copyWith(

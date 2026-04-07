@@ -46,8 +46,8 @@ class _ProminentDisclosurePageState extends State<ProminentDisclosurePage> {
   Future<void> _agree() async {
     if (!acceptCallLog || !acceptTermsPrivacy) {
       Get.snackbar(
-        "Consent Required",
-        "Please accept all permissions to continue",
+        "consent_required".tr,
+        "please_accept_all_permissions_to_continue".tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red.shade100,
         colorText: Colors.red.shade900,
@@ -73,7 +73,7 @@ class _ProminentDisclosurePageState extends State<ProminentDisclosurePage> {
       if (mounted) {
         Get.snackbar(
           "Error",
-          "Failed to save consent. Please try again.",
+          "failed_to_save_consent_please_try_again".tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red.shade100,
           colorText: Colors.red.shade900,
@@ -96,8 +96,8 @@ class _ProminentDisclosurePageState extends State<ProminentDisclosurePage> {
         elevation: 0,
         backgroundColor: Colors.white,
         centerTitle: true,
-        title: const Text(
-          "Permission Disclosure",
+        title:  Text(
+          "permission_disclosure".tr,
           style: TextStyle(
             color: Colors.black87,
             fontSize: 18,
@@ -121,8 +121,8 @@ class _ProminentDisclosurePageState extends State<ProminentDisclosurePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Main Title
-                      const Text(
-                        "Important Permission Disclosure & User Consent",
+                       Text(
+                        "important_permission_disclosure_user_consent".tr,
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w700,
@@ -134,10 +134,7 @@ class _ProminentDisclosurePageState extends State<ProminentDisclosurePage> {
 
                       // Description Text
                       Text(
-                        "Digi Bulk Marketing – Employee is a company CRM and customer "
-                        "management application designed for registered employees. "
-                        "To provide its core business features, this app requires access "
-                        "to certain phone and system permissions.",
+                        "digi_bulk_marketing_employee_is_a_company_crm_and_customer_m".tr,
                         style: TextStyle(
                           fontSize: 13,
                           height: 1.6,
@@ -148,20 +145,20 @@ class _ProminentDisclosurePageState extends State<ProminentDisclosurePage> {
 
                       // CALL LOG SECTION
                       _buildSection(
-                        title: "CALL LOG & PHONE INFORMATION ACCESS",
+                        title: "call_log_phone_information_access".tr,
                         content:
-                            "This app collects and processes call information such as:",
-                        items: const [
-                          "Phone numbers",
-                          "Call duration",
-                          "Call type (incoming, outgoing, missed)",
-                          "Call timestamp",
+                            "this_app_collects_and_processes_call_information_such_as".tr,
+                        items:  [
+                          "phone_numbers".tr,
+                          "call_duration".tr,
+                          "call_type_incoming_outgoing_missed".tr,
+                          "call_timestamp".tr,
                         ],
                       ),
                       const SizedBox(height: 12),
 
                       Text(
-                        "This information is used only for business CRM functionality, including:",
+                        "this_information_is_used_only_for_business_crm_functionality".tr,
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
@@ -169,18 +166,18 @@ class _ProminentDisclosurePageState extends State<ProminentDisclosurePage> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      _buildBulletList(const [
-                        "Identifying customers during incoming and outgoing calls",
-                        "Displaying customer details and interaction history during calls",
-                        "Automatically linking calls with customer records",
-                        "Tracking employee call activity and performance analytics",
-                        "Maintaining call history backup across authorized devices",
-                        "Supporting order creation and customer follow-ups",
+                      _buildBulletList( [
+                        "identifying_customers_during_incoming_and_outgoing_calls".tr,
+                        "displaying_customer_details_and_interaction_history_during_c".tr,
+                        "automatically_linking_calls_with_customer_records".tr,
+                        "tracking_employee_call_activity_and_performance_analytics".tr,
+                        "maintaining_call_history_backup_across_authorized_devices".tr,
+                        "supporting_order_creation_and_customer_follow_ups".tr,
                       ]),
                       const SizedBox(height: 12),
 
                       Text(
-                        "The app does NOT record call audio or call content.",
+                        "the_app_does_not_record_call_audio_or_call_content".tr,
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
@@ -192,19 +189,19 @@ class _ProminentDisclosurePageState extends State<ProminentDisclosurePage> {
 
                       // WRITE CALL LOG SECTION
                       _buildSection(
-                        title: "WRITE CALL LOG ACCESS",
+                        title: "write_call_log_access".tr,
                         content:
-                            "The app may create or update call interaction entries only for CRM tracking purposes such as:",
-                        items: const [
-                          "Tagging customer calls",
-                          "Linking calls to customer orders",
-                          "Maintaining business interaction history",
+                            "the_app_may_create_or_update_call_interaction_entries_only_f".tr,
+                        items:  [
+                          "tagging_customer_calls".tr,
+                          "linking_calls_to_customer_orders".tr,
+                          "maintaining_business_interaction_history".tr,
                         ],
                       ),
                       const SizedBox(height: 12),
 
                       Text(
-                        "The app does NOT delete or modify personal call records unrelated to company CRM usage.",
+                        "the_app_does_not_delete_or_modify_personal_call_records_unre".tr,
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
@@ -216,26 +213,26 @@ class _ProminentDisclosurePageState extends State<ProminentDisclosurePage> {
 
                       // CALL SCREENING SECTION
                       _buildSection(
-                        title: "CALL SCREENING & OVERLAY DISPLAY",
+                        title: "call_screening_overlay_display".tr,
                         content:
-                            "The app uses call screening and overlay permissions to:",
-                        items: const [
-                          "Detect incoming and outgoing calls",
-                          "Show customer information on screen during calls",
-                          "Allow employees to quickly create orders, notes, or CRM updates without interrupting calls",
+                            "the_app_uses_call_screening_and_overlay_permissions_to".tr,
+                        items:  [
+                          "detect_incoming_and_outgoing_calls".tr,
+                          "show_customer_information_on_screen_during_calls".tr,
+                          "allow_employees_to_quickly_create_orders_notes_or_crm_update".tr,
                         ],
                       ),
                       const SizedBox(height: 16),
 
                       // BACKGROUND SERVICE SECTION
                       _buildSection(
-                        title: "BACKGROUND SERVICE & DEVICE RESTART",
+                        title: "background_service_device_restart".tr,
                         content:
-                            "The app may run background services and restart after device reboot to ensure:",
-                        items: const [
-                          "Continuous call detection",
-                          "CRM data synchronization",
-                          "Reliable employee productivity tools",
+                            "the_app_may_run_background_services_and_restart_after_device".tr,
+                        items:  [
+                          "continuous_call_detection".tr,
+                          "crm_data_synchronization".tr,
+                          "reliable_employee_productivity_tools".tr,
                         ],
                       ),
                       const SizedBox(height: 16),
@@ -243,32 +240,31 @@ class _ProminentDisclosurePageState extends State<ProminentDisclosurePage> {
                       // NOTIFICATIONS SECTION
                       _buildSection(
                         title: "NOTIFICATIONS",
-                        content: "Notification permission is used to:",
-                        items: const [
-                          "Alert employees about customer calls",
-                          "Provide CRM reminders and business updates",
+                        content: "notification_permission_is_used_to".tr,
+                        items:  [
+                          "alert_employees_about_customer_calls".tr,
+                          "provide_crm_reminders_and_business_updates".tr,
                         ],
                       ),
                       const SizedBox(height: 16),
 
                       // BATTERY OPTIMIZATION SECTION
                       _buildSection(
-                        title: "BATTERY OPTIMIZATION & FOREGROUND SERVICES",
+                        title: "battery_optimization_foreground_services".tr,
                         content:
-                            "The app may request battery optimization exemption and foreground service permissions "
-                            "to maintain reliable real-time call detection and CRM syncing.",
+                            "the_app_may_request_battery_optimization_exemption_and_foreg".tr,
                         items: const [],
                       ),
                       const SizedBox(height: 16),
 
                       // DATA USAGE & SECURITY SECTION
                       _buildSection(
-                        title: "DATA USAGE & SECURITY",
+                        title: "data_usage_security".tr,
                         content: "",
-                        items: const [
-                          "All collected information is used only for employee CRM and business communication features",
-                          "Data is securely transmitted to company servers",
-                          "Data is NOT sold, shared with third parties, or used for advertising",
+                        items:  [
+                          "all_collected_information_is_used_only_for_employee_crm_and_".tr,
+                          "data_is_securely_transmitted_to_company_servers".tr,
+                          "data_is_not_sold_shared_with_third_parties_or_used_for_adver".tr,
                         ],
                       ),
                       const SizedBox(height: 12),
@@ -283,7 +279,7 @@ class _ProminentDisclosurePageState extends State<ProminentDisclosurePage> {
                           ),
                         ),
                         child: Text(
-                          "Customer interaction data is securely transmitted to:\nhttps://master.digibulkmarketing.com",
+                          "customer_interaction_data_is_securely_transmitted_to_nhttps_".tr,
                           style: TextStyle(
                             fontSize: 13,
                             color: Colors.blue.shade900,
@@ -295,12 +291,12 @@ class _ProminentDisclosurePageState extends State<ProminentDisclosurePage> {
 
                       // USER CONTROL SECTION
                       _buildSection(
-                        title: "USER CONTROL",
+                        title: "user_control".tr,
                         content: "",
-                        items: const [
-                          "Permissions are requested only after your explicit consent",
-                          "You may deny or revoke permissions anytime from device settings",
-                          "If permissions are denied, call-related CRM features and caller identification may not function",
+                        items:  [
+                          "permissions_are_requested_only_after_your_explicit_consent".tr,
+                          "you_may_deny_or_revoke_permissions_anytime_from_device_setti".tr,
+                          "if_permissions_are_denied_call_related_crm_features_and_call".tr,
                         ],
                       ),
                       const SizedBox(height: 20),
@@ -361,7 +357,7 @@ class _ProminentDisclosurePageState extends State<ProminentDisclosurePage> {
                             // CHECKBOX TEXT
                             Expanded(
                               child: Text(
-                                "I allow Digi Bulk Marketing – Employee to access Call Log and Phone information for CRM and call management features.",
+                                "i_allow_digi_bulk_marketing_employee_to_access_call_log_and_".tr,
                                 style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w500,
@@ -418,9 +414,9 @@ class _ProminentDisclosurePageState extends State<ProminentDisclosurePage> {
                                     height: 1.4,
                                   ),
                                   children: [
-                                    const TextSpan(text: "I agree to the "),
+                                     TextSpan(text: "i_agree_to_the".tr),
                                     TextSpan(
-                                      text: "Terms & Conditions",
+                                      text: "terms_conditions".tr,
                                       style: const TextStyle(
                                         color: Colors.blue,
                                         fontWeight: FontWeight.w600,
@@ -433,9 +429,9 @@ class _ProminentDisclosurePageState extends State<ProminentDisclosurePage> {
                                           );
                                         },
                                     ),
-                                    const TextSpan(text: " and "),
+                                     TextSpan(text: "and".tr),
                                     TextSpan(
-                                      text: "Privacy Policy",
+                                      text: "privacy_policy".tr,
                                       style: const TextStyle(
                                         color: Colors.blue,
                                         fontWeight: FontWeight.w600,
@@ -509,7 +505,7 @@ class _ProminentDisclosurePageState extends State<ProminentDisclosurePage> {
                                     ),
                                   )
                                 : Text(
-                                    "I Agree",
+                                    "i_agree".tr,
                                     style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w600,

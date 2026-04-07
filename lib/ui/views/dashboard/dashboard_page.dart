@@ -71,7 +71,7 @@ class DashboardPage extends GetView<HomeController> {
             children: [
               Text(
                 controller.authController.profile.value?.name ??
-                    "No Name",
+                    "no_name".tr,
                 style: AppTextStyle.semiBold8.copyWith(
                   fontSize: 12,
                   color:
@@ -79,7 +79,7 @@ class DashboardPage extends GetView<HomeController> {
                 ),
               ),
               Text(
-                'How Are You Today',
+                'how_are_you_today'.tr,
                 style: AppTextStyle.regular6.copyWith(
                   color:
                   AppColors.themeColor.textPrimaryColor,
@@ -120,7 +120,7 @@ class DashboardPage extends GetView<HomeController> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Dashboard Overview",
+                "dashboard_overview".tr,
                 style: AppTextStyle.semiBold8.copyWith(
                   fontSize: 20,
                   color: AppColors.themeColor.textPrimaryColor,
@@ -224,9 +224,9 @@ class DashboardPage extends GetView<HomeController> {
           ),
           children: [
             Obx(() => _buildSummaryCard(
-              title: "Active Telecallers",
+              title: "active_telecallers".tr,
               value: "${controller.dashboardController.activeTelecallers.value}",
-              subtitle: "Handling customer calls",
+              subtitle: "handling_customer_calls".tr,
               bgColor: AppColors.themeColor.activekeyColor, // Light Blue
               icon: Icons.notifications_active_outlined,
               iconColor: AppColors.themeColor.primaryColor.withAlpha(200),
@@ -234,23 +234,23 @@ class DashboardPage extends GetView<HomeController> {
             Obx(() => _buildSummaryCard(
               title: "Leads",
               value: "${controller.dashboardController.leadsCount.value}",
-              subtitle: "Awaiting contact",
+              subtitle: "awaiting_contact".tr,
               bgColor: AppColors.themeColor.avilablekeyColor, // Light Grey
               icon: Icons.person_add_outlined,
             iconColor: AppColors.themeColor.primaryColor.withAlpha(200),
             )),
             Obx(() => _buildSummaryCard(
-              title: "Orders",
+              title: "orders".tr,
               value: "${controller.dashboardController.ordersCount.value}",
-              subtitle: "Processed purchases",
+              subtitle: "processed_purchases".tr,
               bgColor: AppColors.themeColor.completedBgColor, // Light Green
               icon: Icons.headset_mic_outlined,
               iconColor: AppColors.themeColor.primaryColor.withAlpha(200),
             )),
             Obx(() => _buildSummaryCard(
-              title: "Forms Submitted",
+              title: "forms_submitted".tr,
               value: "${controller.dashboardController.formsSubmitted.value}",
-              subtitle: "Customer inquiries received",
+              subtitle: "customer_inquiries_received".tr,
               bgColor: AppColors.themeColor.expairekeyColor, // Light Yellow
               icon: Icons.edit_document,
               iconColor: AppColors.themeColor.primaryColor.withAlpha(200),
@@ -302,7 +302,7 @@ class DashboardPage extends GetView<HomeController> {
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
-                      "Today",
+                      "today".tr,
                       style: AppTextStyle.regular6.copyWith(fontSize: 12, color: AppColors.themeColor.textSecondaryColor),
                     ),
                   ],
@@ -321,7 +321,7 @@ class DashboardPage extends GetView<HomeController> {
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
-                      "Total",
+                      "total".tr,
                       style: AppTextStyle.regular6.copyWith(fontSize: 12, color: AppColors.themeColor.textSecondaryColor),
                     ),
                   ],
@@ -362,7 +362,7 @@ class DashboardPage extends GetView<HomeController> {
               ),
             ),
             child: Text(
-              "Lead Contact",
+              "lead_contact".tr,
               style: AppTextStyle.semiBold8.copyWith(
                 fontSize: 16,
                 color: AppColors.themeColor.primaryColor,
@@ -385,22 +385,22 @@ class DashboardPage extends GetView<HomeController> {
                   ),
                   children: [
                     Obx(() => _buildMetricBox(
-                      "All",
+                      "all".tr,
                       "${controller.dashboardController.leadContactAllToday.value}",
                       "${controller.dashboardController.leadContactAllTotal.value}",
                     )),
                     Obx(() => _buildMetricBox(
-                      "Completed",
+                      "completed".tr,
                       "${controller.dashboardController.leadContactCompletedToday.value}",
                       "${controller.dashboardController.leadContactCompletedTotal.value}",
                     )),
                     Obx(() => _buildMetricBox(
-                      "Scheduled",
+                      "scheduled".tr,
                       "${controller.dashboardController.leadContactScheduledToday.value}",
                       "${controller.dashboardController.leadContactScheduledTotal.value}",
                     )),
                     Obx(() => _buildMetricBox(
-                      "Pending",
+                      "pending".tr,
                       "${controller.dashboardController.leadContactPendingToday.value}",
                       "${controller.dashboardController.leadContactPendingTotal.value}",
                     )),
@@ -442,7 +442,7 @@ class DashboardPage extends GetView<HomeController> {
               ),
             ),
             child: Text(
-              "Calls",
+              "calls".tr,
               style: AppTextStyle.semiBold8.copyWith(
                 fontSize: 16,
                 color: AppColors.themeColor.activekeyColor,
@@ -465,22 +465,22 @@ class DashboardPage extends GetView<HomeController> {
                   ),
                   children: [
                     Obx(() => _buildMetricBox(
-                      "Incoming",
+                      "incoming".tr,
                       "${controller.dashboardController.callsIncomingToday.value}",
                       "${controller.dashboardController.callsIncomingTotal.value}",
                     )),
                     Obx(() => _buildMetricBox(
-                      "Missed",
+                      "missed".tr,
                       "${controller.dashboardController.callsMissedToday.value}",
                       "${controller.dashboardController.callsMissedTotal.value}",
                     )),
                     Obx(() => _buildMetricBox(
-                      "Not Answered",
+                      "not_answered".tr,
                       "${controller.dashboardController.callsNotAnsweredToday.value}",
                       "${controller.dashboardController.callsNotAnsweredTotal.value}",
                     )),
                     Obx(() => _buildMetricBox(
-                      "Outgoing",
+                      "outgoing".tr,
                       "${controller.dashboardController.callsOutgoingToday.value}",
                       "${controller.dashboardController.callsOutgoingTotal.value}",
                     )),
@@ -562,7 +562,7 @@ class DashboardPage extends GetView<HomeController> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "Calls Over Time",
+                "calls_over_time".tr,
                 style: AppTextStyle.semiBold8.copyWith(fontSize: 16),
               ),
               _buildTimeFilter(context),
@@ -590,8 +590,8 @@ class DashboardPage extends GetView<HomeController> {
               if (data.isEmpty) {
                 return SizedBox(
                   height: 200,
-                  child: const Center(
-                    child: Text("No chart data available"),
+                  child:  Center(
+                    child: Text("no_chart_data_available".tr),
                   ),
                 );
               }
@@ -756,9 +756,9 @@ class DashboardPage extends GetView<HomeController> {
               spacing: 20,
               children: [
                 _buildLegendItem(
-                    AppColors.themeColor.completedColor, "Incoming"),
+                    AppColors.themeColor.completedColor, "incoming".tr),
                 _buildLegendItem(
-                    AppColors.themeColor.primaryColor, "Outgoing"),
+                    AppColors.themeColor.primaryColor, "outgoing".tr),
               ],
             ),
           ),
@@ -774,7 +774,7 @@ class DashboardPage extends GetView<HomeController> {
         /// ===== Specific Date Range Button =====
         Obx(() {
           if (controller.dashboardController.selectedTimeFilter.value == 'Specific') {
-            String dateText = "Select Date Range";
+            String dateText = "select_date_range".tr;
 
             if (controller.dashboardController.selectedDateRange.value != null) {
               final start = DateFormat('yyyy-MM-dd').format(
@@ -893,7 +893,7 @@ class DashboardPage extends GetView<HomeController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Call Status Distribution",
+            "call_status_distribution".tr,
             style: AppTextStyle.semiBold8.copyWith(fontSize: 16),
           ),
           const Expanded(child: SizedBox()),
@@ -911,7 +911,7 @@ class DashboardPage extends GetView<HomeController> {
                 int outgoing    = controller.dashboardController.outgoingPieCount.value;
 
                 if (incoming == 0 && missed == 0 && notAnswered == 0 && outgoing == 0) {
-                  return const Center(child: Text("No chart data available"));
+                  return  Center(child: Text("no_chart_data_available".tr));
                 }
 
                 // ── Build valid data list ──────────────────────────────────
@@ -922,7 +922,7 @@ class DashboardPage extends GetView<HomeController> {
                 if (outgoing > 0)    validData.add({"value": outgoing,    "color": AppColors.themeColor.primaryColor});
 
                 // ── FIX: enforce minimum 2.5% so tiny slices stay visible ─
-                // Without this, "Not Answered: 12" out of 3235 total = 0.37%
+                // Without this, "not_answered_12".tr out of 3235 total = 0.37%
                 // which renders as an invisible sliver on the pie chart.
                 const double minPercent = 2.5;
                 final double rawTotal = validData.fold(0.0, (sum, e) => sum + (e["value"] as int).toDouble());
@@ -986,10 +986,10 @@ class DashboardPage extends GetView<HomeController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildLegendItem(AppColors.themeColor.completedColor, "Incoming"),
-              _buildLegendItem(AppColors.themeColor.activekeyiconColor, "Missed"),
-              _buildLegendItem(AppColors.themeColor.failColor, "Not Answered"),
-              _buildLegendItem(AppColors.themeColor.primaryColor, "Outgoing"),
+              _buildLegendItem(AppColors.themeColor.completedColor, "incoming".tr),
+              _buildLegendItem(AppColors.themeColor.activekeyiconColor, "missed".tr),
+              _buildLegendItem(AppColors.themeColor.failColor, "not_answered".tr),
+              _buildLegendItem(AppColors.themeColor.primaryColor, "outgoing".tr),
             ],
           ),
         ],
@@ -1016,7 +1016,7 @@ class DashboardPage extends GetView<HomeController> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "Leads Over Time",
+                "leads_over_time".tr,
                 style: AppTextStyle.semiBold8.copyWith(fontSize: 16),
               ),
               _buildLeadTimeFilter(context),
@@ -1037,7 +1037,7 @@ class DashboardPage extends GetView<HomeController> {
               if (data.isEmpty) {
                 return SizedBox(
                   height: 200,
-                  child: const Center(child: Text("No chart data available")),
+                  child:  Center(child: Text("no_chart_data_available".tr)),
                 );
               }
 
@@ -1157,7 +1157,7 @@ class DashboardPage extends GetView<HomeController> {
               spacing: 20,
               children: [
                 _buildLegendItem(
-                    AppColors.themeColor.primaryColor, "TotalLeads"),
+                    AppColors.themeColor.primaryColor, "total_leads".tr),
               ],
             ),
           ),
@@ -1171,7 +1171,7 @@ class DashboardPage extends GetView<HomeController> {
       children: [
         Obx(() {
           if (controller.dashboardController.selectedLeadTimeFilter.value == 'Specific') {
-            String dateText = "Select Date Range";
+            String dateText = "select_date_range".tr;
             if (controller.dashboardController.selectedLeadDateRange.value != null) {
               final start = DateFormat('yyyy-MM-dd').format(controller.dashboardController.selectedLeadDateRange.value!.start);
               final end = DateFormat('yyyy-MM-dd').format(controller.dashboardController.selectedLeadDateRange.value!.end);
@@ -1264,7 +1264,7 @@ class DashboardPage extends GetView<HomeController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Lead Status Distribution",
+            "lead_status_distribution".tr,
             style: AppTextStyle.semiBold8.copyWith(fontSize: 16),
           ),
           const Expanded(child: SizedBox()),
@@ -1281,7 +1281,7 @@ class DashboardPage extends GetView<HomeController> {
                 int pending = controller.dashboardController.leadPendingPieCount.value;
                 
                 if (completed == 0 && scheduled == 0 && pending == 0) {
-                  return const Center(child: Text("No chart data available"));
+                  return  Center(child: Text("no_chart_data_available".tr));
                 }
 
                 List<PieChartSectionData> pieChartSections = [];
@@ -1331,7 +1331,7 @@ class DashboardPage extends GetView<HomeController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-               _buildLegendItem(AppColors.themeColor.failColor, "Pending"),
+               _buildLegendItem(AppColors.themeColor.failColor, "pending".tr),
             ],
           ),
         ],

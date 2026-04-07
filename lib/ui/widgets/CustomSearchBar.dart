@@ -55,7 +55,7 @@ class CustomSearchBar extends StatelessWidget {
                         ),
                         fillColor: AppColors.themeColor.bgColor,
                         filled: true,
-                        hintText: "Search Name, Phone, Email...",
+                        hintText: "search_name_phone_email".tr,
                         hintStyle: AppTextStyle.medium7.copyWith(
                           color: AppColors.themeColor.textPrimaryColor,
                           fontWeight: FontWeight.w400,

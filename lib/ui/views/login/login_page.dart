@@ -30,14 +30,14 @@ class LoginPage extends GetView<LoginController> {
                 child: Image.asset('assets/images/L1.png', width: 0.9.sw),
               ),
               Text(
-                "OTP Verification",
+                "otp_verification".tr,
                 textAlign: TextAlign.start,
                 style: AppTextStyle.titleBold.copyWith(fontSize: 20),
               ),
               SizedBox(height: 5),
               Text(
-                "Enter Phone Number To Send One @nlTime Password.".trParams({
-                  "nl": "\n",
+                "enter_phone_number_to_send_one_nltime_password".tr.trParams({
+                  "nl": "n".tr,
                 }),
                 style: AppTextStyle.subTitle.copyWith(fontSize: 14),
               ),
@@ -97,13 +97,13 @@ class LoginPage extends GetView<LoginController> {
 
   void _handleSendOtp(BuildContext context) {
     if (!controller.rememberMe.value) {
-      Utils.showSnackbar("Please check the terms and conditions to continue");
+      Utils.showSnackbar("please_check_the_terms_and_conditions_to_continue".tr);
 
       return;
     }
 
     if (!controller.phoneIsValid.value) {
-      Utils.showErrorSnackbar(context, "Please enter a valid phone number");
+      Utils.showErrorSnackbar(context, "please_enter_a_valid_phone_number".tr);
 
       return;
     }

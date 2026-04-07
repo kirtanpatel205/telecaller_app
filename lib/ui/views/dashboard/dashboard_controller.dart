@@ -38,6 +38,13 @@ class DashboardController extends GetxController{
   RxInt leadsCount = 0.obs;
   RxInt ordersCount = 0.obs;
   RxInt formsSubmitted = 0.obs;
+  final items = [
+    {"label": "today".tr, "value": "today"},
+    {"label": "week".tr, "value": "week"},
+    {"label": "month".tr, "value": "month"},
+    {"label": "year".tr, "value": "year"},
+    {"label": "specific".tr, "value": "specific"},
+  ];
 
   // Lead Contacts
   RxInt leadContactAllToday = 0.obs;

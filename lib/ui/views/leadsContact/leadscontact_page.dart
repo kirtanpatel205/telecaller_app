@@ -17,7 +17,7 @@ class LeadsContactPage extends GetView<LeadsContactController> {
     return Scaffold(
       appBar: CustomAppBar(
         title: Text(
-          'Leads Contact',
+          'leads_contact'.tr,
           style: TextStyle(color: AppColors.themeColor.textPrimaryColor),
         ),
       ),
@@ -29,20 +29,20 @@ class LeadsContactPage extends GetView<LeadsContactController> {
           children: [
             StatsDashboard(
               stats: {
-                'Total': controller.totalLeadsId.value,
-                'Completed': controller.completedCount.value,
-                'Pending': controller.pendingCount.value,
-                'Scheduled': controller.scheduledCount.value,
+                'total'.tr: controller.totalLeadsId.value,
+                'completed'.tr: controller.completedCount.value,
+                'pending'.tr: controller.pendingCount.value,
+                'scheduled'.tr: controller.scheduledCount.value,
               },
             ),
             const SizedBox(height: 5),
             StatsDashboard(
               stats: {
-                'Interested': controller.interestedCount.value,
-                'Not Interested': controller.notInterestedCount.value,
-                'Follow Up': controller.followUpCount.value,
-                'Invalid': controller.invalidCount.value,
-                'No Response': controller.noResponseCount.value,
+                'interested'.tr: controller.interestedCount.value,
+                'not_interested'.tr: controller.notInterestedCount.value,
+                'follow_up'.tr: controller.followUpCount.value,
+                'invalid'.tr: controller.invalidCount.value,
+                'no_response'.tr: controller.noResponseCount.value,
               },
             ),
             CustomSearchBar(
@@ -58,7 +58,7 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   CustomActionButton(
-                    title: "Reset",
+                    title: "reset".tr,
                     icon: Icons.refresh,
                     onTap: () {
                       controller.resetFilters();
@@ -66,7 +66,7 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                   ),
                   const SizedBox(width: 5),
                   CustomActionButton(
-                    title: "Filter",
+                    title: "filter".tr,
                     icon: Icons.filter_alt_outlined,
                     onTap: () {
                       _showFilterBottomSheet(context);
@@ -74,7 +74,7 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                   ),
                   const SizedBox(width: 5),
                   CustomActionButton(
-                    title: "Sort",
+                    title: "sort".tr,
                     icon: Icons.sort,
                     onTap: () {
                       _showSortBottomSheet(context);
@@ -295,7 +295,7 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "Filter Leads",
+                    "filter_leads".tr,
                     style: TextStyle(
                       color: AppColors.themeColor.textPrimaryColor,
                       fontSize: 18,
@@ -319,7 +319,7 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                           controller.filterType.value = value!;
                         },
                       ),
-                      const Text("All Time"),
+                       Text("all_time".tr),
                       const SizedBox(width: 20),
                       Radio<String>(
                         value: "specific_time",
@@ -328,12 +328,12 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                           controller.filterType.value = value!;
                         },
                       ),
-                      const Text("Specific Time"),
+                       Text("specific_time".tr),
                     ],
                   )),
-              const SizedBox(height: 20),
+               SizedBox(height: 20),
               Text(
-                "Filter by Status",
+                "filter_by_status".tr,
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -377,7 +377,7 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                     children: [
                       const SizedBox(height: 20),
                       Text(
-                        "Filter by Date",
+                        "filter_by_date".tr,
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
@@ -425,7 +425,7 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                                       .toString().substring(
                                       0, 10)}   →   ${controller.endDate.value!
                                       .toString().substring(0, 10)}"
-                                      : "Start date   →   End date",
+                                      : "start_date_end_date".tr,
                                   style: TextStyle(
                                     color: controller.startDate.value != null
                                         ? AppColors.themeColor.textPrimaryColor
@@ -462,7 +462,7 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                         padding: const EdgeInsets.symmetric(vertical: 15),
                       ),
                       child: Text(
-                        "Cancel",
+                        "cancel".tr,
                         style: TextStyle(
                             color: AppColors.themeColor.textPrimaryColor),
                       ),
@@ -483,8 +483,8 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                         ),
                         padding: const EdgeInsets.symmetric(vertical: 15),
                       ),
-                      child: const Text(
-                        "Apply",
+                      child:  Text(
+                        "apply".tr,
                         style: TextStyle(color: Colors.white),
                       ),
                     ),
@@ -519,7 +519,7 @@ class LeadsContactPage extends GetView<LeadsContactController> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  "Sort Leads By",
+                  "sort_leads_by".tr,
                   style: TextStyle(
                     color: AppColors.themeColor.textPrimaryColor,
                     fontSize: 18,

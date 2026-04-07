@@ -12,7 +12,7 @@ class CustomDropdown extends StatelessWidget {
     required this.selectedValue,
     required this.items,
     required this.onChanged,
-    this.hintText = "Select an option",
+    this.hintText = "select_an_option",
   }) : super(key: key);
 
   @override
@@ -37,7 +37,7 @@ class CustomDropdown extends StatelessWidget {
           value: selectedValue.value.isEmpty
               ? null
               : selectedValue.value,
-          hint: Text(hintText),
+          hint: Text(hintText.tr),
           onChanged: (value) {
             if (value != null) {
               selectedValue.value = value;

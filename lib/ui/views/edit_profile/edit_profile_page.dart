@@ -119,7 +119,7 @@ class EditProfilePage extends GetView<EditProfileController> {
                                                         true
                                                     ? controller.authController
                                                         .profile.value!.name![0]
-                                                    : "No Name",
+                                                    : "no_name".tr,
                                                 style: AppTextStyle.regular12
                                                     .copyWith(
                                                   fontSize: 40,
@@ -189,8 +189,8 @@ class EditProfilePage extends GetView<EditProfileController> {
                                 Text(
                                   controller
                                           .authController.profile.value?.name ??
-                                      "No Name",
-                                  // "Mahesh Talaviya",
+                                      "no_name".tr,
+                                  // "mahesh_talaviya".tr,
                                   // controller.name,
                                   style: AppTextStyle.bold14.copyWith(
                                       fontWeight: FontWeight.w600,
@@ -414,7 +414,7 @@ class EditProfilePage extends GetView<EditProfileController> {
                               isExpanded: true,
                               underline: Container(),
                               dropdownColor: AppColors.themeColor.cardBgColor,
-                              hint: Text("Select Country".tr),
+                              hint: Text("select_country".tr.tr),
 
                               items: countries.map((country) {
                                 return DropdownMenuItem<String>(

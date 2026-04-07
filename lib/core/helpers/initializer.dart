@@ -14,6 +14,7 @@ import 'package:telecaller_app/core/helpers/storage.dart';
 import 'package:telecaller_app/core/services/api_service.dart';
 import 'package:telecaller_app/core/services/fcm_service.dart';
 import 'package:telecaller_app/core/services/internetcheck.dart';
+import 'package:telecaller_app/core/services/lang_service.dart';
 import 'package:telecaller_app/core/services/phone_status_service.dart';
 import 'package:telecaller_app/core/services/background_service_manager.dart';
 import 'package:telecaller_app/core/controllers/socket_controller.dart';
@@ -47,6 +48,8 @@ class Initializer {
   Future<void> _initServices() async {
     try {
       await GetStorage.init();
+      await Get.put<LangService>(LangService()).init();
+
 
       await SystemChrome.setPreferredOrientations([
         DeviceOrientation.portraitUp,

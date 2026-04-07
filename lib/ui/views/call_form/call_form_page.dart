@@ -59,7 +59,7 @@ class CallFormPage extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Obx(() => Text(
-                                    controller.leadId.value.isNotEmpty ? "Call Feedback: ${controller.leadId.value}" : "Call Survey Form",
+                                    controller.leadId.value.isNotEmpty ? "Call Feedback: ${controller.leadId.value}" : "call_survey_form".tr,
                                     style: AppTextStyle.bold11.copyWith(
                                       fontSize: 20,
                                       color: AppColors.themeColor.textPrimaryColor,
@@ -70,7 +70,7 @@ class CallFormPage extends StatelessWidget {
                                   )),
                                   const SizedBox(height: 2),
                                   Text(
-                                    "Complete the following fields to save call details",
+                                    "complete_the_following_fields_to_save_call_details".tr,
                                     style: AppTextStyle.regular5.copyWith(
                                       fontSize: 13,
                                       color: AppColors.themeColor.textSecondaryColor,
@@ -139,7 +139,7 @@ class CallFormPage extends StatelessWidget {
           ),
           const SizedBox(width: 10),
           Text(
-            "FORM PREVIEW",
+            "form_preview".tr,
             style: AppTextStyle.bold11.copyWith(
               fontSize: 12,
               fontWeight: FontWeight.w800,
@@ -186,7 +186,7 @@ class CallFormPage extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              "Please fill in all required fields. Your responses ensure accurate lead tracking and better service follow-up.",
+              "please_fill_in_all_required_fields_your_responses_ensure_acc".tr,
               style: AppTextStyle.regular5.copyWith(
                 fontSize: 12.5,
                 color: const Color(0xFF2C5282),
@@ -217,7 +217,7 @@ class CallFormPage extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              "Fields marked with * are mandatory for submission.",
+              "fields_marked_with_are_mandatory_for_submission".tr,
               style: AppTextStyle.medium8.copyWith(
                 fontSize: 12,
                 color: const Color(0xFF991B1B),
@@ -269,7 +269,7 @@ class CallFormPage extends StatelessWidget {
     AllLeadLeadsFormIdFields field,
   ) {
     final String type = field.type ?? "";
-    final String label = field.label ?? "Untitled Field";
+    final String label = field.label ?? "untitled_field".tr;
     final String hint = field.placeholder ?? "Enter $label";
     final bool isRequired = field.required ?? false;
     final String fieldId = field.id ?? "";
@@ -683,7 +683,7 @@ class CallFormPage extends StatelessWidget {
                     ),
                     if (isSelected)
                       Text(
-                        "Tap to change file",
+                        "tap_to_change_file".tr,
                         style: TextStyle(fontSize: 11, color: accentColor.withOpacity(0.7)),
                       ),
                   ],
@@ -757,7 +757,7 @@ class CallFormPage extends StatelessWidget {
               ),
               child: controller.isLoading.value
                 ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white))
-                : Text("Save & Submit", style: AppTextStyle.bold11.copyWith(fontSize: 15, color: Colors.white)),
+                : Text("save_submit".tr, style: AppTextStyle.bold11.copyWith(fontSize: 15, color: Colors.white)),
             )),
           ),
         ],

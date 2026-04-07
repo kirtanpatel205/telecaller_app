@@ -6,7 +6,7 @@ class NotifictionPage extends GetView<HomeController>{
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(child: Text("Notification Page"),),
+      body: Center(child: Text("notification_page".tr),),
     );
   }
 }

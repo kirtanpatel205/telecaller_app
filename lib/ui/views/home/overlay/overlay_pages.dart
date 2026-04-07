@@ -97,7 +97,7 @@ class OverlayPages extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "CALL SUMMARY",
+                    "call_summary".tr,
                     style: TextStyle(
                       color: AppColors.themeColor.primaryColor,
                       fontSize: 10,
@@ -110,7 +110,7 @@ class OverlayPages extends StatelessWidget {
                   Obx(() => Text(
                         controller.lastCalledName.value.isNotEmpty
                             ? controller.lastCalledName.value
-                            : "Unknown Contact",
+                            : "unknown_contact".tr,
                         style: const TextStyle(
                           color: Colors.black,
                           fontSize: 22,
@@ -185,7 +185,7 @@ class OverlayPages extends StatelessWidget {
 
           // ── What happened ───────────────────────────────
           Text(
-            "CALL DISPOSITION",
+            "call_disposition".tr,
             style: TextStyle(
               color: Colors.black.withOpacity(0.6),
               fontSize: 10,
@@ -236,7 +236,7 @@ class OverlayPages extends StatelessWidget {
             if (!controller.isAutoCallMode.value) return const SizedBox.shrink();
             return _buildGradientButton(
               onTap: () => controller.onNextCallTapped(),
-              label: controller.callDropdownValue.value.isEmpty ? "NEXT IN ${controller.countdown.value}s" : "CALL NEXT",
+              label: controller.callDropdownValue.value.isEmpty ? "NEXT IN ${controller.countdown.value}s" : "call_next".tr,
               icon: Icons.skip_next_rounded,
               colors: [AppColors.themeColor.primaryColor, AppColors.themeColor.primaryColor.withBlue(210)],
               isFullWidth: true,
@@ -281,7 +281,7 @@ class OverlayPages extends StatelessWidget {
       children: [
         const SizedBox(height: 16),
         Text(
-          "PICK DATE",
+          "pick_date".tr,
           style: TextStyle(
             color: Colors.black.withOpacity(0.6),
             fontSize: 10,
@@ -339,7 +339,7 @@ class OverlayPages extends StatelessWidget {
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
-              "UP NEXT",
+              "up_next".tr,
               style: TextStyle(color: AppColors.themeColor.primaryColor, fontWeight: FontWeight.w900, fontSize: 9, letterSpacing: 1),
             ),
           ),

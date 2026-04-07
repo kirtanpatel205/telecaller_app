@@ -25,7 +25,7 @@ class SettingPage extends GetView<HomeController> {
   Widget build(BuildContext context) {
     return RefreshIndicator(
       onRefresh: () async {
-        log("Refreshing Settings Page");
+        log("refreshing_settings_page".tr);
       },
       child: CustomScrollView(
         physics: BouncingScrollPhysics(),
@@ -217,7 +217,7 @@ class SettingPage extends GetView<HomeController> {
                                           .value!
                                           .name
                                           .toString()
-                                      : "No Name",
+                                      : "no_name".tr,
                                   style: AppTextStyle.bold9.copyWith(
                                     color: AppColors.themeColor.cardColor,
                                     fontSize: 18,
@@ -265,7 +265,7 @@ class SettingPage extends GetView<HomeController> {
                     SizedBox(height: 10),
                     SizedBox(height: 20),
                     Text(
-                      "Background Reliability",
+                      "background_reliability".tr,
                       style: AppTextStyle.bold7.copyWith(
                         color: AppColors.themeColor.primaryColor,
                         fontSize: 16,
@@ -288,7 +288,7 @@ class SettingPage extends GetView<HomeController> {
                       child: Column(
                         children: [
                           Text(
-                            "To ensure 24/7 auto-calling works correctly, please disable battery optimization and enable 'Auto-start' for this app.",
+                            "to_ensure_24_7_auto_calling_works_correctly_please_disable_b".tr,
                             style: TextStyle(fontSize: 12),
                           ),
                           SizedBox(height: 15),
@@ -303,7 +303,7 @@ class SettingPage extends GetView<HomeController> {
                                     },
                                 icon: Icon(Icons.battery_alert, size: 18),
                                 label: Text(
-                                  "Disable Battery Optimization",
+                                  "disable_battery_optimization".tr,
                                   style: TextStyle(fontSize: 10),
                                 ),
                                 style: ElevatedButton.styleFrom(
@@ -323,7 +323,7 @@ class SettingPage extends GetView<HomeController> {
                                     BackgroundServiceManager.openManufacturerSettings(),
                             icon: Icon(Icons.settings_applications, size: 18),
                             label: Text(
-                              "Open Manufacturer Settings (Auto-start)",
+                              "open_manufacturer_settings_auto_start".tr,
                               style: TextStyle(fontSize: 10),
                             ),
                             style: ElevatedButton.styleFrom(
@@ -356,7 +356,7 @@ class SettingPage extends GetView<HomeController> {
                                   ),
                                   SizedBox(width: 3),
                                   Text(
-                                    "dark mode".tr,
+                                    "dark_mode".tr.tr,
                                     style: AppTextStyle.medium9.copyWith(
                                       fontSize: 14,
                                     ),

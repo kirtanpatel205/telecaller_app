@@ -67,7 +67,7 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
         permMap[name] = status.toString();
       });
       await Storage.saveValue('permissions_status', permMap);
-      print("✅ Permissions saved to storage");
+      print("permissions_saved_to_storage".tr);
     } catch (e) {
       print("❌ Error saving permissions: $e");
     }
@@ -413,7 +413,7 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
 
       try {
         await BackgroundServiceManager.initializeService();
-        logger.i("✅ Background service initialized");
+        logger.i("background_service_initialized".tr);
       } catch (e) {
         logger.e("❌ Background service error: $e");
       }
@@ -430,27 +430,27 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
           final token = await Storage.getValue(AppConstants.TOKEN);
 
           if (token != null && token.isNotEmpty) {
-            print("📤 Sending token to BackgroundService...");
+            print("sending_token_to_backgroundservice".tr);
             print("🔑 Token length: ${token.length} chars");
             print("🔑 Token prefix: ${token.substring(0, 30)}...");
 
             service.invoke("updateToken", {"token": token});
 
-            print("✅ Token sent successfully");
+            print("token_sent_successfully".tr);
           } else {
-            print("⚠️ No valid token found to send!");
+            print("no_valid_token_found_to_send".tr);
           }
 
           await Future.delayed(Duration(milliseconds: 500));
 
-          print("📤 Triggering syncNow...");
+          print("triggering_syncnow".tr);
           service.invoke("syncNow");
-          print("✅ syncNow triggered");
+          print("syncnow_triggered".tr);
         } catch (e) {
           print("❌ BackgroundService invoke error: $e");
         }
       } else {
-        print("⚠️ BackgroundService is not running!");
+        print("backgroundservice_is_not_running".tr);
       }
 
       try {
@@ -462,7 +462,7 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
             () async => await PhoneStatusService().init(),
             permanent: true,
           );
-          print("✅ PhoneStatusService initialized in PermissionScreen");
+          print("phonestatusservice_initialized_in_permissionscreen".tr);
         }
       } catch (e) {
         print("⚠️ Service initialization error: $e");

@@ -37,7 +37,7 @@ class OtpPage extends GetView<OtpController> {
 
 
           Text(
-            "Verification code".tr,
+            "verification_code".tr.tr,
             style: AppTextStyle.titleBold.copyWith(fontSize: 20),
           ),
 
@@ -46,7 +46,7 @@ class OtpPage extends GetView<OtpController> {
           ),
 
           Text(
-            "We Have Send The verification Code @nlOn Your Mobile Number".trParams({"nl": "\n"}),
+            "we_have_send_the_verification_code_nlon_your_mobile_number".tr.trParams({"nl": "n".tr}),
             style: AppTextStyle.subTitle.copyWith(fontSize: 14),
           ),
 
@@ -104,7 +104,7 @@ class OtpPage extends GetView<OtpController> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          "Don’t recieve Verification code?".tr,
+                          "don_t_recieve_verification_code".tr.tr,
                           style: AppTextStyle.bold6.copyWith(
                               color: AppColors.themeColor.textSecondaryColor),
                         ),
@@ -119,7 +119,7 @@ class OtpPage extends GetView<OtpController> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          "Don’t recieve Verification code?".tr,
+                          "don_t_recieve_verification_code".tr.tr,
                           style: AppTextStyle.bold6.copyWith(
                               color: AppColors.themeColor.textSecondaryColor),
                         ),
@@ -127,7 +127,7 @@ class OtpPage extends GetView<OtpController> {
                           // onPressed: controller.resendOtp,
                           onTap: () => controller.resendOtp(),
                           child: Text(
-                            "Resend OTP",
+                            "resend_otp".tr,
                             style: AppTextStyle.bold6.copyWith(
                                 color: AppColors.themeColor.primaryColor),
                           ),
