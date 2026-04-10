@@ -4,14 +4,16 @@ import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:telecaller_app/constants/app_constants.dart';
+import 'package:telecaller_app/constants/app_routes.dart';
 import 'package:telecaller_app/core/helpers/storage.dart';
 import 'package:telecaller_app/core/services/background_service_manager.dart';
 import 'package:telecaller_app/core/services/fcm_service.dart';
 import 'package:telecaller_app/core/services/phone_status_service.dart';
 import 'package:telecaller_app/main.dart';
-import '../../constants/app_routes.dart' show Routes;
 import 'common_safearea.dart';
-import 'dart:io'; // ✅ Added for Platform.isAndroid
+import 'dart:io';
+import 'package:flutter/services.dart';
+import 'optimization_guide_dialog.dart';
 
 class PermissionStatusScreen extends StatefulWidget {
   @override
@@ -20,9 +22,11 @@ class PermissionStatusScreen extends StatefulWidget {
 
 class _PermissionStatusScreenState extends State<PermissionStatusScreen>
     with SingleTickerProviderStateMixin {
-  late Map<String, PermissionStatus> permissionStatuses;
+  Map<String, PermissionStatus> permissionStatuses = {};
   bool isLoading = true;
   bool isContinuing = false;
+  bool isXiaomi = false;
+  static const _channel = MethodChannel('com.digibulkmarketing.telecaller_app/lockscreen');
   late AnimationController _animationController;
 
   final Map<String, List<Permission>> permissionGroups = {
@@ -41,6 +45,23 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
       duration: Duration(milliseconds: 600),
       vsync: this,
     );
+    _checkDeviceAndPermissions();
+  }
+
+  Future<void> _checkDeviceAndPermissions() async {
+    try {
+      if (Platform.isAndroid) {
+        final bool result = await _channel.invokeMethod('isXiaomi');
+        setState(() => isXiaomi = result);
+        if (result) {
+          setState(() {
+            permissionGroups['Manufacturer Optimization'] = []; // Placeholder for the UI
+          });
+        }
+      }
+    } catch (e) {
+      print("Error checking device type: $e");
+    }
     _checkAllPermissions();
   }
 
@@ -653,6 +674,43 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
                                               .toList()[groupIndex];
                                       final groupName = groupEntry.key;
                                       final permissions = groupEntry.value;
+
+                                      if (groupName == 'Manufacturer Optimization' && isXiaomi) {
+                                        return Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Padding(
+                                              padding: EdgeInsets.fromLTRB(8, 16, 8, 12),
+                                              child: Text(
+                                                groupName,
+                                                style: TextStyle(
+                                                  fontSize: 13,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: Colors.orange.shade700,
+                                                  letterSpacing: 0.5,
+                                                ),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.only(bottom: 12),
+                                              child: PermissionCard(
+                                                title: 'Xiaomi Background Guide',
+                                                description: 'Mandatory steps for 24/7 uptime',
+                                                icon: Icons.tips_and_updates_rounded,
+                                                isGranted: Storage.getValue('xiaomi_optimization_shown') ?? false,
+                                                onTap: () async {
+                                                  await Get.dialog(
+                                                    const OptimizationGuideDialog(isXiaomi: true),
+                                                    barrierDismissible: false,
+                                                  );
+                                                  await Storage.saveValue('xiaomi_optimization_shown', true);
+                                                  _checkAllPermissions();
+                                                },
+                                              ),
+                                            ),
+                                          ],
+                                        );
+                                      }
 
                                       return Column(
                                         crossAxisAlignment:

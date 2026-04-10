@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -30,9 +31,9 @@ class BackgroundServiceManager {
     /// OPTIONAL, use custom notification channel id
     const AndroidNotificationChannel channel = AndroidNotificationChannel(
       'my_foreground', // id
-      'MY FOREGROUND SERVICE', // title
-      description: 'This channel is used for important notifications.',
-      importance: Importance.low,
+      'Telecaller Background Service', // title
+      description: 'Maintains socket connection for real-time tracking.',
+      importance: Importance.max, // High importance for persistent service
     );
 
     final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -64,12 +65,63 @@ class BackgroundServiceManager {
     service.startService();
   }
 
+  static const _channel = MethodChannel('com.digibulkmarketing.telecaller_app/lockscreen');
+
+  static Future<void> optimizeForXiaomi() async {
+    try {
+      final bool isXiaomi = await _channel.invokeMethod('isXiaomi');
+      if (isXiaomi) {
+        // 1. Auto-start screen
+        await const AndroidIntent(
+          action: 'miui.intent.action.OP_AUTO_START_SETTINGS',
+          package: 'com.miui.securitycenter',
+        ).launch().catchError((e) => print("Failed to open Auto-start: $e"));
+
+        await Future.delayed(const Duration(seconds: 1));
+
+        // 2. Battery Saver (No restrictions) screen
+        await const AndroidIntent(
+          action: 'android.settings.APPLICATION_DETAILS_SETTINGS',
+          data: 'package:com.digibulkmarketing.telecaller_app',
+        ).launch().catchError((e) => print("Failed to open App Details: $e"));
+
+        await Future.delayed(const Duration(seconds: 1));
+
+        // 3. NEW: Xiaomi Other Permissions (Display pop-up windows in background)
+        await openXiaomiOtherPermissions();
+      }
+    } catch (e) {
+      print("Error in optimizeForXiaomi: $e");
+    }
+  }
+
+  static Future<void> openXiaomiOtherPermissions() async {
+    try {
+      await _channel.invokeMethod('openXiaomiPermissions');
+    } catch (e) {
+      print("Error opening Xiaomi other permissions: $e");
+    }
+  }
+
+  static Future<void> requestBatteryOptimization() async {
+    try {
+      await _channel.invokeMethod('requestIgnoreBatteryOptimizations');
+    } catch (e) {
+      print("Error requesting battery optimization: $e");
+    }
+  }
+
 
   static Future<void> openManufacturerSettings() async {
     if (Platform.isAndroid) {
       // Common OEM settings intents
       final intents = [
-        // Xiaomi
+        // Xiaomi Auto-start
+        const AndroidIntent(
+          action: 'miui.intent.action.OP_AUTO_START_SETTINGS',
+          package: 'com.miui.securitycenter',
+        ),
+        // Xiaomi/Generic Battery Saver
         const AndroidIntent(
           action: 'android.settings.APPLICATION_DETAILS_SETTINGS',
           data: 'package:com.digibulkmarketing.telecaller_app',
@@ -103,6 +155,11 @@ Future<bool> onIosBackground(ServiceInstance service) async {
 void onStart(ServiceInstance service) async {
   WidgetsFlutterBinding.ensureInitialized();
   DartPluginRegistrant.ensureInitialized();
+
+  // ✅ FORCED FOREGROUND for Xiaomi/HyperOS
+  if (service is AndroidServiceInstance) {
+    service.setAsForegroundService();
+  }
 
   // In-memory token cache — survives GetStorage/SharedPrefs race conditions
   String? _cachedToken;
@@ -250,8 +307,18 @@ void onStart(ServiceInstance service) async {
   });
 
   // Diagnostic Heartbeat
-  Timer.periodic(const Duration(seconds: 30), (timer) {
+  Timer.periodic(const Duration(seconds: 30), (timer) async {
     print("💓 Background Service Heartbeat: ${DateTime.now()}");
+    
+    if (service is AndroidServiceInstance) {
+      if (await service.isForegroundService()) {
+        service.setForegroundNotificationInfo(
+          title: "Telecaller Active",
+          content: "Service tracking is active. Last Refresh: ${DateTime.now().hour}:${DateTime.now().minute}",
+        );
+      }
+    }
+
     if (Get.isRegistered<SocketController>()) {
       final socket = Get.find<SocketController>();
       print("🔌 Background Socket Connected: ${socket.isConnected.value}");

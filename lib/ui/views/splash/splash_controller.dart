@@ -6,8 +6,12 @@ import 'package:telecaller_app/constants/app_routes.dart';
 import 'package:telecaller_app/core/controllers/auth_controller.dart';
 import 'package:telecaller_app/core/helpers/storage.dart';
 import 'package:telecaller_app/ui/widgets/Permission_Status_Screen_Permission.dart';
+import 'package:telecaller_app/ui/widgets/optimization_guide_dialog.dart';
+import 'package:flutter/services.dart';
+import 'package:telecaller_app/core/services/background_service_manager.dart';
 
 class SplashController extends GetxController {
+  static const _channel = MethodChannel('com.digibulkmarketing.telecaller_app/lockscreen');
   final AuthController authController = AuthController.to;
 
   @override
@@ -80,7 +84,24 @@ class SplashController extends GetxController {
         Storage.hasData(AppConstants.USER_ID) &&
         permissionsShown &&
         allPermissionsGranted) {
-      print("✅ Case 1: Going to HOME");
+      print("✅ Case 1: Checking for Xiaomi Optimizations then HOME");
+      
+      try {
+        final bool isXiaomi = await _channel.invokeMethod('isXiaomi');
+        if (isXiaomi) {
+          final bool optimizationShown = Storage.getValue('xiaomi_optimization_shown') ?? false;
+          if (!optimizationShown) {
+            await Get.dialog(
+              const OptimizationGuideDialog(isXiaomi: true),
+              barrierDismissible: false,
+            );
+            await Storage.saveValue('xiaomi_optimization_shown', true);
+          }
+        }
+      } catch (e) {
+        print("Error checking Xiaomi in Splash: $e");
+      }
+
       Get.offAllNamed(Routes.HOME);
       return;
     }

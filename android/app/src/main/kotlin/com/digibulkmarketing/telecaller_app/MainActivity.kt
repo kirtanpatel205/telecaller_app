@@ -1,5 +1,6 @@
 package com.digibulkmarketing.telecaller_app
 
+import android.app.Application
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -14,10 +15,26 @@ import android.util.Log
 import android.view.WindowManager
 import android.os.Build
 import android.os.PowerManager
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import android.webkit.RenderProcessGoneDetail
 
 class MainActivity : FlutterActivity() {
 
     private val CHANNEL = "com.digibulkmarketing.telecaller_app/lockscreen"
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        
+        // Safety net for modern Android: Isolate WebView data directories
+        // if the app starts in multiple processes (common for background services).
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            val processName = Application.getProcessName()
+            if (packageName != processName) {
+                WebView.setDataDirectorySuffix(processName)
+            }
+        }
+    }
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -49,6 +66,46 @@ class MainActivity : FlutterActivity() {
                     } catch (e: Exception) {
                         Log.e("MainActivity", "Failed to wake screen: ${e.message}")
                         result.error("WAKE_FAILED", e.message, null)
+                    }
+                }
+                "requestIgnoreBatteryOptimizations" -> {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        val packageName = packageName
+                        val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
+                        if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+                            val intent = Intent()
+                            intent.action = android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+                            intent.data = Uri.parse("package:$packageName")
+                            startActivity(intent)
+                            result.success(true)
+                        } else {
+                            result.success(false)
+                        }
+                    } else {
+                        result.success(false)
+                    }
+                }
+                "isXiaomi" -> {
+                    val manufacturer = Build.MANUFACTURER
+                    result.success(manufacturer.equals("Xiaomi", ignoreCase = true) || manufacturer.equals("Redmi", ignoreCase = true))
+                }
+                "openXiaomiPermissions" -> {
+                    try {
+                        val intent = Intent("miui.intent.action.APP_PERM_EDITOR")
+                        intent.setClassName("com.miui.securitycenter", "com.miui.permcenter.permissions.PermissionsEditorActivity")
+                        intent.putExtra("extra_pkgname", packageName)
+                        startActivity(intent)
+                        result.success(true)
+                    } catch (e: Exception) {
+                        try {
+                            val intent = Intent("miui.intent.action.APP_PERM_EDITOR")
+                            intent.putExtra("extra_pkgname", packageName)
+                            startActivity(intent)
+                            result.success(true)
+                        } catch (e2: Exception) {
+                            Log.e("MainActivity", "Failed to open Xiaomi permissions: ${e2.message}")
+                            result.error("XIAOMI_PERM_FAILED", e2.message, null)
+                        }
                     }
                 }
                 else -> result.notImplemented()

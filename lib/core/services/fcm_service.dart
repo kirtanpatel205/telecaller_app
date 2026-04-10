@@ -486,6 +486,12 @@ class FCMService extends GetxService {
   Future<void> _initOneSignal() async {
     OneSignal.Debug.setLogLevel(OSLogLevel.debug);
     OneSignal.initialize(AppConstants.ONE_SIGNAL_APP_KEY);
+    
+    // ✅ CRITICAL FIX for Xiaomi/Redmi Background Crashes:
+    // This disables the hidden WebView used for In-App Messages.
+    // This WebView is frequently killed by the OS in background, causing the whole app to crash.
+    OneSignal.InAppMessages.paused(true);
+
     OneSignal.Notifications.requestPermission(true);
     OneSignal.Notifications.clearAll();
 
