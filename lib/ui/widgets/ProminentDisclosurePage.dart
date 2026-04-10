@@ -469,7 +469,7 @@ class _ProminentDisclosurePageState extends State<ProminentDisclosurePage> {
                               ),
                             ),
                             child: Text(
-                              "Decline",
+                              "decline".tr,
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,

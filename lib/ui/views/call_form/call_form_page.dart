@@ -59,7 +59,7 @@ class CallFormPage extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Obx(() => Text(
-                                    controller.leadId.value.isNotEmpty ? "Call Feedback: ${controller.leadId.value}" : "call_survey_form".tr,
+                                    controller.leadId.value.isNotEmpty ? "${"call_feedback:".tr} ${controller.leadId.value}" : "call_survey_form".tr,
                                     style: AppTextStyle.bold11.copyWith(
                                       fontSize: 20,
                                       color: AppColors.themeColor.textPrimaryColor,
@@ -736,7 +736,7 @@ class CallFormPage extends StatelessWidget {
                 side: BorderSide(color: Colors.grey.shade300, width: 1.5),
               ),
               child: Text(
-                "Cancel",
+                "cancel".tr,
                 style: AppTextStyle.bold11.copyWith(fontSize: 14, color: AppColors.themeColor.textSecondaryColor),
               ),
             ),

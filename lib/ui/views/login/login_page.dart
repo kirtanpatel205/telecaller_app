@@ -82,7 +82,7 @@ class LoginPage extends GetView<LoginController> {
               SizedBox(height: 25),
               CustomButton(
                 onClick: () => _handleSendOtp(context),
-                title: "Continue".tr,
+                title: "continue".tr,
                 enabled:
                     controller.rememberMe.value &&
                     controller.phoneIsValid.value,

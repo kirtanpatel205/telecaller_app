@@ -23,7 +23,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
         leading: const SizedBox(),
         // backgroundColor: Colors.transparent,
         title: Text(
-          'Auto Dialer Pro',
+          'auto_dialer'.tr,
           style: TextStyle(
             color: AppColors.themeColor.textPrimaryColor,
             fontWeight: FontWeight.bold,
@@ -146,7 +146,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                     ),
                     const SizedBox(width: 12),
                     Text(
-                      'LEAD DATASET',
+                      'lead_dataset'.tr,
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
@@ -164,7 +164,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      '${leads.length} Active',
+                      '${leads.length} ${"active".tr}',
                       style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.indigo),
                     ),
                   ),
@@ -188,7 +188,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                         isExpanded: true,
                         value: selected?.id,
                         hint: Text(
-                          'Select a campaign…',
+                          'select_a_campaign…'.tr,
                           style: TextStyle(color: AppColors.themeColor.textSecondaryColor, fontSize: 13),
                         ),
                         icon: const Icon(Icons.unfold_more_rounded, color: Colors.indigo, size: 20),
@@ -245,7 +245,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Active: ${selected.name}',
+                        '${"active".tr}: ${selected.name}',
                         style: const TextStyle(color: Colors.indigo, fontWeight: FontWeight.bold, fontSize: 12),
                       ),
                     ),
@@ -284,7 +284,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'CONTACT QUEUE',
+                'contacts_queue'.tr,
                 style: TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
@@ -312,7 +312,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
-                '${controller.totalContacts.value} Reachable',
+                '${controller.totalContacts.value} ${"reachable".tr}',
                 style: const TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
@@ -597,7 +597,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'CAMPAIGN PERFORMANCE',
+                    'campaign_performance'.tr,
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
@@ -622,7 +622,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                     border: Border.all(color: Colors.green.withOpacity(0.2)),
                   ),
                   child: Text(
-                    'Success Rate: $rate%',
+                    '${"success_rate".tr}: $rate%'.tr,
                     style: const TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
@@ -637,10 +637,9 @@ class AutoDialerPage extends GetView<AutoDialerController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildModernStatItem('Total', controller.totalAttempts, Icons.call_outlined, const Color(0xFF6366F1)),
-              _buildModernStatItem('Conn.', controller.connected, Icons.phone_callback_outlined, const Color(0xFF10B981)),
-              _buildModernStatItem('Succ.', controller.successful, Icons.star_outline_rounded, const Color(0xFFF59E0B)),
-              _buildModernStatItem('Failed', controller.failed, Icons.error_outline_rounded, const Color(0xFFEF4444)),
+              _buildModernStatItem('total'.tr, controller.totalAttempts, Icons.call_outlined, const Color(0xFF6366F1)),
+              _buildModernStatItem('success'.tr, controller.successful, Icons.star_outline_rounded, const Color(0xFFF59E0B)),
+              _buildModernStatItem('failed'.tr, controller.failed, Icons.error_outline_rounded, const Color(0xFFEF4444)),
             ],
           ),
         ],
@@ -697,23 +696,23 @@ class AutoDialerPage extends GetView<AutoDialerController> {
 
       Color mainColor = Colors.indigo;
       IconData icon = Icons.person;
-      String statusText = 'Ready to Start';
+      String statusText = 'ready_to_start'.tr;
 
       if (isDialing) {
         mainColor = const Color(0xFF6366F1);
-        statusText = 'Active Call';
+        statusText = 'active_call'.tr;
         icon = Icons.graphic_eq_rounded;
       } else if (isSettled) {
         mainColor = const Color(0xFF10B981);
-        statusText = 'Settled';
+        statusText = 'settled'.tr;
         icon = Icons.check_circle_rounded;
       } else if (isCountdown) {
         mainColor = const Color(0xFFF59E0B);
-        statusText = 'Next in $cdValue';
+        statusText = '${"next_in".tr} $cdValue'.tr;
         icon = Icons.timer_rounded;
       } else if (status == 'paused') {
         mainColor = const Color(0xFF64748B);
-        statusText = 'Paused';
+        statusText = 'paused'.tr;
         icon = Icons.pause_circle_rounded;
       }
 
@@ -787,7 +786,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        lead?.contact?.name ?? 'Select a Lead',
+                        lead?.contact?.name ?? 'select_a_lead'.tr,
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -841,8 +840,8 @@ class AutoDialerPage extends GetView<AutoDialerController> {
               const SizedBox(height: 16),
               Row(
                 children: [
-                  const Text(
-                    'NEXT: ',
+                   Text(
+                    'next'.tr,
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
@@ -850,7 +849,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                     ),
                   ),
                   Text(
-                    nextLead.contact?.name ?? 'Unknown',
+                    " : ${nextLead.contact?.name}" ?? 'Unknown',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
@@ -886,7 +885,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                     ? (controller.selectedLeadDataset.value != null
                         ? _buildPremiumButton(
                             onTap: () => controller.startDialing(),
-                            label: 'START DIALER',
+                            label: 'start_dialer'.tr,
                             icon: Icons.rocket_launch_rounded,
                             gradient: const [Color(0xFF6366F1), Color(0xFF4F46E5)],
                           )
@@ -899,7 +898,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                             controller.pauseDialing();
                           }
                         },
-                        label: isPaused ? 'RESUME' : 'PAUSE',
+                        label: isPaused ? 'resume'.tr : 'paused'.tr,
                         icon: isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded,
                         gradient: isPaused
                             ? const [Color(0xFF10B981), Color(0xFF059669)]
@@ -911,7 +910,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                 // STOP BUTTON
                 _buildPremiumButton(
                   onTap: () => controller.stopDialing(),
-                  label: 'STOP',
+                  label: 'stop'.tr,
                   icon: Icons.stop_rounded,
                   gradient: const [Color(0xFFEF4444), Color(0xFFDC2626)],
                   width: 100,

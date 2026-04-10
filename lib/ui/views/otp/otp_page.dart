@@ -144,7 +144,7 @@ class OtpPage extends GetView<OtpController> {
 
            onClick: () => controller.verifyOtp(),
            isLoading: controller.isLoading.value,
-           title: "Continue".tr,
+           title: "continue".tr,
          ),)
         ],
       ).paddingAll(20.r),

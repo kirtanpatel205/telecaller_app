@@ -151,6 +151,43 @@
   "follow_up": "Follow Up",
   "invalid": "Invalid",
   "no_response": "No Response",
+  "auto_dialer": "Auto Dialer",
+  "campaign_performance": "Campaign Performance",
+  "failed": "Failed",
+  "success": "Success",
+  "ready_to_start": "Ready To Start",
+  "active_call": "Active Call",
+  "settled": "Settled",
+  "next_in": "Next In",
+  "resume": "Resume",
+  "start_dialer": "Start Dialer",
+  "success_rate": "Success Rate",
+  "select_a_lead": "Select a Lead",
+  "lead_dataset": "Lead Dataset",
+  "select_a_campaign…": "Select a campaign…",
+  "active": "Active",
+  "contacts_queue": "Contacts Queue",
+  "reachable": "Reachable",
+  "duration": "Duration",
+  "number": "Number",
+  "redial": "Redial",
+  "call_feedback:": "Call Feedback:",
+  "paused": "Paused",
+  "next": "Next",
+  "settings": "Settings",
+  "language": "Language",
+  "logout": "Logout",
+  "decline": "Decline",
+  "i_read_and_accepted_the ": "I read and accepted the ",
+  "continue": "Continue"
+
+
+
+
+
+
+
+
 
 
 

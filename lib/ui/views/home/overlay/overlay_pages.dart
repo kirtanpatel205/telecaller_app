@@ -147,7 +147,7 @@ class OverlayPages extends StatelessWidget {
               children: [
                 _buildStatItem(
                   Icons.av_timer_rounded,
-                  "DURATION",
+                  "duration".tr,
                   Obx(() => Text(
                         controller.formattedCallLogDuration.value,
                         style: const TextStyle(
@@ -166,7 +166,7 @@ class OverlayPages extends StatelessWidget {
                 ),
                 _buildStatItem(
                   Icons.phone_android_rounded,
-                  "NUMBER",
+                  "number".tr,
                   Obx(() => Text(
                         controller.lastCalledNumber.value,
                         style: const TextStyle(
@@ -212,7 +212,7 @@ class OverlayPages extends StatelessWidget {
               Expanded(
                 child: _buildGradientButton(
                   onTap: () => controller.redialLastCall(),
-                  label: "REDIAL",
+                  label: "redial".tr,
                   icon: Icons.refresh_rounded,
                   colors: [const Color(0xFF6366F1), const Color(0xFF4F46E5)],
                 ),
@@ -221,7 +221,7 @@ class OverlayPages extends StatelessWidget {
               Expanded(
                 child: Obx(() => _buildGradientButton(
                       onTap: () => controller.isPaused.value ? controller.resumeCountdown() : controller.pauseCountdown(),
-                      label: controller.isPaused.value ? "RESUME" : "PAUSE",
+                      label: controller.isPaused.value ? "resume".tr : "pause".tr,
                       icon: controller.isPaused.value ? Icons.play_arrow_rounded : Icons.pause_rounded,
                       colors: controller.isPaused.value ? [const Color(0xFF10B981), const Color(0xFF059669)] : [const Color(0xFFF59E0B), const Color(0xFFD97706)],
                     )),
@@ -236,7 +236,7 @@ class OverlayPages extends StatelessWidget {
             if (!controller.isAutoCallMode.value) return const SizedBox.shrink();
             return _buildGradientButton(
               onTap: () => controller.onNextCallTapped(),
-              label: controller.callDropdownValue.value.isEmpty ? "NEXT IN ${controller.countdown.value}s" : "call_next".tr,
+              label: controller.callDropdownValue.value.isEmpty ? "${"next_in".tr} ${controller.countdown.value}s" : "call_next".tr,
               icon: Icons.skip_next_rounded,
               colors: [AppColors.themeColor.primaryColor, AppColors.themeColor.primaryColor.withBlue(210)],
               isFullWidth: true,
