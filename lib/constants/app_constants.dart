@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 class AppConstants {
   const AppConstants._();
 
-  static const String BASE_URL = 'https://tu-test.digibulkmarketing.com/api';
+  static const String BASE_URL = 'https://api-test.digibulkmarketing.com';
   // static const String _baseUrlRelease = 'https://api.digibulkmarketing.com';
   static const String BASE_SOCKET_URL = 'https://api-test.digibulkmarketing.com';
 

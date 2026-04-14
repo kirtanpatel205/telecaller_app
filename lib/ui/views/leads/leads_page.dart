@@ -375,7 +375,8 @@ class LeadsPage extends GetView<LeadsController> {
                     //   width: double.infinity,
                     //   child: ElevatedButton.icon(
                     //     onPressed: () {
-                    //       // Call logic here
+                    //       // Note: Leads list usually takes you to contacts,
+                    //       // but providing a placeholder dialog as requested
                     //       Get.dialog(
                     //         AlertDialog(
                     //           title: const Text('Call Lead'),

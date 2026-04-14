@@ -7,6 +7,7 @@ import 'package:telecaller_app/ui/widgets/CustomSearchBar.dart';
 import 'package:telecaller_app/ui/widgets/custom-appbar.dart';
 import 'package:telecaller_app/ui/widgets/custome_icon_button.dart';
 import 'package:telecaller_app/ui/widgets/statusDashboard.dart';
+import 'package:intl/intl.dart';
 import 'leadscontact_controller.dart';
 
 class LeadsContactPage extends GetView<LeadsContactController> {
@@ -244,6 +245,48 @@ class LeadsContactPage extends GetView<LeadsContactController> {
               ),
             ],
           ),
+          const SizedBox(height: 12),
+          // Action Button
+          // SizedBox(
+          //   width: double.infinity,
+          //   child: ElevatedButton.icon(
+          //     onPressed: () {
+          //       Get.dialog(
+          //         AlertDialog(
+          //           title: const Text('Call Lead'),
+          //           content: Text('Calling ${lead.contact?.name ?? "N/A"}'),
+          //           actions: [
+          //             TextButton(
+          //               onPressed: () => Get.back(),
+          //               child: const Text('Cancel'),
+          //             ),
+          //             ElevatedButton(
+          //               onPressed: () {
+          //                 Get.back();
+          //                 controller.makeCall(lead.contact?.phone);
+          //               },
+          //               style: ElevatedButton.styleFrom(
+          //                 backgroundColor: AppColors.themeColor.primaryColor,
+          //                 foregroundColor: Colors.white,
+          //               ),
+          //               child: const Text('Call'),
+          //             ),
+          //           ],
+          //         ),
+          //       );
+          //     },
+          //     icon: const Icon(Icons.call, size: 16),
+          //     label: const Text('Call Now'),
+          //     style: ElevatedButton.styleFrom(
+          //       backgroundColor: AppColors.themeColor.primaryColor,
+          //       foregroundColor: Colors.white,
+          //       padding: const EdgeInsets.symmetric(vertical: 10),
+          //       shape: RoundedRectangleBorder(
+          //         borderRadius: BorderRadius.circular(8),
+          //       ),
+          //     ),
+          //   ),
+          // ),
         ],
       ),
     );
@@ -254,25 +297,19 @@ class LeadsContactPage extends GetView<LeadsContactController> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: _hexToColor(color).withOpacity(0.1),
-        border: Border.all(color: _hexToColor(color)),
-        borderRadius: BorderRadius.circular(4),
+        color: color.withOpacity(0.1),
+        border: Border.all(color: color.withOpacity(0.3)),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
         status,
         style: TextStyle(
           fontSize: 11,
-          color: _hexToColor(color),
-          fontWeight: FontWeight.w500,
+          color: color,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );
-  }
-
-  Color _hexToColor(String hexColor) {
-    final hexString = hexColor.replaceAll('#', '');
-    final intValue = int.parse(hexString, radix: 16);
-    return Color(intValue | 0xFF000000);
   }
 
   void _showFilterBottomSheet(BuildContext context) {
@@ -280,7 +317,7 @@ class LeadsContactPage extends GetView<LeadsContactController> {
       Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: AppColors.themeColor.cardBgColor,
+          color: AppColors.themeColor.cardColor,
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(20),
             topRight: Radius.circular(20),
@@ -421,10 +458,7 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                                 child: Text(
                                   controller.startDate.value != null &&
                                       controller.endDate.value != null
-                                      ? "${controller.startDate.value!
-                                      .toString().substring(
-                                      0, 10)}   →   ${controller.endDate.value!
-                                      .toString().substring(0, 10)}"
+                                      ? "${DateFormat('yyyy-MM-dd').format(controller.startDate.value!)}   →   ${DateFormat('yyyy-MM-dd').format(controller.endDate.value!)}"
                                       : "start_date_end_date".tr,
                                   style: TextStyle(
                                     color: controller.startDate.value != null
@@ -475,9 +509,7 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                         controller.applyFilters();
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme
-                            .of(context)
-                            .primaryColor,
+                        backgroundColor: AppColors.themeColor.primaryColor,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(25),
                         ),
@@ -505,7 +537,7 @@ class LeadsContactPage extends GetView<LeadsContactController> {
       Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: AppColors.themeColor.cardBgColor,
+          color: AppColors.themeColor.cardColor,
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(20),
             topRight: Radius.circular(20),
@@ -539,9 +571,7 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                     title: Text(entry.value),
                     value: entry.key,
                     groupValue: controller.sortBy.value,
-                    activeColor: Theme
-                        .of(context)
-                        .primaryColor,
+                    activeColor: AppColors.themeColor.primaryColor,
                     onChanged: (value) {
                       controller.sortBy.value = value!;
                       controller.resetAndReload();

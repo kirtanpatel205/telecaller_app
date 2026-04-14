@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pagewise/flutter_pagewise.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:get/get.dart';
-import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:telecaller_app/core/helpers/utils.dart';
 import 'package:telecaller_app/core/models/lead_contact_id_entity.dart';
@@ -230,26 +229,40 @@ class LeadsContactController extends GetxController {
     resetAndReload();
   }
 
-  String getStatusColor(String status) {
-    switch (status.toLowerCase()) {
-      case 'completed':
-        return '#4CAF50';
-      case 'pending':
-        return '#2196F3';
+  Color getStatusColor(String? status) {
+    switch (status?.toLowerCase()) {
       case 'scheduled':
-        return '#FF9800';
+        return const Color(0xFF4F46E5);
+      case 'completed':
+        return const Color(0xFF10B981);
+      case 'pending':
+        return const Color(0xFFF59E0B);
+      case 'cancelled':
+        return const Color(0xFFEF4444);
       case 'interested':
-        return '#8BC34A';
+        return const Color(0xFF8BC34A);
       case 'not interested':
-        return '#F44336';
+        return const Color(0xFFF44336);
       case 'follow up':
-        return '#9C27B0';
+        return const Color(0xFF9C27B0);
       case 'invalid':
-        return '#757575';
+        return const Color(0xFF757575);
       case 'no response':
-        return '#BDBDBD';
+        return const Color(0xFFBDBDBD);
       default:
-        return '#9E9E9E';
+        return const Color(0xFF6B7280);
+    }
+  }
+
+  Future<void> makeCall(String? phoneNumber) async {
+    if (phoneNumber != null && phoneNumber.isNotEmpty) {
+      await FlutterPhoneDirectCaller.callNumber(phoneNumber);
+    } else {
+      Get.snackbar(
+        "Error",
+        "Phone number not available",
+        snackPosition: SnackPosition.BOTTOM,
+      );
     }
   }
 
