@@ -1,10 +1,13 @@
+import 'dart:io' as java_io;
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:telecaller_app/core/models/all_lead_entity.dart';
 import 'package:telecaller_app/core/services/api_service.dart';
 import 'package:telecaller_app/ui/views/call_form/call_form_page.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:telecaller_app/constants/app_colors.dart';
 import 'package:telecaller_app/constants/app_text_style.dart';
 
@@ -27,10 +30,50 @@ const FORM_FIELD_TYPES = {
   "EXCEL": "excel",
 };
 
+const MIME_TO_EXT = {
+  "image/png": ".png",
+  "image/jpeg": ".jpg",
+  "image/jpg": ".jpg",
+  "image/gif": ".gif",
+  "video/mp4": ".mp4",
+  "audio/mpeg": ".mp3",
+  "application/pdf": ".pdf",
+  "application/ogg": ".ogg",
+};
+
+const ALLOWED_EXTENSIONS = [
+  ".png", ".jpg", ".jpeg", ".gif", 
+  ".mp4", 
+  ".mp3", 
+  ".pdf", 
+  ".ogg",
+  ".xls", ".xlsx", ".csv", 
+  ".doc", ".docx", ".txt", ".zip"
+];
+
+const ALLOWED_PICKER_EXTENSIONS = [
+  'pdf', 'doc', 'docx', 'txt', 'zip', 'xls', 'xlsx', 'csv', 'mp3', 'ogg', 'png', 'jpg', 'jpeg', 'gif', 'mp4'
+];
+
 class CallFormController extends GetxController {
   // ─────────────────────────────────────────────
-  // FORM KEY
+  // HELPERS — Centralized Type Detection
   // ─────────────────────────────────────────────
+  static String getEffectiveType(String? rawType, String? label) {
+    String type = (rawType ?? "").toLowerCase();
+    String lbl = (label ?? "").toLowerCase();
+
+    bool isExcelByLabel = lbl.contains("excel") || lbl.contains("sheet") || lbl.contains("csv") || lbl.contains("xls");
+    bool isFileByLabel = lbl.contains("file") || lbl.contains("document") || lbl.contains("pdf") || lbl.contains("attachment");
+
+    if (isExcelByLabel && (type != FORM_FIELD_TYPES["IMAGE"] && type != FORM_FIELD_TYPES["VIDEO"])) {
+      return FORM_FIELD_TYPES["EXCEL"]!;
+    } else if (isFileByLabel && (type != FORM_FIELD_TYPES["IMAGE"] && type != FORM_FIELD_TYPES["VIDEO"])) {
+      return FORM_FIELD_TYPES["FILE"]!;
+    }
+    return type;
+  }
+
   final formKey = GlobalKey<FormState>();
 
   // ─────────────────────────────────────────────
@@ -57,17 +100,29 @@ class CallFormController extends GetxController {
   Future<void> onSaveAndSubmit() async {
     if (!formKey.currentState!.validate()) return;
 
-    // Check required dynamic dropdowns/radios that aren't text-based
+    // 🔴 Manual validation for non-text fields
     for (var field in formFields) {
       if (field.required ?? false) {
-        if (field.type == FORM_FIELD_TYPES["SELECT"] ||
-            field.type == FORM_FIELD_TYPES["RADIO"]) {
-          if ((dynamicValues[field.id]?.value ?? "").isEmpty) {
+        final type = field.type;
+
+        if (type == FORM_FIELD_TYPES["SELECT"] ||
+            type == FORM_FIELD_TYPES["RADIO"] ||
+            type == FORM_FIELD_TYPES["CHECKBOX"] ||
+            type == FORM_FIELD_TYPES["FILE"] ||
+            type == FORM_FIELD_TYPES["IMAGE"] ||
+            type == FORM_FIELD_TYPES["VIDEO"] ||
+            type == FORM_FIELD_TYPES["EXCEL"] ||
+            type == FORM_FIELD_TYPES["SLIDER"] ||
+            type == FORM_FIELD_TYPES["RATING"]) {
+
+          final val = dynamicValues[field.id]?.value;
+
+          if (val == null || val.toString().isEmpty) {
             Get.snackbar(
               "Validation Error",
               "Please select a value for ${field.label}",
               snackPosition: SnackPosition.BOTTOM,
-              backgroundColor: Colors.red[400],
+              backgroundColor: Colors.red,
               colorText: Colors.white,
             );
             return;
@@ -79,7 +134,6 @@ class CallFormController extends GetxController {
     isLoading.value = true;
 
     try {
-      // Collect dynamic form data
       final Map<String, dynamic> formData = {
         "leadId": leadId.value,
         "formId": formId.value,
@@ -92,28 +146,96 @@ class CallFormController extends GetxController {
         if (fieldId.isEmpty) continue;
 
         dynamic value = "";
-        if (dynamicControllers.containsKey(fieldId)) {
+        String fType = getEffectiveType(field.type, field.label).toLowerCase();
+
+        // 🔥 MEDIA DETECTION
+        bool isMedia = (
+            fType == FORM_FIELD_TYPES["FILE"] ||
+                fType == FORM_FIELD_TYPES["IMAGE"] ||
+                fType == FORM_FIELD_TYPES["VIDEO"] ||
+                fType == FORM_FIELD_TYPES["EXCEL"] ||
+                fType.contains("file") ||
+                fType.contains("excel") ||
+                fType.contains("document")
+        );
+
+        // 📍 1. MEDIA FIELD (Prioritize dynamicValues)
+        if (isMedia && dynamicValues.containsKey(fieldId)) {
+          value = dynamicValues[fieldId]!.value;
+
+          print("🟡 MEDIA FIELD: $fType, RAW VALUE: $value");
+
+          // ✅ Case 1: "url|filename"
+          if (value is String && value.contains('|')) {
+            final parts = value.split('|');
+            value = {
+              "url": parts[0],
+              "name": parts.length > 1 ? parts[1] : parts[0].split('/').last
+            };
+          }
+          // ✅ Case 2: Only valid URL
+          else if (value is String && value.isNotEmpty && value.contains('/')) {
+            value = {
+              "url": value,
+              "name": value.split('/').last
+            };
+          }
+          // ✅ Case 3: Already Map
+          else if (value is Map) {
+            value = {
+              "url": value["url"] ?? "",
+              "name": value["name"] ?? ""
+            };
+          }
+          // ❌ Empty or invalid
+          else {
+            print("❌ MEDIA VALUE MISSING for $fType");
+            value = ""; 
+          }
+          print("🟢 FINAL MEDIA VALUE: $value");
+        }
+
+        // 📍 2. LOCATION FIELD
+        else if (fType == FORM_FIELD_TYPES["LOCATION"]) {
+          final lat = dynamicControllers["${fieldId}_lat"]?.text.trim() ?? "";
+          final lng = dynamicControllers["${fieldId}_lng"]?.text.trim() ?? "";
+
+          if (lat.isNotEmpty || lng.isNotEmpty) {
+            value = {
+              "latitude": double.tryParse(lat) ?? lat,
+              "longitude": double.tryParse(lng) ?? lng,
+              "coordinates": "$lat,$lng"
+            };
+          }
+        }
+
+        // 📍 3. TEXT-BASED FIELDS (Controllers)
+        else if (dynamicControllers.containsKey(fieldId)) {
           value = dynamicControllers[fieldId]!.text.trim();
-        } else if (dynamicValues.containsKey(fieldId)) {
+        }
+
+        // 📍 4. OTHER STATE-BASED FIELDS (Values)
+        else if (dynamicValues.containsKey(fieldId)) {
           value = dynamicValues[fieldId]!.value;
         }
 
-        // Handle specific types if needed (e.g. converting numeric strings to numbers)
+        // 🔢 NUMBER / RATING / SLIDER
         if (field.type == FORM_FIELD_TYPES["NUMBER"] ||
             field.type == FORM_FIELD_TYPES["RATING"] ||
             field.type == FORM_FIELD_TYPES["SLIDER"]) {
           value = num.tryParse(value.toString()) ?? value;
         }
 
-        // Handle Checkbox (send as List<String>)
+        // ✅ CHECKBOX → List
         if (field.type == FORM_FIELD_TYPES["CHECKBOX"]) {
           if (value is String && value.isNotEmpty) {
             value = value.split(",");
-          } else if (value == null || (value is String && value.isEmpty)) {
+          } else {
             value = [];
           }
         }
 
+        // 📦 ADD TO ANSWERS
         formData["answers"].add({
           "fieldId": fieldId,
           "label": field.label ?? "",
@@ -122,14 +244,16 @@ class CallFormController extends GetxController {
         });
       }
 
-      print("📋 Call Form Submitted: $formData");
+      print("📤 FINAL SUBMIT DATA: $formData");
 
       final apiService = Get.find<ApiService>();
       final response = await apiService.submitCallForm(formData);
 
       if (response.status ?? false) {
-        // ── Close dialog immediately ─────────────────────────────
+
+        // ✅ CLOSE DIALOG
         canClose.value = true;
+
         if (Get.isDialogOpen == true) {
           Get.back();
         } else {
@@ -138,32 +262,35 @@ class CallFormController extends GetxController {
           } catch (_) {}
         }
 
-        // ── Then show success message ────────────────────────────
+        // ✅ SUCCESS MESSAGE
         Get.snackbar(
           "Success",
           "Form submitted successfully!",
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.green[400],
+          backgroundColor: Colors.green,
           colorText: Colors.white,
           duration: const Duration(seconds: 2),
         );
+
       } else {
-        throw response.message ?? "Failed to submit form";
+        throw response.message ?? "Submit failed";
       }
+
     } catch (e) {
-      print("❌ Form submit error: $e");
+      print("❌ ERROR: $e");
+
       Get.snackbar(
         "Error",
-        "Failed to submit form. Please try again.",
+        "Failed to submit form",
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red[400],
+        backgroundColor: Colors.red,
         colorText: Colors.white,
       );
+
     } finally {
       isLoading.value = false;
     }
   }
-
   // ─────────────────────────────────────────────
   // RESET FORM
   // ─────────────────────────────────────────────
@@ -201,15 +328,167 @@ class CallFormController extends GetxController {
   // TIME PICKER
   // ─────────────────────────────────────────────
   Future<void> pickTime(BuildContext context, String fieldId) async {
-    final picked = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
+    Duration initialDuration = Duration.zero;
+
+    // Attempt to parse existing time if any
+    String? currentVal = dynamicValues[fieldId]?.value;
+    if (currentVal != null && currentVal.isNotEmpty) {
+      try {
+        final parts = currentVal.split(':');
+        if (parts.length >= 3) {
+          initialDuration = Duration(
+            hours: int.parse(parts[0]),
+            minutes: int.parse(parts[1]),
+            seconds: int.parse(parts[2]),
+          );
+        }
+      } catch (e) {
+        print("Error parsing time: $e");
+      }
+    } else {
+      // Default to current time if empty
+      final now = DateTime.now();
+      initialDuration = Duration(hours: now.hour, minutes: now.minute, seconds: now.second);
+    }
+
+    Get.bottomSheet(
+      Container(
+        height: 350,
+        decoration: BoxDecoration(
+          color: AppColors.themeColor.cardBgColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            // Header with title and buttons
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              decoration: BoxDecoration(
+                border: Border(bottom: BorderSide(color: Colors.grey.withOpacity(0.1), width: 1)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextButton(
+                    onPressed: () => Get.back(),
+                    child: Text(
+                      "cancel".tr,
+                      style: AppTextStyle.medium8.copyWith(color: Colors.grey, fontSize: 15),
+                    ),
+                  ),
+                  Text(
+                    "select_time".tr,
+                    style: AppTextStyle.bold11.copyWith(
+                      fontSize: 17,
+                      color: AppColors.themeColor.textPrimaryColor,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      final formatted =
+                          "${initialDuration.inHours.toString().padLeft(2, '0')}:${(initialDuration.inMinutes % 60).toString().padLeft(2, '0')}:${(initialDuration.inSeconds % 60).toString().padLeft(2, '0')}";
+                      dynamicControllers[fieldId]?.text = formatted;
+                      dynamicValues[fieldId]?.value = formatted;
+                      Get.back();
+                    },
+                    child: Text(
+                      "done".tr,
+                      style: AppTextStyle.bold11.copyWith(
+                        color: AppColors.themeColor.primaryColor,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Picker
+            Expanded(
+              child: CupertinoTheme(
+                data: CupertinoThemeData(
+                  textTheme: CupertinoTextThemeData(
+                    tabLabelTextStyle: AppTextStyle.medium8.copyWith(
+                      fontSize: 22,
+                      color: AppColors.themeColor.textPrimaryColor,
+                    ),
+                  ),
+                ),
+                child: CupertinoTimerPicker(
+                  mode: CupertinoTimerPickerMode.hms,
+                  initialTimerDuration: initialDuration,
+                  onTimerDurationChanged: (Duration newDuration) {
+                    initialDuration = newDuration;
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
     );
-    if (picked != null) {
-      final formatted =
-          "${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}";
-      dynamicControllers[fieldId]?.text = formatted;
-      dynamicValues[fieldId]?.value = formatted;
+  }
+
+  // ─────────────────────────────────────────────
+  // LOCATION PICKER
+  // ─────────────────────────────────────────
+  Future<void> fetchLocation(String fieldId) async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    Get.dialog(
+      const Center(child: CircularProgressIndicator()),
+      barrierDismissible: false,
+    );
+
+    try {
+      serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        Get.back();
+        Get.snackbar("Location Error", "Location services are disabled.",
+            snackPosition: SnackPosition.BOTTOM);
+        return;
+      }
+
+      permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          Get.back();
+          Get.snackbar("Location Error", "Location permissions are denied",
+              snackPosition: SnackPosition.BOTTOM);
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        Get.back();
+        Get.snackbar("Location Error", "Location permissions are permanently denied.",
+            snackPosition: SnackPosition.BOTTOM);
+        return;
+      }
+
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+        timeLimit: const Duration(seconds: 15),
+      );
+      
+      Get.back();
+      
+      dynamicControllers["${fieldId}_lat"]?.text = position.latitude.toString();
+      dynamicControllers["${fieldId}_lng"]?.text = position.longitude.toString();
+    } catch (e) {
+      if (Get.isDialogOpen ?? false) Get.back();
+      Get.snackbar("Location Error", "Failed to get location: $e",
+          snackPosition: SnackPosition.BOTTOM);
     }
   }
 
@@ -218,6 +497,54 @@ class CallFormController extends GetxController {
   // ─────────────────────────────────────────────────────────────────
   Future<void> pickMedia(String fieldId, String type) async {
     final ImagePicker picker = ImagePicker();
+
+    if (type == FORM_FIELD_TYPES["EXCEL"] || type == FORM_FIELD_TYPES["FILE"]) {
+      FileType fileType = FileType.any;
+      List<String>? allowedExtensions;
+
+      if (type == FORM_FIELD_TYPES["EXCEL"]) {
+        fileType = FileType.custom;
+        allowedExtensions = ['xls', 'xlsx', 'csv'];
+      } else if (type == FORM_FIELD_TYPES["FILE"]) {
+        // Explicitly allow common doc types including PDF and audio
+        fileType = FileType.custom;
+        allowedExtensions = ['pdf', 'doc', 'docx', 'txt', 'zip', 'mp3', 'ogg'];
+      }
+
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: fileType, 
+        allowedExtensions: allowedExtensions, 
+        allowMultiple: false
+      );
+      if (result != null && result.files.single.path != null) {
+        String path = result.files.single.path!;
+        String ext = "." + path.split('.').last.toLowerCase();
+        
+        if (!ALLOWED_EXTENSIONS.contains(ext)) {
+          Get.snackbar(
+            "Invalid File Type", 
+            "Selected file type ($ext) is not allowed.", 
+            snackPosition: SnackPosition.BOTTOM, 
+            backgroundColor: Colors.redAccent, 
+            colorText: Colors.white
+          );
+          return;
+        }
+
+        if (result.files.single.size > 2 * 1024 * 1024) {
+          Get.snackbar(
+            "File Too Large", 
+            "Please select a file smaller than 2 MB.", 
+            snackPosition: SnackPosition.BOTTOM, 
+            backgroundColor: Colors.redAccent, 
+            colorText: Colors.white
+          );
+          return;
+        }
+        _uploadToApi(fileId: fieldId, filePath: result.files.single.path!, type: type);
+      }
+      return;
+    }
 
     Get.bottomSheet(
       Container(
@@ -248,8 +575,7 @@ class CallFormController extends GetxController {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                if (type == FORM_FIELD_TYPES["FILE"] ||
-                    type == FORM_FIELD_TYPES["IMAGE"] ||
+                if (type == FORM_FIELD_TYPES["IMAGE"] ||
                     type == FORM_FIELD_TYPES["VIDEO"]) ...[
                   _buildOptionTile(
                     icon: Icons.camera_alt_rounded,
@@ -257,7 +583,6 @@ class CallFormController extends GetxController {
                     color: Colors.blue,
                     onTap: () async {
                       Get.back();
-                      // For generic FILE type, we'll default to Image picker for camera
                       final XFile? file =
                           type == FORM_FIELD_TYPES["VIDEO"]
                               ? await picker.pickVideo(
@@ -266,8 +591,20 @@ class CallFormController extends GetxController {
                               : await picker.pickImage(
                                 source: ImageSource.camera,
                               );
-                      if (file != null)
-                        dynamicValues[fieldId]?.value = file.name;
+                      if (file != null) {
+                        final length = await file.length();
+                        if (length > 5 * 1024 * 1024) {
+                          Get.snackbar(
+                            "File Too Large", 
+                            "Please select a file smaller than 5 MB.", 
+                            snackPosition: SnackPosition.BOTTOM, 
+                            backgroundColor: Colors.redAccent, 
+                            colorText: Colors.white
+                          );
+                          return;
+                        }
+                        _uploadToApi(fileId: fieldId, filePath: file.path, type: type);
+                      }
                     },
                   ),
                   _buildOptionTile(
@@ -276,7 +613,6 @@ class CallFormController extends GetxController {
                     color: Colors.purple,
                     onTap: () async {
                       Get.back();
-                      // For generic FILE type, we'll search both but Image is safer default here
                       final XFile? file =
                           type == FORM_FIELD_TYPES["VIDEO"]
                               ? await picker.pickVideo(
@@ -285,8 +621,20 @@ class CallFormController extends GetxController {
                               : await picker.pickImage(
                                 source: ImageSource.gallery,
                               );
-                      if (file != null)
-                        dynamicValues[fieldId]?.value = file.name;
+                      if (file != null) {
+                        final length = await file.length();
+                        if (length > 5 * 1024 * 1024) {
+                          Get.snackbar(
+                            "File Too Large", 
+                            "Please select a file smaller than 5 MB.", 
+                            snackPosition: SnackPosition.BOTTOM, 
+                            backgroundColor: Colors.redAccent, 
+                            colorText: Colors.white
+                          );
+                          return;
+                        }
+                        _uploadToApi(fileId: fieldId, filePath: file.path, type: type);
+                      }
                     },
                   ),
                 ],
@@ -297,15 +645,22 @@ class CallFormController extends GetxController {
                   onTap: () async {
                     Get.back();
                     FileType fileType = FileType.any;
-                    if (type == FORM_FIELD_TYPES["IMAGE"])
+                    List<String>? allowedExtensions;
+
+                    if (type == FORM_FIELD_TYPES["IMAGE"]) {
                       fileType = FileType.image;
-                    if (type == FORM_FIELD_TYPES["VIDEO"])
+                    } else if (type == FORM_FIELD_TYPES["VIDEO"]) {
                       fileType = FileType.video;
+                    } else if (type == FORM_FIELD_TYPES["EXCEL"]) {
+                      print("My file type is excel ${FileType.custom}");
+                      fileType = FileType.custom;
+                      allowedExtensions = ['xls', 'xlsx', 'csv'];
+                    }
 
                     FilePickerResult? result = await FilePicker.platform
-                        .pickFiles(type: fileType, allowMultiple: false);
-                    if (result != null) {
-                      dynamicValues[fieldId]?.value = result.files.single.name;
+                        .pickFiles(type: fileType, allowedExtensions: allowedExtensions, allowMultiple: false);
+                    if (result != null && result.files.single.path != null) {
+                      _uploadToApi(fileId: fieldId, filePath: result.files.single.path!, type: type);
                     }
                   },
                 ),
@@ -320,6 +675,71 @@ class CallFormController extends GetxController {
     );
   }
 
+  Future<void> _uploadToApi({
+    required String fileId,
+    required String filePath,
+    required String type,
+  }) async {
+    isLoading.value = true;
+
+    try {
+      final response = await Get.find<ApiService>().uploadMedia(
+        file: java_io.File(filePath),
+        type: type,
+      );
+
+      print("📥 UPLOAD RESPONSE: $response");
+
+      String? uploadedUrl;
+
+      // 🔥 DIRECT RESPONSE HANDLING (IMPORTANT)
+      if (response['downloadUrl'] != null) {
+        uploadedUrl = response['downloadUrl'];
+      } else if (response['url'] != null) {
+        uploadedUrl = response['url'];
+      }
+
+      if (uploadedUrl != null) {
+        String fileName = filePath.split('/').last;
+
+        dynamicValues[fileId]?.value =
+        "$uploadedUrl|$fileName";
+
+        print("✅ FINAL STORED: ${dynamicValues[fileId]?.value}");
+
+        Get.snackbar(
+          "Success",
+          "File uploaded successfully",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+
+      } else {
+        print("❌ URL NOT FOUND IN RESPONSE");
+
+        Get.snackbar(
+          "Error",
+          "Upload failed: URL missing",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+
+    } catch (e) {
+      print("❌ UPLOAD ERROR: $e");
+
+      Get.snackbar(
+        "Error",
+        "File upload failed",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
   Widget _buildOptionTile({
     required IconData icon,
     required String label,
@@ -395,33 +815,33 @@ class CallFormController extends GetxController {
         final fieldId = field.id ?? "";
         if (fieldId.isEmpty) continue;
 
-        final type = field.type;
+        String effectiveType = getEffectiveType(field.type, field.label);
 
         // 1. Initialize TextEditingControllers for text-based or display-as-text fields
-        if (type == FORM_FIELD_TYPES["TEXT"] ||
-            type == FORM_FIELD_TYPES["NUMBER"] ||
-            type == FORM_FIELD_TYPES["TEXTAREA"] ||
-            type == FORM_FIELD_TYPES["DATE"] ||
-            type == FORM_FIELD_TYPES["TIME"] ||
-            type == FORM_FIELD_TYPES["LINK"] ||
-            type == FORM_FIELD_TYPES["LOCATION"] ||
-            type == FORM_FIELD_TYPES["IMAGE"] ||
-            type == FORM_FIELD_TYPES["VIDEO"] ||
-            type == FORM_FIELD_TYPES["EXCEL"]) {
+        if (effectiveType == FORM_FIELD_TYPES["LOCATION"]) {
+          controller.dynamicControllers["${fieldId}_lat"] = TextEditingController();
+          controller.dynamicControllers["${fieldId}_lng"] = TextEditingController();
+        } else if (effectiveType == FORM_FIELD_TYPES["TEXT"] ||
+            effectiveType == FORM_FIELD_TYPES["NUMBER"] ||
+            effectiveType == FORM_FIELD_TYPES["TEXTAREA"] ||
+            effectiveType == FORM_FIELD_TYPES["DATE"] ||
+            effectiveType == FORM_FIELD_TYPES["TIME"] ||
+            effectiveType == FORM_FIELD_TYPES["LINK"]) {
           controller.dynamicControllers[fieldId] = TextEditingController();
         }
 
         // 2. Initialize RxString values for state-based fields
-        if (type == FORM_FIELD_TYPES["SELECT"] ||
-            type == FORM_FIELD_TYPES["RADIO"] ||
-            type == FORM_FIELD_TYPES["CHECKBOX"] ||
-            type == FORM_FIELD_TYPES["DATE"] ||
-            type == FORM_FIELD_TYPES["TIME"] ||
-            type == FORM_FIELD_TYPES["SLIDER"] ||
-            type == FORM_FIELD_TYPES["RATING"] ||
-            type == FORM_FIELD_TYPES["FILE"] ||
-            type == FORM_FIELD_TYPES["IMAGE"] ||
-            type == FORM_FIELD_TYPES["VIDEO"]) {
+        if (effectiveType == FORM_FIELD_TYPES["SELECT"] ||
+            effectiveType == FORM_FIELD_TYPES["RADIO"] ||
+            effectiveType == FORM_FIELD_TYPES["CHECKBOX"] ||
+            effectiveType == FORM_FIELD_TYPES["DATE"] ||
+            effectiveType == FORM_FIELD_TYPES["TIME"] ||
+            effectiveType == FORM_FIELD_TYPES["SLIDER"] ||
+            effectiveType == FORM_FIELD_TYPES["RATING"] ||
+            effectiveType == FORM_FIELD_TYPES["FILE"] ||
+            effectiveType == FORM_FIELD_TYPES["IMAGE"] ||
+            effectiveType == FORM_FIELD_TYPES["VIDEO"] ||
+            effectiveType == FORM_FIELD_TYPES["EXCEL"]) {
           controller.dynamicValues[fieldId] = "".obs;
         }
       }

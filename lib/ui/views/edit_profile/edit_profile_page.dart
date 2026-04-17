@@ -139,8 +139,8 @@ class EditProfilePage extends GetView<EditProfileController> {
                                     child: IconButton(
                                         onPressed: () {
                                           Get.bottomSheet(Container(
-                                            height: 120.h,
-                                            width: 100.w,
+                                            height: null, // Allow dynamic height
+                                            width: double.infinity,
                                             decoration: BoxDecoration(
                                                 color: AppColors
                                                     .themeColor.cardBgColor,
@@ -149,7 +149,9 @@ class EditProfilePage extends GetView<EditProfileController> {
                                                         Radius.circular(20),
                                                     topRight:
                                                         Radius.circular(20))),
+                                            padding: EdgeInsets.only(bottom: 20),
                                             child: Column(
+                                              mainAxisSize: MainAxisSize.min,
                                               children: [
                                                 ListTile(
                                                   title: Text(

@@ -391,14 +391,14 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                         isExpanded: true,
                         value: controller.status.value,
                         items: [
-                          {"key": "all", "label": "All"},
-                          {"key": "completed", "label": "Completed"},
-                          {"key": "scheduled", "label": "Scheduled"},
-                          {"key": "pending", "label": "Pending"},
+                          {"key": "all", "label": "all"},
+                          {"key": "completed", "label": "completed"},
+                          {"key": "scheduled", "label": "scheduled"},
+                          {"key": "pending", "label": "pending"},
                         ].map((status) {
                           return DropdownMenuItem<String>(
                             value: status["key"],
-                            child: Text(status["label"]!),
+                            child: Text(status["label"]!.tr),
                           );
                         }).toList(),
                         onChanged: (value) {
@@ -568,7 +568,7 @@ class LeadsContactPage extends GetView<LeadsContactController> {
             ...controller.sortOptions.entries.map((entry) {
               return Obx(() =>
                   RadioListTile<String>(
-                    title: Text(entry.value),
+                    title: Text(entry.value.tr),
                     value: entry.key,
                     groupValue: controller.sortBy.value,
                     activeColor: AppColors.themeColor.primaryColor,

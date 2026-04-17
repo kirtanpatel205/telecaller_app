@@ -129,10 +129,12 @@ class ApiService extends GetxService {
       filename: name.uri.pathSegments.last, // Use the actual file name
     );
     try {
+      print("📤 POST to: ${AppConstants.API_UPDATE_PROFILE_IMAGE}");
+      print("📦 Payload: {type: image, file: ${name.path}}");
       Map<String, dynamic> response = await client.post(
         AppConstants.API_UPDATE_PROFILE_IMAGE,
         data: {"type": "image", "file": multipartFile},
-        // isRaw: true,
+         // isRaw: true,
       );
 
       print("response : $multipartFile");
@@ -144,6 +146,92 @@ class ApiService extends GetxService {
     }
   }
 
+  Future<Map<String, dynamic>> uploadMedia({
+    required File file,
+    required String type,
+  }) async {
+
+    // 🔹 Normalize type
+    String apiType = type.toLowerCase();
+    print("📦 TYPE BEFORE: $apiType");
+
+    if (apiType.contains("excel") || apiType == "file") {
+      apiType = "document";
+    } else if (apiType == "image") {
+      apiType = "image";
+    } else if (apiType == "video") {
+      apiType = "video";
+    }
+
+    print("✅ TYPE AFTER: $apiType");
+
+    var multipartFile = await dio.MultipartFile.fromFile(
+      file.path,
+      filename: file.uri.pathSegments.last,
+    );
+
+    try {
+      print("📤 API: ${AppConstants.API_UPLOAD_MEDIA}");
+
+      Map<String, dynamic> response = await client.post(
+        AppConstants.API_UPLOAD_MEDIA,
+        data: {
+          "type": apiType,
+          "media": multipartFile,
+        },
+      );
+
+      print("📥 FULL RESPONSE: $response");
+
+      // 🔥 MAIN FIX START
+      if (response["status"] == true &&
+          response["downloadUrl"] != null) {
+
+        String url = response["downloadUrl"];
+
+        // 👉 file name extract
+        String name = file.path.split('/').last;
+
+        Map<String, dynamic> finalData = {
+          "url": url,
+          "name": name,
+        };
+
+        print("✅ FINAL RETURN: $finalData");
+
+        return finalData;
+      }
+      // 🔥 MAIN FIX END
+
+      return {
+        "status": false,
+        "message": response["message"] ?? "Upload failed"
+      };
+
+    } on dio.DioException catch (e) {
+      print("❌ Dio Error: ${e.response?.statusCode}");
+
+      if (e.response?.statusCode == 413) {
+        return {
+          "status": false,
+          "message": "File too large (Max 1-2MB allowed)"
+        };
+      }
+
+      return {
+        "status": false,
+        "message": e.message
+      };
+
+    } catch (e) {
+      print("❌ Upload Error: $e");
+
+      return {
+        "status": false,
+        "message": "Upload failed"
+      };
+    }
+  }
   Future<AllLeadEntity> allLead({
     int? page = 0,
     int? limit = 10,

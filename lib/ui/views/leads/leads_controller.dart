@@ -27,10 +27,10 @@ class LeadsController extends GetxController {
   final TextEditingController searchController = TextEditingController();
 
   final Map<String, String> sortOptions = {
-    "name": "Name",
-    "create": "Recently Created",
-    "start_date": "Start Date",
-    "end_date": "End Date",
+    "name": "name",
+    "create-at": "create-at",
+    "start_date": "start_date",
+    "end_date": "end_date",
   };
 
   late ApiService apiService;

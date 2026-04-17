@@ -32,6 +32,10 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
   final Map<String, List<Permission>> permissionGroups = {
     'Phone & Call': [Permission.phone],
     'Notifications': [Permission.notification],
+    'Location & Media': [
+      Permission.location,
+      Permission.camera,
+    ],
     'System & Overlay': [
       Permission.systemAlertWindow,
       Permission.ignoreBatteryOptimizations,
@@ -128,6 +132,12 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
         return 'Call History';
       case 'notification':
         return 'Notifications';
+      case 'location':
+        return 'Location';
+      case 'camera':
+        return 'Camera & Media';
+      case 'storage':
+        return 'Storage Access';
       case 'systemAlertWindow':
         return 'Screen Alerts';
       case 'ignoreBatteryOptimizations':
@@ -145,6 +155,12 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
         return 'Access call history and logs';
       case 'notification':
         return 'Alert you about blocked calls';
+      case 'location':
+        return 'Fetch current location for forms';
+      case 'camera':
+        return 'Capture photos and videos';
+      case 'storage':
+        return 'Access files and media';
       case 'systemAlertWindow':
         return 'Display floating alerts';
       case 'ignoreBatteryOptimizations':
@@ -166,6 +182,12 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
         return Icons.history_rounded;
       case 'notification':
         return Icons.notifications_active_rounded;
+      case 'location':
+        return Icons.location_on_rounded;
+      case 'camera':
+        return Icons.camera_alt_rounded;
+      case 'storage':
+        return Icons.folder_rounded;
       case 'systemAlertWindow':
         return Icons.layers_rounded;
       case 'ignoreBatteryOptimizations':

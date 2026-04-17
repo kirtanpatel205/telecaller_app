@@ -179,7 +179,19 @@
   "logout": "Logout",
   "decline": "Decline",
   "i_read_and_accepted_the ": "I read and accepted the ",
-  "continue": "Continue"
+  "continue": "Continue",
+  "name": "Name",
+  "create-at": "Created At",
+  "start_date": "Start Date",
+  "end_date": "End Date",
+  "email ":"Email",
+  "phone": "Phone",
+  "select_time": "Select Time",
+  "done": "Done",
+
+
+
+
 
 
 

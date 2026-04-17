@@ -268,11 +268,13 @@ class CallFormPage extends StatelessWidget {
     BuildContext context,
     AllLeadLeadsFormIdFields field,
   ) {
-    final String type = field.type ?? "";
-    final String label = field.label ?? "untitled_field".tr;
-    final String hint = field.placeholder ?? "Enter $label";
+    final String type = (field.type ?? "").toLowerCase();
+    final String label = (field.label ?? "untitled_field".tr).toLowerCase();
+    final String hint = field.placeholder ?? "Enter ${field.label ?? ''}";
     final bool isRequired = field.required ?? false;
     final String fieldId = field.id ?? "";
+
+    final String effectiveType = CallFormController.getEffectiveType(field.type, field.label);
 
     if (fieldId.isEmpty) return const SizedBox.shrink();
 
@@ -280,51 +282,90 @@ class CallFormPage extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildLabel(label, isRequired),
-        if (type == FORM_FIELD_TYPES["TEXT"] ||
-            type == FORM_FIELD_TYPES["NUMBER"] ||
-            type == FORM_FIELD_TYPES["TEXTAREA"] ||
-            type == FORM_FIELD_TYPES["LINK"] ||
-            type == FORM_FIELD_TYPES["LOCATION"] ||
-            type == FORM_FIELD_TYPES["IMAGE"] ||
-            type == FORM_FIELD_TYPES["VIDEO"]||type == FORM_FIELD_TYPES["EXCEL"] )
+        if (effectiveType == FORM_FIELD_TYPES["TEXT"] ||
+            effectiveType == FORM_FIELD_TYPES["NUMBER"] ||
+            effectiveType == FORM_FIELD_TYPES["TEXTAREA"] ||
+            effectiveType == FORM_FIELD_TYPES["LINK"])
           _buildTextField(
             controller: controller.dynamicControllers[fieldId],
             hint: hint,
-            keyboardType: type == FORM_FIELD_TYPES["NUMBER"] ? TextInputType.number : TextInputType.text,
-            maxLines: (type == FORM_FIELD_TYPES["TEXTAREA"]) ? 4 : 1,
-            prefixIcon: _getIconForType(type),
+            keyboardType: effectiveType == FORM_FIELD_TYPES["NUMBER"] ? TextInputType.number : TextInputType.text,
+            maxLines: (effectiveType == FORM_FIELD_TYPES["TEXTAREA"]) ? 4 : 1,
+            prefixIcon: _getIconForType(effectiveType),
             validator: isRequired
                 ? (val) => (val == null || val.trim().isEmpty) ? "$label is required" : null
                 : null,
           )
-        else if (type == FORM_FIELD_TYPES["SELECT"])
+        else if (effectiveType == FORM_FIELD_TYPES["LOCATION"])
+          Row(
+            children: [
+              Expanded(
+                child: _buildTextField(
+                  controller: controller.dynamicControllers["${fieldId}_lat"],
+                  hint: "Latitude",
+                  keyboardType: TextInputType.number,
+                  validator: isRequired
+                      ? (val) => (val == null || val.trim().isEmpty) ? "Latitude is required" : null
+                      : null,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildTextField(
+                  controller: controller.dynamicControllers["${fieldId}_lng"],
+                  hint: "Longitude",
+                  keyboardType: TextInputType.number,
+                  validator: isRequired
+                      ? (val) => (val == null || val.trim().isEmpty) ? "Longitude is required" : null
+                      : null,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                decoration: BoxDecoration(
+                  color: AppColors.themeColor.primaryColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: IconButton(
+                  icon: Icon(Icons.my_location_rounded, color: AppColors.themeColor.primaryColor),
+                  onPressed: () => controller.fetchLocation(fieldId),
+                ),
+              ),
+            ],
+          )
+        else if (effectiveType == FORM_FIELD_TYPES["SELECT"])
           _buildDropdown(
             selectedValue: controller.dynamicValues[fieldId],
             options: field.options ?? [],
             hint: hint,
           )
-        else if (type == FORM_FIELD_TYPES["RADIO"])
+        else if (effectiveType == FORM_FIELD_TYPES["RADIO"])
           _buildRadioGroup(
             options: field.options ?? [],
             selectedValue: controller.dynamicValues[fieldId],
           )
-        else if (type == FORM_FIELD_TYPES["CHECKBOX"])
+        else if (effectiveType == FORM_FIELD_TYPES["CHECKBOX"])
           _buildCheckboxGroup(
             options: field.options ?? [],
             selectedValue: controller.dynamicValues[fieldId],
           )
-        else if (type == FORM_FIELD_TYPES["DATE"])
+        else if (effectiveType == FORM_FIELD_TYPES["DATE"])
           _buildDateField(context, fieldId, hint)
-        else if (type == FORM_FIELD_TYPES["TIME"])
+        else if (effectiveType == FORM_FIELD_TYPES["TIME"])
           _buildTimeField(context, fieldId, hint)
-        else if (type == FORM_FIELD_TYPES["SLIDER"])
+        else if (effectiveType == FORM_FIELD_TYPES["SLIDER"])
           _buildSlider(fieldId)
-        else if (type == FORM_FIELD_TYPES["RATING"])
+        else if (effectiveType == FORM_FIELD_TYPES["RATING"])
           _buildRating(fieldId)
-        else if (type == FORM_FIELD_TYPES["FILE"])
-          _buildFilePicker(fieldId, hint, type)
+        else if (effectiveType == FORM_FIELD_TYPES["FILE"] ||
+                 effectiveType == FORM_FIELD_TYPES["IMAGE"] ||
+                 effectiveType == FORM_FIELD_TYPES["VIDEO"] ||
+                 effectiveType == FORM_FIELD_TYPES["EXCEL"] ||
+                 effectiveType.contains("excel") || 
+                 effectiveType.contains("file"))
+          _buildFilePicker(fieldId, hint, effectiveType)
         else
-          Text("Field type '$type' is currently not supported in UI", style: TextStyle(color: Colors.grey.shade400, fontSize: 12)),
+          Text("Field type '$effectiveType' is currently not supported in UI", style: TextStyle(color: Colors.grey.shade400, fontSize: 12)),
       ],
     );
   }
@@ -335,6 +376,7 @@ class CallFormPage extends StatelessWidget {
     if (type == FORM_FIELD_TYPES["NUMBER"]) return Icons.onetwothree_rounded;
     if (type == FORM_FIELD_TYPES["IMAGE"]) return Icons.image_outlined;
     if (type == FORM_FIELD_TYPES["VIDEO"]) return Icons.videocam_outlined;
+    if (type == FORM_FIELD_TYPES["EXCEL"]) return Icons.table_chart_outlined;
     return null;
   }
 
@@ -359,6 +401,7 @@ class CallFormPage extends StatelessWidget {
       readOnly: readOnly,
       onTap: onTap,
       maxLines: maxLines,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
       style: AppTextStyle.medium8.copyWith(fontSize: 14, color: AppColors.themeColor.textPrimaryColor),
       decoration: InputDecoration(
         hintText: hint,
@@ -633,12 +676,25 @@ class CallFormPage extends StatelessWidget {
     
     IconData icon = Icons.upload_file_rounded;
     Color accentColor = Colors.orange;
+    String displayHint = "Upload Document (Max 2MB)";
+
     if (type == FORM_FIELD_TYPES["IMAGE"]) {
       icon = Icons.image_outlined;
       accentColor = Colors.blue;
+      displayHint = "Upload Image (Max 5MB)";
     } else if (type == FORM_FIELD_TYPES["VIDEO"]) {
       icon = Icons.videocam_outlined;
       accentColor = Colors.purple;
+      displayHint = "Upload Video (Max 5MB)";
+    } else if (type == FORM_FIELD_TYPES["EXCEL"]) {
+      icon = Icons.table_chart_outlined;
+      accentColor = Colors.green;
+      displayHint = "Upload Excel Sheet (.xls, .csv)\nMax 2MB";
+    }
+
+    // Default to the provided hint if it's uniquely set by backend, else use our smart hint
+    if (hint.isNotEmpty && hint.toLowerCase() != "upload" && !hint.toLowerCase().contains("select")) {
+      displayHint = hint;
     }
 
     return Obx(() {
@@ -673,12 +729,14 @@ class CallFormPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      isSelected ? rx.value : hint,
+                      isSelected 
+                        ? (rx.value.contains('|') ? rx.value.split('|').last : rx.value) 
+                        : displayHint,
                       style: AppTextStyle.medium8.copyWith(
                         fontSize: 14,
                         color: isSelected ? AppColors.themeColor.textPrimaryColor : Colors.grey.shade400,
                       ),
-                      maxLines: 1,
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
                     if (isSelected)

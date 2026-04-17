@@ -34,11 +34,11 @@ class LeadsContactController extends GetxController {
   final TextEditingController searchController = TextEditingController();
 
   final Map<String, String> sortOptions = {
-    "name": "Name",
-    "email": "Email",
-    "phone": "Phone Number",
-    "create": "Created Date",
-    "update": "Updated Date",
+    "name": "name",
+    "email": "email",
+    "phone": "phone",
+    "create-at": "create-at",
+    // "update": "Updated Date",
   };
 
   late PagewiseLoadController<LeadContactIdLeadContacts>

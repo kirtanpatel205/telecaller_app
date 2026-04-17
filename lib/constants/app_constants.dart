@@ -51,6 +51,7 @@ class AppConstants {
   static String API_PROFILE = '$API_URL/auth/profile';
   static String API_UPDATE_PROFILE = '$API_URL/auth/profile/save';
   static String API_UPDATE_PROFILE_IMAGE = '$API_URL/app/upload-image';
+  static String API_UPLOAD_MEDIA = '$API_URL/app/upload-media';
 
   // lead all
 

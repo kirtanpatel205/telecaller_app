@@ -160,48 +160,74 @@ class DashboardPage extends GetView<HomeController> {
       ),
       child: Stack(
         children: [
-          Padding(
-            padding: const EdgeInsets.only(right: 28.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  title,
-                  style: AppTextStyle.semiBold8.copyWith(
-                    fontSize: 14,
-                    color: Get.isDarkMode ? Colors.black87 : AppColors.themeColor.textPrimaryColor,
+          // MAIN CONTENT
+          Positioned.fill(
+            child: Padding(
+              padding: const EdgeInsets.only(right: 28.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // TITLE
+                  Text(
+                    title,
+                    style: AppTextStyle.semiBold8.copyWith(
+                      fontSize: 14,
+                      color: Get.isDarkMode
+                          ? Colors.black87
+                          : AppColors.themeColor.textPrimaryColor,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  value,
-                  style: AppTextStyle.semiBold8.copyWith(
-                    fontSize: 28,
-                    color: Get.isDarkMode ? Colors.black : AppColors.themeColor.textPrimaryColor,
+
+                  const SizedBox(height: 6),
+
+                  // VALUE (BIG TEXT SAFE)
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      value,
+                      style: AppTextStyle.semiBold8.copyWith(
+                        fontSize: 28,
+                        color: Get.isDarkMode
+                            ? Colors.black
+                            : AppColors.themeColor.textPrimaryColor,
+                      ),
+                    ),
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: AppTextStyle.regular6.copyWith(
-                    fontSize: 12,
-                    color: Get.isDarkMode ? Colors.black54 : AppColors.themeColor.textPrimaryColor.withAlpha(178),
+
+                  const SizedBox(height: 2),
+
+                  // SUBTITLE (FLEXIBLE → NO OVERFLOW)
+                  Flexible(
+                    child: Text(
+                      subtitle,
+                      style: AppTextStyle.regular6.copyWith(
+                        fontSize: 12,
+                        color: Get.isDarkMode
+                            ? Colors.black54
+                            : AppColors.themeColor.textPrimaryColor.withAlpha(178),
+                      ),
+                      maxLines: 1, // 👈 IMPORTANT (avoid overflow)
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+                ],
+              ),
             ),
           ),
+
+          // ICON
           Positioned(
             top: 0,
             right: 0,
-            child: Icon(icon, color: iconColor, size: 24),
+            child: Icon(
+              icon,
+              color: iconColor,
+              size: 24,
+            ),
           ),
         ],
       ),

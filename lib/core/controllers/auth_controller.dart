@@ -94,7 +94,7 @@ class AuthController extends GetxController {
 
     // ✅ Only reaches here when NOT showing permissions screen
     print("Permissions already shown, going to Home");
-    Get.offAllNamed(Routes.HOME);
+    // Get.offAllNamed(Routes.HOME);
   }
   Future refreshProfile() async {
     LoginResponseProfile profileEntity = await api.profile();

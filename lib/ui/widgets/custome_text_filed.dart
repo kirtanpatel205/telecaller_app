@@ -71,6 +71,7 @@ class CustomTextFormField extends StatelessWidget {
       ),
       controller: this.controller,
       keyboardType: this.inputType,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
     );
   }
 }

@@ -90,7 +90,12 @@ class EditProfileController extends GetxController {
   RxString imagepath = ''.obs;
   Future getImage1() async {
     final ImagePicker _picker = ImagePicker();
-    final XFile? image = await _picker.pickImage(source: ImageSource.camera);
+    final XFile? image = await _picker.pickImage(
+      source: ImageSource.camera,
+      imageQuality: 70,
+      maxWidth: 1024,
+      maxHeight: 1024,
+    );
     if (image != null) {
       print("getImage imagepath : $imagepath");
       imagepath.value = image.path;
@@ -99,7 +104,12 @@ class EditProfileController extends GetxController {
   }
   Future getImage() async {
     final ImagePicker _picker = ImagePicker();
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    final XFile? image = await _picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 70,
+      maxWidth: 1024,
+      maxHeight: 1024,
+    );
     if (image != null) {
       imagepath.value = image.path;
       print('getImage imagepath : $imagepath');
@@ -110,10 +120,27 @@ class EditProfileController extends GetxController {
   updateImage(var name)async{
     Map<String, dynamic> response  = await apiService.UpdateprofileImage(
         name: name);
-    if (response["status"]==true) {
-      Utils.showToast(response["message"]);
-      downloadUrl.value = response["downloadUrl"];
-      // authController.refreshProfile();
+    if (response["status"] == true) {
+      Utils.showToast(response["message"] ?? "Image uploaded");
+      
+      // Robust URL extraction
+      String? uploadedUrl;
+      if (response['data'] != null && response['data']['url'] != null) {
+        uploadedUrl = response['data']['url'];
+      } else if (response['url'] != null) {
+        uploadedUrl = response['url'];
+      } else if (response['image'] != null) {
+        uploadedUrl = response['image'];
+      } else if (response['path'] != null) {
+        uploadedUrl = response['path'];
+      } else if (response['downloadUrl'] != null) {
+        uploadedUrl = response['downloadUrl'];
+      }
+
+      if (uploadedUrl != null) {
+        downloadUrl.value = uploadedUrl;
+      }
+      
       Get.back();
     }
   }
