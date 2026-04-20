@@ -398,6 +398,32 @@ class OverlayController extends GetxController {
     super.onInit();
   }
 
+  // ─────────────────────────────────────────────
+  // CALL CANCELLED — Rollback queue
+  // ─────────────────────────────────────────────
+  void handleCallCancelled() {
+    print("🚫 handleCallCancelled: Resetting autodialer state");
+    
+    if (isAutoCallMode.value) {
+      if (currentQueueIndex.value > 0) {
+        currentQueueIndex.value--;
+        print("⏪ Rolled back currentQueueIndex to ${currentQueueIndex.value}");
+      }
+      isAutoCallMode.value = false; // Stop the auto-progression
+    }
+
+    stopCountdown();
+
+    Get.snackbar(
+      "Call Cancelled",
+      "SIM selection was cancelled. Autodialer paused.",
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.orange[400],
+      colorText: Colors.white,
+      duration: const Duration(seconds: 4),
+    );
+  }
+
   @override
   void onClose() {
     stopCountdown();

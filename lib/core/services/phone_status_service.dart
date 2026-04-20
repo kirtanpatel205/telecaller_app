@@ -57,6 +57,10 @@ class PhoneStatusService extends GetxService {
   // Removed strict locks that blocked legitimate Call End events
   int _lastEventTimestamp = 0;
 
+  // ── Dual SIM Debounce ─────────────────────────────────────────────────────
+  Timer? _debounceTimer;
+  bool _isCallConfirmed = false;
+
   // ─────────────────────────────────────────────────────────────────────────
   // PUBLIC API
   // ─────────────────────────────────────────────────────────────────────────
@@ -175,22 +179,31 @@ class PhoneStatusService extends GetxService {
 
     try {
       _uiState = _CallUIState.callActive;
-      isCallActive.value = true;
-      callStatus.value = "Call Started";
-      _callStartTime = DateTime.now();
+      _isCallConfirmed = false;
 
       if (number != null && number.isNotEmpty) {
         phoneNumber.value = number;
       }
 
-      print("📞 CALL_STARTED: ${phoneNumber.value} | Lead: $currentLeadId");
+      print("⏳ CALL_STARTED detected (Debouncing 2s): ${phoneNumber.value}");
 
-      await _emitCallStart();
+      // Start debounce timer to filter out SIM selection cancels
+      _debounceTimer?.cancel();
+      _debounceTimer = Timer(const Duration(seconds: 2), () async {
+        _isCallConfirmed = true;
+        isCallActive.value = true;
+        callStatus.value = "Call Started";
+        _callStartTime = DateTime.now();
 
-      if (!_isBackground) {
-        // unawaited — runs in background, manages its own lifecycle
-        _openCallForm();
-      }
+        print("📞 CALL_CONFIRMED: ${phoneNumber.value} | Lead: $currentLeadId");
+
+        await _emitCallStart();
+
+        if (!_isBackground) {
+          // unawaited — runs in background, manages its own lifecycle
+          _openCallForm();
+        }
+      });
     } catch (e) {
       print("❌ Error in _handleCallStarted: $e");
     }
@@ -249,6 +262,10 @@ class PhoneStatusService extends GetxService {
   // ─────────────────────────────────────────────────────────────────────────
 
   void _handleCallEnded(String? number) async {
+    // 1. Cancel debounce timer immediately
+    _debounceTimer?.cancel();
+    _debounceTimer = null;
+
     // Allow processing if not idle OR if we can recover a session ID
     // (This handles cases where the isolate started mid-call)
     final savedSessionId = await Storage.getActiveSessionId();
@@ -265,6 +282,16 @@ class PhoneStatusService extends GetxService {
     }
 
     try {
+      // 🚨 Dual SIM Cancellation Check
+      if (!_isCallConfirmed) {
+        print("🚫 CALL_CANCELLED: Call ended before 2s threshold (likely SIM selection cancel or failed dial)");
+        if (Get.isRegistered<OverlayController>()) {
+          Get.find<OverlayController>().handleCallCancelled();
+        }
+        _resetToIdle();
+        return;
+      }
+
       // ── Capture data ───────────────────────────────────────────────────────
       final endedNumber =
       (number != null && number.isNotEmpty) ? number : phoneNumber.value;
@@ -453,6 +480,7 @@ class PhoneStatusService extends GetxService {
 
   void _resetToIdle() {
     _uiState = _CallUIState.idle;
+    _isCallConfirmed = false;
     currentLeadId = null;
     currentFormId = null;
     currentLeadContactId = null;

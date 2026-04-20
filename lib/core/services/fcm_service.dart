@@ -373,23 +373,10 @@ Future<Map<String, String>> _handleNotificationPayload(
         });
       }
 
-      try {
-        if (Get.isRegistered<SocketController>()) {
-          final SocketController socket = Get.find<SocketController>();
-          print(
-            '📤 [FCM Backup] Attempting call-start emission for lead $leadId',
-          );
-          await socket.emitCallStart(
-            callSessionId:
-                callSessionId ??
-                'fcm_fallback_${DateTime.now().millisecondsSinceEpoch}',
-            leadContactId: leadId ?? 'unknown',
-            callId: phoneNumber ?? 'unknown',
-          );
-        }
-      } catch (e) {
-        print('❌ [FCM Backup] Socket emission failed: $e');
-      }
+      // 🚨 REDUNDANT EMISSION REMOVED: 
+      // The call-start event is now handled exclusively by PhoneStatusService 
+      // which includes a 2-second debounce timer to filter out SIM selection 
+      // cancellations on Dual SIM devices.
 
       try {
         if (Platform.isAndroid) {
