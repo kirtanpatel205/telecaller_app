@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_pagewise/flutter_pagewise.dart';
 import 'package:get/get.dart';
@@ -5,7 +7,6 @@ import 'package:telecaller_app/constants/app_colors.dart';
 import 'package:telecaller_app/core/models/all_lead_entity.dart';
 import 'package:telecaller_app/core/models/lead_contact_id_entity.dart';
 import 'package:telecaller_app/ui/views/auto_dialer/autodialer_controller.dart';
-import '../../widgets/custom-appbar.dart';
 
 // Note: flutter_pagewise is still needed for the contacts PagewiseSliverList
 
@@ -18,96 +19,217 @@ class AutoDialerPage extends GetView<AutoDialerController> {
 
     return Scaffold(
       backgroundColor: AppColors.themeColor.scaffoldBackgroundColor,
-      extendBodyBehindAppBar: true,
-      appBar: CustomAppBar(
-        leading: const SizedBox(),
-        // backgroundColor: Colors.transparent,
-        title: Text(
-          'auto_dialer'.tr,
-          style: TextStyle(
-            color: AppColors.themeColor.textPrimaryColor,
-            fontWeight: FontWeight.bold,
-            fontFamily: 'Poppins',
-          ),
-        ),
-      ),
       body: Stack(
         children: [
-          // Background Gradient decoration
-          // Positioned(
-          //   top: -100,
-          //   right: -50,
-          //   child: Container(
-          //     width: 300,
-          //     height: 300,
-          //     decoration: BoxDecoration(
-          //       shape: BoxShape.circle,
-          //       color: Colors.indigo.withOpacity(0.05),
-          //     ),
-          //   ),
-          // ),
-
-          RefreshIndicator(
-            onRefresh: () async => controller.resetLeads(),
-            displacement: 100,
-            child: CustomScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              slivers: [
-                const SliverToBoxAdapter(child: SizedBox(height: 100)),
-
-                // ── PREMIMUM DASHBOARD ──────────────────────
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: isTablet ? 32 : 16),
-                    child: _buildPremiumDashboard(isTablet),
-                  ),
+          Column(
+            children: [
+              // ── FIXED TOP SECTION ──────────────────────
+              Container(
+                decoration: BoxDecoration(
+                  color: AppColors.themeColor.scaffoldBackgroundColor,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
                 ),
-
-                const SliverToBoxAdapter(child: SizedBox(height: 24)),
-
-                // ── Lead Dropdown Card ─────
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: isTablet ? 32 : 16),
-                    child: _buildLeadDropdownCard(isTablet),
-                  ),
-                ),
-
-                const SliverToBoxAdapter(child: SizedBox(height: 24)),
-
-                // ── Contact Section header (only when lead selected) ─
-                SliverToBoxAdapter(
-                  child: Obx(() {
-                    final lead = controller.selectedLeadDataset.value;
-                    if (lead == null) return const SizedBox.shrink();
-                    return Padding(
+                child: Column(
+                  children: [
+                    _buildSimpleAppBar(context),
+                    Padding(
                       padding: EdgeInsets.symmetric(horizontal: isTablet ? 32 : 16),
                       child: Column(
                         children: [
-                           _buildContactSectionHeader(isTablet, lead),
-                           const SizedBox(height: 12),
+                          _buildLeadDropdownCard(isTablet),
+                          const SizedBox(height: 16),
+                          Obx(() => controller.selectedLeadDataset.value != null
+                              ? _buildPremiumDashboardSection(isTablet)
+                              : const SizedBox.shrink()),
+                          const SizedBox(height: 16),
                         ],
                       ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // ── SCROLLABLE MIDDLE SECTION ──────────────
+              Expanded(
+                child: RefreshIndicator(
+                  onRefresh: () async => controller.resetLeads(),
+                  displacement: 20,
+                  color: AppColors.themeColor.primaryColor,
+                  child: Obx(() {
+                    final lead = controller.selectedLeadDataset.value;
+                    
+                    return CustomScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      slivers: [
+                        const SliverToBoxAdapter(child: SizedBox(height: 16)),
+                        
+                        if (lead == null)
+                          _buildInitialEmptyState(isTablet)
+                        else ...[
+                          // Contact Section header
+                          SliverToBoxAdapter(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: isTablet ? 32 : 16),
+                              child: Column(
+                                children: [
+                                  _buildContactSectionHeader(isTablet, lead),
+                                  const SizedBox(height: 12),
+                                ],
+                              ),
+                            ),
+                          ),
+
+                          // Pagewise Contacts List
+                          _buildContactsPaginatedSliver(isTablet),
+                        ],
+
+                        // Bottom padding to avoid overlap with sticky bar
+                        const SliverToBoxAdapter(child: SizedBox(height: 120)),
+                      ],
                     );
                   }),
                 ),
-
-                // ── Pagewise Contacts List ────────────────────
-                _buildContactsPaginatedSliver(isTablet),
-
-                // bottom padding
-                const SliverToBoxAdapter(child: SizedBox(height: 40)),
-              ],
-            ),
+              ),
+            ],
+          ),
+          
+          // ── STICKY CONTROL CENTER ──────────────────────
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: _buildStickyControlCenter(isTablet),
           ),
         ],
       ),
     );
   }
 
-  // ─────────────────────────────────────────────
-  // LEAD DROPDOWN CARD (pagewise)
-  // ─────────────────────────────────────────────
+  Widget _buildSimpleAppBar(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top, bottom: 8),
+      child: Row(
+        children: [
+          IconButton(
+            icon: Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.themeColor.textPrimaryColor, size: 20),
+            onPressed: () => Get.back(),
+          ),
+          Expanded(
+            child: Text(
+              'auto_dialer'.tr.toUpperCase(),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: AppColors.themeColor.textPrimaryColor,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                letterSpacing: 2,
+                fontFamily: 'Poppins',
+              ),
+            ),
+          ),
+          Obx(() => Container(
+            margin: const EdgeInsets.only(right: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: Colors.green.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              '${controller.successRate.toStringAsFixed(1)}%',
+              style: const TextStyle(color: Colors.green, fontSize: 10, fontWeight: FontWeight.bold),
+            ),
+          )),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPremiumDashboardSection(bool isTablet) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 3,
+              height: 12,
+              decoration: BoxDecoration(
+                color: AppColors.themeColor.primaryColor,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'campaign_performance'.tr,
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+                color: AppColors.themeColor.primaryColor,
+                letterSpacing: 1.5,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        _buildPerformanceStatsRow(isTablet),
+      ],
+    );
+  }
+
+  Widget _buildPerformanceStatsRow(bool isTablet) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        _buildStatCard('total'.tr, controller.totalAttempts, AppColors.themeColor.primaryColor),
+        _buildStatCard('success'.tr, controller.successful, const Color(0xFF10B981)),
+        _buildStatCard('failed'.tr, controller.failed, const Color(0xFFEF4444)),
+      ],
+    );
+  }
+
+  Widget _buildStatCard(String label, RxInt value, Color color) {
+    return Expanded(
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 4),
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: color.withOpacity(0.2)),
+        ),
+        child: Column(
+          children: [
+            Obx(() => Text(
+              value.value.toString(),
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: color,
+                fontFamily: 'Poppins',
+              ),
+            )),
+            const SizedBox(height: 4),
+            Text(
+              label.toUpperCase(),
+              style: TextStyle(
+                fontSize: 9,
+                fontWeight: FontWeight.bold,
+                color: AppColors.themeColor.textSecondaryColor,
+                letterSpacing: 1,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildLeadDropdownCard(bool isTablet) {
     return Obx(() {
       final leads = controller.leadsDropdownList;
@@ -139,10 +261,10 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: Colors.indigo.withOpacity(0.1),
+                        color: AppColors.themeColor.primaryColor.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Icon(Icons.folder_copy_rounded, color: Colors.indigo, size: 18),
+                      child: Icon(Icons.folder_copy_rounded, color: AppColors.themeColor.primaryColor, size: 18),
                     ),
                     const SizedBox(width: 12),
                     Text(
@@ -160,12 +282,12 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Colors.indigo.withOpacity(0.05),
+                      color: AppColors.themeColor.primaryColor.withOpacity(0.05),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
                       '${leads.length} ${"active".tr}',
-                      style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.indigo),
+                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.themeColor.primaryColor),
                     ),
                   ),
               ],
@@ -191,7 +313,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                           'select_a_campaign…'.tr,
                           style: TextStyle(color: AppColors.themeColor.textSecondaryColor, fontSize: 13),
                         ),
-                        icon: const Icon(Icons.unfold_more_rounded, color: Colors.indigo, size: 20),
+                        icon: Icon(Icons.unfold_more_rounded, color: AppColors.themeColor.primaryColor, size: 20),
                         items: [
                           ...leads.map((lead) => DropdownMenuItem<String>(
                                 value: lead.id,
@@ -210,7 +332,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                               child: Center(
                                 child: Text(
                                   isLoadingMore ? 'Loading…' : 'Load More',
-                                  style: const TextStyle(fontSize: 12, color: Colors.indigo, fontWeight: FontWeight.bold),
+                                  style: TextStyle(fontSize: 12, color: AppColors.themeColor.primaryColor, fontWeight: FontWeight.bold),
                                 ),
                               ),
                             ),
@@ -236,22 +358,22 @@ class AutoDialerPage extends GetView<AutoDialerController> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
-                  color: Colors.indigo.withOpacity(0.05),
+                  color: AppColors.themeColor.primaryColor.withOpacity(0.05),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.check_circle_rounded, color: Colors.indigo, size: 16),
+                    Icon(Icons.check_circle_rounded, color: AppColors.themeColor.primaryColor, size: 16),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         '${"active".tr}: ${selected.name}',
-                        style: const TextStyle(color: Colors.indigo, fontWeight: FontWeight.bold, fontSize: 12),
+                        style: TextStyle(color: AppColors.themeColor.primaryColor, fontWeight: FontWeight.bold, fontSize: 12),
                       ),
                     ),
                     GestureDetector(
                       onTap: () => controller.clearLeadSelection(),
-                      child: const Icon(Icons.close_rounded, color: Colors.indigo, size: 16),
+                      child: Icon(Icons.close_rounded, color: AppColors.themeColor.primaryColor, size: 16),
                     ),
                   ],
                 ),
@@ -263,9 +385,6 @@ class AutoDialerPage extends GetView<AutoDialerController> {
     });
   }
 
-  // ─────────────────────────────────────────────
-  // CONTACT SECTION HEADER
-  // ─────────────────────────────────────────────
   Widget _buildContactSectionHeader(bool isTablet, AllLeadLeads lead) {
     return Row(
       children: [
@@ -273,10 +392,10 @@ class AutoDialerPage extends GetView<AutoDialerController> {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: Colors.indigo.withOpacity(0.1),
+            color: AppColors.themeColor.primaryColor.withOpacity(0.1),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: const Icon(Icons.people_alt_rounded, color: Colors.indigo, size: 20),
+          child: Icon(Icons.people_alt_rounded, color: AppColors.themeColor.primaryColor, size: 20),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -305,73 +424,59 @@ class AutoDialerPage extends GetView<AutoDialerController> {
             ],
           ),
         ),
-        Obx(() => Container(
+        Obx(() => Row(
+          children: [
+            _buildStatusFilterDropdown(),
+            const SizedBox(width: 8),
+            Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: Colors.indigo.withOpacity(0.1),
+                color: AppColors.themeColor.primaryColor.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
                 '${controller.totalContacts.value} ${"reachable".tr}',
-                style: const TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.indigo,
-                ),
+                style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.themeColor.primaryColor),
               ),
-            )),
+            ),
+          ],
+        )),
       ],
     );
   }
 
-  // ─────────────────────────────────────────────
-  // PAGEWISE CONTACTS SLIVER
-  // ─────────────────────────────────────────────
   Widget _buildContactsPaginatedSliver(bool isTablet) {
     final hPad = isTablet ? 32.0 : 16.0;
 
     return GetBuilder<AutoDialerController>(
       builder: (ctrl) {
         final contactsCtrl = ctrl.pagewiseContactsController;
-        // When no lead is selected, return an empty box (not a sliver)
-        if (contactsCtrl == null) {
-          return const SliverToBoxAdapter(child: SizedBox.shrink());
-        }
+        if (contactsCtrl == null) return const SliverToBoxAdapter(child: SizedBox.shrink());
 
         return PagewiseSliverList<LeadContactIdLeadContacts>(
           pageLoadController: contactsCtrl,
-          // loadingBuilder — plain box widget, displayed as a list row while loading
           loadingBuilder: (context) => const Padding(
             padding: EdgeInsets.all(24),
             child: Center(child: CircularProgressIndicator()),
           ),
-          // noItemsFoundBuilder — plain box widget, library wraps it in SliverFillRemaining
           noItemsFoundBuilder: (context) => Padding(
             padding: EdgeInsets.symmetric(horizontal: hPad, vertical: 24),
             child: Container(
               padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-        color: AppColors.themeColor.cardBgColor,
-                borderRadius: BorderRadius.circular(16),
-              ),
+              decoration: BoxDecoration(color: AppColors.themeColor.cardBgColor, borderRadius: BorderRadius.circular(16)),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.contact_phone_outlined,
-                      size: 48, color: AppColors.themeColor.textSecondaryColor),
+                  Icon(Icons.contact_phone_outlined, size: 48, color: AppColors.themeColor.textSecondaryColor),
                   const SizedBox(height: 12),
                   Text(
                     'No contacts found for this lead',
-                    style: TextStyle(
-                      color: AppColors.themeColor.textSecondaryColor,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    style: TextStyle(color: AppColors.themeColor.textSecondaryColor, fontWeight: FontWeight.w500),
                   ),
                 ],
               ),
             ),
           ),
-          // retryBuilder — plain box widget, library wraps it in SliverFillRemaining
           retryBuilder: (context, retryFn) => Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -382,10 +487,8 @@ class AutoDialerPage extends GetView<AutoDialerController> {
               const SizedBox(height: 12),
               ElevatedButton(
                 onPressed: retryFn,
-                style:
-                    ElevatedButton.styleFrom(backgroundColor: AppColors.themeColor.primaryColor),
-                child: const Text('Retry',
-                    style: TextStyle(color: Colors.white)),
+                style: ElevatedButton.styleFrom(backgroundColor: AppColors.themeColor.primaryColor),
+                child: const Text('Retry', style: TextStyle(color: Colors.white)),
               ),
               const SizedBox(height: 24),
             ],
@@ -403,21 +506,15 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                   duration: const Duration(milliseconds: 300),
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: isCurrent
-                        ? AppColors.themeColor.primaryColor.withOpacity(0.05)
-                        : AppColors.themeColor.cardBgColor,
+                    color: isCurrent ? AppColors.themeColor.primaryColor.withOpacity(0.05) : AppColors.themeColor.cardBgColor,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: isCurrent
-                          ? AppColors.themeColor.primaryColor.withOpacity(0.3)
-                          : AppColors.themeColor.bordercolror.withOpacity(0.5),
+                      color: isCurrent ? AppColors.themeColor.primaryColor.withOpacity(0.3) : AppColors.themeColor.bordercolror.withOpacity(0.5),
                       width: isCurrent ? 1.5 : 1,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: isCurrent
-                            ? AppColors.themeColor.primaryColor.withOpacity(0.1)
-                            : Colors.black.withOpacity(0.03),
+                        color: isCurrent ? AppColors.themeColor.primaryColor.withOpacity(0.1) : Colors.black.withOpacity(0.03),
                         blurRadius: 15,
                         offset: const Offset(0, 8),
                       ),
@@ -425,27 +522,16 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                   ),
                   child: Row(
                     children: [
-                      // Modern Avatar
                       Container(
                         width: 48,
                         height: 48,
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
-                            colors: isCurrent
-                                ? [const Color(0xFF6366F1), const Color(0xFF4F46E5)]
-                                : [Colors.grey.shade200, Colors.grey.shade100],
+                            colors: isCurrent ? [const Color(0xFF6366F1), const Color(0xFF4F46E5)] : [Colors.grey.shade200, Colors.grey.shade100],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
                           shape: BoxShape.circle,
-                          boxShadow: [
-                            if (isCurrent)
-                              BoxShadow(
-                                color: const Color(0xFF6366F1).withOpacity(0.3),
-                                blurRadius: 8,
-                                offset: const Offset(0, 4),
-                              ),
-                          ],
                         ),
                         child: Center(
                           child: Text(
@@ -460,59 +546,30 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                         ),
                       ),
                       const SizedBox(width: 16),
-                      // Information
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              name,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.themeColor.textPrimaryColor,
-                                fontSize: 15,
-                                fontFamily: 'Poppins',
-                                letterSpacing: 0.2,
-                              ),
-                            ),
+                            Text(name, style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.themeColor.textPrimaryColor, fontSize: 15, fontFamily: 'Poppins')),
                             const SizedBox(height: 4),
                             Row(
                               children: [
                                 Icon(Icons.phone_outlined, size: 12, color: AppColors.themeColor.textSecondaryColor),
                                 const SizedBox(width: 4),
-                                Text(
-                                  phone,
-                                  style: TextStyle(
-                                    color: AppColors.themeColor.textSecondaryColor,
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
+                                Text(phone, style: TextStyle(color: AppColors.themeColor.textSecondaryColor, fontSize: 13, fontWeight: FontWeight.w500)),
                               ],
                             ),
                             if (status.isNotEmpty) ...[
                               const SizedBox(height: 8),
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: Colors.orange.withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                child: Text(
-                                  status,
-                                  style: const TextStyle(
-                                    fontSize: 10,
-                                    color: Colors.orange,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 0.5,
-                                  ),
-                                ),
+                                decoration: BoxDecoration(color: Colors.orange.withOpacity(0.1), borderRadius: BorderRadius.circular(6)),
+                                child: Text(status, style: const TextStyle(fontSize: 10, color: Colors.orange, fontWeight: FontWeight.bold)),
                               ),
                             ],
                           ],
                         ),
                       ),
-                      // Action Button
                       Material(
                         color: Colors.transparent,
                         child: InkWell(
@@ -521,15 +578,8 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                           child: Container(
                             width: 44,
                             height: 44,
-                            decoration: BoxDecoration(
-                              color: Colors.green.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                            child: const Icon(
-                              Icons.call_rounded,
-                              color: Colors.green,
-                              size: 22,
-                            ),
+                            decoration: BoxDecoration(color: Colors.green.withOpacity(0.1), borderRadius: BorderRadius.circular(14)),
+                            child: const Icon(Icons.call_rounded, color: Colors.green, size: 22),
                           ),
                         ),
                       ),
@@ -543,384 +593,200 @@ class AutoDialerPage extends GetView<AutoDialerController> {
       },
     );
   }
-
-  // ─────────────────────────────────────────────
-  // PERFORMANCE STATS CARD
-  // ─────────────────────────────────────────────
-  Widget _buildPremiumDashboard(bool isTablet) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.themeColor.cardBgColor,
-        borderRadius: BorderRadius.circular(30),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 30,
-            offset: const Offset(0, 15),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          _buildPerformanceStatsCard(isTablet),
-          const Divider(height: 1, indent: 20, endIndent: 20),
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: _buildCurrentCallCard(isTablet),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-            child: _buildDialerControlsCard(isTablet),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPerformanceStatsCard(bool isTablet) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    width: 4,
-                    height: 16,
-                    decoration: BoxDecoration(
-                      color: AppColors.themeColor.primaryColor,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'campaign_performance'.tr,
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.themeColor.textPrimaryColor,
-                      letterSpacing: 1.5,
-                      fontFamily: 'Poppins',
-                    ),
-                  ),
-                ],
-              ),
-              Obx(() {
-                final total = controller.totalAttempts.value;
-                final succ = controller.successful.value;
-                final rate = total > 0 ? (succ / total * 100).toStringAsFixed(1) : "0.0";
-                return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Colors.green.withOpacity(0.1), Colors.green.withOpacity(0.2)],
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.green.withOpacity(0.2)),
-                  ),
-                  child: Text(
-                    '${"success_rate".tr}: $rate%'.tr,
-                    style: const TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green,
-                    ),
-                  ),
-                );
-              }),
-            ],
-          ),
-          const SizedBox(height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildModernStatItem('total'.tr, controller.totalAttempts, Icons.call_outlined, const Color(0xFF6366F1)),
-              _buildModernStatItem('success'.tr, controller.successful, Icons.star_outline_rounded, const Color(0xFFF59E0B)),
-              _buildModernStatItem('failed'.tr, controller.failed, Icons.error_outline_rounded, const Color(0xFFEF4444)),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildModernStatItem(String label, RxInt value, IconData icon, Color color) {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(icon, size: 20, color: color),
-        ),
-        const SizedBox(height: 10),
-        Obx(() => Text(
-              value.value.toString(),
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppColors.themeColor.textPrimaryColor,
-                fontFamily: 'Poppins',
-              ),
-            )),
-        Text(
-          label.toUpperCase(),
-          style: TextStyle(
-            fontSize: 9,
-            fontWeight: FontWeight.bold,
-            color: AppColors.themeColor.textSecondaryColor,
-            letterSpacing: 1,
-          ),
-        ),
-      ],
-    );
-  }
-
-  // ─────────────────────────────────────────────
-  // CURRENT CALL CARD
-  // ─────────────────────────────────────────────
-  Widget _buildCurrentCallCard(bool isTablet) {
+  Widget _buildStickyControlCenter(bool isTablet) {
     return Obx(() {
-      final lead = controller.currentContact.value;
-      final nextLead = controller.nextContact.value;
       final status = controller.status.value;
-      final isDialing = status == 'dialing';
-      final isSettled = status == 'settled';
-      final isCountdown = status == 'counting_down';
-      final cdValue = controller.countdown.value;
-
-      Color mainColor = Colors.indigo;
-      IconData icon = Icons.person;
-      String statusText = 'ready_to_start'.tr;
-
-      if (isDialing) {
-        mainColor = const Color(0xFF6366F1);
-        statusText = 'active_call'.tr;
-        icon = Icons.graphic_eq_rounded;
-      } else if (isSettled) {
-        mainColor = const Color(0xFF10B981);
-        statusText = 'settled'.tr;
-        icon = Icons.check_circle_rounded;
-      } else if (isCountdown) {
-        mainColor = const Color(0xFFF59E0B);
-        statusText = '${"next_in".tr} $cdValue'.tr;
-        icon = Icons.timer_rounded;
-      } else if (status == 'paused') {
-        mainColor = const Color(0xFF64748B);
-        statusText = 'paused'.tr;
-        icon = Icons.pause_circle_rounded;
-      }
+      final isIdle = status == 'idle';
 
       return AnimatedContainer(
         duration: const Duration(milliseconds: 500),
-        padding: const EdgeInsets.all(24),
+        curve: Curves.easeInOut,
+        margin: EdgeInsets.all(isIdle ? 0 : 16),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(24),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              mainColor.withOpacity(0.05),
-              mainColor.withOpacity(0.15),
-            ],
-          ),
-          border: Border.all(
-            color: mainColor.withOpacity(0.2),
-            width: 1.5,
+          color: isIdle ? Colors.transparent : AppColors.themeColor.cardColor.withOpacity(0.95),
+          borderRadius: BorderRadius.circular(isIdle ? 0 : 32),
+          boxShadow: [
+            if (!isIdle)
+              BoxShadow(
+                color: Colors.black.withOpacity(0.15),
+                blurRadius: 30,
+                offset: const Offset(0, 15),
+              ),
+          ],
+          border: isIdle ? null : Border.all(color: AppColors.themeColor.bordercolror.withOpacity(0.2)),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(isIdle ? 0 : 32),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+            child: Padding(
+              padding: EdgeInsets.all(isIdle ? 0 : 8),
+              child: isIdle ? _buildIdleStartButton(isTablet) : _buildActiveControlBar(isTablet),
+            ),
           ),
         ),
-        child: Column(
-          children: [
-            Row(
+      );
+    });
+  }
+
+  Widget _buildIdleStartButton(bool isTablet) {
+    return Obx(() {
+      final hasLead = controller.selectedLeadDataset.value != null;
+      final isPendingView = controller.selectedContactStatus.value == 'pending';
+      
+      if (!hasLead || !isPendingView) return const SizedBox.shrink();
+
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+        child: _buildPremiumButton(
+          onTap: () => controller.startDialing(),
+          label: 'start_dialer'.tr,
+          icon: Icons.rocket_launch_rounded,
+          gradient: [AppColors.themeColor.primaryColor, AppColors.themeColor.primaryColor.withOpacity(0.8)],
+        ),
+      );
+    });
+  }
+
+  Widget _buildActiveControlBar(bool isTablet) {
+    final status = controller.status.value;
+    final isPaused = status == 'paused';
+    final isDialing = status == 'dialing';
+    final isCountdown = status == 'counting_down';
+    final current = controller.currentContact.value;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      child: Row(
+        children: [
+          Expanded(
+            child: Row(
               children: [
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    if (isDialing)
-                       TweenAnimationBuilder(
-                        tween: Tween(begin: 0.0, end: 1.0),
-                        duration: const Duration(seconds: 1),
-                        builder: (context, double value, child) {
-                          return Container(
-                            width: 50 + (value * 20),
-                            height: 50 + (value * 20),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: mainColor.withOpacity(0.2 * (1 - value)),
-                                width: 2,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    Container(
-                      width: 50,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: mainColor.withOpacity(0.2),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(icon, color: mainColor, size: 26),
-                    ),
-                  ],
-                ),
-                const SizedBox(width: 16),
+                _buildActiveAvatar(isDialing),
+                const SizedBox(width: 14),
                 Expanded(
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        statusText.toUpperCase(),
+                        current?.contact?.name ?? 'prepare_call'.tr,
                         style: TextStyle(
-                          fontSize: 10,
                           fontWeight: FontWeight.bold,
-                          color: mainColor,
-                          letterSpacing: 1.5,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        lead?.contact?.name ?? 'select_a_lead'.tr,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
                           color: AppColors.themeColor.textPrimaryColor,
+                          fontFamily: 'Poppins',
                         ),
                         overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 2),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: (isDialing ? Colors.green : (isCountdown ? Colors.orange : Colors.grey)).withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          isDialing ? 'on_call'.tr.toUpperCase() : (isCountdown ? 'next_dial'.tr.toUpperCase() : 'paused'.tr.toUpperCase()),
+                          style: TextStyle(
+                            fontSize: 9,
+                            color: isDialing ? Colors.green : (isCountdown ? Colors.orange : AppColors.themeColor.textSecondaryColor),
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 1,
+                          ),
+                        ),
                       ),
                     ],
                   ),
                 ),
               ],
             ),
-            if (lead != null) ...[
-              const SizedBox(height: 20),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.white.withOpacity(0.5)),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.phone_iphone_rounded, size: 16, color: mainColor),
-                    const SizedBox(width: 10),
-                    Text(
-                      lead.contact?.phone ?? 'N/A',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.themeColor.textSecondaryColor,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                    const Spacer(),
-                    if (isDialing)
-                      Text(
-                        controller.callTimer.value,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: mainColor,
-                          fontFamily: 'monospace',
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ],
-            if (nextLead != null && !isDialing) ...[
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                   Text(
-                    'next'.tr,
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey,
-                    ),
-                  ),
-                  Text(
-                    " : ${nextLead.contact?.name}" ?? 'Unknown',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.themeColor.textPrimaryColor.withOpacity(0.7),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ],
-        ),
-      );
-    });
-  }
-
-  // ─────────────────────────────────────────────
-  // DIALER CONTROLS CARD
-  // ─────────────────────────────────────────────
-  Widget _buildDialerControlsCard(bool isTablet) {
-    return Obx(() {
-      final status = controller.status.value;
-      final isIdle = status == 'idle';
-      final isPaused = status == 'paused';
-
-      return Column(
-        children: [
-          Row(
-            children: [
-              // MAIN ACTION BUTTON (Start / Pause / Resume)
-              Expanded(
-                flex: 2,
-                child: isIdle
-                    ? (controller.selectedLeadDataset.value != null
-                        ? _buildPremiumButton(
-                            onTap: () => controller.startDialing(),
-                            label: 'start_dialer'.tr,
-                            icon: Icons.rocket_launch_rounded,
-                            gradient: const [Color(0xFF6366F1), Color(0xFF4F46E5)],
-                          )
-                        : const SizedBox.shrink()) // Hide if no lead selected
-                    : _buildPremiumButton(
-                        onTap: () {
-                          if (isPaused) {
-                            controller.resumeDialing();
-                          } else {
-                            controller.pauseDialing();
-                          }
-                        },
-                        label: isPaused ? 'resume'.tr : 'paused'.tr,
-                        icon: isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded,
-                        gradient: isPaused
-                            ? const [Color(0xFF10B981), Color(0xFF059669)]
-                            : const [Color(0xFFF59E0B), Color(0xFFD97706)],
-                      ),
-              ),
-              if (!isIdle) ...[
-                const SizedBox(width: 12),
-                // STOP BUTTON
-                _buildPremiumButton(
-                  onTap: () => controller.stopDialing(),
-                  label: 'stop'.tr,
-                  icon: Icons.stop_rounded,
-                  gradient: const [Color(0xFFEF4444), Color(0xFFDC2626)],
-                  width: 100,
+          ),
+          // Timer with a more modern "Digital" feel
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            decoration: BoxDecoration(
+              color: AppColors.themeColor.scaffoldBackgroundColor,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.themeColor.bordercolror.withOpacity(0.2)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.03),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
                 ),
               ],
+            ),
+            child: Text(
+              isCountdown ? controller.countdown.value.toString() : controller.callTimer.value,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'monospace',
+                color: AppColors.themeColor.textPrimaryColor,
+                letterSpacing: 1,
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          // Actions
+          Row(
+            children: [
+              _buildMiniControlButton(
+                onTap: () => isPaused ? controller.resumeDialing() : controller.pauseDialing(),
+                icon: isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded,
+                color: isPaused ? Colors.green : Colors.orange,
+              ),
+              const SizedBox(width: 12),
+              _buildMiniControlButton(
+                onTap: () => controller.stopDialing(),
+                icon: Icons.stop_rounded,
+                color: Colors.red,
+              ),
             ],
           ),
         ],
-      );
-    });
+      ),
+    );
+  }
+
+  Widget _buildActiveAvatar(bool isDialing) {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        if (isDialing) _PulsingRing(color: AppColors.themeColor.primaryColor),
+        Container(
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(color: AppColors.themeColor.primaryColor.withOpacity(0.12), shape: BoxShape.circle),
+          child: Icon(Icons.phone_in_talk_rounded, color: AppColors.themeColor.primaryColor, size: 22),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMiniControlButton({
+    required VoidCallback onTap,
+    required IconData icon,
+    required Color color,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          width: 48,
+          height: 48,
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.12),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: color.withOpacity(0.32)),
+          ),
+          child: Icon(icon, color: color, size: 24),
+        ),
+      ),
+    );
   }
 
   Widget _buildPremiumButton({
@@ -933,7 +799,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 56,
+        height: 60,
         width: width,
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -941,32 +807,218 @@ class AutoDialerPage extends GetView<AutoDialerController> {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: gradient.first.withOpacity(0.3),
-              blurRadius: 12,
-              offset: const Offset(0, 6),
+              color: gradient.first.withOpacity(0.35),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
             ),
           ],
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: Colors.white, size: 22),
-            const SizedBox(width: 8),
+            Icon(icon, color: Colors.white, size: 24),
+            const SizedBox(width: 10),
             Text(
               label,
               style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
-                fontSize: 14,
-                letterSpacing: 1,
+                fontSize: 15,
+                letterSpacing: 1.2,
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildInitialEmptyState(bool isTablet) {
+    return SliverFillRemaining(
+      hasScrollBody: false,
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 40),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Premium Glow Icon
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  Container(
+                    width: 140,
+                    height: 140,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
+                        colors: [
+                          AppColors.themeColor.primaryColor.withOpacity(0.15),
+                          AppColors.themeColor.primaryColor.withOpacity(0.0),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.all(28),
+                    decoration: BoxDecoration(
+                      color: AppColors.themeColor.cardBgColor,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.themeColor.primaryColor.withOpacity(0.1),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
+                    ),
+                    child: Icon(
+                      Icons.dashboard_customize_rounded,
+                      size: 48,
+                      color: AppColors.themeColor.primaryColor,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 32),
+              // Text Content
+              Text(
+                'ready_to_start'.tr,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.themeColor.textPrimaryColor,
+                  fontFamily: 'Poppins',
+                  letterSpacing: 0.5,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'select_a_lead_dataset_above_to_begin_your_outreach_campaign'.tr,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  height: 1.5,
+                  color: AppColors.themeColor.textSecondaryColor,
+                  fontFamily: 'Poppins',
+                ),
+              ),
+              const SizedBox(height: 48),
+              // Subtle Indicator Arrow
+              Icon(
+                Icons.keyboard_double_arrow_up_rounded,
+                color: AppColors.themeColor.primaryColor.withOpacity(0.3),
+                size: 24,
+              ),
+            ],
+          ),
+        ),
+      ));
+  }
+
+  Widget _buildStatusFilterDropdown() {
+    return PopupMenuButton<String>(
+      onSelected: (val) => controller.onContactStatusChanged(val),
+      offset: const Offset(0, 48),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: AppColors.themeColor.cardColor,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppColors.themeColor.bordercolror.withOpacity(0.3)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.filter_list_rounded, color: AppColors.themeColor.primaryColor, size: 16),
+            const SizedBox(width: 6),
+            Text(
+              controller.selectedContactStatus.value.tr,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                color: AppColors.themeColor.primaryColor,
+              ),
+            ),
+            Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.themeColor.primaryColor, size: 14),
+          ],
+        ),
+      ),
+      itemBuilder: (context) => [
+        _buildPopupMenuItem('pending', Icons.hourglass_top_rounded),
+        _buildPopupMenuItem('completed', Icons.check_circle_rounded),
+      ],
+    );
+  }
+
+  PopupMenuItem<String> _buildPopupMenuItem(String value, IconData icon) {
+    final isSelected = controller.selectedContactStatus.value == value;
+    return PopupMenuItem<String>(
+      value: value,
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            size: 20,
+            color: isSelected ? AppColors.themeColor.primaryColor : AppColors.themeColor.textSecondaryColor,
+          ),
+          const SizedBox(width: 12),
+          Text(
+            value.tr,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              color: isSelected ? AppColors.themeColor.primaryColor : AppColors.themeColor.textPrimaryColor,
+            ),
+          ),
+          if (isSelected) ...[
+            const Spacer(),
+            Icon(Icons.check_rounded, color: AppColors.themeColor.primaryColor, size: 16),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _PulsingRing extends StatefulWidget {
+  final Color color;
+  const _PulsingRing({Key? key, required this.color}) : super(key: key);
+  @override
+  _PulsingRingState createState() => _PulsingRingState();
+}
+
+class _PulsingRingState extends State<_PulsingRing> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 2))..repeat();
+  }
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Container(
+          width: 40 + (_controller.value * 20),
+          height: 40 + (_controller.value * 20),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: widget.color.withOpacity(1 - _controller.value), width: 2),
+          ),
+        );
+      },
     );
   }
 }

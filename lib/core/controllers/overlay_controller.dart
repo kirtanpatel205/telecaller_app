@@ -122,6 +122,16 @@ class OverlayController extends GetxController {
   void resumeCountdown() {
     print("▶️ Auto-dialer Resumed");
     isPaused.value = false;
+    
+    // If the timer was stopped (e.g. after a cancellation), restart it
+    if (_countdownTimer == null && isAutoCallMode.value) {
+      if (countdown.value > 0) {
+        startCountdown(seconds: countdown.value, isPreCall: _isPreCallMode);
+      } else {
+        // If countdown reached 0, treat as a fresh pre-call start
+        _prepareNextCall();
+      }
+    }
   }
 
   void stopCountdown() {
@@ -129,6 +139,7 @@ class OverlayController extends GetxController {
     _countdownTimer?.cancel();
     _countdownTimer = null;
     isPaused.value = false;
+    isAutoCallMode.value = false; // Reset auto-dialer mode
     countdown.value = 0;
   }
 
@@ -413,7 +424,8 @@ class OverlayController extends GetxController {
         currentQueueIndex.value--;
         print("⏪ Rolled back currentQueueIndex to ${currentQueueIndex.value}");
       }
-      isAutoCallMode.value = false; // Stop the auto-progression
+      // isAutoCallMode.value = false; // Keep auto mode true so Play can resume
+      isPaused.value = true; // Trigger the Paused state UI
     }
 
     stopCountdown();

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:flutter_pagewise/flutter_pagewise.dart';
 import 'package:get/get.dart';
 import 'package:telecaller_app/core/controllers/overlay_controller.dart';
@@ -20,6 +21,11 @@ class AutoDialerController extends GetxController {
   final connected = 0.obs;
   final successful = 0.obs;
   final failed = 0.obs;
+  
+  double get successRate {
+    if (totalAttempts.value == 0) return 0.0;
+    return (successful.value / totalAttempts.value) * 100;
+  }
 
   // ─────────────────────────────────────────────
   // CALL TIMER
@@ -51,6 +57,9 @@ class AutoDialerController extends GetxController {
 
   // Flat list kept in sync for the auto-dialer queue builder
   final contactQueue = <LeadContactIdLeadContacts>[].obs;
+  
+  // Filtering
+  final selectedContactStatus = 'pending'.obs;
 
   // ─────────────────────────────────────────────
   // DIALER SETTINGS
@@ -237,10 +246,12 @@ class AutoDialerController extends GetxController {
           pageSize: 10,
           pageFuture: (pageNumber) async {
             try {
+              final statusFilter = selectedContactStatus.value;
               final response = await _apiService.getCallLead(
                 id: leadId,
                 page: pageNumber ?? 0,
                 limit: 10,
+                filterBy: statusFilter == 'all' ? null : {"status": statusFilter},
               );
               if (response.status ?? false) {
                 totalContacts.value = response.total ?? 0;
@@ -274,6 +285,16 @@ class AutoDialerController extends GetxController {
         );
 
     update(); // notify GetBuilder/Obx about new controller
+  }
+
+  void onContactStatusChanged(String statusValue) {
+    if (selectedContactStatus.value == statusValue) return;
+    selectedContactStatus.value = statusValue;
+
+    final lead = selectedLeadDataset.value;
+    if (lead != null && lead.id != null) {
+      _initContactsPagewise(lead.id!);
+    }
   }
 
   // ─────────────────────────────────────────────────────────────────
@@ -331,6 +352,17 @@ class AutoDialerController extends GetxController {
   // AUTO-DIAL START
   // ─────────────────────────────────────────────────────────────────
   void startDialing() {
+    if (selectedContactStatus.value != 'pending') {
+      Get.snackbar(
+        'Action Restricted',
+        'Auto Dialer can only be started from the "Pending" list.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.orange[400],
+        colorText: Colors.white,
+      );
+      return;
+    }
+
     if (contactQueue.isEmpty) {
       Get.snackbar(
         'Error',
@@ -394,12 +426,15 @@ class AutoDialerController extends GetxController {
       final index = overlayCtrl.currentQueueIndex.value;
       final cdValue = overlayCtrl.countdown.value;
 
-      // Update status based on countdown
-      if (cdValue > 0 && !overlayCtrl.isPaused.value) {
-        status.value = 'counting_down';
+      // Update status based on auto-mode, countdown, and pause state
+      if (!overlayCtrl.isAutoCallMode.value) {
+        status.value = 'idle';
       } else if (overlayCtrl.isPaused.value) {
         status.value = 'paused';
-      } else if (status.value == 'counting_down' && cdValue == 0) {
+      } else if (cdValue > 0) {
+        status.value = 'counting_down';
+      } else {
+        // If auto-mode is active, not paused, and no countdown, we are actively dialing
         status.value = 'dialing';
       }
 
