@@ -278,6 +278,13 @@ void onStart(ServiceInstance service) async {
             "✅ Background callSessionId updated: ${event['callSessionId']}",
           );
         }
+        if (event['phoneNumber'] != null) {
+          // New: Explicitly track the number we are supposed to call
+          service.targetPhoneNumber.value = event['phoneNumber'];
+          print(
+            "✅ Background targetPhoneNumber updated: ${event['phoneNumber']}",
+          );
+        }
       } else {
         print("⚠️ Background: PhoneStatusService not registered yet");
       }

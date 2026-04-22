@@ -28,6 +28,7 @@ class PhoneStatusService extends GetxService {
   // ── Reactive state (for external observers) ───────────────────────────────
   var callStatus = "Idle".obs;
   var phoneNumber = "".obs;
+  var targetPhoneNumber = "".obs; // New: Specific number the app is currently calling
   var isCallActive = false.obs;
 
   // ── Background flag ───────────────────────────────────────────────────────
@@ -293,8 +294,11 @@ class PhoneStatusService extends GetxService {
       }
 
       // ── Capture data ───────────────────────────────────────────────────────
-      final endedNumber =
-      (number != null && number.isNotEmpty) ? number : phoneNumber.value;
+      // Prioritize targetPhoneNumber (the one we intended to call) over
+      // the dynamic phoneNumber which might have been overwritten by an incoming call.
+      final endedNumber = targetPhoneNumber.value.isNotEmpty
+          ? targetPhoneNumber.value
+          : ((number != null && number.isNotEmpty) ? number : phoneNumber.value);
 
       // 🚨 RACE PROTECTION: Update state immediately before any async await
       // to block concurrent events from entering this block.
@@ -485,6 +489,7 @@ class PhoneStatusService extends GetxService {
     currentFormId = null;
     currentLeadContactId = null;
     currentFormFields = [];
+    targetPhoneNumber.value = ""; // Reset target tracker
     _isOverlayPending = false;
 
     // Also reset CallFormController if it exists

@@ -370,6 +370,7 @@ Future<Map<String, String>> _handleNotificationPayload(
         FlutterBackgroundService().invoke('set_lead_info', {
           'leadId': leadId,
           'callSessionId': callSessionId,
+          'phoneNumber': phoneNumber,
         });
       }
 

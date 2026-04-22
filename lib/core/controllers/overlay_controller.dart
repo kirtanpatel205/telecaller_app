@@ -275,6 +275,7 @@ class OverlayController extends GetxController {
       final ps = Get.find<PhoneStatusService>();
       ps.currentLeadId = next["id"];
       ps.currentLeadContactId = next["leadContactId"];
+      ps.targetPhoneNumber.value = number;
       
       // Restore form metadata from AutoDialerController if available
       if (Get.isRegistered<AutoDialerController>()) {
@@ -290,7 +291,10 @@ class OverlayController extends GetxController {
     }
 
     // Sync with background service
-    FlutterBackgroundService().invoke('set_lead_info', {'leadId': currentLeadId});
+    FlutterBackgroundService().invoke('set_lead_info', {
+      'leadId': currentLeadId,
+      'phoneNumber': number,
+    });
 
     if (number.isNotEmpty) {
       makeDirectCall(number);
