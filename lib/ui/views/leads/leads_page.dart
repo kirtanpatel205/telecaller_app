@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:sliver_tools/sliver_tools.dart';
 import 'package:telecaller_app/constants/app_colors.dart';
+import 'package:telecaller_app/constants/app_dimens.dart';
 import 'package:telecaller_app/constants/app_text_style.dart';
 import 'package:telecaller_app/core/models/all_lead_entity.dart';
 import 'package:telecaller_app/ui/views/home/home_controller.dart';
@@ -31,18 +32,21 @@ class LeadsPage extends GetView<LeadsController> {
                 pinned: true,
                 floating: true,
                 backgroundColor: AppColors.themeColor.cardColor,
+                elevation: 0,
+                centerTitle: true,
                 title: Text(
                   "leads".tr,
                   style: AppTextStyle.appBarTitleStyle.copyWith(
                     color: AppColors.themeColor.textPrimaryColor,
-                    fontSize: 15,
+                    fontSize: AppDimens.fontSize18,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
               SliverToBoxAdapter(
                 child: Column(
                   children: [
-                    const SizedBox(height: 10),
+                    SizedBox(height: 10.h),
                     CustomSearchBar(
                       controller: controller.searchController,
                       onSearch: () {
@@ -50,15 +54,9 @@ class LeadsPage extends GetView<LeadsController> {
                             controller.searchController.text;
                       },
                     ),
-                    // const SizedBox(height: 10),
-                    // Padding(
-                    //   padding: const EdgeInsets.only(left: 8),
-                    //   child: buildHorizontalDateList(),
-                    // ),
-                    const SizedBox(height: 10),
-
+                    SizedBox(height: 10.h),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      padding: EdgeInsets.symmetric(horizontal: 10.w),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
@@ -69,7 +67,7 @@ class LeadsPage extends GetView<LeadsController> {
                               controller.resetFilters();
                             },
                           ),
-                          SizedBox(width: 5),
+                          SizedBox(width: 8.w),
                           CustomActionButton(
                             title: "filter".tr,
                             icon: Icons.filter_alt_outlined,
@@ -77,7 +75,7 @@ class LeadsPage extends GetView<LeadsController> {
                               _showFilterBottomSheet(context);
                             },
                           ),
-                          SizedBox(width: 5),
+                          SizedBox(width: 8.w),
                           CustomActionButton(
                             title: "sort".tr,
                             icon: Icons.sort,
@@ -85,7 +83,7 @@ class LeadsPage extends GetView<LeadsController> {
                               _showSortBottomSheet(context);
                             },
                           ),
-                          SizedBox(width: 5),
+                          SizedBox(width: 8.w),
                         ],
                       ),
                     ),
@@ -197,23 +195,21 @@ class LeadsPage extends GetView<LeadsController> {
       pageLoadController: controller.pagewiseAllLeadLoadController!,
       noItemsFoundBuilder: (context) {
         return Padding(
-          padding: const EdgeInsets.all(40.0),
+          padding: EdgeInsets.all(40.w),
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
                   Icons.inbox_outlined,
-                  size: 48,
-                  color: AppColors.themeColor.textSecondaryColor.withOpacity(
-                    0.5,
-                  ),
+                  size: 48.sp,
+                  color: AppColors.themeColor.textSecondaryColor.withOpacity(0.5),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16.h),
                 Text(
                   'No leads found',
-                  style: TextStyle(
-                    fontSize: 16,
+                  style: AppTextStyle.medium7.copyWith(
+                    fontSize: AppDimens.fontSize16,
                     color: AppColors.themeColor.textSecondaryColor,
                     fontWeight: FontWeight.w500,
                   ),
@@ -225,26 +221,28 @@ class LeadsPage extends GetView<LeadsController> {
       },
       retryBuilder: (context, retryFn) {
         return Padding(
-          padding: const EdgeInsets.all(40.0),
+          padding: EdgeInsets.all(40.w),
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.error_outline, size: 48, color: Colors.red.shade400),
-                const SizedBox(height: 16),
+                Icon(Icons.error_outline, size: 48.sp, color: Colors.red.shade400),
+                SizedBox(height: 16.h),
                 Text(
                   'Failed to load leads',
-                  style: TextStyle(
-                    fontSize: 16,
+                  style: AppTextStyle.medium7.copyWith(
+                    fontSize: AppDimens.fontSize16,
                     color: AppColors.themeColor.textSecondaryColor,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16.h),
                 ElevatedButton(
                   onPressed: retryFn,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.themeColor.primaryColor,
+                    padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
                   ),
                   child: const Text('Retry'),
                 ),
@@ -257,18 +255,30 @@ class LeadsPage extends GetView<LeadsController> {
         final isSelected = controller.selectedLeadId.value == lead.id;
 
         return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
           child: GestureDetector(
             onTap: () {
               controller.selectedLeadId.value = lead.id ?? '';
               controller.LedadContectId(id: lead.id.toString());
             },
-            child: Card(
-              elevation: 0,
-              color: Colors.grey.withOpacity(0.1),
-
+            child: Container(
+              decoration: BoxDecoration(
+                color: isSelected ? AppColors.themeColor.primaryColor.withOpacity(0.05) : AppColors.themeColor.cardBgColor,
+                borderRadius: BorderRadius.circular(16.r),
+                border: Border.all(
+                  color: isSelected ? AppColors.themeColor.primaryColor.withOpacity(0.3) : AppColors.themeColor.bordercolror.withOpacity(0.5),
+                  width: isSelected ? 1.5.w : 1.w,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: isSelected ? AppColors.themeColor.primaryColor.withOpacity(0.1) : Colors.black.withOpacity(0.03),
+                    blurRadius: 15.r,
+                    offset: Offset(0, 8.h),
+                  ),
+                ],
+              ),
               child: Padding(
-                padding: const EdgeInsets.all(14),
+                padding: EdgeInsets.all(16.w),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -280,27 +290,28 @@ class LeadsPage extends GetView<LeadsController> {
                         Expanded(
                           child: Text(
                             lead.name ?? 'Unknown',
-                            style: const TextStyle(
-                              fontSize: 16,
+                            style: AppTextStyle.bold8.copyWith(
+                              fontSize: AppDimens.fontSize16,
                               fontWeight: FontWeight.bold,
                               letterSpacing: -0.3,
+                              color: AppColors.themeColor.textPrimaryColor,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        SizedBox(width: 12.w),
                         // Status Badge
                         Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 6,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 10.w,
+                            vertical: 6.h,
                           ),
                           decoration: BoxDecoration(
                             color: _getStatusColor(
                               lead.status,
                             ).withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(20.r),
                             border: Border.all(
                               color: _getStatusColor(
                                 lead.status,
@@ -310,8 +321,8 @@ class LeadsPage extends GetView<LeadsController> {
                           ),
                           child: Text(
                             lead.status ?? 'Unknown',
-                            style: TextStyle(
-                              fontSize: 11,
+                            style: AppTextStyle.bold6.copyWith(
+                              fontSize: AppDimens.fontSize11,
                               fontWeight: FontWeight.w600,
                               color: _getStatusColor(lead.status),
                             ),
@@ -319,21 +330,21 @@ class LeadsPage extends GetView<LeadsController> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 10),
+                    SizedBox(height: 10.h),
                     // Form Info
                     Row(
                       children: [
                         Icon(
                           Icons.description_outlined,
-                          size: 14,
+                          size: 14.sp,
                           color: AppColors.themeColor.textSecondaryColor,
                         ),
-                        const SizedBox(width: 6),
+                        SizedBox(width: 6.w),
                         Expanded(
                           child: Text(
                             lead.formId?.title ?? 'No form',
-                            style: TextStyle(
-                              fontSize: 12,
+                            style: AppTextStyle.regular7.copyWith(
+                              fontSize: AppDimens.fontSize12,
                               color: AppColors.themeColor.textSecondaryColor,
                             ),
                             maxLines: 1,
@@ -342,7 +353,7 @@ class LeadsPage extends GetView<LeadsController> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 10),
+                    SizedBox(height: 10.h),
                     // Dates Row
                     Row(
                       children: [
@@ -350,25 +361,28 @@ class LeadsPage extends GetView<LeadsController> {
                           child: _buildDateInfo(
                             'Start',
                             lead.schedule?.startDate.toString(),
+                            Icons.calendar_today_outlined,
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        SizedBox(width: 12.w),
                         Expanded(
                           child: _buildDateInfo(
                             'End',
                             lead.schedule?.endDate.toString(),
+                            Icons.event_available_outlined,
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        SizedBox(width: 12.w),
                         Expanded(
                           child: _buildDateInfo(
                             'Created',
                             lead.createdAt.toString(),
+                            Icons.history_outlined,
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: 12.h),
 
                     // Action Button
                     // SizedBox(
@@ -420,31 +434,35 @@ class LeadsPage extends GetView<LeadsController> {
     );
   }
 
-  Widget _buildDateInfo(String label, String? dateTime) {
-    String formattedDate = 'N/A';
+  Widget _buildDateInfo(String label, String? dateTime, IconData icon) {
+    String formattedDate = 'n_a'.tr;
     if (dateTime != null) {
-      formattedDate = DateFormat(
-        'dd MMM, h:mm a',
-      ).format(DateTime.parse(dateTime));
+      try {
+        formattedDate = DateFormat('dd MMM, yyyy').format(DateTime.parse(dateTime));
+      } catch (_) {}
     }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 10,
-            color: AppColors.themeColor.textSecondaryColor,
-            fontWeight: FontWeight.w500,
-          ),
+        Row(
+          children: [
+            Icon(icon, size: 12.sp, color: AppColors.themeColor.primaryColor),
+            SizedBox(width: 4.w),
+            Text(
+              label,
+              style: AppTextStyle.medium7.copyWith(
+                fontSize: AppDimens.fontSize11,
+                color: AppColors.themeColor.primaryColor,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 4),
+        SizedBox(height: 4.h),
         Text(
           formattedDate,
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.w500,
+          style: AppTextStyle.bold7.copyWith(
+            fontSize: AppDimens.fontSize12,
             color: AppColors.themeColor.textPrimaryColor,
           ),
           maxLines: 1,
@@ -472,12 +490,12 @@ class LeadsPage extends GetView<LeadsController> {
   void _showFilterBottomSheet(BuildContext context) {
     Get.bottomSheet(
       Container(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(20.w),
         decoration: BoxDecoration(
           color: AppColors.themeColor.cardColor,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20.r),
+            topRight: Radius.circular(20.r),
           ),
         ),
         child: SingleChildScrollView(
@@ -492,17 +510,17 @@ class LeadsPage extends GetView<LeadsController> {
                     "filter_leads".tr,
                     style: AppTextStyle.appBarTitleStyle.copyWith(
                       color: AppColors.themeColor.textPrimaryColor,
-                      fontSize: 18,
+                      fontSize: AppDimens.fontSize18,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   IconButton(
                     onPressed: () => Get.back(),
-                    icon: const Icon(Icons.close),
+                    icon: Icon(Icons.close, size: 24.sp),
                   ),
                 ],
               ),
-              const SizedBox(height: 10),
+              SizedBox(height: 10.h),
               Obx(
                 () => Row(
                   children: [
@@ -513,8 +531,8 @@ class LeadsPage extends GetView<LeadsController> {
                         controller.filterType.value = value!;
                       },
                     ),
-                     Text("all_time".tr),
-                    const SizedBox(width: 20),
+                    Text("all_time".tr, style: AppTextStyle.regular7.copyWith(fontSize: AppDimens.fontSize14, color: AppColors.themeColor.textPrimaryColor)),
+                    SizedBox(width: 20.w),
 
                     Radio<String>(
                       value: "specific_time",
@@ -523,28 +541,28 @@ class LeadsPage extends GetView<LeadsController> {
                         controller.filterType.value = value!;
                       },
                     ),
-                    Text("specific_time".tr),
+                    Text("specific_time".tr, style: AppTextStyle.regular7.copyWith(fontSize: AppDimens.fontSize14, color: AppColors.themeColor.textPrimaryColor)),
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20.h),
               Text(
                 "filter_by_status".tr,
-                style: TextStyle(
-                  fontSize: 14,
+                style: AppTextStyle.medium7.copyWith(
+                  fontSize: AppDimens.fontSize14,
                   fontWeight: FontWeight.w500,
                   color: AppColors.themeColor.textPrimaryColor.withOpacity(0.8),
                 ),
               ),
-              const SizedBox(height: 10),
+              SizedBox(height: 10.h),
               Obx(
                 () => Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  padding: EdgeInsets.symmetric(horizontal: 12.w),
                   decoration: BoxDecoration(
                     border: Border.all(
                       color: AppColors.themeColor.bordercolror,
                     ),
-                    borderRadius: BorderRadius.circular(25),
+                    borderRadius: BorderRadius.circular(25.r),
                   ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
@@ -559,7 +577,7 @@ class LeadsPage extends GetView<LeadsController> {
                           ].map((status) {
                             return DropdownMenuItem<String>(
                               value: status["key"],
-                              child: Text(status["label"]!.tr),
+                              child: Text(status["label"]!.tr, style: AppTextStyle.regular7.copyWith(fontSize: AppDimens.fontSize14, color: AppColors.themeColor.textPrimaryColor)),
                             );
                           }).toList(),
                       onChanged: (value) {
@@ -574,17 +592,17 @@ class LeadsPage extends GetView<LeadsController> {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 20),
+                      SizedBox(height: 20.h),
                       Text(
                         "filter_by_date".tr,
-                        style: TextStyle(
-                          fontSize: 14,
+                        style: AppTextStyle.medium7.copyWith(
+                          fontSize: AppDimens.fontSize14,
                           fontWeight: FontWeight.w500,
                           color: AppColors.themeColor.textPrimaryColor
                               .withOpacity(0.8),
                         ),
                       ),
-                      const SizedBox(height: 10),
+                      SizedBox(height: 10.h),
                       GestureDetector(
                         onTap: () async {
                           final DateTimeRange? picked =
@@ -607,15 +625,15 @@ class LeadsPage extends GetView<LeadsController> {
                           }
                         },
                         child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 12,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 12.w,
+                            vertical: 12.h,
                           ),
                           decoration: BoxDecoration(
                             border: Border.all(
                               color: AppColors.themeColor.bordercolror,
                             ),
-                            borderRadius: BorderRadius.circular(25),
+                            borderRadius: BorderRadius.circular(25.r),
                           ),
                           child: Row(
                             children: [
@@ -625,7 +643,8 @@ class LeadsPage extends GetView<LeadsController> {
                                           controller.endDate.value != null
                                       ? "${DateFormat('yyyy-MM-dd').format(controller.startDate.value!)}   →   ${DateFormat('yyyy-MM-dd').format(controller.endDate.value!)}"
                                       : "start_date_end_date".tr,
-                                  style: TextStyle(
+                                  style: AppTextStyle.regular7.copyWith(
+                                    fontSize: AppDimens.fontSize13,
                                     color:
                                         controller.startDate.value != null
                                             ? AppColors
@@ -639,7 +658,7 @@ class LeadsPage extends GetView<LeadsController> {
                               ),
                               Icon(
                                 Icons.calendar_today_outlined,
-                                size: 18,
+                                size: 18.sp,
                                 color: AppColors.themeColor.textSecondaryColor,
                               ),
                             ],
@@ -652,7 +671,7 @@ class LeadsPage extends GetView<LeadsController> {
                   return const SizedBox.shrink();
                 }
               }),
-              const SizedBox(height: 30),
+              SizedBox(height: 30.h),
               Row(
                 children: [
                   Expanded(
@@ -660,22 +679,23 @@ class LeadsPage extends GetView<LeadsController> {
                       onPressed: () => Get.back(),
                       style: OutlinedButton.styleFrom(
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(25),
+                          borderRadius: BorderRadius.circular(25.r),
                         ),
                         side: BorderSide(
                           color: AppColors.themeColor.bordercolror,
                         ),
-                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        padding: EdgeInsets.symmetric(vertical: 15.h),
                       ),
                       child: Text(
                         "cancel".tr,
-                        style: TextStyle(
+                        style: AppTextStyle.medium7.copyWith(
+                          fontSize: AppDimens.fontSize14,
                           color: AppColors.themeColor.textPrimaryColor,
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 15),
+                  SizedBox(width: 15.w),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
@@ -684,19 +704,19 @@ class LeadsPage extends GetView<LeadsController> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.themeColor.primaryColor,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(25),
+                          borderRadius: BorderRadius.circular(25.r),
                         ),
-                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        padding: EdgeInsets.symmetric(vertical: 15.h),
                       ),
                       child:  Text(
                         "apply".tr,
-                        style: TextStyle(color: Colors.white),
+                        style: AppTextStyle.bold7.copyWith(color: AppColors.themeColor.cardColor, fontSize: AppDimens.fontSize14),
                       ),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 10),
+              SizedBox(height: 10.h),
             ],
           ),
         ),
@@ -708,12 +728,12 @@ class LeadsPage extends GetView<LeadsController> {
   void _showSortBottomSheet(BuildContext context) {
     Get.bottomSheet(
       Container(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(20.w),
         decoration: BoxDecoration(
           color: AppColors.themeColor.cardColor,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20.r),
+            topRight: Radius.circular(20.r),
           ),
         ),
         child: Column(
@@ -727,21 +747,21 @@ class LeadsPage extends GetView<LeadsController> {
                   "sort_leads_by".tr,
                   style: AppTextStyle.appBarTitleStyle.copyWith(
                     color: AppColors.themeColor.textPrimaryColor,
-                    fontSize: 18,
+                    fontSize: AppDimens.fontSize18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 IconButton(
                   onPressed: () => Get.back(),
-                  icon: const Icon(Icons.close),
+                  icon: Icon(Icons.close, size: 24.sp),
                 ),
               ],
             ),
-            const SizedBox(height: 10),
+            SizedBox(height: 10.h),
             ...controller.sortOptions.entries.map((entry) {
               return Obx(
                 () => RadioListTile<String>(
-                  title: Text(entry.value.tr),
+                  title: Text(entry.value.tr, style: AppTextStyle.regular7.copyWith(fontSize: AppDimens.fontSize14, color: AppColors.themeColor.textPrimaryColor)),
                   value: entry.key,
                   groupValue: controller.sortBy.value,
                   activeColor: AppColors.themeColor.primaryColor,
@@ -753,7 +773,7 @@ class LeadsPage extends GetView<LeadsController> {
                 ),
               );
             }).toList(),
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
           ],
         ),
       ),

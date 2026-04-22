@@ -26,19 +26,20 @@ class EditProfilePage extends GetView<EditProfileController> {
           backgroundColor: AppColors.themeColor.bgColor,
           leading: IconButton(
             icon: Container(
+              padding: EdgeInsets.all(4.w),
               decoration: BoxDecoration(
                 border: Border.all(
                   color: AppColors.themeColor.primaryColor,
-                  width: 2,
+                  width: 2.w,
                 ),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(8.r),
               ),
               child: Center(
                 child: Padding(
-                  padding: EdgeInsets.only(left: 10),
+                  padding: EdgeInsets.only(left: 8.w),
                   child: Icon(
                     Icons.arrow_back_ios,
-                    size: 25,
+                    size: 18.sp,
                     color: AppColors.themeColor.primaryColor,
                   ),
                 ),
@@ -50,17 +51,19 @@ class EditProfilePage extends GetView<EditProfileController> {
           ),
           title: Text(
             "editProfile".tr,
-            style: AppTextStyle.appBarTitleStyle
-                .copyWith(fontWeight: FontWeight.w500, fontSize: 15),
+            style: AppTextStyle.bold7.copyWith(
+              fontSize: AppDimens.fontSize18,
+              color: AppColors.themeColor.textPrimaryColor,
+            ),
           ),
           centerTitle: true,
           actions: [
             Padding(
-                padding: EdgeInsets.only(right: 10),
+                padding: EdgeInsets.only(right: 10.w),
                 child: Icon(
                   Icons.more_horiz,
                   color: Colors.transparent,
-                  size: 30,
+                  size: 30.sp,
                 ))
           ],
         ),
@@ -70,7 +73,7 @@ class EditProfilePage extends GetView<EditProfileController> {
                 child: Form(
                   key: controller.formKey,
                   child: Padding(
-                    padding: EdgeInsets.all(10),
+                    padding: EdgeInsets.all(16.w),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -79,15 +82,14 @@ class EditProfilePage extends GetView<EditProfileController> {
                             Stack(
                               children: [
                                 Container(
-                                  height:
-                                      80, // or use a responsive unit like 40.h if you're using flutter_screenutil
-                                  width: 80,
+                                  height: 80.h,
+                                  width: 80.h,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    // border: Border.all(
-                                    //   color: AppColors.themeColor.primaryColor,
-                                    //   width: 2.0,
-                                    // ),
+                                    border: Border.all(
+                                      color: AppColors.themeColor.primaryColor.withOpacity(0.2),
+                                      width: 2.w,
+                                    ),
                                   ),
                                   // padding: EdgeInsets.all(2),
                                   clipBehavior: Clip
@@ -134,10 +136,10 @@ class EditProfilePage extends GetView<EditProfileController> {
                                 // if (controller.imagepath.value ==
                                 //     "null") ...[
                                 Positioned(
-                                    top: 40,
-                                    left: 36,
-                                    child: IconButton(
-                                        onPressed: () {
+                                    bottom: 0,
+                                    right: 0,
+                                    child: InkWell(
+                                        onTap: () {
                                           Get.bottomSheet(Container(
                                             height: null, // Allow dynamic height
                                             width: double.infinity,
@@ -146,10 +148,10 @@ class EditProfilePage extends GetView<EditProfileController> {
                                                     .themeColor.cardBgColor,
                                                 borderRadius: BorderRadius.only(
                                                     topLeft:
-                                                        Radius.circular(20),
+                                                        Radius.circular(20.r),
                                                     topRight:
-                                                        Radius.circular(20))),
-                                            padding: EdgeInsets.only(bottom: 20),
+                                                        Radius.circular(20.r))),
+                                            padding: EdgeInsets.only(bottom: 20.h),
                                             child: Column(
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
@@ -174,16 +176,24 @@ class EditProfilePage extends GetView<EditProfileController> {
                                             ),
                                           ));
                                         },
-                                        icon: Icon(
-                                          Icons.camera_alt,
-                                          color: Colors.blue,
-                                          size: 40,
+                                        child: Container(
+                                          padding: EdgeInsets.all(8.w),
+                                          decoration: BoxDecoration(
+                                            color: AppColors.themeColor.primaryColor,
+                                            shape: BoxShape.circle,
+                                            border: Border.all(color: Colors.white, width: 2.w),
+                                          ),
+                                          child: Icon(
+                                            Icons.camera_alt,
+                                            color: Colors.white,
+                                            size: 16.sp,
+                                          ),
                                         )))
                                 // ]
                               ],
                             ),
                             SizedBox(
-                              width: 25,
+                              width: 20.w,
                             ),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -192,41 +202,36 @@ class EditProfilePage extends GetView<EditProfileController> {
                                   controller
                                           .authController.profile.value?.name ??
                                       "no_name".tr,
-                                  // "mahesh_talaviya".tr,
-                                  // controller.name,
-                                  style: AppTextStyle.bold14.copyWith(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: AppDimens.fontSize17),
+                                  style: AppTextStyle.bold7.copyWith(
+                                      color: AppColors.themeColor.textPrimaryColor,
+                                      fontSize: AppDimens.fontSize18),
                                 ),
                                 Text(
                                   controller.authController.profile.value
                                           ?.phone ??
                                       "",
-                                  // "+91 63545 31472",
-                                  style: AppTextStyle.regular9.copyWith(
-                                      color: AppColors
-                                          .themeColor.textSecondaryColor,
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: AppDimens.fontSize10),
+                                  style: AppTextStyle.medium7.copyWith(
+                                      color: AppColors.themeColor.textSecondaryColor,
+                                      fontSize: AppDimens.fontSize12),
                                 ),
                               ],
                             )
                           ],
                         ),
                         SizedBox(
-                          height: 5,
+                          height: 15.h,
                         ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               "Name".tr,
-                              style: AppTextStyle.medium9.copyWith(
+                              style: AppTextStyle.bold7.copyWith(
                                   color: AppColors.themeColor.textPrimaryColor,
-                                  fontSize: 13),
+                                  fontSize: AppDimens.fontSize14),
                             ),
                             SizedBox(
-                              height: 5,
+                              height: 8.h,
                             ),
                             CustomTextFormField(
                               hint: "entername".tr,
@@ -249,13 +254,13 @@ class EditProfilePage extends GetView<EditProfileController> {
                           width: 10,
                         ),
                         SizedBox(
-                          height: 5,
+                          height: 15.h,
                         ),
                         Text(
                           "Email".tr,
-                          style: AppTextStyle.medium9.copyWith(
+                          style: AppTextStyle.bold7.copyWith(
                               color: AppColors.themeColor.textPrimaryColor,
-                              fontSize: 13),
+                              fontSize: AppDimens.fontSize14),
                         ),
                         CustomTextFormField(
                           hint: "enteremail".tr,
@@ -275,21 +280,21 @@ class EditProfilePage extends GetView<EditProfileController> {
                           },
                         ).paddingOnly(top: 5),
                         SizedBox(
-                          height: 5,
+                          height: 20.h,
                         ),
                         Text(
                           "address".tr,
-                          style: AppTextStyle.bold12
-                              .copyWith(fontWeight: FontWeight.w600),
+                          style: AppTextStyle.bold7
+                              .copyWith(fontSize: AppDimens.fontSize16, color: AppColors.themeColor.primaryColor),
                         ),
                         SizedBox(
-                          height: 5,
+                          height: 12.h,
                         ),
                         Text(
                           "addressLine1".tr,
-                          style: AppTextStyle.medium9.copyWith(
+                          style: AppTextStyle.bold7.copyWith(
                             color: AppColors.themeColor.textPrimaryColor,
-                            fontSize: 13,
+                            fontSize: AppDimens.fontSize14,
                           ),
                         ),
                         CustomTextFormField(
@@ -310,13 +315,13 @@ class EditProfilePage extends GetView<EditProfileController> {
                           },
                         ).paddingOnly(top: 5),
                         SizedBox(
-                          height: 5,
+                          height: 15.h,
                         ),
                         Text(
                           "addressline2".tr,
-                          style: AppTextStyle.medium9.copyWith(
+                          style: AppTextStyle.bold7.copyWith(
                             color: AppColors.themeColor.textPrimaryColor,
-                            fontSize: 13,
+                            fontSize: AppDimens.fontSize14,
                           ),
                         ),
                         CustomTextFormField(
@@ -335,13 +340,13 @@ class EditProfilePage extends GetView<EditProfileController> {
                           },
                         ).paddingOnly(top: 5),
                         SizedBox(
-                          height: 5,
+                          height: 15.h,
                         ),
                         Text(
                           "city".tr,
-                          style: AppTextStyle.medium9.copyWith(
+                          style: AppTextStyle.bold7.copyWith(
                             color: AppColors.themeColor.textPrimaryColor,
-                            fontSize: 13,
+                            fontSize: AppDimens.fontSize14,
                           ),
                         ),
                         CustomTextFormField(
@@ -360,13 +365,13 @@ class EditProfilePage extends GetView<EditProfileController> {
                           },
                         ).paddingOnly(top: 5),
                         SizedBox(
-                          height: 5,
+                          height: 15.h,
                         ),
                         Text(
                           "state".tr,
-                          style: AppTextStyle.medium9.copyWith(
+                          style: AppTextStyle.bold7.copyWith(
                               color: AppColors.themeColor.textPrimaryColor,
-                              fontSize: 13),
+                              fontSize: AppDimens.fontSize14),
                         ),
                         CustomTextFormField(
                           hint: "enterstatename".tr,
@@ -384,13 +389,13 @@ class EditProfilePage extends GetView<EditProfileController> {
                           },
                         ).paddingOnly(top: 5),
                         SizedBox(
-                          height: 5,
+                          height: 15.h,
                         ),
                         Text(
                           "Country".tr,
-                          style: AppTextStyle.medium9.copyWith(
+                          style: AppTextStyle.bold7.copyWith(
                               color: AppColors.themeColor.textPrimaryColor,
-                              fontSize: 13),
+                              fontSize: AppDimens.fontSize14),
                         ),
                         SizedBox(
                           height: 5,
@@ -410,41 +415,44 @@ class EditProfilePage extends GetView<EditProfileController> {
                           return Card(
                             color: AppColors.themeColor.cardBgColor,
                             elevation: 0,
-                            child: DropdownButton<String>(
-                              padding: const EdgeInsets.symmetric(horizontal: 8),
-                              value: selectedCode,
-                              isExpanded: true,
-                              underline: Container(),
-                              dropdownColor: AppColors.themeColor.cardBgColor,
-                              hint: Text("select_country".tr.tr),
-
-                              items: countries.map((country) {
-                                return DropdownMenuItem<String>(
-                                  value: country["code"],
-                                  child: Text(country["name"] ?? ""),
-                                );
-                              }).toList(),
-
-                              onChanged: (String? newCode) {
-                                if (newCode != null) {
-                                  controller.onChangeCountry(newCode);
-                                }
-                              },
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12.r),
+                            ),
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton<String>(
+                                padding: EdgeInsets.symmetric(horizontal: 12.w),
+                                value: selectedCode,
+                                isExpanded: true,
+                                dropdownColor: AppColors.themeColor.cardBgColor,
+                                hint: Text("select_country".tr, style: AppTextStyle.regular7.copyWith(color: Colors.grey.shade400, fontSize: AppDimens.fontSize14)),
+                                icon: Icon(Icons.expand_more_rounded, color: Colors.grey, size: 24.sp),
+                                items: countries.map((country) {
+                                  return DropdownMenuItem<String>(
+                                    value: country["code"],
+                                    child: Text(country["name"] ?? "", style: AppTextStyle.medium7.copyWith(fontSize: AppDimens.fontSize14, color: AppColors.themeColor.textPrimaryColor)),
+                                  );
+                                }).toList(),
+                                onChanged: (String? newCode) {
+                                  if (newCode != null) {
+                                    controller.onChangeCountry(newCode);
+                                  }
+                                },
+                              ),
                             ),
                           );
                         }),
 
                         SizedBox(
-                          height: 5,
+                          height: 15.h,
                         ),
                         Text(
                           "zipcode".tr,
-                          style: AppTextStyle.medium9.copyWith(
+                          style: AppTextStyle.bold7.copyWith(
                               color: AppColors.themeColor.textPrimaryColor,
-                              fontSize: 13),
+                              fontSize: AppDimens.fontSize14),
                         ),
-                        const SizedBox(
-                          height: 5,
+                        SizedBox(
+                          height: 8.h,
                         ),
                         CustomTextFormField(
                             hint: "enterzipCode".tr,
@@ -460,7 +468,7 @@ class EditProfilePage extends GetView<EditProfileController> {
                               }
                             }),
                         SizedBox(
-                          height: 15,
+                          height: 25.h,
                         ),
                         controller.buttonLoading.value
                             ? Utils.loading
@@ -474,6 +482,5 @@ class EditProfilePage extends GetView<EditProfileController> {
                   ),
                 ),
               ))));
-    ;
   }
 }

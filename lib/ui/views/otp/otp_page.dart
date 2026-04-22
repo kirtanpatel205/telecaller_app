@@ -8,6 +8,7 @@ import 'package:getwidget/components/button/gf_button.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:telecaller_app/constants/app_colors.dart';
+import 'package:telecaller_app/constants/app_dimens.dart';
 import 'package:telecaller_app/constants/app_text_style.dart';
 import 'package:telecaller_app/ui/views/otp/otp_controller.dart';
 import 'package:telecaller_app/ui/widgets/app_safe_area.dart';
@@ -37,21 +38,27 @@ class OtpPage extends GetView<OtpController> {
 
 
           Text(
-            "verification_code".tr.tr,
-            style: AppTextStyle.titleBold.copyWith(fontSize: 20),
+            "verification_code".tr,
+            style: AppTextStyle.bold7.copyWith(
+              fontSize: AppDimens.fontSize20,
+              color: AppColors.themeColor.textPrimaryColor,
+            ),
           ),
 
           SizedBox(
-            height: 5,
+            height: 5.h,
           ),
 
           Text(
             "we_have_send_the_verification_code_nlon_your_mobile_number".tr.trParams({"nl": "n".tr}),
-            style: AppTextStyle.subTitle.copyWith(fontSize: 14),
+            style: AppTextStyle.regular7.copyWith(
+              fontSize: AppDimens.fontSize14,
+              color: AppColors.themeColor.textSecondaryColor,
+            ),
           ),
 
           SizedBox(
-            height: 20,
+            height: 20.h,
           ),
           // Padding(
           //   padding: EdgeInsets.only(top: 45, right: 20, left: 17),
@@ -60,7 +67,10 @@ class OtpPage extends GetView<OtpController> {
           //   //  padding: EdgeInsets.only(right: 20, left: 17),
           //   child:
           PinCodeTextField(
-            textStyle: TextStyle(color: AppColors.themeColor.cardColor),
+            textStyle: AppTextStyle.bold7.copyWith(
+              color: AppColors.themeColor.cardColor,
+              fontSize: AppDimens.fontSize18,
+            ),
 
             enableActiveFill: true,
             onChanged: (String otp) => controller.onOtpChange(otp),
@@ -78,15 +88,10 @@ class OtpPage extends GetView<OtpController> {
             cursorColor: AppColors.themeColor.cardColor,
             //enableActiveFill: true,
             pinTheme: PinTheme(
-              // disabledColor: Colors.white,
-              //errorBorderColor: Colors.white,
               shape: PinCodeFieldShape.box,
-              // borderRadius: BorderRadius.horizontal(),
-              borderRadius: BorderRadius.circular(9),
-              // disabledColor: AppColors.themeColor.secondaryColor,
-              // activeFillColor: AppColors.themeColor.secondaryColor,
-              fieldHeight: 40,
-              fieldWidth: 40,
+              borderRadius: BorderRadius.circular(9.r),
+              fieldHeight: 45.h,
+              fieldWidth: 45.w,
               inactiveColor: AppColors.themeColor.primaryColor,
               selectedColor: AppColors.themeColor.primaryColor,
               activeColor: AppColors.themeColor.primaryColor,
@@ -104,13 +109,15 @@ class OtpPage extends GetView<OtpController> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          "don_t_recieve_verification_code".tr.tr,
-                          style: AppTextStyle.bold6.copyWith(
+                          "don_t_recieve_verification_code".tr,
+                          style: AppTextStyle.medium7.copyWith(
+                              fontSize: AppDimens.fontSize12,
                               color: AppColors.themeColor.textSecondaryColor),
                         ),
                         Text(
                           "00:${controller.remainingTime.value.toString().padLeft(2, '0')}",
-                          style: AppTextStyle.bold6.copyWith(
+                          style: AppTextStyle.bold7.copyWith(
+                              fontSize: AppDimens.fontSize12,
                               color: AppColors.themeColor.primaryColor),
                         ),
                       ],
@@ -119,8 +126,9 @@ class OtpPage extends GetView<OtpController> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          "don_t_recieve_verification_code".tr.tr,
-                          style: AppTextStyle.bold6.copyWith(
+                          "don_t_recieve_verification_code".tr,
+                          style: AppTextStyle.medium7.copyWith(
+                              fontSize: AppDimens.fontSize12,
                               color: AppColors.themeColor.textSecondaryColor),
                         ),
                         InkWell(
@@ -128,7 +136,8 @@ class OtpPage extends GetView<OtpController> {
                           onTap: () => controller.resendOtp(),
                           child: Text(
                             "resend_otp".tr,
-                            style: AppTextStyle.bold6.copyWith(
+                            style: AppTextStyle.bold7.copyWith(
+                                fontSize: AppDimens.fontSize12,
                                 color: AppColors.themeColor.primaryColor),
                           ),
                         ),
@@ -138,7 +147,7 @@ class OtpPage extends GetView<OtpController> {
           ),
 
           SizedBox(
-            height: 50,
+            height: 50.h,
           ),
          Obx(()=> CustomButton(
 

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:telecaller_app/constants/app_colors.dart';
-import 'package:telecaller_app/constants/app_text_style.dart' show AppTextStyle;
+import 'package:telecaller_app/constants/app_dimens.dart';
+import 'package:telecaller_app/constants/app_text_style.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Widget? leading;
@@ -25,47 +27,44 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       centerTitle: true,
-      backgroundColor:
-          //AppColors.themeColor.cardColor,
-          Colors.transparent,
-
+      elevation: 0,
+      backgroundColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
       leading: leading ??
-          IconButton(
-            icon: Container(
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: AppColors.themeColor.primaryColor,
-                  width: 3,
-                ),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Center(
-                // child: Transform.rotate(
-                // angle: -3.14 / 2,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: Icon(
-                    Icons.arrow_back_ios,
-                    size: 20,
+          Padding(
+            padding: EdgeInsets.all(8.w),
+            child: InkWell(
+              onTap: () => Get.back(),
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
                     color: AppColors.themeColor.primaryColor,
+                    width: 1.5,
+                  ),
+                  borderRadius: BorderRadius.circular(10.r),
+                ),
+                child: Center(
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 6.w),
+                    child: Icon(
+                      Icons.arrow_back_ios,
+                      size: 16.sp,
+                      color: AppColors.themeColor.primaryColor,
+                    ),
                   ),
                 ),
-                //),
               ),
             ),
-            // // icon: Icon(Icons.arrow_back_ios,color: AppColors.themeColor.textPrimaryColor,),
-            onPressed: () {
-              Get.back();
-            },
           ),
-
-      title: Center(
-          child: title ??
-              Text(
-                this.titleText ?? "",
-                style: AppTextStyle.appBarTitleStyle.copyWith(
-                    color: AppColors.themeColor.textPrimaryColor, fontSize: 15),
-              )), // Empty title
+      title: title ??
+          Text(
+            titleText ?? "",
+            style: AppTextStyle.appBarTitleStyle.copyWith(
+              color: AppColors.themeColor.textPrimaryColor,
+              fontSize: AppDimens.fontSize18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
       actions: actions ?? [],
       bottom: bottom,
     );

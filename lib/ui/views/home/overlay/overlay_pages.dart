@@ -1,8 +1,10 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:telecaller_app/constants/app_colors.dart';
+import 'package:telecaller_app/constants/app_dimens.dart';
 import 'package:telecaller_app/constants/app_text_style.dart';
 import 'package:telecaller_app/core/controllers/overlay_controller.dart';
 import 'package:telecaller_app/ui/widgets/custom_dropdown_call.dart';
@@ -49,16 +51,16 @@ class OverlayPages extends StatelessWidget {
             Center(
               child: SingleChildScrollView(
                 child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+                  margin: EdgeInsets.symmetric(horizontal: 24.w, vertical: 40.h),
                   width: double.infinity,
-                  constraints: const BoxConstraints(maxWidth: 400),
+                  constraints: BoxConstraints(maxWidth: 400.w),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       _buildOverlayCard(context),
-                      const SizedBox(height: 20),
+                      SizedBox(height: 20.h),
                       if (controller.isAutoCallMode.value) _buildNextLeadPreview(),
-                      const SizedBox(height: 10),
+                      SizedBox(height: 10.h),
                       _buildCloseButton(),
                     ],
                   ),
@@ -73,16 +75,16 @@ class OverlayPages extends StatelessWidget {
 
   Widget _buildOverlayCard(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(24.w),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: Colors.black.withOpacity(0.08), width: 1.5),
+        color: AppColors.themeColor.cardBgColor,
+        borderRadius: BorderRadius.circular(30.r),
+        border: Border.all(color: Colors.black.withOpacity(0.08), width: 1.5.w),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
-            blurRadius: 35,
-            offset: const Offset(0, 15),
+            blurRadius: 35.r,
+            offset: Offset(0, 15.h),
           ),
         ],
       ),
@@ -98,49 +100,47 @@ class OverlayPages extends StatelessWidget {
                 children: [
                   Text(
                     "call_summary".tr,
-                    style: TextStyle(
+                    style: AppTextStyle.bold7.copyWith(
                       color: AppColors.themeColor.primaryColor,
-                      fontSize: 10,
+                      fontSize: AppDimens.fontSize10,
                       fontWeight: FontWeight.w800,
                       letterSpacing: 2,
-                      fontFamily: 'Poppins',
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4.h),
                   Obx(() => Text(
                         controller.lastCalledName.value.isNotEmpty
                             ? controller.lastCalledName.value
                             : "unknown_contact".tr,
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 22,
+                        style: AppTextStyle.bold8.copyWith(
+                          color: AppColors.themeColor.textPrimaryColor,
+                          fontSize: AppDimens.fontSize22,
                           fontWeight: FontWeight.bold,
-                          fontFamily: 'Poppins',
                           letterSpacing: -0.5,
                         ),
                       )),
                 ],
               ),
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.all(12.w),
                 decoration: BoxDecoration(
                   color: AppColors.themeColor.primaryColor.withOpacity(0.15),
                   shape: BoxShape.circle,
                   border: Border.all(color: AppColors.themeColor.primaryColor.withOpacity(0.1)),
                 ),
-                child: Icon(Icons.phone_paused_rounded, color: AppColors.themeColor.primaryColor, size: 24),
+                child: Icon(Icons.phone_paused_rounded, color: AppColors.themeColor.primaryColor, size: 24.sp),
               ),
             ],
           ),
 
-          const SizedBox(height: 24),
+          SizedBox(height: 24.h),
 
           // ── stats row ───────────────────────────────────
           Container(
-            padding: const EdgeInsets.all(18),
+            padding: EdgeInsets.all(18.w),
             decoration: BoxDecoration(
-              color: Colors.grey.withOpacity(0.05),
-              borderRadius: BorderRadius.circular(24),
+              color: AppColors.themeColor.scaffoldBackgroundColor.withOpacity(0.5),
+              borderRadius: BorderRadius.circular(24.r),
               border: Border.all(color: Colors.black.withOpacity(0.05)),
             ),
             child: Row(
@@ -150,18 +150,17 @@ class OverlayPages extends StatelessWidget {
                   "duration".tr,
                   Obx(() => Text(
                         controller.formattedCallLogDuration.value,
-                        style: const TextStyle(
+                        style: AppTextStyle.bold7.copyWith(
                           fontWeight: FontWeight.w700,
-                          fontSize: 14,
-                          color: Colors.black,
-                          fontFamily: 'Poppins',
+                          fontSize: AppDimens.fontSize14,
+                          color: AppColors.themeColor.textPrimaryColor,
                         ),
                       )),
                 ),
                 Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 12),
-                  width: 1, 
-                  height: 30, 
+                  margin: EdgeInsets.symmetric(horizontal: 12.w),
+                  width: 1.w, 
+                  height: 30.h, 
                   color: Colors.black.withOpacity(0.1)
                 ),
                 _buildStatItem(
@@ -169,11 +168,10 @@ class OverlayPages extends StatelessWidget {
                   "number".tr,
                   Obx(() => Text(
                         controller.lastCalledNumber.value,
-                        style: const TextStyle(
+                        style: AppTextStyle.bold7.copyWith(
                           fontWeight: FontWeight.w700,
-                          fontSize: 14,
-                          color: Colors.black,
-                          fontFamily: 'Poppins',
+                          fontSize: AppDimens.fontSize14,
+                          color: AppColors.themeColor.textPrimaryColor,
                         ),
                       )),
                 ),
@@ -181,20 +179,19 @@ class OverlayPages extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(height: 24),
+          SizedBox(height: 24.h),
 
           // ── What happened ───────────────────────────────
           Text(
             "call_disposition".tr,
-            style: TextStyle(
-              color: Colors.black.withOpacity(0.6),
-              fontSize: 10,
+            style: AppTextStyle.bold7.copyWith(
+              color: AppColors.themeColor.textPrimaryColor.withOpacity(0.6),
+              fontSize: AppDimens.fontSize10,
               fontWeight: FontWeight.bold,
               letterSpacing: 2,
-              fontFamily: 'Poppins',
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
           CustomDropdown(
             selectedValue: controller.callDropdownValue,
             items: controller.leadOptions,
@@ -204,7 +201,7 @@ class OverlayPages extends StatelessWidget {
           // ── Reschedule ──────────────────────────────────
           Obx(() => controller.callDropdownValue.value == "reschedule" ? _buildReschedulePicker(context) : const SizedBox.shrink()),
 
-          const SizedBox(height: 24),
+          SizedBox(height: 24.h),
 
           // ── ACTION BUTTONS ──────────────────────────────
           Row(
@@ -217,7 +214,7 @@ class OverlayPages extends StatelessWidget {
                   colors: [const Color(0xFF6366F1), const Color(0xFF4F46E5)],
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12.w),
               Expanded(
                 child: Obx(() => _buildGradientButton(
                       onTap: () => controller.isPaused.value ? controller.resumeCountdown() : controller.pauseCountdown(),
@@ -229,7 +226,7 @@ class OverlayPages extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
 
           // ── NEXT CALL BUTTON ────────────────────────────
           Obx(() {
@@ -254,21 +251,20 @@ class OverlayPages extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(icon, size: 14, color: AppColors.themeColor.primaryColor),
-              const SizedBox(width: 6),
+              Icon(icon, size: 14.sp, color: AppColors.themeColor.primaryColor),
+              SizedBox(width: 6.w),
               Text(
                 label,
-                style: TextStyle(
-                  fontSize: 9, 
-                  color: Colors.black.withOpacity(0.5), 
+                style: AppTextStyle.bold7.copyWith(
+                  fontSize: AppDimens.fontSize9, 
+                  color: AppColors.themeColor.textPrimaryColor.withOpacity(0.5), 
                   fontWeight: FontWeight.w800,
                   letterSpacing: 0.5,
-                  fontFamily: 'Poppins',
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: 4.h),
           valueWidget,
         ],
       ),
@@ -279,26 +275,25 @@ class OverlayPages extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 16),
+        SizedBox(height: 16.h),
         Text(
           "pick_date".tr,
-          style: TextStyle(
-            color: Colors.black.withOpacity(0.6),
-            fontSize: 10,
+          style: AppTextStyle.bold7.copyWith(
+            color: AppColors.themeColor.textPrimaryColor.withOpacity(0.6),
+            fontSize: AppDimens.fontSize10,
             fontWeight: FontWeight.bold,
             letterSpacing: 2,
-            fontFamily: 'Poppins',
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8.h),
         InkWell(
           onTap: () => controller.pickDate(context),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(12.r),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
             decoration: BoxDecoration(
-              color: Colors.grey.withOpacity(0.05),
-              borderRadius: BorderRadius.circular(12),
+              color: AppColors.themeColor.scaffoldBackgroundColor.withOpacity(0.5),
+              borderRadius: BorderRadius.circular(12.r),
               border: Border.all(color: Colors.black.withOpacity(0.1)),
             ),
             child: Row(
@@ -308,9 +303,9 @@ class OverlayPages extends StatelessWidget {
                       controller.rescheduleDate.value.isEmpty
                           ? DateFormat('dd MMM, yyyy').format(DateTime.now().add(const Duration(days: 1)))
                           : DateFormat('dd MMM, yyyy').format(DateFormat('yyyy-MM-dd').parse(controller.rescheduleDate.value)),
-                      style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
+                      style: AppTextStyle.bold7.copyWith(color: AppColors.themeColor.textPrimaryColor, fontWeight: FontWeight.w600, fontSize: AppDimens.fontSize14),
                     )),
-                Icon(Icons.calendar_month_rounded, color: AppColors.themeColor.primaryColor, size: 20),
+                Icon(Icons.calendar_month_rounded, color: AppColors.themeColor.primaryColor, size: 20.sp),
               ],
             ),
           ),
@@ -324,34 +319,34 @@ class OverlayPages extends StatelessWidget {
     if (next == null) return const SizedBox.shrink();
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 14.h),
       decoration: BoxDecoration(
         color: Colors.black.withOpacity(0.03),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(20.r),
         border: Border.all(color: Colors.black.withOpacity(0.05)),
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
             decoration: BoxDecoration(
               color: AppColors.themeColor.primaryColor.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(6),
+              borderRadius: BorderRadius.circular(6.r),
             ),
             child: Text(
               "up_next".tr,
-              style: TextStyle(color: AppColors.themeColor.primaryColor, fontWeight: FontWeight.w900, fontSize: 9, letterSpacing: 1),
+              style: AppTextStyle.bold7.copyWith(color: AppColors.themeColor.primaryColor, fontWeight: FontWeight.w900, fontSize: AppDimens.fontSize9, letterSpacing: 1),
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12.w),
           Expanded(
             child: Text(
               next["name"] ?? "Unknown",
-              style: TextStyle(color: Colors.black.withOpacity(0.8), fontWeight: FontWeight.w600, fontSize: 13, fontFamily: 'Poppins'),
+              style: AppTextStyle.bold7.copyWith(color: AppColors.themeColor.textPrimaryColor.withOpacity(0.8), fontWeight: FontWeight.w600, fontSize: AppDimens.fontSize13),
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          Icon(Icons.chevron_right_rounded, color: Colors.black.withOpacity(0.3), size: 18),
+          Icon(Icons.chevron_right_rounded, color: Colors.black.withOpacity(0.3), size: 18.sp),
         ],
       ),
     );
@@ -366,38 +361,37 @@ class OverlayPages extends StatelessWidget {
   }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(18.r),
       child: Container(
         width: isFullWidth ? double.infinity : null,
-        height: 52,
+        height: 52.h,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: colors, 
             begin: Alignment.topLeft, 
             end: Alignment.bottomRight
           ),
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(18.r),
           boxShadow: [
             BoxShadow(
               color: colors.last.withOpacity(0.35),
-              blurRadius: 12,
-              offset: const Offset(0, 6),
+              blurRadius: 12.r,
+              offset: Offset(0, 6.h),
             ),
           ],
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: Colors.white, size: 22),
-            const SizedBox(width: 8),
+            Icon(icon, color: Colors.white, size: 22.sp),
+            SizedBox(width: 8.w),
             Text(
               label,
-              style: const TextStyle(
+              style: AppTextStyle.bold7.copyWith(
                 color: Colors.white, 
                 fontWeight: FontWeight.w700, 
-                fontSize: 14, 
+                fontSize: AppDimens.fontSize14, 
                 letterSpacing: 1,
-                fontFamily: 'Poppins',
               ),
             ),
           ],
@@ -413,12 +407,12 @@ class OverlayPages extends StatelessWidget {
         Get.back();
       },
       icon: Container(
-        padding: const EdgeInsets.all(8),
+        padding: EdgeInsets.all(8.w),
         decoration: BoxDecoration(
           color: Colors.black.withOpacity(0.05),
           shape: BoxShape.circle,
         ),
-        child: Icon(Icons.close_rounded, color: Colors.black.withOpacity(0.4)),
+        child: Icon(Icons.close_rounded, color: Colors.black.withOpacity(0.4), size: 20.sp),
       ),
     );
   }

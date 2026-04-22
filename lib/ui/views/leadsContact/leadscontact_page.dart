@@ -1,14 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pagewise/flutter_pagewise.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:telecaller_app/constants/app_colors.dart';
+import 'package:telecaller_app/constants/app_dimens.dart';
+import 'package:telecaller_app/constants/app_text_style.dart';
 import 'package:telecaller_app/core/models/lead_contact_id_entity.dart';
 import 'package:telecaller_app/ui/widgets/CustomSearchBar.dart';
 import 'package:telecaller_app/ui/widgets/custom-appbar.dart';
 import 'package:telecaller_app/ui/widgets/custome_icon_button.dart';
-import 'package:telecaller_app/ui/widgets/statusDashboard.dart';
-import 'package:intl/intl.dart';
 import 'leadscontact_controller.dart';
+
+class _StatItem {
+  final String title;
+  final String value;
+  final Color color;
+
+  _StatItem(this.title, this.value, this.color);
+}
 
 class LeadsContactPage extends GetView<LeadsContactController> {
   const LeadsContactPage({Key? key}) : super(key: key);
@@ -16,297 +26,395 @@ class LeadsContactPage extends GetView<LeadsContactController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.themeColor.scaffoldBackgroundColor,
       appBar: CustomAppBar(
         title: Text(
           'leads_contact'.tr,
-          style: TextStyle(color: AppColors.themeColor.textPrimaryColor),
+          style: AppTextStyle.appBarTitleStyle.copyWith(
+            color: AppColors.themeColor.textPrimaryColor,
+            fontSize: AppDimens.fontSize18,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
       body: Obx(
-            () =>
-        controller.isLoading.value
+        () => controller.isLoading.value
             ? const Center(child: CircularProgressIndicator())
             : Column(
-          children: [
-            StatsDashboard(
-              stats: {
-                'total'.tr: controller.totalLeadsId.value,
-                'completed'.tr: controller.completedCount.value,
-                'pending'.tr: controller.pendingCount.value,
-                'scheduled'.tr: controller.scheduledCount.value,
-              },
-            ),
-            const SizedBox(height: 5),
-            StatsDashboard(
-              stats: {
-                'interested'.tr: controller.interestedCount.value,
-                'not_interested'.tr: controller.notInterestedCount.value,
-                'follow_up'.tr: controller.followUpCount.value,
-                'invalid'.tr: controller.invalidCount.value,
-                'no_response'.tr: controller.noResponseCount.value,
-              },
-            ),
-            CustomSearchBar(
-              controller: controller.searchController,
-              onSearch: () {
-                controller.searchText.value =
-                    controller.searchController.text;
-              },
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  CustomActionButton(
-                    title: "reset".tr,
-                    icon: Icons.refresh,
-                    onTap: () {
-                      controller.resetFilters();
+                  SizedBox(height: 12.h),
+                  _buildStatsCards(),
+                  SizedBox(height: 12.h),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    child: CustomSearchBar(
+                    controller: controller.searchController,
+                    onSearch: () {
+                      controller.searchText.value =
+                          controller.searchController.text;
                     },
                   ),
-                  const SizedBox(width: 5),
-                  CustomActionButton(
-                    title: "filter".tr,
-                    icon: Icons.filter_alt_outlined,
-                    onTap: () {
-                      _showFilterBottomSheet(context);
-                    },
                   ),
-                  const SizedBox(width: 5),
-                  CustomActionButton(
-                    title: "sort".tr,
-                    icon: Icons.sort,
-                    onTap: () {
-                      _showSortBottomSheet(context);
-                    },
+                  SizedBox(height: 10.h),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        CustomActionButton(
+                          title: "reset".tr,
+                          icon: Icons.refresh,
+                          onTap: () {
+                            controller.resetFilters();
+                          },
+                        ),
+                        SizedBox(width: 8.w),
+                        CustomActionButton(
+                          title: "filter".tr,
+                          icon: Icons.filter_alt_outlined,
+                          onTap: () {
+                            _showFilterBottomSheet(context);
+                          },
+                        ),
+                        SizedBox(width: 8.w),
+                        CustomActionButton(
+                          title: "sort".tr,
+                          icon: Icons.sort,
+                          onTap: () {
+                            _showSortBottomSheet(context);
+                          },
+                        ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(width: 5),
+                  SizedBox(height: 10.h),
+                  Expanded(
+                    child: RefreshIndicator(
+                      onRefresh: () async {
+                        controller.resetAndReload();
+                        await Future.delayed(const Duration(milliseconds: 500));
+                      },
+                      child: _buildLeadsTable(context),
+                    ),
+                  ),
                 ],
               ),
-            ),
-            Expanded(child: _buildLeadsTable(context)),
-          ],
+      ),
+    );
+  }
+
+  Widget _buildStatsCards() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      child: GridView(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+          crossAxisSpacing: 10.w,
+          mainAxisSpacing: 10.h,
+          childAspectRatio: 1.3,
         ),
+        children: [
+          _buildGridCard('total'.tr, controller.totalLeadsId.value.toString(), const Color(0xFF6366F1), Icons.people_outline),
+          _buildGridCard('completed'.tr, controller.completedCount.value.toString(), const Color(0xFF10B981), Icons.check_circle_outline),
+          _buildGridCard('pending'.tr, controller.pendingCount.value.toString(), const Color(0xFFF59E0B), Icons.pending_actions),
+          _buildGridCard('scheduled'.tr, controller.scheduledCount.value.toString(), const Color(0xFF3B82F6), Icons.calendar_today),
+          _buildGridCard('interested'.tr, controller.interestedCount.value.toString(), const Color(0xFF8B5CF6), Icons.thumb_up_outlined),
+          _buildGridCard('not_interested'.tr, controller.notInterestedCount.value.toString(), const Color(0xFFEF4444), Icons.thumb_down_outlined),
+          _buildGridCard('follow_up'.tr, controller.followUpCount.value.toString(), const Color(0xFFEC4899), Icons.phone_callback_outlined),
+          _buildGridCard('invalid'.tr, controller.invalidCount.value.toString(), const Color(0xFF6B7280), Icons.block),
+          _buildGridCard('no_response'.tr, controller.noResponseCount.value.toString(), const Color(0xFF14B8A6), Icons.phone_missed),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGridCard(String title, String value, Color color, IconData icon) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.themeColor.cardBgColor,
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: color.withOpacity(0.3), width: 1.w),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.06),
+            blurRadius: 10.r,
+            offset: Offset(0, 4.h),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 16.sp, color: color),
+              SizedBox(width: 6.w),
+              Text(
+                value,
+                style: AppTextStyle.bold11.copyWith(
+                  fontSize: AppDimens.fontSize18,
+                  color: AppColors.themeColor.textPrimaryColor,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+          SizedBox(height: 6.h),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 4.w),
+            child: Text(
+              title,
+              style: AppTextStyle.medium7.copyWith(
+                fontSize: AppDimens.fontSize11,
+                color: AppColors.themeColor.textSecondaryColor,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildLeadsTable(BuildContext context) {
-    return controller.isLoading.value
-        ? const Center(child: CircularProgressIndicator())
-        : PagewiseListView<LeadContactIdLeadContacts>(
+    if (controller.pagewiseLoadLeadIdController == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    return PagewiseListView<LeadContactIdLeadContacts>(
       pageLoadController: controller.pagewiseLoadLeadIdController,
       showRetry: true,
-      noItemsFoundBuilder:
-          (context) => const Center(child: Text('No leads found')),
-      loadingBuilder:
-          (context) => const Center(child: CircularProgressIndicator()),
+      noItemsFoundBuilder: (context) {
+        return Padding(
+          padding: EdgeInsets.all(40.w),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.inbox_outlined,
+                  size: 48.sp,
+                  color: AppColors.themeColor.textSecondaryColor.withOpacity(0.5),
+                ),
+                SizedBox(height: 16.h),
+                Text(
+                  'No leads found',
+                  style: AppTextStyle.medium7.copyWith(
+                    fontSize: AppDimens.fontSize16,
+                    color: AppColors.themeColor.textSecondaryColor,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+      retryBuilder: (context, retryFn) {
+        return Padding(
+          padding: EdgeInsets.all(40.w),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.error_outline, size: 48.sp, color: Colors.red.shade400),
+                SizedBox(height: 16.h),
+                Text(
+                  'Failed to load leads',
+                  style: AppTextStyle.medium7.copyWith(
+                    fontSize: AppDimens.fontSize16,
+                    color: AppColors.themeColor.textSecondaryColor,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                SizedBox(height: 16.h),
+                ElevatedButton(
+                  onPressed: retryFn,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.themeColor.primaryColor,
+                    padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
+                  ),
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+      loadingBuilder: (context) => const Center(child: CircularProgressIndicator()),
       itemBuilder: (context, item, index) => _buildLeadCardMobile(item),
     );
   }
 
   Widget _buildLeadCardMobile(LeadContactIdLeadContacts lead) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      padding: const EdgeInsets.all(12),
+      margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
       decoration: BoxDecoration(
         color: AppColors.themeColor.cardBgColor,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.themeColor.bordercolror),
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: AppColors.themeColor.bordercolror.withOpacity(0.5), width: 1.w),
         boxShadow: [
           BoxShadow(
-            color: AppColors.themeColor.scaffoldBackgroundColor.withOpacity(
-                0.5),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 15.r,
+            offset: Offset(0, 8.h),
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Name + Status + Call Now button
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  lead.contact?.name ?? 'N/A',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
+      child: Padding(
+        padding: EdgeInsets.all(16.w),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Name + Status
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Text(
+                    lead.contact?.name ?? 'Unknown',
+                    style: AppTextStyle.bold8.copyWith(
+                      fontSize: AppDimens.fontSize16,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: -0.3,
+                      color: AppColors.themeColor.textPrimaryColor,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-              _buildStatusBadge(lead.status ?? 'N/A'),
-              const SizedBox(width: 10),
-            ],
-          ),
+                SizedBox(width: 12.w),
+                _buildStatusBadge(lead.status ?? 'Unknown'),
+              ],
+            ),
+            SizedBox(height: 12.h),
 
+            // Contact Info
+            Row(
+              children: [
+                Icon(Icons.phone_outlined, size: 14.sp, color: AppColors.themeColor.textSecondaryColor),
+                SizedBox(width: 6.w),
+                Expanded(
+                  child: Text(
+                    lead.contact?.phone ?? 'N/A',
+                    style: AppTextStyle.regular7.copyWith(
+                      fontSize: AppDimens.fontSize12,
+                      color: AppColors.themeColor.textSecondaryColor,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 8.h),
 
-          Row(
-            children: [
-              const Icon(Icons.phone, size: 14, color: Colors.blueGrey),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  lead.contact?.phone ?? 'N/A',
-                  style: const TextStyle(fontSize: 12),
-                  overflow: TextOverflow.ellipsis,
+            Row(
+              children: [
+                Icon(Icons.email_outlined, size: 14.sp, color: AppColors.themeColor.textSecondaryColor),
+                SizedBox(width: 6.w),
+                Expanded(
+                  child: Text(
+                    lead.contact?.email ?? 'N/A',
+                    style: AppTextStyle.regular7.copyWith(
+                      fontSize: AppDimens.fontSize12,
+                      color: AppColors.themeColor.textSecondaryColor,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
+              ],
+            ),
+            SizedBox(height: 12.h),
+            Divider(color: AppColors.themeColor.bordercolror.withOpacity(0.3), height: 1.h),
+            SizedBox(height: 12.h),
 
-          Row(
-            children: [
-              const Icon(Icons.email, size: 14, color: Colors.blueGrey),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  lead.contact?.email ?? 'N/A',
-                  style: const TextStyle(fontSize: 12),
-                  overflow: TextOverflow.ellipsis,
+            // Additional Info
+            Row(
+              children: [
+                Expanded(
+                  child: _buildInfoItem(
+                    'Telecaller',
+                    lead.assignedTo?.name ?? 'N/A',
+                    Icons.person_outline,
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Telecaller',
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: AppColors.themeColor.textSecondaryColor,
-                      ),
-                    ),
-                    Text(
-                      lead.assignedTo?.name ?? 'N/A',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: _buildInfoItem(
+                    'Logs',
+                    '${lead.logs?.length ?? 0}',
+                    Icons.history_outlined,
+                  ),
                 ),
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Logs',
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: Colors.blueGrey[600],
-                      ),
-                    ),
-                    Text(
-                      '${lead.logs?.length ?? 0}',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: _buildInfoItem(
+                    'Duration',
+                    controller.formatDuration(controller.getTotalDuration(lead.logs)),
+                    Icons.timer_outlined,
+                  ),
                 ),
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Duration',
-                      style: TextStyle(fontSize: 10,
-                          color: AppColors.themeColor.textSecondaryColor),
-                    ),
-                    Text(
-                      controller.formatDuration(
-                        controller.getTotalDuration(lead.logs),
-                      ),
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          // Action Button
-          // SizedBox(
-          //   width: double.infinity,
-          //   child: ElevatedButton.icon(
-          //     onPressed: () {
-          //       Get.dialog(
-          //         AlertDialog(
-          //           title: const Text('Call Lead'),
-          //           content: Text('Calling ${lead.contact?.name ?? "N/A"}'),
-          //           actions: [
-          //             TextButton(
-          //               onPressed: () => Get.back(),
-          //               child: const Text('Cancel'),
-          //             ),
-          //             ElevatedButton(
-          //               onPressed: () {
-          //                 Get.back();
-          //                 controller.makeCall(lead.contact?.phone);
-          //               },
-          //               style: ElevatedButton.styleFrom(
-          //                 backgroundColor: AppColors.themeColor.primaryColor,
-          //                 foregroundColor: Colors.white,
-          //               ),
-          //               child: const Text('Call'),
-          //             ),
-          //           ],
-          //         ),
-          //       );
-          //     },
-          //     icon: const Icon(Icons.call, size: 16),
-          //     label: const Text('Call Now'),
-          //     style: ElevatedButton.styleFrom(
-          //       backgroundColor: AppColors.themeColor.primaryColor,
-          //       foregroundColor: Colors.white,
-          //       padding: const EdgeInsets.symmetric(vertical: 10),
-          //       shape: RoundedRectangleBorder(
-          //         borderRadius: BorderRadius.circular(8),
-          //       ),
-          //     ),
-          //   ),
-          // ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
+    );
+  }
+
+  Widget _buildInfoItem(String label, String value, IconData icon) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(icon, size: 12.sp, color: AppColors.themeColor.primaryColor),
+            SizedBox(width: 4.w),
+            Text(
+              label,
+              style: AppTextStyle.medium7.copyWith(
+                fontSize: AppDimens.fontSize11,
+                color: AppColors.themeColor.primaryColor,
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 4.h),
+        Text(
+          value,
+          style: AppTextStyle.bold7.copyWith(
+            fontSize: AppDimens.fontSize12,
+            color: AppColors.themeColor.textPrimaryColor,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
     );
   }
 
   Widget _buildStatusBadge(String status) {
     final color = controller.getStatusColor(status);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
-        border: Border.all(color: color.withOpacity(0.3)),
-        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withOpacity(0.3), width: 1),
+        borderRadius: BorderRadius.circular(20.r),
       ),
       child: Text(
         status,
-        style: TextStyle(
-          fontSize: 11,
-          color: color,
+        style: AppTextStyle.bold6.copyWith(
+          fontSize: AppDimens.fontSize11,
           fontWeight: FontWeight.w600,
+          color: color,
         ),
       ),
     );
@@ -315,12 +423,12 @@ class LeadsContactPage extends GetView<LeadsContactController> {
   void _showFilterBottomSheet(BuildContext context) {
     Get.bottomSheet(
       Container(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(20.w),
         decoration: BoxDecoration(
           color: AppColors.themeColor.cardColor,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20.r),
+            topRight: Radius.circular(20.r),
           ),
         ),
         child: SingleChildScrollView(
@@ -333,108 +441,108 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                 children: [
                   Text(
                     "filter_leads".tr,
-                    style: TextStyle(
+                    style: AppTextStyle.appBarTitleStyle.copyWith(
                       color: AppColors.themeColor.textPrimaryColor,
-                      fontSize: 18,
+                      fontSize: AppDimens.fontSize18,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   IconButton(
                     onPressed: () => Get.back(),
-                    icon: const Icon(Icons.close),
+                    icon: Icon(Icons.close, size: 24.sp),
                   ),
                 ],
               ),
-              const SizedBox(height: 10),
-              Obx(() =>
-                  Row(
-                    children: [
-                      Radio<String>(
-                        value: "all_time",
-                        groupValue: controller.filterType.value,
-                        onChanged: (value) {
-                          controller.filterType.value = value!;
-                        },
-                      ),
-                       Text("all_time".tr),
-                      const SizedBox(width: 20),
-                      Radio<String>(
-                        value: "specific_time",
-                        groupValue: controller.filterType.value,
-                        onChanged: (value) {
-                          controller.filterType.value = value!;
-                        },
-                      ),
-                       Text("specific_time".tr),
-                    ],
-                  )),
-               SizedBox(height: 20),
+              SizedBox(height: 10.h),
+              Obx(() => Row(
+                children: [
+                  Radio<String>(
+                    value: "all_time",
+                    groupValue: controller.filterType.value,
+                    activeColor: AppColors.themeColor.primaryColor,
+                    onChanged: (value) {
+                      controller.filterType.value = value!;
+                    },
+                  ),
+                  Text("all_time".tr, style: AppTextStyle.regular7.copyWith(fontSize: AppDimens.fontSize14, color: AppColors.themeColor.textPrimaryColor)),
+                  SizedBox(width: 20.w),
+                  Radio<String>(
+                    value: "specific_time",
+                    groupValue: controller.filterType.value,
+                    activeColor: AppColors.themeColor.primaryColor,
+                    onChanged: (value) {
+                      controller.filterType.value = value!;
+                    },
+                  ),
+                  Text("specific_time".tr, style: AppTextStyle.regular7.copyWith(fontSize: AppDimens.fontSize14, color: AppColors.themeColor.textPrimaryColor)),
+                ],
+              )),
+              SizedBox(height: 20.h),
               Text(
                 "filter_by_status".tr,
-                style: TextStyle(
-                  fontSize: 14,
+                style: AppTextStyle.medium7.copyWith(
+                  fontSize: AppDimens.fontSize14,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.themeColor.textPrimaryColor,
+                  color: AppColors.themeColor.textPrimaryColor.withOpacity(0.8),
                 ),
               ),
-              const SizedBox(height: 10),
-              Obx(() =>
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                          color: AppColors.themeColor.bordercolror),
-                      borderRadius: BorderRadius.circular(25),
-                    ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        isExpanded: true,
-                        value: controller.status.value,
-                        items: [
-                          {"key": "all", "label": "all"},
-                          {"key": "completed", "label": "completed"},
-                          {"key": "scheduled", "label": "scheduled"},
-                          {"key": "pending", "label": "pending"},
-                        ].map((status) {
-                          return DropdownMenuItem<String>(
-                            value: status["key"],
-                            child: Text(status["label"]!.tr),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          controller.status.value = value!;
-                        },
-                      ),
-                    ),
-                  )),
+              SizedBox(height: 10.h),
+              Obx(() => Container(
+                padding: EdgeInsets.symmetric(horizontal: 12.w),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                      color: AppColors.themeColor.bordercolror, width: 1.w),
+                  borderRadius: BorderRadius.circular(25.r),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    isExpanded: true,
+                    value: controller.status.value,
+                    icon: Icon(Icons.arrow_drop_down, color: AppColors.themeColor.primaryColor),
+                    dropdownColor: AppColors.themeColor.cardColor,
+                    items: [
+                      {"key": "all", "label": "all"},
+                      {"key": "completed", "label": "completed"},
+                      {"key": "scheduled", "label": "scheduled"},
+                      {"key": "pending", "label": "pending"},
+                    ].map((status) {
+                      return DropdownMenuItem<String>(
+                        value: status["key"],
+                        child: Text(status["label"]!.tr, style: AppTextStyle.regular7.copyWith(fontSize: AppDimens.fontSize14, color: AppColors.themeColor.textPrimaryColor)),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      controller.status.value = value!;
+                    },
+                  ),
+                ),
+              )),
               Obx(() {
                 if (controller.filterType.value == "specific_time") {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 20),
+                      SizedBox(height: 20.h),
                       Text(
                         "filter_by_date".tr,
-                        style: TextStyle(
-                          fontSize: 14,
+                        style: AppTextStyle.medium7.copyWith(
+                          fontSize: AppDimens.fontSize14,
                           fontWeight: FontWeight.w500,
-                          color: AppColors.themeColor.textPrimaryColor,
+                          color: AppColors.themeColor.textPrimaryColor.withOpacity(0.8),
                         ),
                       ),
-                      const SizedBox(height: 10),
+                      SizedBox(height: 10.h),
                       GestureDetector(
                         onTap: () async {
                           final DateTimeRange? picked = await showDateRangePicker(
                             context: context,
                             firstDate: DateTime(2000),
                             lastDate: DateTime(2100),
-                            initialDateRange: controller.startDate.value !=
-                                null &&
-                                controller.endDate.value != null
+                            initialDateRange: controller.startDate.value != null && controller.endDate.value != null
                                 ? DateTimeRange(
-                              start: controller.startDate.value!,
-                              end: controller.endDate.value!,
-                            )
+                                    start: controller.startDate.value!,
+                                    end: controller.endDate.value!,
+                                  )
                                 : null,
                           );
                           if (picked != null) {
@@ -443,34 +551,27 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                           }
                         },
                         child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 12,
-                          ),
+                          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
                           decoration: BoxDecoration(
-                            border: Border.all(
-                                color: AppColors.themeColor.bordercolror),
-                            borderRadius: BorderRadius.circular(25),
+                            border: Border.all(color: AppColors.themeColor.bordercolror),
+                            borderRadius: BorderRadius.circular(25.r),
                           ),
                           child: Row(
                             children: [
                               Expanded(
                                 child: Text(
-                                  controller.startDate.value != null &&
-                                      controller.endDate.value != null
+                                  controller.startDate.value != null && controller.endDate.value != null
                                       ? "${DateFormat('yyyy-MM-dd').format(controller.startDate.value!)}   →   ${DateFormat('yyyy-MM-dd').format(controller.endDate.value!)}"
                                       : "start_date_end_date".tr,
-                                  style: TextStyle(
+                                  style: AppTextStyle.regular7.copyWith(
+                                    fontSize: AppDimens.fontSize13,
                                     color: controller.startDate.value != null
                                         ? AppColors.themeColor.textPrimaryColor
                                         : AppColors.themeColor.textSecondaryColor,
                                   ),
                                 ),
                               ),
-                              Icon(Icons.calendar_today_outlined,
-                                  size: 18,
-                                  color: AppColors.themeColor
-                                      .textSecondaryColor),
+                              Icon(Icons.calendar_today_outlined, size: 18.sp, color: AppColors.themeColor.textSecondaryColor),
                             ],
                           ),
                         ),
@@ -481,28 +582,27 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                   return const SizedBox.shrink();
                 }
               }),
-              const SizedBox(height: 30),
+              SizedBox(height: 30.h),
               Row(
                 children: [
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () => Get.back(),
                       style: OutlinedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(25),
-                        ),
-                        side: BorderSide(
-                            color: AppColors.themeColor.bordercolror),
-                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.r)),
+                        side: BorderSide(color: AppColors.themeColor.bordercolror),
+                        padding: EdgeInsets.symmetric(vertical: 15.h),
                       ),
                       child: Text(
                         "cancel".tr,
-                        style: TextStyle(
-                            color: AppColors.themeColor.textPrimaryColor),
+                        style: AppTextStyle.medium7.copyWith(
+                          fontSize: AppDimens.fontSize14,
+                          color: AppColors.themeColor.textPrimaryColor,
+                        ),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 15),
+                  SizedBox(width: 15.w),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
@@ -510,20 +610,21 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.themeColor.primaryColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(25),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.r)),
+                        padding: EdgeInsets.symmetric(vertical: 15.h),
                       ),
-                      child:  Text(
+                      child: Text(
                         "apply".tr,
-                        style: TextStyle(color: Colors.white),
+                        style: AppTextStyle.bold7.copyWith(
+                          fontSize: AppDimens.fontSize14,
+                          color: AppColors.themeColor.cardColor,
+                        ),
                       ),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 10),
+              SizedBox(height: 10.h),
             ],
           ),
         ),
@@ -535,12 +636,12 @@ class LeadsContactPage extends GetView<LeadsContactController> {
   void _showSortBottomSheet(BuildContext context) {
     Get.bottomSheet(
       Container(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(20.w),
         decoration: BoxDecoration(
           color: AppColors.themeColor.cardColor,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20.r),
+            topRight: Radius.circular(20.r),
           ),
         ),
         child: Column(
@@ -552,23 +653,22 @@ class LeadsContactPage extends GetView<LeadsContactController> {
               children: [
                 Text(
                   "sort_leads_by".tr,
-                  style: TextStyle(
+                  style: AppTextStyle.appBarTitleStyle.copyWith(
                     color: AppColors.themeColor.textPrimaryColor,
-                    fontSize: 18,
+                    fontSize: AppDimens.fontSize18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 IconButton(
                   onPressed: () => Get.back(),
-                  icon: const Icon(Icons.close),
+                  icon: Icon(Icons.close, size: 24.sp),
                 ),
               ],
             ),
-            const SizedBox(height: 10),
+            SizedBox(height: 10.h),
             ...controller.sortOptions.entries.map((entry) {
-              return Obx(() =>
-                  RadioListTile<String>(
-                    title: Text(entry.value.tr),
+              return Obx(() => RadioListTile<String>(
+                    title: Text(entry.value.tr, style: AppTextStyle.regular7.copyWith(fontSize: AppDimens.fontSize14, color: AppColors.themeColor.textPrimaryColor)),
                     value: entry.key,
                     groupValue: controller.sortBy.value,
                     activeColor: AppColors.themeColor.primaryColor,
@@ -579,7 +679,7 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                     },
                   ));
             }).toList(),
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
           ],
         ),
       ),

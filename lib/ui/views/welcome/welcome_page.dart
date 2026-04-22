@@ -4,6 +4,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:telecaller_app/constants/app_colors.dart';
+import 'package:telecaller_app/constants/app_dimens.dart';
 import 'package:telecaller_app/constants/app_routes.dart';
 import 'package:telecaller_app/constants/app_text_style.dart';
 import 'package:telecaller_app/ui/views/welcome/welcome_controller.dart';
@@ -41,7 +42,6 @@ class WelcomePage extends GetView<WelcomeController> {
                   return Padding(
                     padding: EdgeInsets.only(top: screenHeight * 0.15),
                     child: Column(
-                      //mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Flexible(
                           child: Image.asset(
@@ -49,34 +49,30 @@ class WelcomePage extends GetView<WelcomeController> {
                             width: 0.8.sw,
                           ),
                         ),
-                        SizedBox(height: 30),
-                        // SizedBox(height: screenHeight *  0.07,),
-                        // Center(
-                        //     child:
+                        SizedBox(height: 30.h),
                         Padding(
-                          padding: EdgeInsets.all(0.0),
+                          padding: EdgeInsets.zero,
                           child: Text(
                             controller.onBoardingData[index]['title'],
-                            style:
-                            AppTextStyle.titleBold.copyWith(fontSize: 18),
-                            //style: AppTextStyle.bold13.copyWith(fontSize: 20,color: AppColors.themeColor.textPrimaryColor),
+                            style: AppTextStyle.bold7.copyWith(
+                              fontSize: AppDimens.fontSize18,
+                              color: AppColors.themeColor.textPrimaryColor,
+                            ),
                           ),
                         ),
-                        SizedBox(height: 40),
-
+                        SizedBox(height: 20.h),
                         Padding(
-                          padding: EdgeInsets.all(4.0),
+                          padding: EdgeInsets.symmetric(horizontal: 40.w),
                           child: Text(
-                              "${controller
-                                  .onBoardingData[index]['description']}"
-                                  .trParams({"nl": "n".tr}),
-                              // (controller.onBoardingData[index]['description'],
-                              textAlign: TextAlign.center,
-                              style: AppTextStyle.regular9.copyWith(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w600,
-                                  color:
-                                  AppColors.themeColor.textPrimaryColor)),
+                            "${controller.onBoardingData[index]['description']}"
+                                .tr.trParams({"nl": "n".tr}),
+                            textAlign: TextAlign.center,
+                            style: AppTextStyle.regular7.copyWith(
+                              fontSize: AppDimens.fontSize12,
+                              color: AppColors.themeColor.textSecondaryColor,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -84,7 +80,7 @@ class WelcomePage extends GetView<WelcomeController> {
                 },
               ),
               Padding(
-                padding: EdgeInsets.only(bottom: 20),
+                padding: EdgeInsets.only(bottom: 20.h),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -94,31 +90,26 @@ class WelcomePage extends GetView<WelcomeController> {
                             controller.onBoardingData.length, (index) {
                           return AnimatedContainer(
                             duration: Duration(milliseconds: 200),
-                            height: 10,
+                            height: 8.h,
                             width: (index == controller.currentPage.value)
-                                ? 10
-                                : 10,
-                            margin: EdgeInsets.symmetric(horizontal: 5),
+                                ? 24.w
+                                : 8.w,
+                            margin: EdgeInsets.symmetric(horizontal: 4.w),
                             decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(50),
+                                borderRadius: BorderRadius.circular(50.r),
                                 color: (index == controller.currentPage.value)
                                     ? AppColors.themeColor.primaryColor
-                                    : AppColors.themeColor.textSecondaryColor),
+                                    : AppColors.themeColor.textSecondaryColor.withOpacity(0.3)),
                           );
                         })),
                     SizedBox(
-                      height: screenHeight * 0.05,
+                      height: 30.h,
                     ),
                     (controller.currentPage ==
                         controller.onBoardingData.length - 1)
                         ? CustomButton(
-
-                      // isLoading: true,
-
                       onClick: () {
                         Get.to(ProminentDisclosurePage());
-
-                        // Get.toNamed(Routes.LOGIN);
                       },
                       title: 'Get Started',
                     )
@@ -126,27 +117,21 @@ class WelcomePage extends GetView<WelcomeController> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Padding(
-                          padding:
-                          EdgeInsets.only(left: screenWidth * 0.01),
+                          padding: EdgeInsets.only(left: 10.w),
                           child: TextButton(
                             onPressed: () {
-                              // Navigate to login page
                               Get.to(ProminentDisclosurePage());
-
-                              // Get.toNamed(Routes.LOGIN);
                             },
                             child: Text('Skip'.tr,
-                                style: AppTextStyle.regular8.copyWith(
-                                    fontSize: 12,
-                                    color: AppColors
-                                        .themeColor.textPrimaryColor,
+                                style: AppTextStyle.medium7.copyWith(
+                                    fontSize: AppDimens.fontSize14,
+                                    color: AppColors.themeColor.textSecondaryColor,
                                     fontWeight: FontWeight.w500)),
                           ),
                         ),
 
                         Padding(
-                          padding:
-                          EdgeInsets.only(right: screenWidth * 0.01),
+                          padding: EdgeInsets.only(right: 10.w),
                           child: TextButton(
                             onPressed: () {
                               if (controller.pageController.page! <
@@ -156,23 +141,19 @@ class WelcomePage extends GetView<WelcomeController> {
                                     curve: Curves.ease);
                               } else {
                                 Get.to(ProminentDisclosurePage());
-
-                                // Get.toNamed(Routes.LOGIN);
                               }
                             },
                             child: Text('Next'.tr,
-                                style: AppTextStyle.regular8.copyWith(
-                                    fontSize: 12,
-                                    color:
-                                    AppColors.themeColor.primaryColor,
+                                style: AppTextStyle.bold7.copyWith(
+                                    fontSize: AppDimens.fontSize14,
+                                    color: AppColors.themeColor.primaryColor,
                                     fontWeight: FontWeight.w500)),
                           ),
                         ),
-                        //  ),
                       ],
                     )
                   ],
-                ).paddingAll(8.r),
+                ).paddingAll(16.r),
               )
             ],
           ),

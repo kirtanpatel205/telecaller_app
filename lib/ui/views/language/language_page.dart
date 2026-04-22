@@ -1,7 +1,9 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:telecaller_app/constants/app_colors.dart';
+import 'package:telecaller_app/constants/app_dimens.dart';
 import 'package:telecaller_app/constants/app_text_style.dart';
 import 'package:telecaller_app/core/models/language_entity.dart';
 import 'package:telecaller_app/ui/views/language/language_controller.dart';
@@ -19,11 +21,11 @@ class LanguagePage extends GetView<LanguageController> {
         titleText: "languageandregion".tr,
         actions: [
             Padding(
-              padding: const EdgeInsets.all(10.0),
+              padding: EdgeInsets.all(10.w),
               child: Icon(
                 Icons.more_horiz,
                 color: Colors.transparent,
-                size: 24,
+                size: 24.sp,
               ),
             ),
             
@@ -39,10 +41,10 @@ class LanguagePage extends GetView<LanguageController> {
             ),
           Expanded(
             child: Card(
-                margin: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                margin: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
-                color: AppColors.themeColor.cardColor,
+                    borderRadius: BorderRadius.circular(12.r)),
+                color: AppColors.themeColor.cardBgColor,
                 child: Obx(
                   () => ListView.builder(
                     shrinkWrap: true,
@@ -54,7 +56,8 @@ class LanguagePage extends GetView<LanguageController> {
                         onTap: () => controller.onChangeLang(index),
                         title: Text(
                           lang.name!,
-                          style: AppTextStyle.regular7.copyWith(
+                          style: AppTextStyle.medium7.copyWith(
+                            fontSize: AppDimens.fontSize14,
                             color: AppColors.themeColor.textPrimaryColor,
                           ),
                         ),

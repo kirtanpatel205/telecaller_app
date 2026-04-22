@@ -57,7 +57,7 @@ class _CustomSortbyState extends State<CustomSortby> {
             children: [
               Text(
                 'sortby'.tr,
-                style: AppTextStyle.dropdowntext.copyWith(
+                style: AppTextStyle.bold7.copyWith(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: AppColors.themeColor.textPrimaryColor,
@@ -73,7 +73,7 @@ class _CustomSortbyState extends State<CustomSortby> {
                 child: widget.items.isEmpty
                     ? Text(
                   'No sort options available',
-                  style: AppTextStyle.dropdowntext,
+                  style: AppTextStyle.bold7,
                 )
                     : ListView.builder(
                   itemCount: widget.items.length,
@@ -86,7 +86,7 @@ class _CustomSortbyState extends State<CustomSortby> {
                         children: [
                           Text(
                             item.toUpperCase(),
-                            style: AppTextStyle.dropdowntext.copyWith(
+                            style: AppTextStyle.bold7.copyWith(
                               color: AppColors.themeColor.textPrimaryColor,
                             ),
                           ),
@@ -152,7 +152,7 @@ class _CustomSortbyState extends State<CustomSortby> {
               child: Text(
                 '${'sortby'.tr}: $dropdownValue',
                 overflow: TextOverflow.ellipsis,
-                style: AppTextStyle.dropdowntext.copyWith(
+                style: AppTextStyle.bold7.copyWith(
                   color: AppColors.themeColor.textPrimaryColor,
                   fontSize: 10,
                 ),

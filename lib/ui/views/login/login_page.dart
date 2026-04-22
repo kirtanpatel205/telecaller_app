@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:intl_phone_field2/intl_phone_field.dart';
 import 'package:intl_phone_field2/phone_number.dart';
 import 'package:telecaller_app/constants/app_colors.dart';
+import 'package:telecaller_app/constants/app_dimens.dart';
 import 'package:telecaller_app/constants/app_text_style.dart';
 import 'package:telecaller_app/core/helpers/utils.dart';
 import 'package:telecaller_app/ui/views/login/login_controller.dart';
@@ -25,23 +26,29 @@ class LoginPage extends GetView<LoginController> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 30),
+              SizedBox(height: 30.h),
               Flexible(
                 child: Image.asset('assets/images/L1.png', width: 0.9.sw),
               ),
               Text(
                 "otp_verification".tr,
                 textAlign: TextAlign.start,
-                style: AppTextStyle.titleBold.copyWith(fontSize: 20),
+                style: AppTextStyle.bold7.copyWith(
+                  fontSize: AppDimens.fontSize20,
+                  color: AppColors.themeColor.textPrimaryColor,
+                ),
               ),
-              SizedBox(height: 5),
+              SizedBox(height: 5.h),
               Text(
                 "enter_phone_number_to_send_one_nltime_password".tr.trParams({
                   "nl": "n".tr,
                 }),
-                style: AppTextStyle.subTitle.copyWith(fontSize: 14),
+                style: AppTextStyle.regular7.copyWith(
+                  fontSize: AppDimens.fontSize14,
+                  color: AppColors.themeColor.textSecondaryColor,
+                ),
               ),
-              SizedBox(height: 30),
+              SizedBox(height: 30.h),
               IntlPhoneField(
                 textFieldPadding: EdgeInsets.symmetric(horizontal: 5),
                 flagsButtonPadding: EdgeInsets.symmetric(horizontal: 5),
@@ -51,15 +58,23 @@ class LoginPage extends GetView<LoginController> {
                 cursorColor: AppColors.themeColor.primaryColor,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 showDropdownIcon: false,
-                dropdownTextStyle: TextStyle(
+                dropdownTextStyle: AppTextStyle.regular7.copyWith(
                   color: AppColors.themeColor.textPrimaryColor,
+                  fontSize: AppDimens.fontSize14,
                 ),
-                style: TextStyle(color: AppColors.themeColor.textPrimaryColor),
+                style: AppTextStyle.regular7.copyWith(
+                  color: AppColors.themeColor.textPrimaryColor,
+                  fontSize: AppDimens.fontSize14,
+                ),
                 decoration: InputDecoration(
                   labelText: 'Enter Mobile Number'.tr,
+                  labelStyle: AppTextStyle.regular7.copyWith(
+                    color: AppColors.themeColor.textSecondaryColor,
+                    fontSize: AppDimens.fontSize14,
+                  ),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide: BorderSide(),
+                    borderRadius: BorderRadius.circular(8.r),
+                    borderSide: BorderSide(color: AppColors.themeColor.bordercolror),
                   ),
                   counterText: '',
                   errorText: null,
@@ -79,7 +94,7 @@ class LoginPage extends GetView<LoginController> {
                 },
               ),
               buildReminderCheckBox(context),
-              SizedBox(height: 25),
+              SizedBox(height: 25.h),
               CustomButton(
                 onClick: () => _handleSendOtp(context),
                 title: "continue".tr,
@@ -124,12 +139,11 @@ class LoginPage extends GetView<LoginController> {
             children: [
               Text(
                 'I read and accepted the ',
-                style: AppTextStyle.regular8
-                    .copyWith(fontSize: 10)
-                    .copyWith(
-                      color: AppColors.themeColor.textSecondaryColor,
-                      fontWeight: FontWeight.w500,
-                    ),
+                style: AppTextStyle.regular7.copyWith(
+                  fontSize: AppDimens.fontSize10,
+                  color: AppColors.themeColor.textSecondaryColor,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
               InkWell(
                 onTap: () {
@@ -137,13 +151,12 @@ class LoginPage extends GetView<LoginController> {
                 },
                 child: Text(
                   'privacy policy',
-                  style: AppTextStyle.regular8
-                      .copyWith(fontSize: 10)
-                      .copyWith(
-                        color: AppColors.themeColor.primaryColor,
-                        fontWeight: FontWeight.w700,
-                        decoration: TextDecoration.underline,
-                      ),
+                  style: AppTextStyle.bold7.copyWith(
+                    fontSize: AppDimens.fontSize10,
+                    color: AppColors.themeColor.primaryColor,
+                    fontWeight: FontWeight.w700,
+                    decoration: TextDecoration.underline,
+                  ),
                 ),
               ),
             ],

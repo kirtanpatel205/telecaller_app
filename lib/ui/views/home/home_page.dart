@@ -1,7 +1,9 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:telecaller_app/constants/app_colors.dart';
+import 'package:telecaller_app/constants/app_dimens.dart';
 import 'package:telecaller_app/ui/views/auto_dialer/autodialer_page.dart';
 import 'package:telecaller_app/ui/views/home/home_controller.dart';
 import 'package:telecaller_app/ui/views/leads/leads_page.dart';
@@ -36,18 +38,16 @@ class HomePage extends GetView<HomeController> {
           ),
           bottomNavigationBar: CurvedNavigationBar(
             index: controller.currentTab.value,
-            height: 70,
+            height: 60.0,
             color: AppColors.themeColor.primaryColor,
-            buttonBackgroundColor:
-            AppColors.themeColor.primaryColor,
+            buttonBackgroundColor: AppColors.themeColor.primaryColor,
             backgroundColor: Colors.transparent,
 
-            items: const [
-              Icon(Icons.home, size: 26, color: Colors.white),
-              Icon(Icons.call, size: 26, color: Colors.white),
-              Icon(Icons.quick_contacts_dialer, size: 26, color: Colors.white),
-              Icon(Icons.settings,
-                  size: 26, color: Colors.white),
+            items: [
+              Icon(Icons.home, size: 24.sp, color: AppColors.themeColor.cardColor),
+              Icon(Icons.call, size: 24.sp, color: AppColors.themeColor.cardColor),
+              Icon(Icons.quick_contacts_dialer, size: 24.sp, color: AppColors.themeColor.cardColor),
+              Icon(Icons.settings, size: 24.sp, color: AppColors.themeColor.cardColor),
             ],
 
             onTap: (index) {

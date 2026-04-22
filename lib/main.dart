@@ -111,7 +111,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       initTheme: themeService.isDarkMode.value ? AppTheme.darkTheme : AppTheme.theme,
       builder: (context, theme) {
         return ScreenUtilInit(
-          designSize: Size(size.width, size.height),
+          designSize: const Size(360, 690),
+          minTextAdapt: true,
+          splitScreenMode: true,
           builder: (context, child) => Obx(
             () => GetMaterialApp(
               title: AppStrings.appName,

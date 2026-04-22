@@ -1,6 +1,7 @@
 import 'package:bounce/bounce.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:intl/intl.dart';
@@ -8,6 +9,8 @@ import 'package:telecaller_app/constants/app_colors.dart';
 import 'package:telecaller_app/constants/app_routes.dart';
 import 'package:telecaller_app/constants/app_text_style.dart';
 import 'package:telecaller_app/ui/views/home/overlay/overlay_pages.dart';
+import 'package:telecaller_app/ui/widgets/custom-appbar.dart';
+import 'package:telecaller_app/constants/app_dimens.dart';
 
 import '../home/home_controller.dart';
 
@@ -17,20 +20,17 @@ class DashboardPage extends GetView<HomeController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        elevation: 0,
-
+      appBar: CustomAppBar(
         // 👉 PROFILE IMAGE
         leading: Padding(
-          padding: const EdgeInsets.only(left: 12),
+          padding: EdgeInsets.only(left: 12.w),
           child: Bounce(
             onTap: () {
               Get.toNamed(Routes.EDITPROFILE);
             },
             child: Obx(() => Container(
-              height: 40,
-              width: 40,
+              height: 40.h,
+              width: 40.w,
               clipBehavior: Clip.antiAlias,
               decoration: const BoxDecoration(shape: BoxShape.circle),
               child: controller.authController.profile.value?.profile
@@ -40,7 +40,7 @@ class DashboardPage extends GetView<HomeController> {
                 "https://api-test.digibulkmarketing.com${controller.authController.profile.value!.profile!}",
                 fit: BoxFit.cover,
                 errorBuilder: (_, __, ___) =>
-                const Icon(Icons.error),
+                Icon(Icons.error, size: 20.sp),
               )
                   : Center(
                 child: Text(
@@ -50,10 +50,9 @@ class DashboardPage extends GetView<HomeController> {
                       ? controller
                       .authController.profile.value!.name![0]
                       : "N",
-                  style: AppTextStyle.regular12.copyWith(
-                    fontSize: 20,
-                    color:
-                    AppColors.themeColor.primaryColor,
+                  style: AppTextStyle.bold12.copyWith(
+                    fontSize: AppDimens.fontSize20,
+                    color: AppColors.themeColor.primaryColor,
                   ),
                 ),
               ),
@@ -72,17 +71,16 @@ class DashboardPage extends GetView<HomeController> {
               Text(
                 controller.authController.profile.value?.name ??
                     "no_name".tr,
-                style: AppTextStyle.semiBold8.copyWith(
-                  fontSize: 12,
-                  color:
-                  AppColors.themeColor.textPrimaryColor,
+                style: AppTextStyle.bold8.copyWith(
+                  fontSize: AppDimens.fontSize12,
+                  color: AppColors.themeColor.textPrimaryColor,
                 ),
               ),
               Text(
                 'how_are_you_today'.tr,
                 style: AppTextStyle.regular6.copyWith(
-                  color:
-                  AppColors.themeColor.textPrimaryColor,
+                  fontSize: AppDimens.fontSize10,
+                  color: AppColors.themeColor.textSecondaryColor,
                 ),
               ),
             ],
@@ -97,17 +95,17 @@ class DashboardPage extends GetView<HomeController> {
                 OverlayPages(),
                 barrierDismissible: false,
               );
-               // Get.to(NotifictionPage());
             },
             child: GFAvatar(
-              radius: 18,
+              radius: 18.r,
               backgroundColor:
               AppColors.themeColor.primaryColor,
               child: Icon(
                 Icons.notifications_none_outlined,
-                color: AppColors.themeColor.cardColor,
+                color: Colors.white,
+                size: 20.sp,
               ),
-            ).paddingAll(10),
+            ).paddingAll(10.w),
           ),
         ],
       ),
@@ -115,28 +113,28 @@ class DashboardPage extends GetView<HomeController> {
       // 👉 PAGE BODY
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(AppDimens.padding16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 "dashboard_overview".tr,
-                style: AppTextStyle.semiBold8.copyWith(
-                  fontSize: 20,
+                style: AppTextStyle.bold11.copyWith(
+                  fontSize: AppDimens.fontSize20,
                   color: AppColors.themeColor.textPrimaryColor,
                 ),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16.h),
               _buildSummaryCards(context),
-              const SizedBox(height: 24),
+              SizedBox(height: 24.h),
               _buildLeadContactSection(context),
-              const SizedBox(height: 24),
+              SizedBox(height: 24.h),
               _buildCallsSection(context),
-              const SizedBox(height: 24),
+              SizedBox(height: 24.h),
               _buildBottomAnalyticsChart1(context),
-              const SizedBox(height: 24),
+              SizedBox(height: 24.h),
               _buildBottomAnalyticsChart2(context),
-              const SizedBox(height: 24),
+              SizedBox(height: 24.h),
             ],
           ),
         ),
@@ -153,80 +151,72 @@ class DashboardPage extends GetView<HomeController> {
     required Color iconColor,
   }) {
     return Container(
-      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(12),
+        color: AppColors.themeColor.cardBgColor,
+        borderRadius: BorderRadius.circular(20.r),
+        border: Border.all(color: AppColors.themeColor.bordercolror.withOpacity(0.5), width: 1.w),
+        boxShadow: [
+          BoxShadow(
+            color: iconColor.withOpacity(0.08),
+            blurRadius: 15.r,
+            offset: Offset(0, 8.h),
+          ),
+        ],
       ),
       child: Stack(
         children: [
-          // MAIN CONTENT
-          Positioned.fill(
-            child: Padding(
-              padding: const EdgeInsets.only(right: 28.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // TITLE
-                  Text(
-                    title,
-                    style: AppTextStyle.semiBold8.copyWith(
-                      fontSize: 14,
-                      color: Get.isDarkMode
-                          ? Colors.black87
-                          : AppColors.themeColor.textPrimaryColor,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-
-                  const SizedBox(height: 6),
-
-                  // VALUE (BIG TEXT SAFE)
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      value,
-                      style: AppTextStyle.semiBold8.copyWith(
-                        fontSize: 28,
-                        color: Get.isDarkMode
-                            ? Colors.black
-                            : AppColors.themeColor.textPrimaryColor,
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 2),
-
-                  // SUBTITLE (FLEXIBLE → NO OVERFLOW)
-                  Flexible(
-                    child: Text(
-                      subtitle,
-                      style: AppTextStyle.regular6.copyWith(
-                        fontSize: 12,
-                        color: Get.isDarkMode
-                            ? Colors.black54
-                            : AppColors.themeColor.textPrimaryColor.withAlpha(178),
-                      ),
-                      maxLines: 1, // 👈 IMPORTANT (avoid overflow)
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // ICON
           Positioned(
-            top: 0,
-            right: 0,
+            right: -10.w,
+            bottom: -10.h,
             child: Icon(
               icon,
-              color: iconColor,
-              size: 24,
+              size: 70.sp,
+              color: iconColor.withOpacity(0.04),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.all(12.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(6.w),
+                  decoration: BoxDecoration(
+                    color: iconColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(10.r),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: iconColor,
+                    size: 18.sp,
+                  ),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        value,
+                        style: AppTextStyle.bold11.copyWith(
+                          fontSize: AppDimens.fontSize22,
+                          color: AppColors.themeColor.textPrimaryColor,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      title,
+                      style: AppTextStyle.medium7.copyWith(
+                        fontSize: AppDimens.fontSize12,
+                        color: AppColors.themeColor.textSecondaryColor,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ],
@@ -244,9 +234,9 @@ class DashboardPage extends GetView<HomeController> {
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: crossAxisCount,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-            mainAxisExtent: 130,
+            crossAxisSpacing: 16.w,
+            mainAxisSpacing: 16.h,
+            mainAxisExtent: 130.h,
           ),
           children: [
             Obx(() => _buildSummaryCard(
@@ -289,32 +279,39 @@ class DashboardPage extends GetView<HomeController> {
 
   Widget _buildMetricBox(String title, String todayVal, String totalVal) {
     return Container(
-      padding: const EdgeInsets.all(6),
+      padding: EdgeInsets.all(6.w),
       decoration: BoxDecoration(
         color: AppColors.themeColor.cardBgColor,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.themeColor.bordercolror),
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(color: AppColors.themeColor.bordercolror.withOpacity(0.5), width: 1.w),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 8.r,
+            offset: Offset(0, 4.h),
+          ),
+        ],
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
             decoration: BoxDecoration(
               color: AppColors.themeColor.scaffoldBackgroundColor,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(AppDimens.radius12),
             ),
             child: Text(
               title,
-              style: AppTextStyle.semiBold8.copyWith(
-                fontSize: 12,
+              style: AppTextStyle.bold8.copyWith(
+                fontSize: AppDimens.fontSize12,
                 color: AppColors.themeColor.textPrimaryColor,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -323,32 +320,38 @@ class DashboardPage extends GetView<HomeController> {
                   children: [
                     Text(
                       todayVal,
-                      style: AppTextStyle.semiBold8.copyWith(fontSize: 20),
+                      style: AppTextStyle.bold11.copyWith(fontSize: AppDimens.fontSize20),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
                       "today".tr,
-                      style: AppTextStyle.regular6.copyWith(fontSize: 12, color: AppColors.themeColor.textSecondaryColor),
+                      style: AppTextStyle.regular6.copyWith(
+                        fontSize: AppDimens.fontSize12,
+                        color: AppColors.themeColor.textSecondaryColor,
+                      ),
                     ),
                   ],
                 ),
               ),
-              SizedBox(width: 5,),
-              Container(width: 1, height: 40, color: AppColors.themeColor.bordercolror),
-              SizedBox(width: 5,),
+              SizedBox(width: 5.w),
+              Container(width: 1.w, height: 40.h, color: AppColors.themeColor.bordercolror),
+              SizedBox(width: 5.w),
               Expanded(
                 child: Column(
                   children: [
                     Text(
                       totalVal,
-                      style: AppTextStyle.semiBold8.copyWith(fontSize: 20),
+                      style: AppTextStyle.bold11.copyWith(fontSize: AppDimens.fontSize20),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
                       "total".tr,
-                      style: AppTextStyle.regular6.copyWith(fontSize: 12, color: AppColors.themeColor.textSecondaryColor),
+                      style: AppTextStyle.regular6.copyWith(
+                        fontSize: AppDimens.fontSize12,
+                        color: AppColors.themeColor.textSecondaryColor,
+                      ),
                     ),
                   ],
                 ),
@@ -364,14 +367,13 @@ class DashboardPage extends GetView<HomeController> {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.themeColor.cardBgColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.themeColor.bordercolror),
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: AppColors.themeColor.bordercolror.withOpacity(0.5), width: 1.w),
         boxShadow: [
           BoxShadow(
-            color: AppColors.themeColor.scaffoldBackgroundColor,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-            spreadRadius: 1,
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 15.r,
+            offset: Offset(0, 8.h),
           ),
         ],
       ),
@@ -379,24 +381,24 @@ class DashboardPage extends GetView<HomeController> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
             decoration: BoxDecoration(
               color: AppColors.themeColor.avilablekeyColor, // Light Blue header
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(12),
-                topRight: Radius.circular(12),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(AppDimens.radius12),
+                topRight: Radius.circular(AppDimens.radius12),
               ),
             ),
             child: Text(
               "lead_contact".tr,
-              style: AppTextStyle.semiBold8.copyWith(
-                fontSize: 16,
+              style: AppTextStyle.bold8.copyWith(
+                fontSize: AppDimens.fontSize16,
                 color: AppColors.themeColor.primaryColor,
               ),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: EdgeInsets.all(16.0.w),
             child: LayoutBuilder(
               builder: (context, constraints) {
                 int crossAxisCount = constraints.maxWidth > 500 ? 4 : 2;
@@ -405,9 +407,9 @@ class DashboardPage extends GetView<HomeController> {
                   physics: const NeverScrollableScrollPhysics(),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: crossAxisCount,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    mainAxisExtent: 120,
+                    crossAxisSpacing: 12.w,
+                    mainAxisSpacing: 12.h,
+                    mainAxisExtent: 120.h,
                   ),
                   children: [
                     Obx(() => _buildMetricBox(
@@ -444,14 +446,13 @@ class DashboardPage extends GetView<HomeController> {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.themeColor.cardBgColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.themeColor.bordercolror),
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: AppColors.themeColor.bordercolror.withOpacity(0.5), width: 1.w),
         boxShadow: [
           BoxShadow(
-            color: AppColors.themeColor.scaffoldBackgroundColor.withOpacity(0.5),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-            spreadRadius: 1,
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 15.r,
+            offset: Offset(0, 8.h),
           ),
         ],
       ),
@@ -459,24 +460,24 @@ class DashboardPage extends GetView<HomeController> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
             decoration: BoxDecoration(
               color: AppColors.themeColor.callPendingColor, // Light Teal header
               borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(12),
-                topRight: Radius.circular(12),
+                topLeft: Radius.circular(AppDimens.radius12),
+                topRight: Radius.circular(AppDimens.radius12),
               ),
             ),
             child: Text(
               "calls".tr,
-              style: AppTextStyle.semiBold8.copyWith(
-                fontSize: 16,
-                color: AppColors.themeColor.activekeyColor,
+              style: AppTextStyle.bold8.copyWith(
+                fontSize: AppDimens.fontSize16,
+                color: Colors.white,
               ),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: EdgeInsets.all(16.0.w),
             child: LayoutBuilder(
               builder: (context, constraints) {
                 int crossAxisCount = constraints.maxWidth > 500 ? 4 : 2;
@@ -485,9 +486,9 @@ class DashboardPage extends GetView<HomeController> {
                   physics: const NeverScrollableScrollPhysics(),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: crossAxisCount,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    mainAxisExtent: 120,
+                    crossAxisSpacing: 12.w,
+                    mainAxisSpacing: 12.h,
+                    mainAxisExtent: 120.h,
                   ),
                   children: [
                     Obx(() => _buildMetricBox(
@@ -532,8 +533,8 @@ class DashboardPage extends GetView<HomeController> {
               flex: isMobile ? 0 : 2,
               child: _buildBarChartWidget(context, isMobile),
             ),
-            if (!isMobile) const SizedBox(width: 16),
-            if (isMobile) const SizedBox(height: 16),
+            if (!isMobile) SizedBox(width: 16.w),
+            if (isMobile) SizedBox(height: 16.h),
             Expanded(
               flex: isMobile ? 0 : 1,
               child: _buildPieChartWidget(context, isMobile),
@@ -543,7 +544,6 @@ class DashboardPage extends GetView<HomeController> {
       },
     );
   }
-
 
   Widget _buildBottomAnalyticsChart2(BuildContext context) {
     return LayoutBuilder(
@@ -557,8 +557,8 @@ class DashboardPage extends GetView<HomeController> {
               flex: isMobile ? 0 : 2,
               child: _buildLeadBarChartWidget(context, isMobile),
             ),
-            if (!isMobile) const SizedBox(width: 16),
-            if (isMobile) const SizedBox(height: 16),
+            if (!isMobile) SizedBox(width: 16.w),
+            if (isMobile) SizedBox(height: 16.h),
             Expanded(
               flex: isMobile ? 0 : 1,
               child: _buildLeadPieChartWidget(context, isMobile),
@@ -571,13 +571,20 @@ class DashboardPage extends GetView<HomeController> {
 
   Widget _buildBarChartWidget(BuildContext context, bool isMobile) {
     return Container(
-      height: 350,
+      height: 350.h,
       width: isMobile ? double.infinity : null,
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
         color: AppColors.themeColor.cardBgColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.themeColor.bordercolror),
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: AppColors.themeColor.bordercolror.withOpacity(0.5), width: 1.w),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 15.r,
+            offset: Offset(0, 8.h),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -589,13 +596,13 @@ class DashboardPage extends GetView<HomeController> {
             children: [
               Text(
                 "calls_over_time".tr,
-                style: AppTextStyle.semiBold8.copyWith(fontSize: 16),
+                style: AppTextStyle.bold8.copyWith(fontSize: AppDimens.fontSize16),
               ),
               _buildTimeFilter(context),
             ],
           ),
 
-          SizedBox(height: 12),
+          SizedBox(height: 12.h),
 
           /// ================= CHART AREA =================
           Expanded(
@@ -682,10 +689,10 @@ class DashboardPage extends GetView<HomeController> {
 
                                 return SideTitleWidget(
                                   axisSide: meta.axisSide,
-                                  space: 8,
+                                  space: 8.w,
                                   child: Text(
                                     data[index].label,
-                                    style: const TextStyle(fontSize: 10),
+                                    style: TextStyle(fontSize: AppDimens.fontSize10),
                                   ),
                                 );
                               },
@@ -695,14 +702,14 @@ class DashboardPage extends GetView<HomeController> {
                           leftTitles: AxisTitles(
                             sideTitles: SideTitles(
                               showTitles: true,
-                              reservedSize: 40,
+                              reservedSize: 40.w,
                               interval: interval,
                               getTitlesWidget: (value, meta) {
                                 return SideTitleWidget(
                                   axisSide: meta.axisSide,
                                   child: Text(
                                     value.toInt().toString(),
-                                    style: const TextStyle(fontSize: 10),
+                                    style: TextStyle(fontSize: AppDimens.fontSize10),
                                   ),
                                 );
                               },
@@ -811,7 +818,7 @@ class DashboardPage extends GetView<HomeController> {
             }
 
             return Padding(
-              padding: const EdgeInsets.only(right: 8.0),
+              padding: EdgeInsets.only(right: 8.w),
               child: InkWell(
                 onTap: () async {
                   DateTimeRange? range = await showDateRangePicker(
@@ -828,20 +835,21 @@ class DashboardPage extends GetView<HomeController> {
                 },
                 child: Container(
                   padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
                   decoration: BoxDecoration(
-                    border: Border.all(color: AppColors.themeColor.primaryColor),
-                    borderRadius: BorderRadius.circular(6),
+                    color: AppColors.themeColor.primaryColor.withOpacity(0.05),
+                    border: Border.all(color: AppColors.themeColor.primaryColor.withOpacity(0.5), width: 1.w),
+                    borderRadius: BorderRadius.circular(8.r),
                   ),
                   child: Row(
                     children: [
                       Text(
                         dateText,
-                        style: const TextStyle(fontSize: 12),
+                        style: AppTextStyle.medium7.copyWith(fontSize: AppDimens.fontSize12, color: AppColors.themeColor.primaryColor),
                       ),
-                      const SizedBox(width: 8),
-                      Icon(Icons.calendar_today,
-                          size: 14, color: AppColors.themeColor.textSecondaryColor),
+                      SizedBox(width: 8.w),
+                      Icon(Icons.calendar_today_rounded,
+                          size: 14.sp, color: AppColors.themeColor.primaryColor),
                     ],
                   ),
                 ),
@@ -853,20 +861,21 @@ class DashboardPage extends GetView<HomeController> {
 
         /// ===== Dropdown =====
         Container(
-          height: 32,
-          padding: const EdgeInsets.symmetric(horizontal: 8),
+          height: 36.h,
+          padding: EdgeInsets.symmetric(horizontal: 12.w),
           decoration: BoxDecoration(
-            border: Border.all(color: AppColors.themeColor.bordercolror),
-            borderRadius: BorderRadius.circular(6),
+            color: AppColors.themeColor.cardBgColor,
+            border: Border.all(color: AppColors.themeColor.bordercolror.withOpacity(0.5), width: 1.w),
+            borderRadius: BorderRadius.circular(8.r),
           ),
           child: Obx(() => DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               value: controller
                   .dashboardController.selectedTimeFilter.value,
               icon:
-              const Icon(Icons.keyboard_arrow_down, size: 16),
-              style: TextStyle(
-                  fontSize: 12, color: AppColors.themeColor.textPrimaryColor),
+              Icon(Icons.keyboard_arrow_down_rounded, size: 18.sp, color: AppColors.themeColor.primaryColor),
+              style: AppTextStyle.medium7.copyWith(
+                  fontSize: AppDimens.fontSize12, color: AppColors.themeColor.textPrimaryColor),
               onChanged: (String? newValue) {
                 if (newValue != null) {
                   controller.dashboardController
@@ -907,20 +916,27 @@ class DashboardPage extends GetView<HomeController> {
 
   Widget _buildPieChartWidget(BuildContext context, bool isMobile) {
     return Container(
-      height: 350,
+      height: 350.h,
       width: isMobile ? double.infinity : null,
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
         color: AppColors.themeColor.cardBgColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.themeColor.bordercolror),
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: AppColors.themeColor.bordercolror.withOpacity(0.5), width: 1.w),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 15.r,
+            offset: Offset(0, 8.h),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             "call_status_distribution".tr,
-            style: AppTextStyle.semiBold8.copyWith(fontSize: 16),
+            style: AppTextStyle.bold8.copyWith(fontSize: AppDimens.fontSize16),
           ),
           const Expanded(child: SizedBox()),
           Center(
@@ -1029,11 +1045,18 @@ class DashboardPage extends GetView<HomeController> {
     return Container(
       height: 350,
       width: isMobile ? double.infinity : null,
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
         color: AppColors.themeColor.cardBgColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.themeColor.bordercolror),
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: AppColors.themeColor.bordercolror.withOpacity(0.5), width: 1.w),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 15.r,
+            offset: Offset(0, 8.h),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1204,7 +1227,7 @@ class DashboardPage extends GetView<HomeController> {
               dateText = "$start → $end";
             }
             return Padding(
-              padding: const EdgeInsets.only(right: 8.0),
+              padding: EdgeInsets.only(right: 8.w),
               child: InkWell(
                 onTap: () async {
                   DateTimeRange? range = await showDateRangePicker(
@@ -1218,16 +1241,17 @@ class DashboardPage extends GetView<HomeController> {
                   }
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
                   decoration: BoxDecoration(
-                    border: Border.all(color: AppColors.themeColor.primaryColor),
-                    borderRadius: BorderRadius.circular(6),
+                    color: AppColors.themeColor.primaryColor.withOpacity(0.05),
+                    border: Border.all(color: AppColors.themeColor.primaryColor.withOpacity(0.5), width: 1.w),
+                    borderRadius: BorderRadius.circular(8.r),
                   ),
                   child: Row(
                     children: [
-                      Text(dateText, style: const TextStyle(fontSize: 12)),
-                      const SizedBox(width: 8),
-                      Icon(Icons.calendar_today, size: 14, color: AppColors.themeColor.textSecondaryColor),
+                      Text(dateText, style: AppTextStyle.medium7.copyWith(fontSize: AppDimens.fontSize12, color: AppColors.themeColor.primaryColor)),
+                      SizedBox(width: 8.w),
+                      Icon(Icons.calendar_today_rounded, size: 14.sp, color: AppColors.themeColor.primaryColor),
                     ],
                   ),
                 ),
@@ -1237,17 +1261,18 @@ class DashboardPage extends GetView<HomeController> {
           return const SizedBox();
         }),
         Container(
-          height: 32,
-          padding: const EdgeInsets.symmetric(horizontal: 8),
+          height: 36.h,
+          padding: EdgeInsets.symmetric(horizontal: 12.w),
           decoration: BoxDecoration(
-            border: Border.all(color: AppColors.themeColor.bordercolror),
-            borderRadius: BorderRadius.circular(6),
+            color: AppColors.themeColor.cardBgColor,
+            border: Border.all(color: AppColors.themeColor.bordercolror.withOpacity(0.5), width: 1.w),
+            borderRadius: BorderRadius.circular(8.r),
           ),
           child: Obx(() => DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               value: controller.dashboardController.selectedLeadTimeFilter.value,
-              icon: const Icon(Icons.keyboard_arrow_down, size: 16),
-              style: TextStyle(fontSize: 12, color: AppColors.themeColor.textPrimaryColor),
+              icon: Icon(Icons.keyboard_arrow_down_rounded, size: 18.sp, color: AppColors.themeColor.primaryColor),
+              style: AppTextStyle.medium7.copyWith(fontSize: AppDimens.fontSize12, color: AppColors.themeColor.textPrimaryColor),
               onChanged: (String? newValue) {
                 if (newValue != null) {
                   controller.dashboardController.updateLeadTimeFilter(newValue);
@@ -1280,11 +1305,18 @@ class DashboardPage extends GetView<HomeController> {
     return Container(
       height: 350,
       width: isMobile ? double.infinity : null,
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
         color: AppColors.themeColor.cardBgColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.themeColor.bordercolror),
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: AppColors.themeColor.bordercolror.withOpacity(0.5), width: 1.w),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 15.r,
+            offset: Offset(0, 8.h),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
