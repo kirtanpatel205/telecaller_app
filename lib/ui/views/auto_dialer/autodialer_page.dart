@@ -5,12 +5,14 @@ import 'package:flutter_pagewise/flutter_pagewise.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:telecaller_app/constants/app_colors.dart';
+import 'package:telecaller_app/core/controllers/overlay_controller.dart';
 import 'package:telecaller_app/core/models/all_lead_entity.dart';
 import 'package:telecaller_app/core/models/lead_contact_id_entity.dart';
 import 'package:telecaller_app/ui/views/auto_dialer/autodialer_controller.dart';
 import 'package:telecaller_app/ui/widgets/custom-appbar.dart';
 import 'package:telecaller_app/constants/app_dimens.dart';
 import 'package:telecaller_app/constants/app_text_style.dart';
+import 'package:telecaller_app/ui/views/home/overlay/overlay_pages.dart';
 
 // Note: flutter_pagewise is still needed for the contacts PagewiseSliverList
 
@@ -583,9 +585,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
       final status = controller.status.value;
       final isIdle = status == 'idle';
 
-      return AnimatedContainer(
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.easeInOut,
+      return Container(
         margin: EdgeInsets.all(isIdle ? 0 : 16.w),
         decoration: BoxDecoration(
           color: isIdle ? Colors.transparent : AppColors.themeColor.cardColor.withOpacity(0.95),
@@ -641,14 +641,24 @@ class AutoDialerPage extends GetView<AutoDialerController> {
     final current = controller.currentContact.value;
 
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
       child: Row(
         children: [
           Expanded(
             child: Row(
               children: [
-                _buildActiveAvatar(isDialing),
-                SizedBox(width: 14.w),
+                GestureDetector(
+                  onTap: () {
+                    if (Get.isRegistered<OverlayController>()) {
+                      final overlayCtrl = Get.find<OverlayController>();
+                      if (overlayCtrl.countdown.value > 0) {
+                        overlayCtrl.countdown.value = 0; // Instantly make the call
+                      }
+                    }
+                  },
+                  child: _buildActiveAvatar(isDialing),
+                ),
+                SizedBox(width: 10.w),
                 Expanded(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -658,7 +668,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                         current?.contact?.name ?? 'prepare_call'.tr,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: AppDimens.fontSize16,
+                          fontSize: AppDimens.fontSize14,
                           color: AppColors.themeColor.textPrimaryColor,
                         ),
                         overflow: TextOverflow.ellipsis,
@@ -688,10 +698,10 @@ class AutoDialerPage extends GetView<AutoDialerController> {
           ),
           // Timer with a more modern "Digital" feel
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
             decoration: BoxDecoration(
               color: AppColors.themeColor.scaffoldBackgroundColor,
-              borderRadius: BorderRadius.circular(12.r),
+              borderRadius: BorderRadius.circular(10.r),
               border: Border.all(color: AppColors.themeColor.bordercolror.withOpacity(0.2)),
               boxShadow: [
                 BoxShadow(
@@ -704,7 +714,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
             child: Text(
               isCountdown ? controller.countdown.value.toString() : controller.callTimer.value,
               style: TextStyle(
-                fontSize: AppDimens.fontSize18,
+                fontSize: AppDimens.fontSize16,
                 fontWeight: FontWeight.bold,
                 fontFamily: 'monospace',
                 color: AppColors.themeColor.textPrimaryColor,
@@ -712,7 +722,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
               ),
             ),
           ),
-          SizedBox(width: 16.w),
+          SizedBox(width: 10.w),
           // Actions
           Row(
             children: [
@@ -720,12 +730,14 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                 onTap: () => isPaused ? controller.resumeDialing() : controller.pauseDialing(),
                 icon: isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded,
                 color: isPaused ? Colors.green : Colors.orange,
+                isPrimary: isPaused,
               ),
-              SizedBox(width: 12.w),
+              SizedBox(width: 8.w),
               _buildMiniControlButton(
                 onTap: () => controller.stopDialing(),
                 icon: Icons.stop_rounded,
                 color: Colors.red,
+                isPrimary: false,
               ),
             ],
           ),
@@ -735,17 +747,29 @@ class AutoDialerPage extends GetView<AutoDialerController> {
   }
 
   Widget _buildActiveAvatar(bool isDialing) {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        if (isDialing) _PulsingRing(color: AppColors.themeColor.primaryColor),
-        Container(
-          width: 44.w,
-          height: 44.h,
-          decoration: BoxDecoration(color: AppColors.themeColor.primaryColor.withOpacity(0.12), shape: BoxShape.circle),
-          child: Icon(Icons.phone_in_talk_rounded, color: AppColors.themeColor.primaryColor, size: 22.sp),
+    return Container(
+      width: 42.w,
+      height: 42.h,
+      decoration: BoxDecoration(
+        color: isDialing ? Colors.green.withOpacity(0.15) : AppColors.themeColor.primaryColor.withOpacity(0.12),
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: isDialing ? Colors.green.withOpacity(0.5) : AppColors.themeColor.primaryColor.withOpacity(0.3),
+          width: 1.5.w,
         ),
-      ],
+        boxShadow: isDialing ? [
+          BoxShadow(
+            color: Colors.green.withOpacity(0.2),
+            blurRadius: 10.r,
+            spreadRadius: 2.r,
+          )
+        ] : null,
+      ),
+      child: Icon(
+        isDialing ? Icons.phone_in_talk_rounded : Icons.phone_rounded, 
+        color: isDialing ? Colors.green : AppColors.themeColor.primaryColor, 
+        size: 20.sp,
+      ),
     );
   }
 
@@ -753,21 +777,29 @@ class AutoDialerPage extends GetView<AutoDialerController> {
     required VoidCallback onTap,
     required IconData icon,
     required Color color,
+    bool isPrimary = false,
   }) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16.r),
-        child: Container(
-          width: 48.w,
-          height: 48.h,
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.12),
-            borderRadius: BorderRadius.circular(16.r),
-            border: Border.all(color: color.withOpacity(0.32)),
-          ),
-          child: Icon(icon, color: color, size: 24.sp),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 44.w,
+        height: 44.h,
+        decoration: BoxDecoration(
+          color: isPrimary ? color : color.withOpacity(0.12),
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: color.withOpacity(isPrimary ? 0.4 : 0.15),
+              blurRadius: 16.r,
+              offset: Offset(0, 6.h),
+            ),
+          ],
+          border: isPrimary ? null : Border.all(color: color.withOpacity(0.4), width: 1.5.w),
+        ),
+        child: Icon(
+          icon,
+          color: isPrimary ? Colors.white : color,
+          size: 22.sp,
         ),
       ),
     );
@@ -966,39 +998,3 @@ class AutoDialerPage extends GetView<AutoDialerController> {
   }
 }
 
-class _PulsingRing extends StatefulWidget {
-  final Color color;
-  const _PulsingRing({Key? key, required this.color}) : super(key: key);
-  @override
-  _PulsingRingState createState() => _PulsingRingState();
-}
-
-class _PulsingRingState extends State<_PulsingRing> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 2))..repeat();
-  }
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        return Container(
-          width: 40 + (_controller.value * 20),
-          height: 40 + (_controller.value * 20),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(color: widget.color.withOpacity(1 - _controller.value), width: 2),
-          ),
-        );
-      },
-    );
-  }
-}

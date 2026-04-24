@@ -54,8 +54,8 @@ class OverlayController extends GetxController {
 
   void onDropdownChange(String value) {
     callDropdownValue.value = value;
-    pauseCountdown(); // Ensure it pauses when a selection is made
-    print("⏸️ Timer paused due to selection: $value");
+    stopCountdown(); // Stop timer completely when a selection is made
+    print("🛑 Timer stopped due to selection: $value");
   }
 
   final rescheduleDate = "".obs;
@@ -85,7 +85,11 @@ class OverlayController extends GetxController {
   bool _isPreCallMode = false;
 
   void startCountdown({int seconds = 10, bool isPreCall = false}) {
-    stopCountdown();
+    // Cancel any existing timer, but DO NOT call stopCountdown() 
+    // because that resets isAutoCallMode to false!
+    _countdownTimer?.cancel();
+    _countdownTimer = null;
+    
     _isPreCallMode = isPreCall;
     isPaused.value = false;
     countdown.value = seconds;
@@ -228,6 +232,10 @@ class OverlayController extends GetxController {
     // Resume/Stop the overlay countdown and move to pre-call phase
     _countdownTimer?.cancel();
     _countdownTimer = null;
+    
+    // Force auto-call mode true so the timer/call can proceed
+    isAutoCallMode.value = true;
+    
     await _updateAndDialNext();
   }
 
@@ -381,6 +389,11 @@ class OverlayController extends GetxController {
           );
 
       print("✅ Lead log update: ${response.status}");
+      
+      // ✅ Update Local AutoDialer State
+      if (Get.isRegistered<AutoDialerController>()) {
+        Get.find<AutoDialerController>().updateContactStatusLocally(currentLeadContactId, answertype);
+      }
 
       // 📤 Emit Socket Call End with actual disposition
       try {
@@ -424,11 +437,13 @@ class OverlayController extends GetxController {
         currentQueueIndex.value--;
         print("⏪ Rolled back currentQueueIndex to ${currentQueueIndex.value}");
       }
-      // isAutoCallMode.value = false; // Keep auto mode true so Play can resume
-      isPaused.value = true; // Trigger the Paused state UI
+      // Pause instead of stop to allow resume
+      _countdownTimer?.cancel();
+      _countdownTimer = null;
+      isPaused.value = true;
+    } else {
+      stopCountdown();
     }
-
-    stopCountdown();
 
     Get.snackbar(
       "Call Cancelled",

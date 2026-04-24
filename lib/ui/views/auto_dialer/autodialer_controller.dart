@@ -381,7 +381,9 @@ class AutoDialerController extends GetxController {
     final queue =
         contactQueue
             .where(
-              (l) => l.contact?.phone != null && l.contact!.phone!.isNotEmpty,
+              (l) => l.contact?.phone != null && 
+                     l.contact!.phone!.isNotEmpty &&
+                     (l.status == 'pending' || l.status == null || l.status!.isEmpty),
             )
             .map(
               (l) => {
@@ -556,5 +558,16 @@ class AutoDialerController extends GetxController {
     }
 
     overlayCtrl.makeDirectCall(number);
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  // UPDATE LOCAL STATUS
+  // ─────────────────────────────────────────────────────────────────
+  void updateContactStatusLocally(String contactId, String newStatus) {
+    final index = contactQueue.indexWhere((c) => c.id == contactId);
+    if (index != -1) {
+      contactQueue[index].status = newStatus;
+      contactQueue.refresh();
+    }
   }
 }

@@ -468,7 +468,7 @@ class PhoneStatusService extends GetxService {
       await Get.dialog(
         OverlayPages(),
         barrierDismissible: false,
-        barrierColor: Colors.black54,
+        barrierColor: Colors.transparent,
       );
       print("✅ OverlayPages closed");
     } catch (e) {

@@ -34,16 +34,7 @@ class OverlayPages extends StatelessWidget {
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                 child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Colors.white.withOpacity(0.3),
-                        Colors.white.withOpacity(0.1),
-                      ],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                    ),
-                  ),
+                  color: Colors.black.withOpacity(0.6), // Clean, premium dark glass tint
                 ),
               ),
             ),
@@ -59,7 +50,7 @@ class OverlayPages extends StatelessWidget {
                     children: [
                       _buildOverlayCard(context),
                       SizedBox(height: 20.h),
-                      if (controller.isAutoCallMode.value) _buildNextLeadPreview(),
+                      Obx(() => controller.isAutoCallMode.value ? _buildNextLeadPreview() : const SizedBox.shrink()),
                       SizedBox(height: 10.h),
                       _buildCloseButton(),
                     ],
@@ -204,39 +195,59 @@ class OverlayPages extends StatelessWidget {
           SizedBox(height: 24.h),
 
           // ── ACTION BUTTONS ──────────────────────────────
-          Row(
-            children: [
-              Expanded(
-                child: _buildGradientButton(
-                  onTap: () => controller.redialLastCall(),
-                  label: "redial".tr,
-                  icon: Icons.refresh_rounded,
-                  colors: [const Color(0xFF6366F1), const Color(0xFF4F46E5)],
+          Obx(() {
+            if (!controller.isAutoCallMode.value) return const SizedBox.shrink();
+            return Column(
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildGradientButton(
+                        onTap: () => controller.redialLastCall(),
+                        label: "redial".tr,
+                        icon: Icons.refresh_rounded,
+                        colors: [const Color(0xFF6366F1), const Color(0xFF4F46E5)],
+                      ),
+                    ),
+                    SizedBox(width: 12.w),
+                    Expanded(
+                      child: _buildGradientButton(
+                        onTap: () => controller.isPaused.value ? controller.resumeCountdown() : controller.pauseCountdown(),
+                        label: controller.isPaused.value ? "resume".tr : "pause".tr,
+                        icon: controller.isPaused.value ? Icons.play_arrow_rounded : Icons.pause_rounded,
+                        colors: controller.isPaused.value ? [const Color(0xFF10B981), const Color(0xFF059669)] : [const Color(0xFFF59E0B), const Color(0xFFD97706)],
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              SizedBox(width: 12.w),
-              Expanded(
-                child: Obx(() => _buildGradientButton(
-                      onTap: () => controller.isPaused.value ? controller.resumeCountdown() : controller.pauseCountdown(),
-                      label: controller.isPaused.value ? "resume".tr : "pause".tr,
-                      icon: controller.isPaused.value ? Icons.play_arrow_rounded : Icons.pause_rounded,
-                      colors: controller.isPaused.value ? [const Color(0xFF10B981), const Color(0xFF059669)] : [const Color(0xFFF59E0B), const Color(0xFFD97706)],
-                    )),
-              ),
-            ],
-          ),
+                SizedBox(height: 12.h),
+              ],
+            );
+          }),
 
           SizedBox(height: 12.h),
 
           // ── NEXT CALL BUTTON ────────────────────────────
           Obx(() {
-            if (!controller.isAutoCallMode.value) return const SizedBox.shrink();
-            return _buildGradientButton(
-              onTap: () => controller.onNextCallTapped(),
-              label: controller.callDropdownValue.value.isEmpty ? "${"next_in".tr} ${controller.countdown.value}s" : "call_next".tr,
-              icon: Icons.skip_next_rounded,
-              colors: [AppColors.themeColor.primaryColor, AppColors.themeColor.primaryColor.withBlue(210)],
-              isFullWidth: true,
+            final isLastCall = controller.nextLead == null;
+            
+            String buttonLabel = "call_next".tr;
+            if (isLastCall) {
+              buttonLabel = "submit".tr;
+            } else if (controller.isAutoCallMode.value && controller.countdown.value > 0) {
+              buttonLabel = "${"next_in".tr} ${controller.countdown.value}s";
+            }
+
+            return Column(
+              children: [
+                _buildGradientButton(
+                  onTap: () => controller.onNextCallTapped(),
+                  label: buttonLabel,
+                  icon: isLastCall ? Icons.check_circle_rounded : Icons.skip_next_rounded,
+                  colors: [AppColors.themeColor.primaryColor, AppColors.themeColor.primaryColor.withBlue(210)],
+                  isFullWidth: true,
+                ),
+              ],
             );
           }),
         ],
@@ -319,35 +330,54 @@ class OverlayPages extends StatelessWidget {
     if (next == null) return const SizedBox.shrink();
 
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 14.h),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.03),
-        borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(color: Colors.black.withOpacity(0.05)),
+        color: Colors.white.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: Colors.white.withOpacity(0.2)),
       ),
       child: Row(
         children: [
           Container(
             padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
             decoration: BoxDecoration(
-              color: AppColors.themeColor.primaryColor.withOpacity(0.15),
+              color: Colors.white.withOpacity(0.2),
               borderRadius: BorderRadius.circular(6.r),
             ),
             child: Text(
-              "up_next".tr,
-              style: AppTextStyle.bold7.copyWith(color: AppColors.themeColor.primaryColor, fontWeight: FontWeight.w900, fontSize: AppDimens.fontSize9, letterSpacing: 1),
+              "up_next".tr.toUpperCase(),
+              style: AppTextStyle.bold7.copyWith(color: Colors.white, fontWeight: FontWeight.w900, fontSize: AppDimens.fontSize9, letterSpacing: 1),
             ),
           ),
           SizedBox(width: 12.w),
           Expanded(
             child: Text(
               next["name"] ?? "Unknown",
-              style: AppTextStyle.bold7.copyWith(color: AppColors.themeColor.textPrimaryColor.withOpacity(0.8), fontWeight: FontWeight.w600, fontSize: AppDimens.fontSize13),
+              style: AppTextStyle.bold7.copyWith(color: Colors.white, fontWeight: FontWeight.bold, fontSize: AppDimens.fontSize13),
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          Icon(Icons.chevron_right_rounded, color: Colors.black.withOpacity(0.3), size: 18.sp),
+          Icon(Icons.fast_forward_rounded, color: Colors.white.withOpacity(0.5), size: 16.sp),
         ],
+      ),
+    );
+  }
+
+  Widget _buildCloseButton() {
+    return InkWell(
+      onTap: () {
+        controller.stopCountdown();
+        Get.back();
+      },
+      borderRadius: BorderRadius.circular(30.r),
+      child: Container(
+        padding: EdgeInsets.all(12.w),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.15),
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white.withOpacity(0.4), width: 1.5),
+        ),
+        child: Icon(Icons.close_rounded, color: Colors.white, size: 24.sp),
       ),
     );
   }
@@ -400,20 +430,5 @@ class OverlayPages extends StatelessWidget {
     );
   }
 
-  Widget _buildCloseButton() {
-    return IconButton(
-      onPressed: () {
-        controller.stopCountdown();
-        Get.back();
-      },
-      icon: Container(
-        padding: EdgeInsets.all(8.w),
-        decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.05),
-          shape: BoxShape.circle,
-        ),
-        child: Icon(Icons.close_rounded, color: Colors.black.withOpacity(0.4), size: 20.sp),
-      ),
-    );
-  }
+
 }
