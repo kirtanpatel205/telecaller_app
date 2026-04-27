@@ -235,6 +235,13 @@ void onStart(ServiceInstance service) async {
     }
   });
 
+  service.on('dialer_closed').listen((event) {
+    print("📥 Background dialer_closed received");
+    if (Get.isRegistered<PhoneStatusService>()) {
+      Get.find<PhoneStatusService>().handleDialerClosed();
+    }
+  });
+
   // ================= SOCKET PROXY HANDLERS =================
   service.on('socket_emit').listen((event) {
     if (event != null && Get.isRegistered<SocketController>()) {
@@ -267,20 +274,24 @@ void onStart(ServiceInstance service) async {
     print("📥 Background set_lead_info received: $event");
     if (event != null) {
       if (Get.isRegistered<PhoneStatusService>()) {
-        final service = Get.find<PhoneStatusService>();
+        final phoneStatusService = Get.find<PhoneStatusService>();
         if (event['leadId'] != null) {
-          service.currentLeadId = event['leadId'];
+          phoneStatusService.currentLeadId = event['leadId'];
           print("✅ Background currentLeadId updated: ${event['leadId']}");
         }
+        if (event['leadContactId'] != null) {
+          phoneStatusService.currentLeadContactId = event['leadContactId'];
+          print("✅ Background currentLeadContactId updated: ${event['leadContactId']}");
+        }
         if (event['callSessionId'] != null) {
-          service.setExternalCallSessionId(event['callSessionId']);
+          phoneStatusService.setExternalCallSessionId(event['callSessionId']);
           print(
             "✅ Background callSessionId updated: ${event['callSessionId']}",
           );
         }
         if (event['phoneNumber'] != null) {
           // New: Explicitly track the number we are supposed to call
-          service.targetPhoneNumber.value = event['phoneNumber'];
+          phoneStatusService.targetPhoneNumber.value = event['phoneNumber'];
           print(
             "✅ Background targetPhoneNumber updated: ${event['phoneNumber']}",
           );
@@ -337,7 +348,8 @@ void onStart(ServiceInstance service) async {
   });
 
   // Poll SharedPreferences for native phone events (from PhoneStateReceiver fallback)
-  Timer.periodic(const Duration(seconds: 3), (timer) async {
+  // Interval reduced to 500ms for near-instant response to dialer cancellations
+  Timer.periodic(const Duration(milliseconds: 500), (timer) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.reload(); // Force fresh read
@@ -348,20 +360,35 @@ void onStart(ServiceInstance service) async {
         );
         final event = json.decode(pendingEvent);
         final timestamp = event['timestamp'] as int? ?? 0;
-        // Only process if recent (< 30 seconds old)
-        if (DateTime.now().millisecondsSinceEpoch - timestamp < 30000) {
+        // Only process if recent (< 60 seconds old)
+        if (DateTime.now().millisecondsSinceEpoch - timestamp < 60000) {
           if (Get.isRegistered<PhoneStatusService>()) {
+            print("🌉 [Bridge] Processing pending event: ${event['state']} for ${event['number']}");
             Get.find<PhoneStatusService>().handleNativeEvent(
               state: event['state'],
               number: event['number'],
             );
-            print("✅ [SharedPrefs Bridge] Processed event: ${event['state']}");
+            print("✅ [Bridge] Successfully dispatched: ${event['state']}");
           }
         } else {
-          print("⏰ [SharedPrefs Bridge] Stale event (>30s), discarding");
+          print("⏰ [Bridge] Stale event discarded: ${event['state']} (${(DateTime.now().millisecondsSinceEpoch - timestamp)/1000}s old)");
         }
         // Clear the pending event
         await prefs.remove('pending_phone_event');
+      }
+
+      // 🌉 [Bridge] Poll for pending dialer closed events
+      final pendingDialerEvent = prefs.getString('pending_dialer_event');
+      if (pendingDialerEvent != null && pendingDialerEvent.isNotEmpty) {
+        print("📥 [SharedPrefs Bridge] Found pending dialer event");
+        final event = json.decode(pendingDialerEvent);
+        final timestamp = event['timestamp'] as int? ?? 0;
+        if (DateTime.now().millisecondsSinceEpoch - timestamp < 60000) {
+          if (Get.isRegistered<PhoneStatusService>()) {
+            Get.find<PhoneStatusService>().handleDialerClosed();
+          }
+        }
+        await prefs.remove('pending_dialer_event');
       }
     } catch (e) {
       // Silent — don't spam logs on every tick

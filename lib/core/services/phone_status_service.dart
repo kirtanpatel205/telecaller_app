@@ -22,7 +22,7 @@ import 'dart:io';
 // ─────────────────────────────────────────────────────────────────────────────
 enum _CallUIState { idle, callActive, showingOverlay }
 
-class PhoneStatusService extends GetxService {
+class PhoneStatusService extends GetxService with WidgetsBindingObserver {
   StreamSubscription<PhoneState>? _phoneStateSub;
 
   // ── Reactive state (for external observers) ───────────────────────────────
@@ -75,9 +75,29 @@ class PhoneStatusService extends GetxService {
     _isBackground = isBackground;
     if (!_isBackground) {
       await _checkAndRequestPermissions();
+      WidgetsBinding.instance.addObserver(this);
     }
     _startListening();
+
+    // Listen for target number changes to track intent
+    ever(targetPhoneNumber, (String number) {
+      if (number.isNotEmpty) {
+        print("🎯 PhoneStatusService: New dial intent stored for $number");
+        _isCallConfirmed = false; // Reset confirmation for new attempt
+      }
+    });
+
     return this;
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (_isBackground) return;
+    
+    if (state == AppLifecycleState.resumed) {
+      print("📱 [LIFECYCLE] App resumed. Checking if dialer was closed/cancelled...");
+      handleDialerClosed();
+    }
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -92,6 +112,24 @@ class PhoneStatusService extends GetxService {
         callStatus.value = "Permission Denied";
         return;
       }
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // WATCHDOG: Handle case where dialer is closed/cancelled without events
+  // ─────────────────────────────────────────────────────────────────────────
+
+  void handleDialerClosed() async {
+    print("🏥 [WATCHDOG] Dialer closed event received. Checking if call started...");
+    
+    // Give it a tiny moment for any late OFFHOOK events to arrive from the system
+    await Future.delayed(const Duration(milliseconds: 600));
+    
+    if (_uiState == _CallUIState.idle && targetPhoneNumber.value.isNotEmpty) {
+      print("🚫 [WATCHDOG] Dialer closed without OFFHOOK. Emitting call-failed.");
+      _handleCallEnded(null); // This will trigger the cancellation/failed logic
+    } else {
+      print("✅ [WATCHDOG] Call already started or no active dial intent. Ignoring dialer closed.");
     }
   }
 
@@ -139,15 +177,18 @@ class PhoneStatusService extends GetxService {
   // ─────────────────────────────────────────────────────────────────────────
 
   void handleNativeEvent({String? state, String? number}) {
-    final now = DateTime
-        .now()
-        .millisecondsSinceEpoch;
+    final now = DateTime.now().millisecondsSinceEpoch;
 
     // Throttle only if it's the EXACT same event within 200ms
     // to allow rapid START -> END transitions
     _lastEventTimestamp = now;
 
-    print("📡 [NATIVE] state=$state | number=$number");
+    print("📡 [NATIVE] state=$state | number=$number | target=${targetPhoneNumber.value}");
+    
+    // Safety: if we get a native state change, ensure we are ready to process it
+    if (state != null) {
+      callStatus.value = state;
+    }
 
     switch (state) {
       case "RINGING":
@@ -158,10 +199,12 @@ class PhoneStatusService extends GetxService {
         break;
 
       case "OFFHOOK":
+        print("📡 [NATIVE] OFFHOOK -> Starting call handling");
         _handleCallStarted(number);
         break;
 
       case "IDLE":
+        print("📡 [NATIVE] IDLE -> Handling call end/cancel");
         _handleCallEnded(number);
         break;
     }
@@ -186,7 +229,15 @@ class PhoneStatusService extends GetxService {
         phoneNumber.value = number;
       }
 
-      print("⏳ CALL_STARTED detected (Debouncing 2s): ${phoneNumber.value}");
+      // 🚨 SESSION ID GENERATION: 
+      // Generate and persist immediately so it's available for call-failed 
+      // if the call ends before the 2s confirmation threshold.
+      _currentCallSessionId = _externalCallSessionId ?? 
+                             DateTime.now().millisecondsSinceEpoch.toString();
+      _externalCallSessionId = null;
+      await Storage.saveActiveSessionId(_currentCallSessionId!);
+
+      print("⏳ CALL_STARTED detected (Debouncing 2s): ${phoneNumber.value} | Session: $_currentCallSessionId");
 
       // Start debounce timer to filter out SIM selection cancels
       _debounceTimer?.cancel();
@@ -268,11 +319,11 @@ class PhoneStatusService extends GetxService {
     _debounceTimer = null;
 
     // Allow processing if not idle OR if we can recover a session ID
-    // (This handles cases where the isolate started mid-call)
+    // OR if we were expecting a call (targetPhoneNumber is set)
     final savedSessionId = await Storage.getActiveSessionId();
 
-    if (_uiState == _CallUIState.idle && savedSessionId == null) {
-      print("⚠️ CALL_ENDED ignored — no active call and no saved session");
+    if (_uiState == _CallUIState.idle && savedSessionId == null && targetPhoneNumber.value.isEmpty) {
+      print("⚠️ CALL_ENDED ignored — no active call, no saved session, and no target number");
       return;
     }
 
@@ -285,7 +336,23 @@ class PhoneStatusService extends GetxService {
     try {
       // 🚨 Dual SIM Cancellation Check
       if (!_isCallConfirmed) {
-        print("🚫 CALL_CANCELLED: Call ended before 2s threshold (likely SIM selection cancel or failed dial)");
+        print("🚫 CALL_CANCELLED: Detected IDLE before 2s threshold (SIM selection cancel or failed dial)");
+        print("🔍 Debug State: uiState=$_uiState | target=${targetPhoneNumber.value} | confirmed=$_isCallConfirmed");
+        
+        final sessionId = _currentCallSessionId ?? 
+                         _externalCallSessionId ?? 
+                         DateTime.now().millisecondsSinceEpoch.toString();
+        
+        final endedNumber = targetPhoneNumber.value.isNotEmpty
+            ? targetPhoneNumber.value
+            : ((number != null && number.isNotEmpty) ? number : phoneNumber.value);
+
+        await _emitCallFailed(
+          sessionId: sessionId,
+          leadContactId: currentLeadContactId ?? currentLeadId ?? "",
+          callId: endedNumber,
+        );
+
         if (Get.isRegistered<OverlayController>()) {
           Get.find<OverlayController>().handleCallCancelled();
         }
@@ -523,20 +590,16 @@ class PhoneStatusService extends GetxService {
     try {
       if (Get.isRegistered<SocketController>()) {
         final socketCtrl = Get.find<SocketController>();
-        _currentCallSessionId =
-            _externalCallSessionId ??
-                DateTime
-                    .now()
-                    .millisecondsSinceEpoch
-                    .toString();
-        _externalCallSessionId = null;
-
-        // Persist for reliability
-        await Storage.saveActiveSessionId(_currentCallSessionId!);
+        
+        if (_currentCallSessionId == null) {
+          print("⚠️ _emitCallStart: _currentCallSessionId was null, generating fallback");
+          _currentCallSessionId = DateTime.now().millisecondsSinceEpoch.toString();
+          await Storage.saveActiveSessionId(_currentCallSessionId!);
+        }
 
         await socketCtrl.emitCallStart(
           callSessionId: _currentCallSessionId!,
-          leadContactId: currentLeadId ?? "",
+          leadContactId: currentLeadContactId ?? currentLeadId ?? "",
           callId: phoneNumber.value,
         );
         print("📤 Socket: call-start emitted | session=$_currentCallSessionId");
@@ -561,17 +624,42 @@ class PhoneStatusService extends GetxService {
 
         await socketCtrl.emitCallEnd(
           callSessionId: sessionId,
-          leadContactId: leadId,
+          leadContactId: currentLeadContactId ?? leadId,
           duration: duration.inSeconds,
           answerType: answerType,
           answer: "",
         );
         print(
-          "📤 Socket: call-end emitted | lead=$leadId | session=$sessionId",
+          "📤 Socket: call-end emitted | lead=${currentLeadContactId ?? leadId} | session=$sessionId",
         );
       }
     } catch (e) {
       print("❌ Socket emitCallEnd error: $e");
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // SOCKET — emit call-failed (for Dual SIM cancel)
+  // ─────────────────────────────────────────────────────────────────────────
+
+  Future<void> _emitCallFailed({
+    required String sessionId,
+    required String leadContactId,
+    required String callId,
+  }) async {
+    try {
+      print("📤 Socket: Emitting call-failed | Session: $sessionId | Lead: $leadContactId | CallId: $callId");
+      if (Get.isRegistered<SocketController>()) {
+        final socketCtrl = Get.find<SocketController>();
+        await socketCtrl.emitCallFailed(
+          callSessionId: sessionId,
+          leadContactId: leadContactId,
+          callId: callId,
+        );
+        print("✅ Socket: call-failed emitted successfully");
+      }
+    } catch (e) {
+      print("❌ Socket: Failed to emit call-failed: $e");
     }
   }
 
@@ -581,6 +669,9 @@ class PhoneStatusService extends GetxService {
 
   @override
   void onClose() {
+    if (!_isBackground) {
+      WidgetsBinding.instance.removeObserver(this);
+    }
     _phoneStateSub?.cancel();
     super.onClose();
   }

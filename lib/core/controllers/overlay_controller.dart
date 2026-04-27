@@ -312,6 +312,7 @@ class OverlayController extends GetxController {
     // Sync with background service
     FlutterBackgroundService().invoke('set_lead_info', {
       'leadId': currentLeadId,
+      'leadContactId': currentLeadContactId,
       'phoneNumber': number,
     });
 
@@ -342,6 +343,14 @@ class OverlayController extends GetxController {
   void redialLastCall() {
     stopCountdown(); // Stop auto-progression on manual redial
     final number = lastCalledNumber.value;
+
+    // Sync metadata for the redial session
+    FlutterBackgroundService().invoke('set_lead_info', {
+      'leadId': currentLeadId,
+      'leadContactId': currentLeadContactId,
+      'phoneNumber': number,
+    });
+
     if (number.isNotEmpty) {
       Get.back();
       Future.delayed(const Duration(milliseconds: 300), () {

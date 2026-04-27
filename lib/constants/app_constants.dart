@@ -4,8 +4,10 @@ class AppConstants {
   const AppConstants._();
 
   static const String BASE_URL = 'https://api-test.digibulkmarketing.com';
+
   // static const String _baseUrlRelease = 'https://api.digibulkmarketing.com';
-  static const String BASE_SOCKET_URL = 'https://api-test.digibulkmarketing.com';
+  static const String BASE_SOCKET_URL =
+      'https://api-test.digibulkmarketing.com';
 
   // Dynamic API URL based on build mode
   // static String get API_URL => kDebugMode ? BASE_URL : _baseUrlRelease;
@@ -67,7 +69,9 @@ class AppConstants {
   //dashboard overview
   static String API_GET_DASHBOARD_STATISTICS =
       '$API_URL/telecaller/dashboard-statistics';
+
   //chart data
   static String API_CALL_CHART = '$API_URL/telecaller/calls/analytics';
   static String API_LEAD_CHART = '$API_URL/telecaller/lead-contacts/analytics';
+  static String API_CALL_LOG = '$API_URL/telecaller/sync-call-logs';
 }

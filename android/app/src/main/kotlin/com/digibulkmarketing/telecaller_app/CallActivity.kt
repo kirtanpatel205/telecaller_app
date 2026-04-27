@@ -9,67 +9,81 @@ import android.content.Context
 import android.util.Log
 import android.view.WindowManager
 import android.os.Build
+import io.flutter.embedding.engine.FlutterEngineCache
+import io.flutter.plugin.common.MethodChannel
 
 class CallActivity : Activity() {
+    private var callInitiated = false
+    private var hasBeenPaused = false
+
+    override fun onPause() {
+        super.onPause()
+        if (callInitiated) {
+            hasBeenPaused = true
+            Log.d("CallActivity", "onPause - Dialer or system dialog likely took focus")
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d("CallActivity", "onResume - callInitiated: $callInitiated, hasBeenPaused: $hasBeenPaused")
+        if (callInitiated && hasBeenPaused) {
+            Log.d("CallActivity", "User returned to CallActivity after dial attempt. Notifying Flutter and bringing app to front.")
+            notifyDialerClosed()
+            
+            // ✅ Bring MainActivity to front explicitly to ensure it resumes over lock screen
+            // ✅ App opening removed as per user request to keep app in background
+            /*
+            try {
+                val mainIntent = Intent(this, MainActivity::class.java)
+                mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                startActivity(mainIntent)
+            } catch (e: Exception) {
+                Log.e("CallActivity", "❌ Failed to bring MainActivity to front: ${e.message}")
+            }
+            */
+            
+            finish()
+        }
+    }
+
+    private fun notifyDialerClosed() {
+        try {
+            Log.d("CallActivity", "📣 Sending DIALER_CLOSED broadcast to PhoneStateReceiver")
+            val intent = Intent(this, PhoneStateReceiver::class.java)
+            intent.action = "com.digibulkmarketing.telecaller_app.DIALER_CLOSED"
+            sendBroadcast(intent)
+        } catch (e: Exception) {
+            Log.e("CallActivity", "❌ Failed to send dialer_closed broadcast: ${e.message}")
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        handleIntent(intent)
+    }
 
-        // ✅ Check if we only want to wake the screen
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleIntent(intent)
+    }
+
+    private fun handleIntent(intent: Intent?) {
+        if (intent == null) return
+
         val wakeOnly = intent.getBooleanExtra("wakeOnly", false)
-        Log.d("CallActivity", "onCreate - wakeOnly: $wakeOnly")
-
-        // ✅ Check if screen is locked
         val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
         val isLocked = keyguardManager.isKeyguardLocked
 
-        if (wakeOnly) {
-            Log.d("CallActivity", "Waking screen only. Locked=$isLocked")
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-                setShowWhenLocked(true)
-                setTurnScreenOn(true)
-            } else {
-                window.addFlags(
-                    WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-                            WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or
-                            WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD or
-                            WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-                )
-            }
-            // Finish shortly after to stay out of the way
-            window.decorView.postDelayed({ finish() }, 500)
-            return
-        }
+        Log.d("CallActivity", "handleIntent - wakeOnly: $wakeOnly, isLocked: $isLocked")
 
-        if (isLocked) {
-            // Screen is locked: initiate call silently, do NOT unlock or show app
-            Log.d("CallActivity", "Screen is locked — initiating call without unlocking")
-
-            val phoneNumber = intent.getStringExtra("phoneNumber")
-            Log.d("CallActivity", "phoneNumber from intent: $phoneNumber")
-
-            if (phoneNumber != null && phoneNumber.isNotEmpty()) {
-                initiateCall(phoneNumber)
-            } else {
-                val dataUri = intent.data
-                if (dataUri != null && dataUri.scheme == "tel") {
-                    val num = dataUri.schemeSpecificPart
-                    Log.d("CallActivity", "Extracted number from data URI: $num")
-                    initiateCall(num)
-                } else {
-                    Log.e("CallActivity", "No phone number found")
-                }
-            }
-
-            // Finish immediately — stay hidden behind lockscreen
-            finish()
-            return
-        }
-
-        // ✅ Screen is NOT locked — normal flow
+        // ✅ 1. Apply lock screen flags immediately so any UI (Dialer/Activity) can show over lock screen
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
             setShowWhenLocked(true)
             setTurnScreenOn(true)
         } else {
+            @Suppress("DEPRECATION")
             window.addFlags(
                 WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
                         WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or
@@ -78,27 +92,66 @@ class CallActivity : Activity() {
             )
         }
 
-        val phoneNumber = intent.getStringExtra("phoneNumber")
-        Log.d("CallActivity", "onCreate - phoneNumber from intent: $phoneNumber")
+        // ✅ 2. Handle wake-only request
+        if (wakeOnly) {
+            if (isLocked) {
+                Log.d("CallActivity", "Waking screen only (Locked). Applying flags and staying alive to keep lock screen open.")
+                // App opening removed as per user request
+            } else {
+                Log.d("CallActivity", "Waking screen only (Unlocked). Applying flags and staying alive to keep screen on.")
+                // No need to launch MainActivity if screen is already unlocked
+            }
+            // DO NOT finish() here. Stay alive so the system keeps the screen awake and lock-screen dismissed.
+            return
+        }
 
-        if (phoneNumber != null && phoneNumber.isNotEmpty()) {
-            initiateCall(phoneNumber)
-        } else {
-            Log.e("CallActivity", "Phone number is null or empty in intent extras")
+        // ✅ 3. Extract Phone Number
+        val phoneNumber = intent.getStringExtra("phoneNumber") ?: ""
+        var finalNumber = phoneNumber
+
+        if (finalNumber.isEmpty()) {
             val dataUri = intent.data
             if (dataUri != null && dataUri.scheme == "tel") {
-                val num = dataUri.schemeSpecificPart
-                Log.d("CallActivity", "Extracted number from data URI: $num")
-                initiateCall(num)
-            } else {
-                Log.e("CallActivity", "No phone number found in extras or data URI")
+                finalNumber = dataUri.schemeSpecificPart
             }
         }
 
-        window.decorView.postDelayed({
-            Log.d("CallActivity", "Finishing CallActivity")
+        if (finalNumber.isEmpty()) {
+            Log.e("CallActivity", "No phone number found. Finishing.")
             finish()
-        }, 800)
+            return
+        }
+
+        // ✅ 4. Initiate Call
+        
+        // 1. Bring MainActivity to front (it will show over lock screen behind this translucent activity)
+        // 1. App opening removed as per user request to keep app in background
+        /*
+        try {
+            Log.d("CallActivity", "Bringing MainActivity to front...")
+            val mainIntent = Intent(this, MainActivity::class.java)
+            mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            startActivity(mainIntent)
+        } catch (e: Exception) {
+            Log.e("CallActivity", "❌ Failed to start MainActivity: ${e.message}")
+        }
+        */
+
+        // 2. Wait 1 second before starting the dialer to avoid focus competition with SIM dialog
+        Log.d("CallActivity", "Waiting 1000ms for MainActivity to settle before dialer...")
+        window.decorView.postDelayed({
+            if (!isFinishing) {
+                initiateCall(finalNumber)
+                callInitiated = true
+                Log.d("CallActivity", "Call initiated after delay")
+            }
+        }, 1000)
+
+        if (isLocked) {
+            Log.d("CallActivity", "Screen is locked - CallActivity will stay alive (ShowWhenLocked) to detect return from dialer")
+        } else {
+            Log.d("CallActivity", "Screen is NOT locked - CallActivity will stay alive to detect return from dialer")
+        }
     }
 
     private fun initiateCall(phoneNumber: String) {

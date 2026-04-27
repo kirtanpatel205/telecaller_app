@@ -23,6 +23,7 @@ class SocketController extends GetxController with WidgetsBindingObserver {
 
   final NetworkService _networkService = Get.find<NetworkService>();
   StreamSubscription? _connectivitySubscription;
+  bool _isFirstNetworkEvent = true;
 
   void broadcastStatus() {
     final statusData = {
@@ -37,7 +38,7 @@ class SocketController extends GetxController with WidgetsBindingObserver {
         backgroundServiceInstance!.invoke('socket_status', statusData);
       } else {
         // Satellite isolates (like FCM) should not overwrite the Master status in the UI
-        print('📡 [Socket-Satellite] Isolate Status: ${connectionStatus.value}');
+        print('📡 [Socket-Satellite] Isolate Status: ${connectionStatus.value} (Master is likely active)');
       }
     }
   }
@@ -46,18 +47,17 @@ class SocketController extends GetxController with WidgetsBindingObserver {
     if (isBackground) {
       if (backgroundServiceInstance != null) {
         // I am the MASTER isolate (Foreground Service)
-        socket?.emit(event, data);
+        _safeEmit(event, data);
       } else {
         // I am a SATELLITE isolate (FCM handler etc.)
-        // Priority 1: Proxy to the Master isolate for high-reliability emission
         final SendPort? masterPort = IsolateNameServer.lookupPortByName('socket_master_port');
         if (masterPort != null) {
           print('📤 [Socket-Satellite] Proxying $event to Master via SendPort');
           masterPort.send({'event': event, 'data': data});
         } else {
-          // Fallback: Try to emit directly if no master is found
+          // Fallback: Try to emit directly
           print('📤 [Socket-Satellite] No Master found. Emitting directly: $event');
-          socket?.emit(event, data);
+          _safeEmit(event, data);
         }
       }
     } else {
@@ -66,6 +66,25 @@ class SocketController extends GetxController with WidgetsBindingObserver {
         'event': event,
         'data': data,
       });
+    }
+  }
+
+  /// ✅ High-reliability emit that ensures connection
+  void _safeEmit(String event, Map<String, dynamic> data) {
+    if (socket == null || !isConnected.value) {
+      print('⚠️ [Socket] Cannot emit $event: Disconnected. Attempting urgent reconnect...');
+      ensureConnected();
+      
+      // Still try to emit (socket_io buffers automatically if configured, 
+      // but we add a small delay for better reliability in background)
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (socket != null) {
+          socket!.emit(event, data);
+          print('📤 [Socket] Emitted $event after urgent reconnect attempt');
+        }
+      });
+    } else {
+      socket!.emit(event, data);
     }
   }
 
@@ -84,6 +103,11 @@ class SocketController extends GetxController with WidgetsBindingObserver {
     
     // Listen to network changes
     _connectivitySubscription = _networkService.isOnline.listen((isOnline) {
+      if (_isFirstNetworkEvent) {
+        _isFirstNetworkEvent = false;
+        return;
+      }
+
       if (isOnline) {
         print('🌐 [Socket-BG] Internet restored. Ensuring connection...');
         ensureConnected();
@@ -173,6 +197,20 @@ class SocketController extends GetxController with WidgetsBindingObserver {
 
     if (token != null && token.isNotEmpty) {
       print('✅ [Socket] Token found (length: ${token.length}).');
+      
+      // 🚨 SATELLITE OPTIMIZATION: 
+      // If we are a satellite isolate and a Master already exists, 
+      // we don't need our own socket connection yet. _proxyEmit will handle it.
+      if (backgroundServiceInstance == null) {
+        final SendPort? masterPort = IsolateNameServer.lookupPortByName('socket_master_port');
+        if (masterPort != null) {
+          print('📡 [Socket-Satellite] Master isolate found. Deferring own socket connection.');
+          connectionStatus.value = 'Proxy Mode (via Master)';
+          broadcastStatus();
+          return;
+        }
+      }
+      
       connectWithToken(token);
     } else {
       connectionStatus.value = 'Waiting for Token';
@@ -209,7 +247,8 @@ class SocketController extends GetxController with WidgetsBindingObserver {
     socketId.value = '';
 
     if (isBackground) {
-      developer.log('🔌 Socket disconnected (Master)');
+      final String isolateRole = backgroundServiceInstance != null ? "Master" : "Satellite";
+      developer.log('🔌 Socket disconnected ($isolateRole)');
       broadcastStatus();
     }
   }
@@ -224,6 +263,10 @@ class SocketController extends GetxController with WidgetsBindingObserver {
       }
 
       if (socket != null) {
+        if (socket!.connected && connectionStatus.value == 'Connected') {
+           print('📜 [Socket] Already connected. Skipping redundant initialization.');
+           return;
+        }
         disconnect();
       }
 
@@ -414,6 +457,35 @@ class SocketController extends GetxController with WidgetsBindingObserver {
 
     _proxyEmit('telecaller:call-end', data);
     print('📤 Call End emitted (proxy-aware): $data');
+  }
+
+  // ================= CALL FAILED =================
+  Future<void> emitCallFailed({
+    required String callSessionId,
+    required String leadContactId,
+    required String callId,
+  }) async {
+    if (callSessionId.isEmpty) {
+      print('⚠️ [Socket] Skipping call-failed: Empty callSessionId');
+      return;
+    }
+
+    // Prevent duplicate emissions across isolates
+    if (await Storage.isEventProcessed('call-failed', callSessionId)) {
+      print('⏳ [Socket] De-dupe HIT: Skipping duplicate call-failed for session: $callSessionId');
+      return;
+    }
+    await Storage.markEventProcessed('call-failed', callSessionId);
+
+    final data = {
+      'callSessionId': callSessionId,
+      'leadContactId': leadContactId,
+      'callId': callId,
+      'timestamp': DateTime.now().toIso8601String(),
+    };
+
+    _proxyEmit('telecaller:call-failed', data);
+    print('📤 Call Failed emitted (proxy-aware): $data');
   }
 
   @override

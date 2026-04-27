@@ -29,6 +29,9 @@ const _platform = MethodChannel(
 int? _lastBgNotificationId;
 FlutterLocalNotificationsPlugin? _lastBgNotifPlugin;
 
+// ✅ Memory cache for de-duplication within same isolate
+final Set<String> _processedIds = {};
+
 /// ✅ Check if device is currently locked
 Future<bool> _isScreenLocked() async {
   try {
@@ -135,7 +138,7 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
         final socket = SocketController();
         await socket.initSocket();
         Get.put(socket);
-        print('🔌 [FCM BG] SocketController initialized and connected');
+        print('🔌 [FCM BG] SocketController initialized and connecting...');
       } else {
         await Get.find<SocketController>().initSocket();
       }
@@ -152,8 +155,26 @@ Future<Map<String, String>> _handleNotificationPayload(
   RemoteMessage message, [
   FlutterLocalNotificationsPlugin? localNotif,
   AndroidNotificationChannel? channel,
+  bool immediate = false,
 ]) async {
-  print('Processing message: ${message.messageId}');
+  final messageId = message.messageId ?? 'unknown_${DateTime.now().millisecondsSinceEpoch}';
+
+  // 1. Memory de-duplication
+  if (!immediate && _processedIds.contains(messageId)) {
+    print('⏭️ [FCM] Message $messageId already processed in memory. Skipping.');
+    return {};
+  }
+  _processedIds.add(messageId);
+  if (_processedIds.length > 50) _processedIds.remove(_processedIds.first);
+
+  // 2. Persistent de-duplication (cross-isolate)
+  if (!immediate && await Storage.isEventProcessed('fcm_msg', messageId)) {
+    print('⏭️ [FCM] Message $messageId already processed in storage. Skipping.');
+    return {};
+  }
+  if (!immediate) await Storage.markEventProcessed('fcm_msg', messageId);
+
+  print('Processing message: $messageId (immediate: $immediate)');
   final data = message.data;
   final notification = message.notification;
 
@@ -201,7 +222,7 @@ Future<Map<String, String>> _handleNotificationPayload(
               importance: Importance.max,
               priority: Priority.high,
               icon: 'ic_launcher',
-              fullScreenIntent: false,
+              fullScreenIntent: true,
               visibility: NotificationVisibility.public,
               category: AndroidNotificationCategory.call,
               ongoing: true,
@@ -224,7 +245,7 @@ Future<Map<String, String>> _handleNotificationPayload(
                 importance: Importance.max,
                 priority: Priority.high,
                 icon: '@mipmap/ic_launcher',
-                fullScreenIntent: false,
+                fullScreenIntent: true,
                 visibility: NotificationVisibility.public,
                 category: AndroidNotificationCategory.call,
                 ongoing: true,
@@ -308,23 +329,8 @@ Future<Map<String, String>> _handleNotificationPayload(
   }
 
   if (phoneNumber != null && phoneNumber.isNotEmpty) {
-    print('Starting 10-second auto-call countdown for $phoneNumber');
-
     String? leadId = data['leadContactId'] ?? data['leadId'] ?? data['lead_id'];
     String? callSessionId = data['callSessionId'] ?? data['call_session_id'];
-
-    try {
-      if (Get.isRegistered<SocketController>()) {
-        final SocketController socket = Get.find<SocketController>();
-        socket.emitNotificationReceived(
-          leadContactId: leadId,
-          callSessionId: callSessionId,
-          phoneNumber: phoneNumber,
-        );
-      }
-    } catch (e) {
-      print('❌ Socket notification emission error: $e');
-    }
 
     if ((leadId == null || callSessionId == null) &&
         data.containsKey('message')) {
@@ -352,8 +358,24 @@ Future<Map<String, String>> _handleNotificationPayload(
       }
     }
 
-    Timer(const Duration(seconds: 10), () async {
-      print('Initiating auto-call to $phoneNumber now');
+    try {
+      if (Get.isRegistered<SocketController>()) {
+        final SocketController socket = Get.find<SocketController>();
+        socket.emitNotificationReceived(
+          leadContactId: leadId,
+          callSessionId: callSessionId,
+          phoneNumber: phoneNumber,
+        );
+      }
+    } catch (e) {
+      print('❌ Socket notification emission error: $e');
+    }
+
+    final countdown = immediate ? 0 : 5;
+    print('Starting $countdown-second auto-call countdown for $phoneNumber');
+
+    Timer(Duration(seconds: countdown), () async {
+      print('Initiating auto-call to $phoneNumber now (immediate: $immediate)');
 
       try {
         if (_lastBgNotificationId != null && _lastBgNotifPlugin != null) {
@@ -492,10 +514,8 @@ class FCMService extends GetxService {
     });
 
     OneSignal.Notifications.addClickListener((event) {
-      print('Notification Clicked: ${event.notification.jsonRepresentation()}');
-      // ✅ FIX: Notification click થાય ત્યારે lock screen check
-      // App open ન કરો, notification dismiss કરો
-      print('📵 Notification tapped — no app launch from lock screen');
+      print('OneSignal Notification Clicked: ${event.notification.jsonRepresentation()}');
+      // No immediate call for OneSignal yet, just logging
     });
 
     OneSignal.Notifications.addForegroundWillDisplayListener((event) {
@@ -542,21 +562,19 @@ class FCMService extends GetxService {
       showNotification(message, strings['title'], strings['body']);
     });
 
-    // ✅ FIX: onMessageOpenedApp — screen locked હોય તો MainActivity ન ખોલો
+    // ✅ FIX: onMessageOpenedApp — Trigger immediate call on click
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
-      print('Message Opened App: ${message.data}');
+      print('Message Opened App (Notification Tapped): ${message.data}');
 
       final bool locked = await _isScreenLocked();
       if (locked) {
-        // Screen locked છે — app open ન કરો, ફક્ત payload process કરો
-        print(
-          '📵 Screen is locked — skipping app launch from notification tap',
-        );
+        print('📵 Screen is locked — Processing payload immediately without app launch');
+        await _handleNotificationPayload(message, null, null, true);
         return;
       }
 
-      // Screen unlocked છે — safe to process
-      await _handleNotificationPayload(message);
+      // Screen unlocked — process immediately
+      await _handleNotificationPayload(message, null, null, true);
     });
 
     Stream<String> tokenStream = FirebaseMessaging.instance.onTokenRefresh;
@@ -599,7 +617,7 @@ class FCMService extends GetxService {
             category: AndroidNotificationCategory.call,
             playSound: true,
             enableVibration: true,
-            fullScreenIntent: false,
+            fullScreenIntent: true,
             ongoing: true,
             autoCancel: false,
           ),
@@ -624,7 +642,7 @@ class FCMService extends GetxService {
               category: AndroidNotificationCategory.call,
               playSound: true,
               enableVibration: true,
-              fullScreenIntent: false,
+              fullScreenIntent: true,
               ongoing: true,
               autoCancel: false,
             ),
