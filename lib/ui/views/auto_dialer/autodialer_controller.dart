@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_pagewise/flutter_pagewise.dart';
 import 'package:get/get.dart';
 import 'package:telecaller_app/core/controllers/overlay_controller.dart';
@@ -21,7 +22,7 @@ class AutoDialerController extends GetxController {
   final connected = 0.obs;
   final successful = 0.obs;
   final failed = 0.obs;
-  
+
   double get successRate {
     if (totalAttempts.value == 0) return 0.0;
     return (successful.value / totalAttempts.value) * 100;
@@ -57,7 +58,7 @@ class AutoDialerController extends GetxController {
 
   // Flat list kept in sync for the auto-dialer queue builder
   final contactQueue = <LeadContactIdLeadContacts>[].obs;
-  
+
   // Filtering
   final selectedContactStatus = 'pending'.obs;
 
@@ -106,7 +107,7 @@ class AutoDialerController extends GetxController {
         _stopActiveTimer();
         // When call ends, we transition to "settled" (overlay showing)
         if (status.value == 'dialing') {
-           status.value = 'settled';
+          status.value = 'settled';
         }
       }
     });
@@ -251,7 +252,8 @@ class AutoDialerController extends GetxController {
                 id: leadId,
                 page: pageNumber ?? 0,
                 limit: 10,
-                filterBy: statusFilter == 'all' ? null : {"status": statusFilter},
+                filterBy:
+                    statusFilter == 'all' ? null : {"status": statusFilter},
               );
               if (response.status ?? false) {
                 totalContacts.value = response.total ?? 0;
@@ -352,16 +354,6 @@ class AutoDialerController extends GetxController {
   // AUTO-DIAL START
   // ─────────────────────────────────────────────────────────────────
   void startDialing() {
-    if (selectedContactStatus.value != 'pending') {
-      Get.snackbar(
-        'Action Restricted',
-        'Auto Dialer can only be started from the "Pending" list.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.orange[400],
-        colorText: Colors.white,
-      );
-      return;
-    }
 
     if (contactQueue.isEmpty) {
       Get.snackbar(
@@ -381,13 +373,27 @@ class AutoDialerController extends GetxController {
     final queue =
         contactQueue
             .where(
-              (l) => l.contact?.phone != null && 
-                     l.contact!.phone!.isNotEmpty &&
-                     (l.status == 'pending' || l.status == null || l.status!.isEmpty),
+              (l) =>
+                  l.contact?.phone != null &&
+                  l.contact!.phone!.isNotEmpty &&
+                  (
+                    // Current Status Match
+                    l.status == selectedContactStatus.value ||
+                    // Pending fallback (null or empty also counts as pending)
+                    (selectedContactStatus.value == 'pending' && (l.status == null || l.status!.isEmpty)) ||
+                    // Completed broad match (anything that is NOT pending or scheduled)
+                    (selectedContactStatus.value == 'completed' && 
+                     l.status != 'pending' && 
+                     l.status != null && 
+                     l.status!.isNotEmpty && 
+                     l.status != 'scheduled')
+                  ),
             )
             .map(
               (l) => {
-                'id': l.leadId ?? '', // Parent lead ID (consistent key across app)
+                'id':
+                    l.leadId ??
+                    '', // Parent lead ID (consistent key across app)
                 'leadContactId': l.id ?? '', // Specific contact record ID
                 'name': l.contact?.name ?? 'Unknown',
                 'number': l.contact?.phone ?? '',
@@ -402,19 +408,36 @@ class AutoDialerController extends GetxController {
     }
 
     overlayCtrl.callQueue = queue;
-    overlayCtrl.currentQueueIndex.value = 1;
+    overlayCtrl.currentQueueIndex.value = 0; // Start at 0 for the first lead
     overlayCtrl.isAutoCallMode.value = true;
 
     _syncWithOverlay(overlayCtrl);
 
     final firstLead = queue.first;
 
-    // Sync metadata with PhoneStatusService BEFORE dialing
+    // Sync metadata with OverlayController & PhoneStatusService BEFORE dialing
+    overlayCtrl.currentLeadId = firstLead['id'] ?? '';
+    overlayCtrl.currentLeadContactId = firstLead['leadContactId'] ?? '';
+
     if (Get.isRegistered<PhoneStatusService>()) {
       final phoneService = Get.find<PhoneStatusService>();
       phoneService.currentLeadContactId = firstLead['leadContactId'] ?? '';
       phoneService.currentLeadId = firstLead['id'] ?? '';
+      
+      // Sync form metadata here (since OverlayController no longer pulls it)
+      final dataset = selectedLeadDataset.value;
+      if (dataset != null) {
+        phoneService.currentFormId = dataset.formId?.id ?? "";
+        phoneService.currentFormFields = dataset.formId?.fields ?? [];
+      }
     }
+
+    // Sync with background service
+    FlutterBackgroundService().invoke('set_lead_info', {
+      'leadId': overlayCtrl.currentLeadId,
+      'leadContactId': overlayCtrl.currentLeadContactId,
+      'phoneNumber': firstLead['number']!,
+    });
 
     // Dial first contact
     overlayCtrl.makeDirectCall(firstLead['number']!);
@@ -422,7 +445,6 @@ class AutoDialerController extends GetxController {
 
   void _syncWithOverlay(OverlayController overlayCtrl) {
     countdown.bindStream(overlayCtrl.countdown.stream);
-
 
     void refreshCurrentContact() {
       final index = overlayCtrl.currentQueueIndex.value;
@@ -434,7 +456,9 @@ class AutoDialerController extends GetxController {
       } else if (overlayCtrl.isPaused.value) {
         status.value = 'paused';
       } else if (cdValue > 0) {
-        status.value = 'counting_down';
+        // Use dynamic to bypass circular dependency errors if they persist
+        final dynamic dynOverlay = overlayCtrl;
+        status.value = dynOverlay.isPreCallMode.value ? 'counting_down' : 'settled';
       } else {
         // If auto-mode is active, not paused, and no countdown, we are actively dialing
         status.value = 'dialing';
@@ -444,26 +468,36 @@ class AutoDialerController extends GetxController {
         // We are in countdown to NEXT lead
         if (index < overlayCtrl.callQueue.length) {
           final next = overlayCtrl.callQueue[index];
-          nextContact.value = contactQueue.firstWhereOrNull(
+          currentContact.value = contactQueue.firstWhereOrNull(
             (l) => l.id == next['leadContactId'],
           );
+
+          // Also update nextContact for preview
+          if (index + 1 < overlayCtrl.callQueue.length) {
+            final nextNext = overlayCtrl.callQueue[index + 1];
+            nextContact.value = contactQueue.firstWhereOrNull(
+              (l) => l.id == nextNext['leadContactId'],
+            );
+          } else {
+            nextContact.value = null;
+          }
         }
       } else {
         // We are DIALING or IDLE
-        if (index > 0 && index <= overlayCtrl.callQueue.length) {
-          final current = overlayCtrl.callQueue[index - 1];
+        if (index >= 0 && index < overlayCtrl.callQueue.length) {
+          final current = overlayCtrl.callQueue[index];
           currentContact.value = contactQueue.firstWhereOrNull(
             (l) => l.id == current['leadContactId'],
           );
 
           // Get the "Next" one too if available
-          if (index < overlayCtrl.callQueue.length) {
-             final next = overlayCtrl.callQueue[index];
-             nextContact.value = contactQueue.firstWhereOrNull(
-                (l) => l.id == next['leadContactId'],
-             );
+          if (index + 1 < overlayCtrl.callQueue.length) {
+            final next = overlayCtrl.callQueue[index + 1];
+            nextContact.value = contactQueue.firstWhereOrNull(
+              (l) => l.id == next['leadContactId'],
+            );
           } else {
-             nextContact.value = null;
+            nextContact.value = null;
           }
 
           // ── SYNC: Update PhoneStatusService for the CURRENT call ──────────
@@ -479,15 +513,27 @@ class AutoDialerController extends GetxController {
               ps.currentFormFields = dataset.formId?.fields ?? [];
             }
 
-            print("🔄 Dialer Sync (Active): Lead=${ps.currentLeadId} | Contact=${ps.currentLeadContactId} | Form=${ps.currentFormId}");
+            print(
+              "🔄 Dialer Sync (Active): Lead=${ps.currentLeadId} | Contact=${ps.currentLeadContactId} | Form=${ps.currentFormId}",
+            );
           }
         }
       }
     }
 
-    ever(overlayCtrl.currentQueueIndex, (_) => refreshCurrentContact());
-    ever(overlayCtrl.countdown, (_) => refreshCurrentContact());
-    ever(overlayCtrl.isPaused, (_) => refreshCurrentContact());
+    final dynamic dynOverlay = overlayCtrl;
+    ever(dynOverlay.currentQueueIndex, (_) => refreshCurrentContact());
+    ever(dynOverlay.countdown, (_) => refreshCurrentContact());
+    ever(dynOverlay.isPreCallMode, (_) => refreshCurrentContact());
+    ever(dynOverlay.isPaused, (_) => refreshCurrentContact());
+
+    // Listen to status updates from overlay
+    ever(dynOverlay.lastUpdateEvent, (dynamic event) {
+      if (event != null && event is Map) {
+        updateContactStatusLocally(event['contactId']!, event['status']!);
+      }
+    });
+
     refreshCurrentContact();
   }
 

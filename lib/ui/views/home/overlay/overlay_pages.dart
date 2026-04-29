@@ -89,14 +89,34 @@ class OverlayPages extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    "call_summary".tr,
-                    style: AppTextStyle.bold7.copyWith(
-                      color: AppColors.themeColor.primaryColor,
-                      fontSize: AppDimens.fontSize10,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 2,
-                    ),
+                  Row(
+                    children: [
+                      Text(
+                        "call_summary".tr,
+                        style: AppTextStyle.bold7.copyWith(
+                          color: AppColors.themeColor.primaryColor,
+                          fontSize: AppDimens.fontSize10,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 2,
+                        ),
+                      ),
+                      SizedBox(width: 8.w),
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                        decoration: BoxDecoration(
+                          color: AppColors.themeColor.primaryColor.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(4.r),
+                        ),
+                        child: Obx(() => Text(
+                          "${controller.currentQueueIndex.value + 1} / ${controller.callQueue.length}",
+                          style: TextStyle(
+                            fontSize: AppDimens.fontSize9,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.themeColor.primaryColor,
+                          ),
+                        )),
+                      ),
+                    ],
                   ),
                   SizedBox(height: 4.h),
                   Obx(() => Text(

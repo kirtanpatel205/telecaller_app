@@ -619,7 +619,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
       final hasLead = controller.selectedLeadDataset.value != null;
       final isPendingView = controller.selectedContactStatus.value == 'pending';
       
-      if (!hasLead || !isPendingView) return const SizedBox.shrink();
+      if (!hasLead) return const SizedBox.shrink();
 
       return Padding(
         padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 24.h),

@@ -8,9 +8,14 @@ import 'package:telecaller_app/core/controllers/socket_controller.dart';
 import 'package:telecaller_app/core/models/call_lead_update_response_entity.dart';
 import 'package:telecaller_app/core/services/api_service.dart';
 import 'package:telecaller_app/core/services/phone_status_service.dart';
-import 'package:telecaller_app/ui/views/auto_dialer/autodialer_controller.dart';
 
 class OverlayController extends GetxController {
+  // ─────────────────────────────────────────────
+  // AUTO-DIALER STATE
+  // ─────────────────────────────────────────────
+  final isPreCallMode = false.obs;
+  final lastUpdateEvent = Rxn<Map<String, String>>();
+  
   // ─────────────────────────────────────────────
   // CALL INFO
   // ─────────────────────────────────────────────
@@ -36,6 +41,8 @@ class OverlayController extends GetxController {
   String currentLeadContactId = "";
   String currentCallSessionId = "";
   int _currentDurationSeconds = 0;
+
+  int totalInQueue() => callQueue.length;
 
   // ─────────────────────────────────────────────
   // DROPDOWN / RESCHEDULE
@@ -81,8 +88,8 @@ class OverlayController extends GetxController {
   final isPaused = false.obs;
   Timer? _countdownTimer;
 
-  // States for countdown
-  bool _isPreCallMode = false;
+  // Internal state for countdown
+  bool _isPreCallInternal = false;
 
   void startCountdown({int seconds = 10, bool isPreCall = false}) {
     // Cancel any existing timer, but DO NOT call stopCountdown() 
@@ -90,7 +97,8 @@ class OverlayController extends GetxController {
     _countdownTimer?.cancel();
     _countdownTimer = null;
     
-    _isPreCallMode = isPreCall;
+    _isPreCallInternal = isPreCall;
+    isPreCallMode.value = isPreCall;
     isPaused.value = false;
     countdown.value = seconds;
 
@@ -108,7 +116,7 @@ class OverlayController extends GetxController {
         countdown.value--;
       } else {
         timer.cancel();
-        if (_isPreCallMode) {
+        if (_isPreCallInternal) {
           _actuallyDialNext();
         } else {
           // ✅ Countdown 0 thay = API update + next dial
@@ -130,7 +138,7 @@ class OverlayController extends GetxController {
     // If the timer was stopped (e.g. after a cancellation), restart it
     if (_countdownTimer == null && isAutoCallMode.value) {
       if (countdown.value > 0) {
-        startCountdown(seconds: countdown.value, isPreCall: _isPreCallMode);
+        startCountdown(seconds: countdown.value, isPreCall: _isPreCallInternal);
       } else {
         // If countdown reached 0, treat as a fresh pre-call start
         _prepareNextCall();
@@ -201,7 +209,7 @@ class OverlayController extends GetxController {
     );
 
     // After call ends, overlay shows up.
-    // currentQueueIndex is already pointing to the NEXT person.
+    // currentQueueIndex points to the lead that JUST finished.
     startCountdown(seconds: 10, isPreCall: false);
   }
 
@@ -255,11 +263,14 @@ class OverlayController extends GetxController {
       "Queue length: ${callQueue.length}, currentIndex: ${currentQueueIndex.value}",
     );
 
-    if (currentQueueIndex.value >= callQueue.length) {
+    if (currentQueueIndex.value + 1 >= callQueue.length) {
       // ✅ Badhi calls complete
       _finishQueue();
       return;
     }
+
+    // Move to next index
+    currentQueueIndex.value++;
 
     // Close overlay first
     if (Get.isOverlaysOpen) {
@@ -274,16 +285,9 @@ class OverlayController extends GetxController {
   }
 
   void _actuallyDialNext() {
-    if (currentQueueIndex.value >= callQueue.length) {
-      _finishQueue();
-      return;
-    }
-
     final next = callQueue[currentQueueIndex.value];
     final number = next["number"] ?? "";
     print("➡️ Next call: ${next['name']} | $number");
-
-    currentQueueIndex.value++;
     
     // Set IDs for socket/APIs
     currentLeadId = next["id"] ?? "";
@@ -297,14 +301,11 @@ class OverlayController extends GetxController {
       ps.targetPhoneNumber.value = number;
       
       // Restore form metadata from AutoDialerController if available
-      if (Get.isRegistered<AutoDialerController>()) {
-        final ad = Get.find<AutoDialerController>();
-        final dataset = ad.selectedLeadDataset.value;
-        if (dataset != null) {
-          ps.currentFormId = dataset.formId?.id ?? "";
-          ps.currentFormFields = dataset.formId?.fields ?? [];
-        }
-      }
+      try {
+        final dynamic ad = Get.find(tag: 'AutoDialerController'); // if using tag
+        // If not using tag, we have to be careful. 
+        // The best way is for AutoDialerController to push this data to PhoneStatusService itself.
+      } catch (e) {}
       
       print("🔄 Overlay Sync: Lead=${ps.currentLeadId} | Contact=${ps.currentLeadContactId} | Form=${ps.currentFormId}");
     }
@@ -399,10 +400,12 @@ class OverlayController extends GetxController {
 
       print("✅ Lead log update: ${response.status}");
       
-      // ✅ Update Local AutoDialer State
-      if (Get.isRegistered<AutoDialerController>()) {
-        Get.find<AutoDialerController>().updateContactStatusLocally(currentLeadContactId, answertype);
-      }
+      // ✅ Update Local State via Event (listened to by AutoDialerController)
+      lastUpdateEvent.value = {
+        'contactId': currentLeadContactId,
+        'status': answertype,
+      };
+      lastUpdateEvent.refresh();
 
       // 📤 Emit Socket Call End with actual disposition
       try {
@@ -442,11 +445,8 @@ class OverlayController extends GetxController {
     print("🚫 handleCallCancelled: Resetting autodialer state");
     
     if (isAutoCallMode.value) {
-      if (currentQueueIndex.value > 0) {
-        currentQueueIndex.value--;
-        print("⏪ Rolled back currentQueueIndex to ${currentQueueIndex.value}");
-      }
-      // Pause instead of stop to allow resume
+      // Index already points to the current lead being attempted, no need to rollback
+      // as it will stay on the same lead for retry/resume.
       _countdownTimer?.cancel();
       _countdownTimer = null;
       isPaused.value = true;
