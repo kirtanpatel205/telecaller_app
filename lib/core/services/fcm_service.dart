@@ -43,36 +43,37 @@ Future<bool> _isScreenLocked() async {
   }
 }
 
-/// ✅ Wake screen from native
-Future<void> _wakeScreen() async {
-  try {
-    // Try MethodChannel first (if app is running)
-    await _platform.invokeMethod('wakeScreen');
-  } on MissingPluginException {
-    print(
-      'ℹ️ [FCM BG] MethodChannel wakeScreen not available in this isolate. Using CallActivity fallback.',
-    );
-  } catch (e) {
-    print(
-      '⚠️ MethodChannel wakeScreen failed, using CallActivity fallback: $e',
-    );
+/// ✅ Wake screen — always uses CallActivity directly (MethodChannel is dead in BG isolate)
+Future<void> _wakeScreen({bool isBackgroundIsolate = false}) async {
+  if (!Platform.isAndroid) return;
+
+  // In background isolate, MethodChannel to MainActivity is NOT available.
+  // Skip it and go straight to CallActivity which handles its own lock-screen flags.
+  if (!isBackgroundIsolate) {
+    try {
+      await _platform.invokeMethod('wakeScreen');
+      print('✅ [FCM] wakeScreen via MethodChannel succeeded');
+      return;
+    } on MissingPluginException {
+      print('ℹ️ [FCM] MethodChannel not available. Using CallActivity fallback.');
+    } catch (e) {
+      print('⚠️ [FCM] MethodChannel wakeScreen failed: $e. Using CallActivity fallback.');
+    }
   }
 
-  // Robust fallback: Launch invisible CallActivity just to wake screen
-  if (Platform.isAndroid) {
-    try {
-      final intent = AndroidIntent(
-        action: 'android.intent.action.MAIN',
-        package: 'com.digibulkmarketing.telecaller_app',
-        componentName: 'com.digibulkmarketing.telecaller_app.CallActivity',
-        arguments: <String, dynamic>{'wakeOnly': true},
-        flags: <int>[Flag.FLAG_ACTIVITY_NEW_TASK],
-      );
-      await intent.launch();
-      print('✅ Launched robust wake screen intent');
-    } catch (e) {
-      print('❌ Failed to launch robust wake intent: $e');
-    }
+  // Direct CallActivity launch to wake screen (works in both BG isolate and foreground)
+  try {
+    final intent = AndroidIntent(
+      action: 'android.intent.action.MAIN',
+      package: 'com.digibulkmarketing.telecaller_app',
+      componentName: 'com.digibulkmarketing.telecaller_app.CallActivity',
+      arguments: <String, dynamic>{'wakeOnly': true},
+      flags: <int>[Flag.FLAG_ACTIVITY_NEW_TASK],
+    );
+    await intent.launch();
+    print('✅ [FCM] Launched CallActivity for screen wake');
+  } catch (e) {
+    print('❌ [FCM] Failed to launch CallActivity for wake: $e');
   }
 }
 
@@ -90,21 +91,23 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
         FlutterLocalNotificationsPlugin();
 
     // ✅ Robust initialization for background isolate
+    bool notifInitialized = false;
     try {
       const AndroidInitializationSettings initializationSettingsAndroid =
           AndroidInitializationSettings('ic_launcher');
       const InitializationSettings initializationSettings =
           InitializationSettings(android: initializationSettingsAndroid);
       await localNotif.initialize(initializationSettings);
+      notifInitialized = true;
     } catch (e) {
       print('⚠️ [FCM BG] Failed to initialize with ic_launcher: $e');
       try {
-        // Fallback to @mipmap/ic_launcher which sometimes works better in debug isolates
         const AndroidInitializationSettings initializationSettingsAndroid =
             AndroidInitializationSettings('@mipmap/ic_launcher');
         const InitializationSettings initializationSettings =
             InitializationSettings(android: initializationSettingsAndroid);
         await localNotif.initialize(initializationSettings);
+        notifInitialized = true;
         print('✅ [FCM BG] Initialized with @mipmap/ic_launcher fallback');
       } catch (e2) {
         print('❌ [FCM BG] All notification initialization attempts failed: $e2');
@@ -119,13 +122,24 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
       enableVibration: true,
     );
 
-    await localNotif
-        .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-        >()
-        ?.createNotificationChannel(channel);
+    if (notifInitialized) {
+      await localNotif
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >()
+          ?.createNotificationChannel(channel);
+    }
 
-    await _handleNotificationPayload(message, localNotif, channel);
+    // ✅ CRITICAL FIX: Use await here — do NOT return before the call is launched.
+    // Previously a Timer() was used which fires AFTER the handler returns,
+    // causing the isolate to be killed before the call could be made.
+    await _handleNotificationPayload(
+      message,
+      notifInitialized ? localNotif : null,
+      notifInitialized ? channel : null,
+      false,
+      true, // isBackgroundIsolate = true
+    );
 
     try {
       if (!Get.isRegistered<NetworkService>()) {
@@ -133,8 +147,7 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
       }
 
       if (!Get.isRegistered<SocketController>()) {
-        SocketController.isBackground =
-            true; // FCM BG acts as a master if no other isolate exists
+        SocketController.isBackground = true;
         final socket = SocketController();
         await socket.initSocket();
         Get.put(socket);
@@ -156,6 +169,7 @@ Future<Map<String, String>> _handleNotificationPayload(
   FlutterLocalNotificationsPlugin? localNotif,
   AndroidNotificationChannel? channel,
   bool immediate = false,
+  bool isBackgroundIsolate = false,
 ]) async {
   final messageId = message.messageId ?? 'unknown_${DateTime.now().millisecondsSinceEpoch}';
 
@@ -201,8 +215,8 @@ Future<Map<String, String>> _handleNotificationPayload(
 
   print('Final Notification Title: $title, Body: $body');
 
-  // ✅ Wake screen without opening app immediately
-  _wakeScreen();
+  // ✅ Wake screen — pass isolate flag so it skips the dead MethodChannel
+  _wakeScreen(isBackgroundIsolate: isBackgroundIsolate);
 
   if (localNotif != null && channel != null) {
     try {
@@ -371,68 +385,73 @@ Future<Map<String, String>> _handleNotificationPayload(
       print('❌ Socket notification emission error: $e');
     }
 
+    // ✅ CRITICAL FIX: Use await Future.delayed instead of Timer().
+    // Timer() schedules a callback and returns immediately — when used inside
+    // firebaseMessagingBackgroundHandler, the handler returns before the Timer
+    // fires, the isolate is destroyed by Android, and the call NEVER happens.
+    // await Future.delayed keeps the handler alive until the call is launched.
     final countdown = immediate ? 0 : 5;
-    print('Starting $countdown-second auto-call countdown for $phoneNumber');
+    print('⏳ [FCM] Waiting ${countdown}s before auto-call to $phoneNumber...');
+    await Future.delayed(Duration(seconds: countdown));
 
-    Timer(Duration(seconds: countdown), () async {
-      print('Initiating auto-call to $phoneNumber now (immediate: $immediate)');
+    print('📞 Initiating auto-call to $phoneNumber now (immediate: $immediate)');
 
+    // Cancel the "incoming" notification before launching dialer
+    try {
+      if (_lastBgNotificationId != null && _lastBgNotifPlugin != null) {
+        await _lastBgNotifPlugin!.cancel(_lastBgNotificationId!);
+        print('🔕 [FCM BG] Cancelled notification $_lastBgNotificationId');
+        _lastBgNotificationId = null;
+        _lastBgNotifPlugin = null;
+      }
+    } catch (e) {
+      print('⚠️ [FCM BG] Failed to cancel notification: $e');
+    }
+
+    if (leadId != null || callSessionId != null) {
+      FlutterBackgroundService().invoke('set_lead_info', {
+        'leadId': leadId,
+        'callSessionId': callSessionId,
+        'phoneNumber': phoneNumber,
+      });
+    }
+
+    // 🚨 REDUNDANT EMISSION REMOVED:
+    // The call-start event is now handled exclusively by PhoneStatusService
+    // which includes a 2-second debounce timer to filter out SIM selection
+    // cancellations on Dual SIM devices.
+
+    try {
+      if (Platform.isAndroid) {
+        final callStatus = await Permission.phone.status;
+        final alertStatus = await Permission.systemAlertWindow.status;
+        print(
+          'Permissions: CALL_PHONE=$callStatus, SYSTEM_ALERT_WINDOW=$alertStatus',
+        );
+
+        print('🚀 Launching translucent CallActivity for background call');
+        final intent = AndroidIntent(
+          action: 'android.intent.action.MAIN',
+          package: 'com.digibulkmarketing.telecaller_app',
+          componentName: 'com.digibulkmarketing.telecaller_app.CallActivity',
+          arguments: <String, dynamic>{'phoneNumber': phoneNumber},
+          flags: <int>[Flag.FLAG_ACTIVITY_NEW_TASK],
+        );
+        await intent.launch();
+        print('✅ CallActivity intent sent successfully');
+      } else {
+        bool? res = await FlutterPhoneDirectCaller.callNumber(phoneNumber!);
+        print('Call initiated result: $res');
+      }
+    } catch (e) {
+      print('❌ Error launching CallActivity: $e');
       try {
-        if (_lastBgNotificationId != null && _lastBgNotifPlugin != null) {
-          await _lastBgNotifPlugin!.cancel(_lastBgNotificationId!);
-          print('🔕 [FCM BG] Cancelled notification $_lastBgNotificationId');
-          _lastBgNotificationId = null;
-          _lastBgNotifPlugin = null;
-        }
-      } catch (e) {
-        print('⚠️ [FCM BG] Failed to cancel notification: $e');
+        print('Attempting fallback to FlutterPhoneDirectCaller');
+        await FlutterPhoneDirectCaller.callNumber(phoneNumber!);
+      } catch (e2) {
+        print('Final fallback failed: $e2');
       }
-
-      if (leadId != null || callSessionId != null) {
-        FlutterBackgroundService().invoke('set_lead_info', {
-          'leadId': leadId,
-          'callSessionId': callSessionId,
-          'phoneNumber': phoneNumber,
-        });
-      }
-
-      // 🚨 REDUNDANT EMISSION REMOVED: 
-      // The call-start event is now handled exclusively by PhoneStatusService 
-      // which includes a 2-second debounce timer to filter out SIM selection 
-      // cancellations on Dual SIM devices.
-
-      try {
-        if (Platform.isAndroid) {
-          final callStatus = await Permission.phone.status;
-          final alertStatus = await Permission.systemAlertWindow.status;
-          print(
-            'Permissions: CALL_PHONE=$callStatus, SYSTEM_ALERT_WINDOW=$alertStatus',
-          );
-
-          print('Launching translucent CallActivity for background call');
-          final intent = AndroidIntent(
-            action: 'android.intent.action.MAIN',
-            package: 'com.digibulkmarketing.telecaller_app',
-            componentName: 'com.digibulkmarketing.telecaller_app.CallActivity',
-            arguments: <String, dynamic>{'phoneNumber': phoneNumber},
-            flags: <int>[Flag.FLAG_ACTIVITY_NEW_TASK],
-          );
-          await intent.launch();
-          print('CallActivity intent sent successfully');
-        } else {
-          bool? res = await FlutterPhoneDirectCaller.callNumber(phoneNumber!);
-          print('Call initiated result: $res');
-        }
-      } catch (e) {
-        print('Error launching CallActivity: $e');
-        try {
-          print('Attempting fallback to FlutterPhoneDirectCaller');
-          await FlutterPhoneDirectCaller.callNumber(phoneNumber!);
-        } catch (e2) {
-          print('Final fallback failed: $e2');
-        }
-      }
-    });
+    }
   } else {
     print('No phone number found anywhere in message payload');
   }

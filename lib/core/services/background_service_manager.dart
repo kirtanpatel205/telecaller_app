@@ -22,6 +22,8 @@ import 'package:telecaller_app/core/services/internetcheck.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
 import 'dart:isolate';
+import 'package:call_log/call_log.dart';
+import 'package:telecaller_app/core/services/api_service.dart';
 
 @pragma('vm:entry-point')
 class BackgroundServiceManager {
@@ -65,7 +67,9 @@ class BackgroundServiceManager {
     service.startService();
   }
 
-  static const _channel = MethodChannel('com.digibulkmarketing.telecaller_app/lockscreen');
+  static const _channel = MethodChannel(
+    'com.digibulkmarketing.telecaller_app/lockscreen',
+  );
 
   static Future<void> optimizeForXiaomi() async {
     try {
@@ -95,6 +99,18 @@ class BackgroundServiceManager {
     }
   }
 
+  static Future<void> fetchAndSaveSimInfo() async {
+    try {
+      final List<dynamic>? simInfo = await _channel.invokeMethod('getSimInfo');
+      if (simInfo != null) {
+        print("📱 [SIM] Fetched native SIM info: $simInfo");
+        await GetStorage().write('sim_info_cache', simInfo);
+      }
+    } catch (e) {
+      print("⚠️ [SIM] Error fetching SIM info: $e");
+    }
+  }
+
   static Future<void> openXiaomiOtherPermissions() async {
     try {
       await _channel.invokeMethod('openXiaomiPermissions');
@@ -110,7 +126,6 @@ class BackgroundServiceManager {
       print("Error requesting battery optimization: $e");
     }
   }
-
 
   static Future<void> openManufacturerSettings() async {
     if (Platform.isAndroid) {
@@ -190,28 +205,45 @@ void onStart(ServiceInstance service) async {
   }
 
   // Initialize SocketController for background
-    SocketController.isBackground = true; 
-    SocketController.backgroundServiceInstance = service;
-    final socket = SocketController();
-    Get.put(socket);
+  SocketController.isBackground = true;
+  SocketController.backgroundServiceInstance = service;
+  final socket = SocketController();
+  Get.put(socket);
 
-    // Register this Master isolate's SendPort so Satellites can proxy emissions to us
-    final ReceivePort socketPort = ReceivePort();
-    IsolateNameServer.removePortNameMapping('socket_master_port');
-    IsolateNameServer.registerPortWithName(socketPort.sendPort, 'socket_master_port');
-    
-    socketPort.listen((message) {
-      if (message is Map) {
-        final event = message['event'] as String?;
-        final data = message['data'] as Map<String, dynamic>?;
-        if (event != null && data != null) {
-          print("📥 [Background Master] Received proxy emission from SendPort: $event");
-          socket.socket?.emit(event, data);
-        }
+  // Initialize ApiService for background
+  if (!Get.isRegistered<ApiService>()) {
+    print("🚀 Initializing ApiService in background...");
+    final apiService = ApiService();
+    await apiService.init();
+    Get.put<ApiService>(apiService);
+
+    // Refresh SIM info inside the background isolate to ensure cache is current
+    await BackgroundServiceManager.fetchAndSaveSimInfo();
+    print("📱 [Background] Native SIM info cached.");
+  }
+
+  // Register this Master isolate's SendPort so Satellites can proxy emissions to us
+  final ReceivePort socketPort = ReceivePort();
+  IsolateNameServer.removePortNameMapping('socket_master_port');
+  IsolateNameServer.registerPortWithName(
+    socketPort.sendPort,
+    'socket_master_port',
+  );
+
+  socketPort.listen((message) {
+    if (message is Map) {
+      final event = message['event'] as String?;
+      final data = message['data'] as Map<String, dynamic>?;
+      if (event != null && data != null) {
+        print(
+          "📥 [Background Master] Received proxy emission from SendPort: $event",
+        );
+        socket.socket?.emit(event, data);
       }
-    });
+    }
+  });
 
-    try {
+  try {
     // Initialize PhoneStatusService for background tracking
     if (!Get.isRegistered<PhoneStatusService>()) {
       print("🚀 Initializing PhoneStatusService in background...");
@@ -256,7 +288,6 @@ void onStart(ServiceInstance service) async {
     }
   });
 
-
   service.on('get_socket_status').listen((_) {
     if (Get.isRegistered<SocketController>()) {
       Get.find<SocketController>().broadcastStatus();
@@ -281,7 +312,9 @@ void onStart(ServiceInstance service) async {
         }
         if (event['leadContactId'] != null) {
           phoneStatusService.currentLeadContactId = event['leadContactId'];
-          print("✅ Background currentLeadContactId updated: ${event['leadContactId']}");
+          print(
+            "✅ Background currentLeadContactId updated: ${event['leadContactId']}",
+          );
         }
         if (event['callSessionId'] != null) {
           phoneStatusService.setExternalCallSessionId(event['callSessionId']);
@@ -313,6 +346,15 @@ void onStart(ServiceInstance service) async {
 
       // Save for future reboots in this isolate using reliable SharedPrefs
       await Storage.saveToken(newToken);
+      print("✅ [Background] Token updated in storage for ApiService.");
+
+      // Ensure ApiService is ready and initialized in this isolate
+      if (!Get.isRegistered<ApiService>()) {
+        print("🚀 [Background] Initializing ApiService after set_token...");
+        final apiService = ApiService();
+        await apiService.init();
+        Get.put<ApiService>(apiService);
+      }
 
       if (Get.isRegistered<SocketController>()) {
         Get.find<SocketController>().connectWithToken(newToken);
@@ -327,12 +369,13 @@ void onStart(ServiceInstance service) async {
   // Diagnostic Heartbeat
   Timer.periodic(const Duration(seconds: 30), (timer) async {
     print("💓 Background Service Heartbeat: ${DateTime.now()}");
-    
+
     if (service is AndroidServiceInstance) {
       if (await service.isForegroundService()) {
         service.setForegroundNotificationInfo(
           title: "Telecaller Active",
-          content: "Service tracking is active. Last Refresh: ${DateTime.now().hour}:${DateTime.now().minute}",
+          content:
+              "Service tracking is active. Last Refresh: ${DateTime.now().hour}:${DateTime.now().minute}",
         );
       }
     }
@@ -347,6 +390,15 @@ void onStart(ServiceInstance service) async {
     }
   });
 
+  // Sync Call Logs every 15 minutes
+  Timer.periodic(const Duration(minutes: 15), (timer) async {
+    print("🕒 [Background] Starting periodic call log sync...");
+    try {
+      await _syncCallLogs();
+    } catch (e) {
+      print("❌ [Background] Periodic sync failed: $e");
+    }
+  });
   // Poll SharedPreferences for native phone events (from PhoneStateReceiver fallback)
   // Interval reduced to 500ms for near-instant response to dialer cancellations
   Timer.periodic(const Duration(milliseconds: 500), (timer) async {
@@ -363,7 +415,9 @@ void onStart(ServiceInstance service) async {
         // Only process if recent (< 60 seconds old)
         if (DateTime.now().millisecondsSinceEpoch - timestamp < 60000) {
           if (Get.isRegistered<PhoneStatusService>()) {
-            print("🌉 [Bridge] Processing pending event: ${event['state']} for ${event['number']}");
+            print(
+              "🌉 [Bridge] Processing pending event: ${event['state']} for ${event['number']}",
+            );
             Get.find<PhoneStatusService>().handleNativeEvent(
               state: event['state'],
               number: event['number'],
@@ -371,7 +425,9 @@ void onStart(ServiceInstance service) async {
             print("✅ [Bridge] Successfully dispatched: ${event['state']}");
           }
         } else {
-          print("⏰ [Bridge] Stale event discarded: ${event['state']} (${(DateTime.now().millisecondsSinceEpoch - timestamp)/1000}s old)");
+          print(
+            "⏰ [Bridge] Stale event discarded: ${event['state']} (${(DateTime.now().millisecondsSinceEpoch - timestamp) / 1000}s old)",
+          );
         }
         // Clear the pending event
         await prefs.remove('pending_phone_event');
@@ -403,4 +459,161 @@ void onStart(ServiceInstance service) async {
       }
     }
   });
+}
+
+Future<void> _syncCallLogs() async {
+  try {
+    print("📋 [Sync] Starting call log synchronization process...");
+
+    final now = DateTime.now();
+    // Increase window to 24 hours to ensure we don't miss calls due to clock sync issues
+    final searchWindow = now.subtract(const Duration(hours: 24));
+
+    print(
+      "📋 [Sync] Querying system call logs since ${searchWindow.toIso8601String()}",
+    );
+
+    // Verify permission inside the isolate
+    if (!(await Permission.phone.isGranted)) {
+      print("🚫 [Sync] PHONE permission not granted in background isolate.");
+      return;
+    }
+
+    Iterable<CallLogEntry> entries;
+    try {
+      entries = await CallLog.query(
+        dateFrom: searchWindow.millisecondsSinceEpoch,
+      );
+
+      if (entries.isEmpty) {
+        print("⚠️ [Sync] No logs found in last 24h. Trying broad fallback...");
+        entries = await CallLog.get();
+      }
+    } catch (e) {
+      print("❌ [Sync] Critical Error querying CallLog: $e");
+      return;
+    }
+
+    // Ensure we have SIM info cached
+    final List<dynamic>? cachedSimInfo = GetStorage().read('sim_info_cache');
+    if (cachedSimInfo == null) {
+      print("⚠️ [Sync] SIM info cache is empty. Attempting immediate fetch...");
+      await BackgroundServiceManager.fetchAndSaveSimInfo();
+    }
+
+    List<Map<String, dynamic>> logs = [];
+    print("📋 [Sync] Found ${entries.length} entries in system log.");
+
+    for (var entry in entries) {
+      // SIM identification logic
+      bool isTargetSim = false;
+      bool isDualSim = (cachedSimInfo != null && cachedSimInfo.length > 1);
+
+      String simDisplayName = (entry.simDisplayName ?? "").toLowerCase();
+      String phoneAccountId = entry.phoneAccountId ?? "";
+
+      if (isDualSim) {
+        if (simDisplayName.contains("2") ||
+            phoneAccountId == "1" ||
+            phoneAccountId.contains("_1") ||
+            phoneAccountId.toLowerCase().contains("slot1")) {
+          isTargetSim = true;
+        } else if (cachedSimInfo != null) {
+          for (var sim in cachedSimInfo) {
+            if (sim['subscriptionId'] == phoneAccountId &&
+                sim['slotIndex'] == "1") {
+              isTargetSim = true;
+              break;
+            }
+          }
+        }
+      } else {
+        isTargetSim = true; // Single SIM device
+      }
+
+      if (!isTargetSim) continue;
+
+      // Map "proper" number
+      String properSimNumber =
+          entry.simDisplayName ?? entry.phoneAccountId ?? "Unknown";
+      if (cachedSimInfo != null && cachedSimInfo.isNotEmpty) {
+        String targetSlot = isDualSim ? "1" : "0";
+        for (var sim in cachedSimInfo) {
+          if (sim['slotIndex'] == targetSlot) {
+            String? num = sim['number'];
+            if (num != null && num.isNotEmpty) {
+              properSimNumber = num;
+            } else {
+              properSimNumber =
+                  sim['displayName'] ?? sim['carrierName'] ?? properSimNumber;
+            }
+            break;
+          }
+        }
+      }
+
+      String callTypeStr = "unknown";
+      switch (entry.callType) {
+        case CallType.outgoing:
+          callTypeStr = "outgoing_call";
+          break;
+        case CallType.incoming:
+          callTypeStr = "incoming_call";
+          break;
+        case CallType.missed:
+          callTypeStr = "missed_call";
+          break;
+        case CallType.rejected:
+          callTypeStr = "rejected_call";
+          break;
+        case CallType.blocked:
+          callTypeStr = "blocked_call";
+          break;
+        default:
+          callTypeStr = entry.callType.toString().split('.').last;
+      }
+
+      logs.add({
+        "callType": callTypeStr,
+        "name":
+            (entry.name == null || entry.name!.isEmpty)
+                ? "Unknown"
+                : entry.name,
+        "duration": entry.duration ?? 0,
+        "phone": entry.number ?? "",
+        "timeStamp":
+            DateTime.fromMillisecondsSinceEpoch(
+              entry.timestamp ?? 0,
+            ).toIso8601String(),
+        "simNumber": properSimNumber,
+      });
+    }
+
+    if (logs.isNotEmpty) {
+      print("🚀 [Sync] Prepared ${logs.length} logs. Sending to API...");
+      try {
+        if (Get.isRegistered<ApiService>()) {
+          final response = await Get.find<ApiService>().syncCallLogs({
+            "logs": logs,
+          });
+          print(
+            "✅ [Sync] API Response: ${response.status} - ${response.message}",
+          );
+        } else {
+          print(
+            "⚠️ [Sync] ApiService missing in isolate. Creating fallback...",
+          );
+          final apiService = ApiService();
+          await apiService.init();
+          await apiService.syncCallLogs({"logs": logs});
+        }
+      } catch (e) {
+        print("❌ [Sync] API Error: $e");
+      }
+    } else {
+      print("ℹ [Sync] No matching call logs found to sync.");
+    }
+  } catch (e) {
+    print("❌ [Sync] General Error: $e");
+  }
 }

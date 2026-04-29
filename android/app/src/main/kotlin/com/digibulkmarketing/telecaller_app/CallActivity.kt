@@ -94,14 +94,15 @@ class CallActivity : Activity() {
 
         // ✅ 2. Handle wake-only request
         if (wakeOnly) {
-            if (isLocked) {
-                Log.d("CallActivity", "Waking screen only (Locked). Applying flags and staying alive to keep lock screen open.")
-                // App opening removed as per user request
-            } else {
-                Log.d("CallActivity", "Waking screen only (Unlocked). Applying flags and staying alive to keep screen on.")
-                // No need to launch MainActivity if screen is already unlocked
-            }
-            // DO NOT finish() here. Stay alive so the system keeps the screen awake and lock-screen dismissed.
+            Log.d("CallActivity", "Waking screen only (isLocked=$isLocked). Flags applied. Auto-finishing in 2s.")
+            // Stay alive briefly so the OS applies the lock-screen/wake flags,
+            // then finish to avoid leaving a zombie activity in the back-stack.
+            window.decorView.postDelayed({
+                if (!isFinishing) {
+                    Log.d("CallActivity", "wakeOnly: finishing now")
+                    finish()
+                }
+            }, 2000)
             return
         }
 

@@ -376,4 +376,16 @@ print("callChart request data $data");
     print("✅ Form submission response: $response");
     return ApiResponseEntity.fromJson(response);
   }
+
+  Future<ApiResponseEntity> syncCallLogs(Map<String, dynamic> logs) async {
+    print("📡 Syncing call logs: ${logs['logs']?.length ?? 0} entries");
+    print("📡 Syncing call logs: ${logs["logs"].first}");
+    Map<String, dynamic> response = await client.post(
+      AppConstants.API_CALL_LOG,
+      isRaw: true,
+      data: logs,
+    );
+    print("✅ Call log sync response: $response");
+    return ApiResponseEntity.fromJson(response);
+  }
 }
