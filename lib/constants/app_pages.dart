@@ -22,6 +22,8 @@ import 'package:telecaller_app/ui/views/splash/splash_binding.dart';
 import 'package:telecaller_app/ui/views/splash/splash_page.dart';
 import 'package:telecaller_app/ui/views/welcome/welcome_binding.dart';
 import 'package:telecaller_app/ui/views/welcome/welcome_page.dart';
+import 'package:telecaller_app/ui/views/privacy_policy/privacy_policy_page.dart';
+import 'package:telecaller_app/ui/views/terms_conditions/terms_conditions_page.dart';
 
 import 'app_routes.dart';
 
@@ -71,6 +73,14 @@ class AppPages {
       name: Paths.LANGUAGE,
       binding: LanguageBinding(),
       page: () => LanguagePage(),
+    ),
+    GetPage(
+      name: Paths.PRIVACY_POLICY,
+      page: () => const PrivacyPolicyPage(),
+    ),
+    GetPage(
+      name: Paths.TERMS_CONDITIONS,
+      page: () => const TermsConditionsPage(),
     ),
 
     // GetPage(

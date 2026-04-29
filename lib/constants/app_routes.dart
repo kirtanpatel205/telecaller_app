@@ -14,7 +14,8 @@ abstract class Routes {
   static const LEADSCONTACT = Paths.LEADSCONTACT;
   static const OVERLAYS = Paths.OVERLAY;
   static const LANGUAGE = Paths.LANGUAGE;
-
+  static const PRIVACY_POLICY = Paths.PRIVACY_POLICY;
+  static const TERMS_CONDITIONS = Paths.TERMS_CONDITIONS;
 }
 
 abstract class Paths {
@@ -27,7 +28,6 @@ abstract class Paths {
   static const HOME = '/home';
   static const LANGUAGE = '/language-page';
 
-
   static const CALL = '/call';
   static const EDITPROFILE = '/edit-profile-page';
   static const NOTIFICATION = '/Notification';
@@ -36,4 +36,6 @@ abstract class Paths {
   static const SETTING = '/setting';
   static const LEADSCONTACT = '/leads-contact';
   static const OVERLAY = '/overlay';
+  static const PRIVACY_POLICY = '/privacy-policy';
+  static const TERMS_CONDITIONS = '/terms-conditions';
 }
