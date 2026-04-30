@@ -12,25 +12,27 @@ import 'package:telecaller_app/ui/views/auto_dialer/autodialer_controller.dart';
 import 'package:telecaller_app/ui/widgets/custom-appbar.dart';
 import 'package:telecaller_app/constants/app_dimens.dart';
 import 'package:telecaller_app/constants/app_text_style.dart';
+import 'package:telecaller_app/ui/widgets/app_safe_area.dart';
 import 'package:telecaller_app/ui/views/home/overlay/overlay_pages.dart';
 
 // Note: flutter_pagewise is still needed for the contacts PagewiseSliverList
 
 class AutoDialerPage extends GetView<AutoDialerController> {
   const AutoDialerPage({Key? key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     final bool isTablet = MediaQuery.of(context).size.shortestSide > 600;
 
-    return Scaffold(
-      backgroundColor: AppColors.themeColor.scaffoldBackgroundColor,
-      body: Stack(
-        children: [
-          Column(
-            children: [
-              // ── FIXED TOP SECTION ──────────────────────
-              Container(
+    return AppSafeArea(
+      top: false,
+      child: Scaffold(
+        backgroundColor: AppColors.themeColor.scaffoldBackgroundColor,
+        body: Stack(
+          children: [
+            Column(
+              children: [
+                // ── FIXED TOP SECTION ──────────────────────
+                Container(
                 decoration: BoxDecoration(
                   color: AppColors.themeColor.scaffoldBackgroundColor,
                   boxShadow: [
@@ -114,7 +116,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
           ),
         ],
       ),
-    );
+    ));
   }
 
   Widget _buildSimpleAppBar(BuildContext context) {

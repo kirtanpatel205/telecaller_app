@@ -10,6 +10,7 @@ import 'package:telecaller_app/core/models/lead_contact_id_entity.dart';
 import 'package:telecaller_app/ui/widgets/CustomSearchBar.dart';
 import 'package:telecaller_app/ui/widgets/custom-appbar.dart';
 import 'package:telecaller_app/ui/widgets/custome_icon_button.dart';
+import 'package:telecaller_app/ui/widgets/app_safe_area.dart';
 import 'leadscontact_controller.dart';
 
 class _StatItem {
@@ -25,7 +26,9 @@ class LeadsContactPage extends GetView<LeadsContactController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppSafeArea(
+      top: false,
+      child: Scaffold(
       backgroundColor: AppColors.themeColor.scaffoldBackgroundColor,
       appBar: CustomAppBar(
         titleText: 'leads_contact'.tr,
@@ -93,7 +96,7 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                 ],
               ),
       ),
-    );
+      ));
   }
 
   Widget _buildStatsCards() {

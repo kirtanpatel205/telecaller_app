@@ -23,6 +23,7 @@ class HomePage extends GetView<HomeController> {
   @override
   Widget build(BuildContext context) {
     return AppSafeArea(
+      top: false,
       child: Obx(
             () => Scaffold(
           backgroundColor: AppColors.themeColor.scaffoldBackgroundColor,

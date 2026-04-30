@@ -5,6 +5,7 @@ import 'package:telecaller_app/core/helpers/storage.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../constants/app_routes.dart';
+import 'package:telecaller_app/ui/widgets/app_safe_area.dart';
 import 'custom-appbar.dart';
 
 class ProminentDisclosurePage extends StatefulWidget {
@@ -91,14 +92,15 @@ class _ProminentDisclosurePageState extends State<ProminentDisclosurePage> {
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: CustomAppBar(
-        titleText: "permission_disclosure".tr,
-        showBackButton: false,
-      ),
-      body: SafeArea(
-        child: WillPopScope(
+    return AppSafeArea(
+      top: false,
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: CustomAppBar(
+          titleText: "permission_disclosure".tr,
+          showBackButton: false,
+        ),
+        body: WillPopScope(
           onWillPop: () async {
             return false;
           },

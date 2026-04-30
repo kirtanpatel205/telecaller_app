@@ -21,7 +21,9 @@ class EditProfilePage extends GetView<EditProfileController> {
   AuthController authController = Get.find();
   @override
   Widget build(BuildContext context) {
-    return AppSafeArea(child: Obx(() => Scaffold(
+    return AppSafeArea(
+        top: false,
+        child: Obx(() => Scaffold(
         resizeToAvoidBottomInset: true,
         appBar: CustomAppBar(
           titleText: "editProfile".tr,

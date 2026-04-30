@@ -11,7 +11,7 @@ import 'package:telecaller_app/core/services/background_service_manager.dart';
 import 'package:telecaller_app/core/services/fcm_service.dart';
 import 'package:telecaller_app/core/services/phone_status_service.dart';
 import 'package:telecaller_app/main.dart';
-import 'common_safearea.dart';
+import 'app_safe_area.dart';
 import 'dart:io';
 import 'package:flutter/services.dart';
 import 'optimization_guide_dialog.dart';
@@ -553,6 +553,7 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
     return WillPopScope(
       onWillPop: () async => !isContinuing,
       child: AppSafeArea(
+        top: false,
         child: Scaffold(
           appBar: CustomAppBar(
             titleText: 'Permissions',

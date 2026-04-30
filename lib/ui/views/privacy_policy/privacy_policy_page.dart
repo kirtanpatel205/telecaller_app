@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:telecaller_app/constants/app_colors.dart';
 import 'package:telecaller_app/constants/app_dimens.dart';
 import 'package:telecaller_app/constants/app_text_style.dart';
+import 'package:telecaller_app/ui/widgets/app_safe_area.dart';
 import 'package:telecaller_app/ui/widgets/custom-appbar.dart';
 
 class PrivacyPolicyPage extends StatelessWidget {
@@ -11,7 +12,9 @@ class PrivacyPolicyPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppSafeArea(
+      top: false,
+      child: Scaffold(
       backgroundColor: AppColors.themeColor.bgColor,
       appBar: CustomAppBar(
         titleText: "privacy_policy".tr,
@@ -42,7 +45,7 @@ class PrivacyPolicyPage extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ));
   }
 
   Widget _headerCard(IconData icon, String title, String subtitle) {

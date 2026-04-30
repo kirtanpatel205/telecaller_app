@@ -14,7 +14,9 @@ import 'package:telecaller_app/ui/widgets/custom-appbar.dart';
 class LanguagePage extends GetView<LanguageController> {
   @override
   Widget build(BuildContext context) {
-    return AppSafeArea(child: Scaffold(
+    return AppSafeArea(
+        top: false,
+        child: Scaffold(
       backgroundColor: AppColors.themeColor.scaffoldBackgroundColor,
       resizeToAvoidBottomInset: false,
       appBar: CustomAppBar(
