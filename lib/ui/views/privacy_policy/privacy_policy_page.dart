@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:telecaller_app/constants/app_colors.dart';
 import 'package:telecaller_app/constants/app_dimens.dart';
 import 'package:telecaller_app/constants/app_text_style.dart';
+import 'package:telecaller_app/ui/widgets/custom-appbar.dart';
 
 class PrivacyPolicyPage extends StatelessWidget {
   const PrivacyPolicyPage({super.key});
@@ -12,18 +13,8 @@ class PrivacyPolicyPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.themeColor.bgColor,
-      appBar: AppBar(
-        backgroundColor: AppColors.themeColor.primaryColor,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 20.sp),
-          onPressed: () => Get.back(),
-        ),
-        title: Text(
-          "privacy_policy".tr,
-          style: AppTextStyle.bold7.copyWith(fontSize: AppDimens.fontSize18, color: Colors.white),
-        ),
-        centerTitle: true,
+      appBar: CustomAppBar(
+        titleText: "privacy_policy".tr,
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),

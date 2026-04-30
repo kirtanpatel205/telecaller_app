@@ -76,3 +76,75 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize => Size.fromHeight(height);
 }
+
+class SliverCustomAppBar extends StatelessWidget {
+  final Widget? leading;
+  final PreferredSizeWidget? bottom;
+  final Widget? title;
+  final String? titleText;
+  final List<Widget>? actions;
+  final bool showBackButton;
+  final bool pinned;
+  final bool floating;
+
+  const SliverCustomAppBar({
+    Key? key,
+    this.actions,
+    this.leading,
+    this.title,
+    this.bottom,
+    this.titleText,
+    this.showBackButton = true,
+    this.pinned = true,
+    this.floating = true,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverAppBar(
+      pinned: pinned,
+      floating: floating,
+      centerTitle: true,
+      elevation: 0,
+      backgroundColor: AppColors.themeColor.bgColor,
+      surfaceTintColor: Colors.transparent,
+      leading: leading ?? (showBackButton ? _buildBackButton() : null),
+      title: title ??
+          Text(
+            titleText ?? "",
+            style: AppTextStyle.appBarTitleStyle.copyWith(
+              color: AppColors.themeColor.textPrimaryColor,
+              fontSize: AppDimens.fontSize18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+      actions: actions ?? [],
+      bottom: bottom,
+    );
+  }
+
+  Widget _buildBackButton() {
+    return Padding(
+      padding: EdgeInsets.all(10.w),
+      child: InkWell(
+        onTap: () => Get.back(),
+        borderRadius: BorderRadius.circular(12.r),
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppColors.themeColor.primaryColor.withOpacity(0.05),
+            border: Border.all(
+              color: AppColors.themeColor.primaryColor.withOpacity(0.2),
+              width: 1.w,
+            ),
+            borderRadius: BorderRadius.circular(12.r),
+          ),
+          child: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            size: 18.sp,
+            color: AppColors.themeColor.primaryColor,
+          ),
+        ),
+      ),
+    );
+  }
+}

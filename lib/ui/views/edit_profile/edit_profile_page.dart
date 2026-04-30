@@ -11,6 +11,7 @@ import 'package:telecaller_app/constants/app_text_style.dart';
 import 'package:telecaller_app/core/controllers/auth_controller.dart';
 import 'package:telecaller_app/core/helpers/utils.dart';
 import 'package:telecaller_app/ui/widgets/app_safe_area.dart';
+import 'package:telecaller_app/ui/widgets/custom-appbar.dart';
 import 'package:telecaller_app/ui/widgets/custom_button.dart';
 import 'package:telecaller_app/ui/widgets/custome_text_filed.dart';
 
@@ -22,50 +23,8 @@ class EditProfilePage extends GetView<EditProfileController> {
   Widget build(BuildContext context) {
     return AppSafeArea(child: Obx(() => Scaffold(
         resizeToAvoidBottomInset: true,
-        appBar: AppBar(
-          backgroundColor: AppColors.themeColor.bgColor,
-          leading: IconButton(
-            icon: Container(
-              padding: EdgeInsets.all(4.w),
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: AppColors.themeColor.primaryColor,
-                  width: 2.w,
-                ),
-                borderRadius: BorderRadius.circular(8.r),
-              ),
-              child: Center(
-                child: Padding(
-                  padding: EdgeInsets.only(left: 8.w),
-                  child: Icon(
-                    Icons.arrow_back_ios,
-                    size: 18.sp,
-                    color: AppColors.themeColor.primaryColor,
-                  ),
-                ),
-              ),
-            ),
-            onPressed: () {
-              Get.back();
-            },
-          ),
-          title: Text(
-            "editProfile".tr,
-            style: AppTextStyle.bold7.copyWith(
-              fontSize: AppDimens.fontSize18,
-              color: AppColors.themeColor.textPrimaryColor,
-            ),
-          ),
-          centerTitle: true,
-          actions: [
-            Padding(
-                padding: EdgeInsets.only(right: 10.w),
-                child: Icon(
-                  Icons.more_horiz,
-                  color: Colors.transparent,
-                  size: 30.sp,
-                ))
-          ],
+        appBar: CustomAppBar(
+          titleText: "editProfile".tr,
         ),
         body: controller.isLoading.value
             ? Utils.loading

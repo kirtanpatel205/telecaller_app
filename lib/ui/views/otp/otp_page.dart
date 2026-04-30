@@ -25,7 +25,9 @@ class OtpPage extends GetView<OtpController> {
         // Obx(()=>
         AppSafeArea(child: Scaffold(
       //resizeToAvoidBottomInset: true,
-      appBar: CustomAppBar(),
+      appBar: CustomAppBar(
+        titleText: "Otp Verification".tr,
+      ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,

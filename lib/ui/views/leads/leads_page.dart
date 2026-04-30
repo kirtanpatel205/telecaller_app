@@ -28,20 +28,9 @@ class LeadsPage extends GetView<LeadsController> {
         slivers: [
           MultiSliver(
             children: [
-              SliverAppBar(
-                pinned: true,
-                floating: true,
-                backgroundColor: AppColors.themeColor.cardColor,
-                elevation: 0,
-                centerTitle: true,
-                title: Text(
-                  "leads".tr,
-                  style: AppTextStyle.appBarTitleStyle.copyWith(
-                    color: AppColors.themeColor.textPrimaryColor,
-                    fontSize: AppDimens.fontSize18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+              SliverCustomAppBar(
+                titleText: "leads".tr,
+                showBackButton: false,
               ),
               SliverToBoxAdapter(
                 child: Column(

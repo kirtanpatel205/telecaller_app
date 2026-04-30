@@ -28,14 +28,7 @@ class LeadsContactPage extends GetView<LeadsContactController> {
     return Scaffold(
       backgroundColor: AppColors.themeColor.scaffoldBackgroundColor,
       appBar: CustomAppBar(
-        title: Text(
-          'leads_contact'.tr,
-          style: AppTextStyle.appBarTitleStyle.copyWith(
-            color: AppColors.themeColor.textPrimaryColor,
-            fontSize: AppDimens.fontSize18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        titleText: 'leads_contact'.tr,
       ),
       body: Obx(
         () => controller.isLoading.value

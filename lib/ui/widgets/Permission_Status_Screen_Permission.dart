@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:get_storage/get_storage.dart';
@@ -14,6 +15,7 @@ import 'common_safearea.dart';
 import 'dart:io';
 import 'package:flutter/services.dart';
 import 'optimization_guide_dialog.dart';
+import 'custom-appbar.dart';
 
 class PermissionStatusScreen extends StatefulWidget {
   @override
@@ -552,22 +554,17 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
       onWillPop: () async => !isContinuing,
       child: AppSafeArea(
         child: Scaffold(
-          appBar: AppBar(
-            title: Text(
-              'Permissions',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
-            ),
-            backgroundColor: Colors.blue.shade700,
-            elevation: 0,
-            centerTitle: false,
+          appBar: CustomAppBar(
+            titleText: 'Permissions',
             actions: [
               IconButton(
-                icon: Icon(Icons.refresh_rounded, size: 24),
+                icon: Icon(Icons.refresh_rounded, size: 24.sp),
                 onPressed: isLoading ? null : _checkAllPermissions,
                 tooltip: 'Refresh',
                 splashRadius: 24,
               ),
             ],
+            showBackButton: false,
           ),
           body:
               isLoading
