@@ -8,10 +8,13 @@ import 'package:telecaller_app/core/controllers/auth_controller.dart';
 import 'package:telecaller_app/core/helpers/utils.dart';
 import 'package:telecaller_app/core/models/api_response_entity.dart';
 import 'package:telecaller_app/core/services/api_service.dart';
+import 'package:telecaller_app/core/services/country_service.dart';
 
 class EditProfileController extends GetxController {
   AuthController authController = Get.find();
   ApiService apiService = Get.find();
+  CountryService countryService = Get.find();
+
 
   RxBool buttonLoading = false.obs;
   RxBool isLoading = false.obs;
@@ -32,30 +35,23 @@ class EditProfileController extends GetxController {
   }
 
   final formKey = GlobalKey<FormState>();
-  RxString selectedCountryIndex = ''.obs;
-
-  RxList<Map<String, String>> countryList = <Map<String, String>>[
-    {"code": "IN", "name": "India"},
-    {"code": "US", "name": "United States"},
-    {"code": "UK", "name": "United Kingdom"},
-    {"code": "CA", "name": "Canada"},
-    {"code": "AU", "name": "Australia"},
-  ].obs;
-  // CountryService countryService = Get.find();
+  RxString selectedCountryCode = ''.obs;
 
   TextEditingController firstNameController = TextEditingController();
+
   TextEditingController lastNameController = TextEditingController();
   TextEditingController emailAddressController = TextEditingController();
   TextEditingController addressLine1Controller = TextEditingController();
   TextEditingController addressLine2Controller = TextEditingController();
   TextEditingController cityController = TextEditingController();
   TextEditingController stateController = TextEditingController();
-  TextEditingController countryController = TextEditingController();
   TextEditingController zipCodeController = TextEditingController();
 
-  void onChangeCountry(String index) {
-    selectedCountryIndex.value = index;
+
+  void onChangeCountry(String code) {
+    selectedCountryCode.value = code;
   }
+
   void customerSave() {
     if (formKey.currentState!.validate()) {
       updateProfile();
@@ -75,15 +71,25 @@ class EditProfileController extends GetxController {
         authController.profile.value!.address!.addressLine2 ?? "";
     cityController.text = authController.profile.value!.address!.city ?? "";
     stateController.text = authController.profile.value!.address!.state ?? "";
-    countryController.text = authController.profile.value!.address?.country ?? "";
-    // if(authController.profile.value!.address!.country != null){
-    // selectedCountry.value =  authController.profile.value!.address!.country ?? "";
-    // }
-    selectedCountryIndex.value =
-        authController.profile.value!.address!.country ?? "";
+    
+    // Try to match the country from profile to one in our country list
+
+    String initialCountry = authController.profile.value!.address?.country ?? "";
+    if (initialCountry.isNotEmpty) {
+      var match = countryService.country.value.firstWhereOrNull(
+        (c) => c.countryCode == initialCountry || c.countryNameEn == initialCountry
+      );
+      if (match != null) {
+        selectedCountryCode.value = match.countryCode ?? "";
+      } else {
+        selectedCountryCode.value = initialCountry;
+      }
+    }
+
     zipCodeController.text = authController.profile.value!.address!.zip ?? "";
     isLoading.value = false;
-    print("selectedCountryIndex.value = ${selectedCountryIndex.value}");
+    print("selectedCountryCode.value = ${selectedCountryCode.value}");
+
     // log('${selectedCountry.value =  authController.profile.value!.address!.country ?? ""}');
   }
 
@@ -146,7 +152,8 @@ class EditProfileController extends GetxController {
   }
   void updateProfile() async {
     buttonLoading.value = true;
-    print("selectedCountry.value = ${selectedCountryIndex.value}");
+    print("selectedCountry.value = ${selectedCountryCode.value}");
+
     if (imagepath.value != '') {
       File imageFile = File(imagepath.value);
       print("onUpdateProfile image path : ${imagepath}");
@@ -170,9 +177,10 @@ class EditProfileController extends GetxController {
       city: cityController.text,
       state: stateController.text,
       zipCode: zipCodeController.text,
-      country: selectedCountryIndex.value.toString(),
+      country: selectedCountryCode.value.toString(),
       //countryController.text
     );
+
 
     if (profileEntity.status!) {
       Utils.showToast(profileEntity.message!);
@@ -180,6 +188,7 @@ class EditProfileController extends GetxController {
       Get.back();
     }
     buttonLoading.value = false;
-    log("${profileEntity}");
+    log("$profileEntity");
+
   }
 }

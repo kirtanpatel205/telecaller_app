@@ -212,6 +212,8 @@
   "country": "Country",
   "save": "Save",
   "logout_confirm": "Logout_Confirm",
-  "yes_logout": "Yes Logout"
+  "yes_logout": "Yes Logout",
+  "openCamera": "Open Camera",
+  "openGallery": "Open Gallery"
 
 }

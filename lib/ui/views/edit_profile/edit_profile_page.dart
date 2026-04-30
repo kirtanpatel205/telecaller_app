@@ -1,7 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/src/widgets/framework.dart';
+
+
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:sliver_tools/sliver_tools.dart';
@@ -47,11 +48,13 @@ class EditProfilePage extends GetView<EditProfileController> {
                                   width: 80.h,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
+                                    color: AppColors.themeColor.cardColor,
                                     border: Border.all(
                                       color: AppColors.themeColor.primaryColor.withOpacity(0.2),
                                       width: 2.w,
                                     ),
                                   ),
+
                                   // padding: EdgeInsets.all(2),
                                   clipBehavior: Clip
                                       .antiAlias, // ensures child respects circle shape
@@ -102,33 +105,51 @@ class EditProfilePage extends GetView<EditProfileController> {
                                     child: InkWell(
                                         onTap: () {
                                           Get.bottomSheet(Container(
-                                            height: null, // Allow dynamic height
-                                            width: double.infinity,
                                             decoration: BoxDecoration(
-                                                color: AppColors
-                                                    .themeColor.cardBgColor,
+                                                color: AppColors.themeColor.cardColor,
                                                 borderRadius: BorderRadius.only(
                                                     topLeft:
                                                         Radius.circular(20.r),
                                                     topRight:
                                                         Radius.circular(20.r))),
-                                            padding: EdgeInsets.only(bottom: 20.h),
+                                            padding: EdgeInsets.symmetric(vertical: 20.h),
                                             child: Column(
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
+                                                Container(
+                                                  width: 40.w,
+                                                  height: 4.h,
+                                                  margin: EdgeInsets.only(bottom: 20.h),
+
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.grey.withOpacity(0.3),
+                                                    borderRadius: BorderRadius.circular(10.r),
+                                                  ),
+                                                ),
                                                 ListTile(
-                                                  title: Text(
-                                                      //'Open Camera'
-                                                      "openCamera".tr),
-                                                  leading: Icon(Icons
-                                                      .camera_alt_outlined),
+                                                  title: Text("openCamera".tr, style: AppTextStyle.medium7.copyWith(color: AppColors.themeColor.textPrimaryColor)),
+                                                  leading: Container(
+                                                    padding: EdgeInsets.all(8.w),
+                                                    decoration: BoxDecoration(
+                                                      color: AppColors.themeColor.primaryColor.withOpacity(0.1),
+                                                      shape: BoxShape.circle,
+                                                    ),
+                                                    child: Icon(Icons.camera_alt_outlined, color: AppColors.themeColor.primaryColor),
+                                                  ),
                                                   onTap: () {
                                                     controller.getImage1();
                                                   },
                                                 ),
                                                 ListTile(
-                                                  title: Text('openGallery'.tr),
-                                                  leading: Icon(Icons.image),
+                                                  title: Text('openGallery'.tr, style: AppTextStyle.medium7.copyWith(color: AppColors.themeColor.textPrimaryColor)),
+                                                  leading: Container(
+                                                    padding: EdgeInsets.all(8.w),
+                                                    decoration: BoxDecoration(
+                                                      color: AppColors.themeColor.primaryColor.withOpacity(0.1),
+                                                      shape: BoxShape.circle,
+                                                    ),
+                                                    child: Icon(Icons.image_outlined, color: AppColors.themeColor.primaryColor),
+                                                  ),
                                                   onTap: () {
                                                     controller.getImage();
                                                   },
@@ -137,6 +158,7 @@ class EditProfilePage extends GetView<EditProfileController> {
                                             ),
                                           ));
                                         },
+
                                         child: Container(
                                           padding: EdgeInsets.all(8.w),
                                           decoration: BoxDecoration(
@@ -198,17 +220,20 @@ class EditProfilePage extends GetView<EditProfileController> {
                               hint: "Enter Name",
                               controller: controller.firstNameController,
                               validator: (value) {
-                                if (value!.isEmpty) {
-                                  return "Fisrst Required";
+                                if (value == null || value.isEmpty) {
+                                  return "Name is required";
                                 } else {
-                                  bool Fullname = RegExp(r'^[a-zA-Z\s\-]+$')
+                                  bool fullName = RegExp(r'^[a-zA-Z\s\-]+$')
                                       .hasMatch(value);
-                                  if (!Fullname) {
-                                    return "Enter Valid Firstname";
+                                  if (!fullName) {
+                                    return "Please enter a valid name";
                                   }
                                 }
+                                return null;
                               },
-                            ) //4
+                            )
+
+
                           ],
                         ),
                         SizedBox(
@@ -229,17 +254,20 @@ class EditProfilePage extends GetView<EditProfileController> {
                           controller: controller.emailAddressController,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Email Required';
+                              return 'Email is required';
                             } else {
                               bool emailValid = RegExp(
                                       r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
                                   .hasMatch(value);
                               if (!emailValid) {
-                                return 'Enter Valid Email';
+                                return 'Please enter a valid email';
                               }
                             }
+                            return null;
                           },
                         ).paddingOnly(top: 5),
+
+
                         SizedBox(
                           height: 20.h,
                         ),
@@ -262,44 +290,36 @@ class EditProfilePage extends GetView<EditProfileController> {
                           hint: "Enter Address Line 1",
                           controller: controller.addressLine1Controller,
                           validator: (value) {
-                            if (value!.isEmpty &&
-                                controller
-                                    .addressLine1Controller.text.isEmpty) {
-                              return "Address Required 1".tr;
-                            } /*else {
-                              bool Fullname =
-                                  RegExp(r'^[a-zA-Z\s\-]+$').hasMatch(value);
-                              if (!Fullname) {
-                                return "entervalidaddress".tr;
-                              }
-                            }*/
+                            if (value == null || value.isEmpty) {
+                              return "Address Line 1 is required";
+                            }
+                            return null;
                           },
                         ).paddingOnly(top: 5),
+
+
                         SizedBox(
                           height: 15.h,
                         ),
                         Text(
-                          "${"addressline1".tr} 2" ,
+                          "${"addressLine1".tr} 2" ,
                           style: AppTextStyle.bold7.copyWith(
                             color: AppColors.themeColor.textPrimaryColor,
                             fontSize: AppDimens.fontSize14,
                           ),
                         ),
                         CustomTextFormField(
-                          hint: "Enter Address Line2",
+                          hint: "Enter Address Line 2",
                           controller: controller.addressLine2Controller,
                           validator: (value) {
-                            if (value!.isEmpty) {
-                              return "Address R 2".tr;
-                            } /*else {
-                              bool Fullname =
-                                  RegExp(r'^[a-zA-Z\s\-]+$').hasMatch(value);
-                              if (!Fullname) {
-                                return "enterValidaddress".tr;
-                              }
-                            }*/
+                            if (value == null || value.isEmpty) {
+                              return "Address Line 2 is required";
+                            }
+                            return null;
                           },
                         ).paddingOnly(top: 5),
+
+
                         SizedBox(
                           height: 15.h,
                         ),
@@ -311,20 +331,23 @@ class EditProfilePage extends GetView<EditProfileController> {
                           ),
                         ),
                         CustomTextFormField(
-                          hint: "Enter City Name",
+                          hint: "Enter City",
                           controller: controller.cityController,
                           validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'City Required';
+                            if (value == null || value.isEmpty) {
+                              return 'City is required';
                             } else {
-                              bool Cityvalid =
+                              bool cityValid =
                                   RegExp(r'^[a-zA-Z\s\-]+$').hasMatch(value);
-                              if (!Cityvalid) {
-                                return 'Enter Valid City';
+                              if (!cityValid) {
+                                return 'Please enter a valid city';
                               }
                             }
+                            return null;
                           },
                         ).paddingOnly(top: 5),
+
+
                         SizedBox(
                           height: 15.h,
                         ),
@@ -335,20 +358,23 @@ class EditProfilePage extends GetView<EditProfileController> {
                               fontSize: AppDimens.fontSize14),
                         ),
                         CustomTextFormField(
-                          hint: "Enter State Name",
+                          hint: "Enter State",
                           controller: controller.stateController,
                           validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'State Required';
+                            if (value == null || value.isEmpty) {
+                              return 'State is required';
                             } else {
-                              bool Statevalid =
+                              bool stateValid =
                                   RegExp(r'^[a-zA-Z\s\-]+$').hasMatch(value);
-                              if (!Statevalid) {
-                                return 'Enter Valid State'.tr;
+                              if (!stateValid) {
+                                return 'Please enter a valid state';
                               }
                             }
+                            return null;
                           },
                         ).paddingOnly(top: 5),
+
+
                         SizedBox(
                           height: 15.h,
                         ),
@@ -362,46 +388,82 @@ class EditProfilePage extends GetView<EditProfileController> {
                           height: 5,
                         ),
                         Obx(() {
-                          final countries = controller.countryList;
-
-                          String? selectedCode = controller.selectedCountryIndex.value;
+                          final countries = controller.countryService.country.value;
+                          String? selectedCode = controller.selectedCountryCode.value;
 
                           // ✅ VALIDATION
-                          final validCodes = countries.map((e) => e["code"]).toList();
-
+                          final validCodes = countries.map((e) => e.countryCode).toList();
                           if (!validCodes.contains(selectedCode)) {
                             selectedCode = null;
                           }
 
-                          return Card(
-                            color: AppColors.themeColor.cardBgColor,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12.r),
-                            ),
-                            child: DropdownButtonHideUnderline(
-                              child: DropdownButton<String>(
-                                padding: EdgeInsets.symmetric(horizontal: 12.w),
-                                value: selectedCode,
-                                isExpanded: true,
-                                dropdownColor: AppColors.themeColor.cardBgColor,
-                                hint: Text("select_country".tr, style: AppTextStyle.regular7.copyWith(color: Colors.grey.shade400, fontSize: AppDimens.fontSize14)),
-                                icon: Icon(Icons.expand_more_rounded, color: Colors.grey, size: 24.sp),
-                                items: countries.map((country) {
-                                  return DropdownMenuItem<String>(
-                                    value: country["code"],
-                                    child: Text(country["name"] ?? "", style: AppTextStyle.medium7.copyWith(fontSize: AppDimens.fontSize14, color: AppColors.themeColor.textPrimaryColor)),
-                                  );
-                                }).toList(),
-                                onChanged: (String? newCode) {
-                                  if (newCode != null) {
-                                    controller.onChangeCountry(newCode);
-                                  }
-                                },
-                              ),
-                            ),
+                          return FormField<String>(
+                            initialValue: selectedCode,
+                            validator: (value) {
+                              if (controller.selectedCountryCode.value.isEmpty) {
+                                return "Please select a country";
+                              }
+                              return null;
+                            },
+                            builder: (formFieldState) {
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: AppColors.themeColor.cardColor,
+                                      borderRadius: BorderRadius.circular(8.r),
+                                      border: formFieldState.hasError 
+                                        ? Border.all(color: Colors.red, width: 1) 
+                                        : null,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.grey.withOpacity(0.3),
+                                          spreadRadius: 1.0,
+                                          blurRadius: 2.0,
+                                          offset: Offset(1.0, 1.0),
+                                        ),
+                                      ],
+                                    ),
+                                    child: DropdownButtonHideUnderline(
+                                      child: DropdownButton<String>(
+                                        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
+                                        value: selectedCode,
+                                        isExpanded: true,
+                                        dropdownColor: AppColors.themeColor.cardBgColor,
+                                        hint: Text("Select Country", style: AppTextStyle.medium8.copyWith(color: Colors.grey.shade400, fontSize: 14)),
+                                        icon: Icon(Icons.expand_more_rounded, color: Colors.grey, size: 24.sp),
+                                        items: countries.map((country) {
+                                          return DropdownMenuItem<String>(
+                                            value: country.countryCode,
+                                            child: Text(country.countryNameEn ?? "", style: AppTextStyle.medium7.copyWith(fontSize: 14, color: AppColors.themeColor.textPrimaryColor)),
+                                          );
+                                        }).toList(),
+                                        onChanged: (String? newCode) {
+                                          if (newCode != null) {
+                                            controller.onChangeCountry(newCode);
+                                            formFieldState.didChange(newCode);
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                  if (formFieldState.hasError)
+                                    Padding(
+                                      padding: EdgeInsets.only(left: 12.w, top: 8.h),
+                                      child: Text(
+                                        formFieldState.errorText ?? "",
+                                        style: TextStyle(color: Colors.red, fontSize: 12.sp),
+                                      ),
+                                    ),
+                                ],
+                              );
+                            },
                           );
                         }),
+
+
+
 
                         SizedBox(
                           height: 15.h,
@@ -424,10 +486,13 @@ class EditProfilePage extends GetView<EditProfileController> {
                             ],
                             controller: controller.zipCodeController,
                             validator: (value) {
-                              if (value!.isEmpty) {
-                                return 'Zip Required'.tr;
+                              if (value == null || value.isEmpty) {
+                                return 'Zip Code is required';
                               }
+                              return null;
                             }),
+
+
                         SizedBox(
                           height: 25.h,
                         ),

@@ -12,6 +12,7 @@ import 'package:telecaller_app/constants/app_constants.dart';
 import 'package:telecaller_app/core/controllers/auth_controller.dart';
 import 'package:telecaller_app/core/helpers/storage.dart';
 import 'package:telecaller_app/core/services/api_service.dart';
+import 'package:telecaller_app/core/services/country_service.dart';
 import 'package:telecaller_app/core/services/fcm_service.dart';
 import 'package:telecaller_app/core/services/internetcheck.dart';
 import 'package:telecaller_app/core/services/lang_service.dart';
@@ -59,6 +60,8 @@ class Initializer {
       await Get.put<ApiService>(ApiService()).init();
       await Get.putAsync<AuthController>(() async => AuthController());
       await Get.putAsync<NetworkService>(() async => NetworkService());
+      await Get.put<CountryService>(CountryService()).init();
+
       Get.put(SocketController());
       await Get.putAsync<ThemeService>(() async {
         final service = ThemeService();

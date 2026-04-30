@@ -8,6 +8,7 @@ import 'package:telecaller_app/core/models/all_lead_entity.dart';
 import 'package:telecaller_app/core/models/api_response_entity.dart';
 import 'package:telecaller_app/core/models/call_chart_entity.dart';
 import 'package:telecaller_app/core/models/call_lead_update_response_entity.dart';
+import 'package:telecaller_app/core/models/country_drop_response_entity.dart';
 import 'package:telecaller_app/core/models/get_static_entity.dart';
 import 'package:telecaller_app/core/models/language_entity.dart';
 import 'package:telecaller_app/core/models/lead_chart_entity.dart';
@@ -222,6 +223,10 @@ class JsonConvert {
           Map<String, dynamic> e) => CallLeadUpdateResponseDataLogs.fromJson(e))
           .toList() as M;
     }
+    if (<CountryDropResponseEntity>[] is M) {
+      return data.map<CountryDropResponseEntity>((Map<String, dynamic> e) =>
+          CountryDropResponseEntity.fromJson(e)).toList() as M;
+    }
     if (<GetStaticEntity>[] is M) {
       return data.map<GetStaticEntity>((Map<String, dynamic> e) =>
           GetStaticEntity.fromJson(e)).toList() as M;
@@ -340,6 +345,7 @@ class JsonConvertClassCollection {
         .toString(): CallLeadUpdateResponseDataContact.fromJson,
     (CallLeadUpdateResponseDataLogs).toString(): CallLeadUpdateResponseDataLogs
         .fromJson,
+    (CountryDropResponseEntity).toString(): CountryDropResponseEntity.fromJson,
     (GetStaticEntity).toString(): GetStaticEntity.fromJson,
     (GetStaticStatistics).toString(): GetStaticStatistics.fromJson,
     (LanguageEntity).toString(): LanguageEntity.fromJson,

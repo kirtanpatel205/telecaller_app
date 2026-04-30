@@ -198,7 +198,9 @@
     "state": "State",
     "zipcode": "Zip Code",
     "country": "Country",
-    "save": "Save"
+    "save": "Save",
+    "logout_confirm": "Logout Confirm",
+    "yes_logout": "Yes Logout"
   },
   "pt": {
     "welcome": "Ação",
@@ -399,7 +401,9 @@
     "state": "Estado",
     "zipcode": "CEP",
     "country": "País",
-    "save": "Salvar"
+    "save": "Salvar",
+    "logout_confirm": "Confirmar logout",
+    "yes_logout": "Sim, sair"
   },
   "hi": {
     "welcome": "कार्रवाई",
@@ -600,7 +604,9 @@
     "state": "राज्य",
     "zipcode": "ज़िप कोड",
     "country": "देश",
-    "save": "बचाना"
+    "save": "बचाना",
+    "logout_confirm": "लॉगआउट की पुष्टि करें",
+    "yes_logout": "हां लॉगआउट"
   },
   "ta": {
     "welcome": "செயல்",
@@ -801,7 +807,9 @@
     "state": "மாநிலம்",
     "zipcode": "அஞ்சல் குறியீடு",
     "country": "நாடு",
-    "save": "சேமிக்கவும்"
+    "save": "சேமிக்கவும்",
+    "logout_confirm": "வெளியேறுவதை உறுதிப்படுத்து",
+    "yes_logout": "ஆம் வெளியேறு"
   },
   "te": {
     "welcome": "చర్య",
@@ -1002,7 +1010,9 @@
     "state": "రాష్ట్రం",
     "zipcode": "జిప్ కోడ్",
     "country": "దేశం",
-    "save": "సేవ్ చేయండి"
+    "save": "సేవ్ చేయండి",
+    "logout_confirm": "లాగౌట్ నిర్ధారణ",
+    "yes_logout": "అవును లాగౌట్"
   },
   "es": {
     "welcome": "Acción",
@@ -1203,7 +1213,9 @@
     "state": "Estado",
     "zipcode": "Código postal",
     "country": "País",
-    "save": "Ahorrar"
+    "save": "Ahorrar",
+    "logout_confirm": "Confirmar cierre de sesión",
+    "yes_logout": "Sí, cerrar sesión"
   },
   "fr": {
     "welcome": "Action",
@@ -1404,7 +1416,9 @@
     "state": "État",
     "zipcode": "Code postal",
     "country": "Pays",
-    "save": "Sauvegarder"
+    "save": "Sauvegarder",
+    "logout_confirm": "Confirmer la déconnexion",
+    "yes_logout": "Oui Déconnexion"
   },
   "ar": {
     "welcome": "الاجراء",
@@ -1605,7 +1619,9 @@
     "state": "بين",
     "zipcode": "بين",
     "country": "بين",
-    "save": "بين"
+    "save": "بين",
+    "logout_confirm": "بين",
+    "yes_logout": "بين"
   },
   "th": {
     "welcome": "การกระทำ",
@@ -1806,7 +1822,9 @@
     "state": "สถานะ",
     "zipcode": "รหัสไปรษณีย์",
     "country": "ประเทศ",
-    "save": "บันทึก"
+    "save": "บันทึก",
+    "logout_confirm": "ยืนยันการออกจากระบบ",
+    "yes_logout": "ใช่ ออกจากระบบ"
   },
   "ms": {
     "welcome": "Tindakan",
@@ -2007,7 +2025,9 @@
     "state": "Negeri",
     "zipcode": "Poskod",
     "country": "Negara",
-    "save": "Simpan"
+    "save": "Simpan",
+    "logout_confirm": "Log Keluar Sahkan",
+    "yes_logout": "Ya Log Keluar"
   },
   "de": {
     "welcome": "Aktion",
@@ -2208,7 +2228,9 @@
     "state": "Zustand",
     "zipcode": "PLZ",
     "country": "Land",
-    "save": "Speichern"
+    "save": "Speichern",
+    "logout_confirm": "Abmeldebestätigung",
+    "yes_logout": "Ja Abmelden"
   },
   "id": {
     "welcome": "Tindakan",
@@ -2409,7 +2431,9 @@
     "state": "Negara",
     "zipcode": "Kode pos",
     "country": "Negara",
-    "save": "Menyimpan"
+    "save": "Menyimpan",
+    "logout_confirm": "Konfirmasi Keluar",
+    "yes_logout": "Ya, Keluar"
   },
   "tr": {
     "welcome": "Aksiyon",
@@ -2610,7 +2634,9 @@
     "state": "Durum",
     "zipcode": "Posta kodu",
     "country": "Ülke",
-    "save": "Kaydetmek"
+    "save": "Kaydetmek",
+    "logout_confirm": "Çıkış Yap Onayla",
+    "yes_logout": "Evet Çıkış Yap"
   },
   "ru": {
     "welcome": "Действие",
@@ -2811,7 +2837,9 @@
     "state": "Состояние",
     "zipcode": "Почтовый индекс",
     "country": "Страна",
-    "save": "Сохранять"
+    "save": "Сохранять",
+    "logout_confirm": "Выйти Подтвердить",
+    "yes_logout": "Да Выйти"
   },
   "bn": {
     "welcome": "অ্যাকশন",
@@ -3012,7 +3040,9 @@
     "state": "রাজ্য",
     "zipcode": "জিপ কোড",
     "country": "দেশ",
-    "save": "সংরক্ষণ করুন"
+    "save": "সংরক্ষণ করুন",
+    "logout_confirm": "লগআউট নিশ্চিত করুন",
+    "yes_logout": "হ্যাঁ লগআউট"
   },
   "km": {
     "welcome": "សកម្មភាព",
@@ -3213,7 +3243,9 @@
     "state": "រដ្ឋ",
     "zipcode": "លេខកូដប្រៃសណីយ៍",
     "country": "ប្រទេស",
-    "save": "រក្សាទុក"
+    "save": "រក្សាទុក",
+    "logout_confirm": "បញ្ជាក់ការចាកចេញ",
+    "yes_logout": "បាទ/ចាស៎ ចាកចេញ"
   },
   "he": {
     "welcome": "פְּעוּלָה",
@@ -3414,7 +3446,9 @@
     "state": "מְדִינָה",
     "zipcode": "מיקוד",
     "country": "מְדִינָה",
-    "save": "לְהַצִיל"
+    "save": "לְהַצִיל",
+    "logout_confirm": "יציאה אישור",
+    "yes_logout": "כן התנתק"
   },
   "ur": {
     "welcome": "ایکشن",
@@ -3615,7 +3649,9 @@
     "state": "ریاست",
     "zipcode": "زپ کوڈ",
     "country": "ملک",
-    "save": "محفوظ کریں۔"
+    "save": "محفوظ کریں۔",
+    "logout_confirm": "لاگ آؤٹ کی تصدیق کریں۔",
+    "yes_logout": "ہاں لاگ آؤٹ"
   },
   "el": {
     "welcome": "Δράση",
@@ -3816,7 +3852,9 @@
     "state": "Κατάσταση",
     "zipcode": "Τ.Κ",
     "country": "Χώρα",
-    "save": "Εκτός"
+    "save": "Εκτός",
+    "logout_confirm": "Επιβεβαίωση αποσύνδεσης",
+    "yes_logout": "Ναι Αποσύνδεση"
   },
   "pl": {
     "welcome": "Działanie",
@@ -4017,7 +4055,9 @@
     "state": "Państwo",
     "zipcode": "Kod pocztowy",
     "country": "Kraj",
-    "save": "Ratować"
+    "save": "Ratować",
+    "logout_confirm": "Potwierdź wylogowanie",
+    "yes_logout": "Tak Wyloguj"
   },
   "nl": {
     "welcome": "Actie",
@@ -4218,7 +4258,9 @@
     "state": "Staat",
     "zipcode": "Postcode",
     "country": "Land",
-    "save": "Redden"
+    "save": "Redden",
+    "logout_confirm": "Uitloggen Bevestigen",
+    "yes_logout": "Ja, uitloggen"
   },
   "uk": {
     "welcome": "Дія",
@@ -4419,7 +4461,9 @@
     "state": "Штат",
     "zipcode": "Поштовий індекс",
     "country": "Країна",
-    "save": "Зберегти"
+    "save": "Зберегти",
+    "logout_confirm": "Підтвердження виходу",
+    "yes_logout": "Так Вийти"
   },
   "vi": {
     "welcome": "Hoạt động",
@@ -4620,7 +4664,9 @@
     "state": "Tình trạng",
     "zipcode": "Mã bưu chính",
     "country": "Quốc gia",
-    "save": "Cứu"
+    "save": "Cứu",
+    "logout_confirm": "Xác nhận đăng xuất",
+    "yes_logout": "Có Đăng xuất"
   },
   "pt_br": {
     "welcome": "Ação",
@@ -4821,7 +4867,9 @@
     "state": "Estado",
     "zipcode": "CEP",
     "country": "País",
-    "save": "Salvar"
+    "save": "Salvar",
+    "logout_confirm": "Confirmar logout",
+    "yes_logout": "Sim, sair"
   },
   "zh_cn": {
     "welcome": "行动",
@@ -5022,7 +5070,9 @@
     "state": "状态",
     "zipcode": "邮政编码",
     "country": "国家",
-    "save": "节省"
+    "save": "节省",
+    "logout_confirm": "登出确认",
+    "yes_logout": "是的，注销"
   },
   "it": {
     "welcome": "Azione",
@@ -5223,7 +5273,9 @@
     "state": "Stato",
     "zipcode": "Cap",
     "country": "Paese",
-    "save": "Salva"
+    "save": "Salva",
+    "logout_confirm": "Disconnetti Conferma",
+    "yes_logout": "Sì, esci"
   },
   "af": {
     "welcome": "Aksie",
@@ -5424,7 +5476,9 @@
     "state": "Staat",
     "zipcode": "Poskode",
     "country": "Land",
-    "save": "Stoor"
+    "save": "Stoor",
+    "logout_confirm": "Uitmeld Bevestig",
+    "yes_logout": "Ja Meld af"
   },
   "am": {
     "welcome": "ድርጊት",
@@ -5625,7 +5679,9 @@
     "state": "ግዛት",
     "zipcode": "አካባቢያዊ መለያ ቁጥር",
     "country": "አገር",
-    "save": "አስቀምጥ"
+    "save": "አስቀምጥ",
+    "logout_confirm": "ውጣ አረጋግጥ",
+    "yes_logout": "አዎ ውጣ"
   },
   "az": {
     "welcome": "Fəaliyyət",
@@ -5826,7 +5882,9 @@
     "state": "Dövlət",
     "zipcode": "Poçt kodu",
     "country": "Ölkə",
-    "save": "Yadda saxla"
+    "save": "Yadda saxla",
+    "logout_confirm": "Çıxışı Təsdiqləyin",
+    "yes_logout": "Bəli Çıxış"
   },
   "bg": {
     "welcome": "Действие",
@@ -6027,7 +6085,9 @@
     "state": "Щат",
     "zipcode": "Пощенски код",
     "country": "Държава",
-    "save": "Запазване"
+    "save": "Запазване",
+    "logout_confirm": "Изход Потвърждаване",
+    "yes_logout": "Да Изход"
   },
   "ca": {
     "welcome": "Acció",
@@ -6228,7 +6288,9 @@
     "state": "Estat",
     "zipcode": "Codi postal",
     "country": "País",
-    "save": "Desa"
+    "save": "Desa",
+    "logout_confirm": "Confirmació de tancament de sessió",
+    "yes_logout": "Sí Tanca la sessió"
   },
   "es_es": {
     "welcome": "Acción",
@@ -6429,7 +6491,9 @@
     "state": "Estado",
     "zipcode": "Código postal",
     "country": "País",
-    "save": "Ahorrar"
+    "save": "Ahorrar",
+    "logout_confirm": "Confirmar cierre de sesión",
+    "yes_logout": "Sí, cerrar sesión"
   },
   "gu": {
     "welcome": "ક્રિયા",
@@ -6630,7 +6694,9 @@
     "state": "રાજ્ય",
     "zipcode": "ઝિપ કોડ",
     "country": "દેશ",
-    "save": "સાચવો"
+    "save": "સાચવો",
+    "logout_confirm": "લૉગઆઉટ પુષ્ટિ કરો",
+    "yes_logout": "હા લોગઆઉટ"
   },
   "kn": {
     "welcome": "ಕ್ರಿಯೆ",
@@ -6831,7 +6897,9 @@
     "state": "ರಾಜ್ಯ",
     "zipcode": "ಪಿನ್ ಕೋಡ್",
     "country": "ದೇಶ",
-    "save": "ಉಳಿಸಿ"
+    "save": "ಉಳಿಸಿ",
+    "logout_confirm": "ಲಾಗ್ಔಟ್ ದೃಢೀಕರಿಸಿ",
+    "yes_logout": "ಹೌದು ಲಾಗ್ಔಟ್ ಮಾಡಿ"
   },
   "ml": {
     "welcome": "ആക്ഷൻ",
@@ -7032,7 +7100,9 @@
     "state": "സംസ്ഥാനം",
     "zipcode": "തപാൽ കോഡ്",
     "country": "രാജ്യം",
-    "save": "രക്ഷിക്കും"
+    "save": "രക്ഷിക്കും",
+    "logout_confirm": "ലോഗൗട്ട് സ്ഥിരീകരിക്കുക",
+    "yes_logout": "അതെ ലോഗൗട്ട് ചെയ്യുക"
   },
   "pa": {
     "welcome": "ਕਾਰਵਾਈ",
@@ -7233,7 +7303,9 @@
     "state": "ਰਾਜ",
     "zipcode": "ਜ਼ਿਪ ਕੋਡ",
     "country": "ਦੇਸ਼",
-    "save": "ਸੇਵ ਕਰੋ"
+    "save": "ਸੇਵ ਕਰੋ",
+    "logout_confirm": "ਲਾਗਆਉਟ ਪੁਸ਼ਟੀ",
+    "yes_logout": "ਹਾਂ ਲਾਗਆਉਟ"
   },
   "sq": {
     "welcome": "Veprimi",
@@ -7434,7 +7506,9 @@
     "state": "Shteti",
     "zipcode": "Kodi Postar",
     "country": "Vendi",
-    "save": "Ruaj"
+    "save": "Ruaj",
+    "logout_confirm": "Konfirmo daljen",
+    "yes_logout": "Po Dilni"
   },
   "uz": {
     "welcome": "Harakat",
@@ -7635,7 +7709,9 @@
     "state": "Shtat",
     "zipcode": "Pochta indeksi",
     "country": "Mamlakat",
-    "save": "Saqlash"
+    "save": "Saqlash",
+    "logout_confirm": "Chiqishni tasdiqlash",
+    "yes_logout": "Ha, tizimdan chiqish"
   },
   "fil": {
     "welcome": "Aksyon",
@@ -7836,7 +7912,9 @@
     "state": "Estado",
     "zipcode": "Zip Code",
     "country": "Bansa",
-    "save": "I-save"
+    "save": "I-save",
+    "logout_confirm": "Kumpirmahin ang Pag-logout",
+    "yes_logout": "Oo Mag-logout"
   },
   "zh_hk": {
     "welcome": "行動",
@@ -8037,7 +8115,9 @@
     "state": "狀態",
     "zipcode": "郵遞區號",
     "country": "國家",
-    "save": "節省"
+    "save": "節省",
+    "logout_confirm": "登出確認",
+    "yes_logout": "是的，註銷"
   },
   "zh_tw": {
     "welcome": "行動",
@@ -8238,7 +8318,9 @@
     "state": "狀態",
     "zipcode": "郵遞區號",
     "country": "國家",
-    "save": "節省"
+    "save": "節省",
+    "logout_confirm": "登出確認",
+    "yes_logout": "是的，註銷"
   },
   "es_mx": {
     "welcome": "Acción",
@@ -8439,7 +8521,9 @@
     "state": "Estado",
     "zipcode": "Código postal",
     "country": "País",
-    "save": "Ahorrar"
+    "save": "Ahorrar",
+    "logout_confirm": "Confirmar cierre de sesión",
+    "yes_logout": "Sí, cerrar sesión"
   },
   "fi": {
     "welcome": "Toiminta",
@@ -8640,6 +8724,8 @@
     "state": "Osavaltio",
     "zipcode": "Postinumero",
     "country": "Maa",
-    "save": "Tallentaa"
+    "save": "Tallentaa",
+    "logout_confirm": "Vahvista uloskirjautuminen",
+    "yes_logout": "Kyllä Kirjaudu ulos"
   }
 }
