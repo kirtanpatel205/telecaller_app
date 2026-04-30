@@ -119,7 +119,8 @@ class AutoDialerPage extends GetView<AutoDialerController> {
 
   Widget _buildSimpleAppBar(BuildContext context) {
     return CustomAppBar(
-      titleText: 'auto_dialer'.tr.toUpperCase(),
+      leading: SizedBox(),
+      titleText: 'auto_dialer'.tr,
       actions: [
         Obx(() => Container(
           margin: EdgeInsets.only(right: 16.w),
