@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -12,6 +13,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String? titleText;
   final List<Widget>? actions;
   final double height;
+  final bool showBackButton;
 
   const CustomAppBar({
     Key? key,
@@ -21,6 +23,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.bottom,
     this.height = kToolbarHeight,
     this.titleText,
+    this.showBackButton = true,
   }) : super(key: key);
 
   @override
@@ -30,32 +33,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       elevation: 0,
       backgroundColor: Colors.transparent,
       surfaceTintColor: Colors.transparent,
-      leading: leading ??
-          Padding(
-            padding: EdgeInsets.all(8.w),
-            child: InkWell(
-              onTap: () => Get.back(),
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: AppColors.themeColor.primaryColor,
-                    width: 1.5,
-                  ),
-                  borderRadius: BorderRadius.circular(10.r),
-                ),
-                child: Center(
-                  child: Padding(
-                    padding: EdgeInsets.only(left: 6.w),
-                    child: Icon(
-                      Icons.arrow_back_ios,
-                      size: 16.sp,
-                      color: AppColors.themeColor.primaryColor,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
+      leading: leading ?? (showBackButton ? _buildBackButton() : null),
       title: title ??
           Text(
             titleText ?? "",
@@ -67,6 +45,31 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
       actions: actions ?? [],
       bottom: bottom,
+    );
+  }
+
+  Widget _buildBackButton() {
+    return Padding(
+      padding: EdgeInsets.all(10.w),
+      child: InkWell(
+        onTap: () => Get.back(),
+        borderRadius: BorderRadius.circular(12.r),
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppColors.themeColor.primaryColor.withOpacity(0.05),
+            border: Border.all(
+              color: AppColors.themeColor.primaryColor.withOpacity(0.2),
+              width: 1.w,
+            ),
+            borderRadius: BorderRadius.circular(12.r),
+          ),
+          child: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            size: 18.sp,
+            color: AppColors.themeColor.primaryColor,
+          ),
+        ),
+      ),
     );
   }
 

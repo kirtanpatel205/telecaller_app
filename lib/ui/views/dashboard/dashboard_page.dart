@@ -9,8 +9,8 @@ import 'package:telecaller_app/constants/app_colors.dart';
 import 'package:telecaller_app/constants/app_routes.dart';
 import 'package:telecaller_app/constants/app_text_style.dart';
 import 'package:telecaller_app/ui/views/home/overlay/overlay_pages.dart';
-import 'package:telecaller_app/ui/widgets/custom-appbar.dart';
 import 'package:telecaller_app/constants/app_dimens.dart';
+import 'package:telecaller_app/ui/widgets/dashboard_appbar.dart';
 
 import '../home/home_controller.dart';
 
@@ -20,124 +20,38 @@ class DashboardPage extends GetView<HomeController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(
-        // 👉 PROFILE IMAGE
-        leading: Padding(
-          padding: EdgeInsets.only(left: 12.w),
-          child: Bounce(
-            onTap: () {
-              Get.toNamed(Routes.EDITPROFILE);
-            },
-            child: Obx(() => Container(
-              height: 40.h,
-              width: 40.w,
-              clipBehavior: Clip.antiAlias,
-              decoration: const BoxDecoration(shape: BoxShape.circle),
-              child: controller.authController.profile.value?.profile
-                  ?.isNotEmpty ==
-                  true
-                  ? Image.network(
-                "https://api-test.digibulkmarketing.com${controller.authController.profile.value!.profile!}",
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) =>
-                Icon(Icons.error, size: 20.sp),
-              )
-                  : Center(
-                child: Text(
-                  controller.authController.profile.value?.name
-                      ?.isNotEmpty ==
-                      true
-                      ? controller
-                      .authController.profile.value!.name![0]
-                      : "N",
-                  style: AppTextStyle.bold12.copyWith(
-                    fontSize: AppDimens.fontSize20,
-                    color: AppColors.themeColor.primaryColor,
+      body: CustomScrollView(
+        slivers: [
+          DashboardAppBar(controller: controller),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.all(AppDimens.padding16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "dashboard_overview".tr,
+                    style: AppTextStyle.bold11.copyWith(
+                      fontSize: AppDimens.fontSize20,
+                      color: AppColors.themeColor.textPrimaryColor,
+                    ),
                   ),
-                ),
+                  SizedBox(height: 16.h),
+                  _buildSummaryCards(context),
+                  SizedBox(height: 24.h),
+                  _buildLeadContactSection(context),
+                  SizedBox(height: 24.h),
+                  _buildCallsSection(context),
+                  SizedBox(height: 24.h),
+                  _buildBottomAnalyticsChart1(context),
+                  SizedBox(height: 24.h),
+                  _buildBottomAnalyticsChart2(context),
+                  SizedBox(height: 24.h),
+                ],
               ),
-            )),
-          ),
-        ),
-
-        // 👉 NAME + SUBTITLE
-        title: Obx(() => InkWell(
-          onTap: () {
-            Get.toNamed(Routes.EDITPROFILE);
-          },
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                controller.authController.profile.value?.name ??
-                    "no_name".tr,
-                style: AppTextStyle.bold8.copyWith(
-                  fontSize: AppDimens.fontSize12,
-                  color: AppColors.themeColor.textPrimaryColor,
-                ),
-              ),
-              Text(
-                'how_are_you_today'.tr,
-                style: AppTextStyle.regular6.copyWith(
-                  fontSize: AppDimens.fontSize10,
-                  color: AppColors.themeColor.textSecondaryColor,
-                ),
-              ),
-            ],
-          ),
-        )),
-
-        // 👉 NOTIFICATION ICON
-        actions: [
-          Bounce(
-            onTap: () async{
-              await Get.dialog(
-                OverlayPages(),
-                barrierDismissible: false,
-              );
-            },
-            child: GFAvatar(
-              radius: 18.r,
-              backgroundColor:
-              AppColors.themeColor.primaryColor,
-              child: Icon(
-                Icons.notifications_none_outlined,
-                color: Colors.white,
-                size: 20.sp,
-              ),
-            ).paddingAll(10.w),
+            ),
           ),
         ],
-      ),
-
-      // 👉 PAGE BODY
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(AppDimens.padding16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "dashboard_overview".tr,
-                style: AppTextStyle.bold11.copyWith(
-                  fontSize: AppDimens.fontSize20,
-                  color: AppColors.themeColor.textPrimaryColor,
-                ),
-              ),
-              SizedBox(height: 16.h),
-              _buildSummaryCards(context),
-              SizedBox(height: 24.h),
-              _buildLeadContactSection(context),
-              SizedBox(height: 24.h),
-              _buildCallsSection(context),
-              SizedBox(height: 24.h),
-              _buildBottomAnalyticsChart1(context),
-              SizedBox(height: 24.h),
-              _buildBottomAnalyticsChart2(context),
-              SizedBox(height: 24.h),
-            ],
-          ),
-        ),
       ),
     );
   }
