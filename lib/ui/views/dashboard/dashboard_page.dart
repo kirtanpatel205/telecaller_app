@@ -68,72 +68,83 @@ class DashboardPage extends GetView<HomeController> {
       decoration: BoxDecoration(
         color: AppColors.themeColor.cardBgColor,
         borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(color: AppColors.themeColor.bordercolror.withOpacity(0.5), width: 1.w),
+        border: Border.all(
+          color: iconColor.withOpacity(0.15),
+          width: 1.w,
+        ),
         boxShadow: [
           BoxShadow(
-            color: iconColor.withOpacity(0.08),
+            color: iconColor.withOpacity(0.06),
             blurRadius: 15.r,
             offset: Offset(0, 8.h),
           ),
         ],
       ),
-      child: Stack(
-        children: [
-          Positioned(
-            right: -10.w,
-            bottom: -10.h,
-            child: Icon(
-              icon,
-              size: 70.sp,
-              color: iconColor.withOpacity(0.04),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20.r),
+        child: Stack(
+          children: [
+            // Subtle Background Tint
+            Positioned.fill(
+              child: Container(
+                color: bgColor.withOpacity(0.3),
+              ),
             ),
-          ),
-          Padding(
-            padding: EdgeInsets.all(12.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  padding: EdgeInsets.all(6.w),
-                  decoration: BoxDecoration(
-                    color: iconColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(10.r),
+            Positioned(
+              right: -10.w,
+              bottom: -10.h,
+              child: Icon(
+                icon,
+                size: 80.sp,
+                color: iconColor.withOpacity(0.06),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(14.w),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(8.w),
+                    decoration: BoxDecoration(
+                      color: iconColor.withOpacity(0.12),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      icon,
+                      color: iconColor,
+                      size: 20.sp,
+                    ),
                   ),
-                  child: Icon(
-                    icon,
-                    color: iconColor,
-                    size: 18.sp,
-                  ),
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        value,
-                        style: AppTextStyle.bold11.copyWith(
-                          fontSize: AppDimens.fontSize22,
-                          color: AppColors.themeColor.textPrimaryColor,
-                        ),
+                  const Spacer(),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      value,
+                      style: AppTextStyle.bold11.copyWith(
+                        fontSize: 24.sp,
+                        color: AppColors.themeColor.textPrimaryColor,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: -0.5,
                       ),
                     ),
-                    Text(
-                      title,
-                      style: AppTextStyle.medium7.copyWith(
-                        fontSize: AppDimens.fontSize12,
-                        color: AppColors.themeColor.textSecondaryColor,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                  ),
+                  SizedBox(height: 2.h),
+                  Text(
+                    title,
+                    style: AppTextStyle.medium7.copyWith(
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.themeColor.textSecondaryColor,
                     ),
-                  ],
-                ),
-              ],
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -157,33 +168,33 @@ class DashboardPage extends GetView<HomeController> {
               title: "active_telecallers".tr,
               value: "${controller.dashboardController.activeTelecallers.value}",
               subtitle: "handling_customer_calls".tr,
-              bgColor: AppColors.themeColor.activekeyColor, // Light Blue
+              bgColor: AppColors.themeColor.totalkeyColor,
               icon: Icons.notifications_active_outlined,
-              iconColor: AppColors.themeColor.primaryColor.withAlpha(200),
+              iconColor: AppColors.themeColor.totalkeyiconColor,
             )),
             Obx(() => _buildSummaryCard(
               title: "Leads",
               value: "${controller.dashboardController.leadsCount.value}",
               subtitle: "awaiting_contact".tr,
-              bgColor: AppColors.themeColor.avilablekeyColor, // Light Grey
+              bgColor: AppColors.themeColor.avilablekeyColor,
               icon: Icons.person_add_outlined,
-            iconColor: AppColors.themeColor.primaryColor.withAlpha(200),
+              iconColor: AppColors.themeColor.availablekeyiconColor,
             )),
             Obx(() => _buildSummaryCard(
               title: "orders".tr,
               value: "${controller.dashboardController.ordersCount.value}",
               subtitle: "processed_purchases".tr,
-              bgColor: AppColors.themeColor.completedBgColor, // Light Green
+              bgColor: AppColors.themeColor.activekeyColor,
               icon: Icons.headset_mic_outlined,
-              iconColor: AppColors.themeColor.primaryColor.withAlpha(200),
+              iconColor: AppColors.themeColor.activekeyiconColor,
             )),
             Obx(() => _buildSummaryCard(
               title: "forms_submitted".tr,
               value: "${controller.dashboardController.formsSubmitted.value}",
               subtitle: "customer_inquiries_received".tr,
-              bgColor: AppColors.themeColor.expairekeyColor, // Light Yellow
+              bgColor: AppColors.themeColor.expairekeyColor,
               icon: Icons.edit_document,
-              iconColor: AppColors.themeColor.primaryColor.withAlpha(200),
+              iconColor: AppColors.themeColor.expairekeyiconColor,
             )),
           ],
         );
@@ -191,16 +202,16 @@ class DashboardPage extends GetView<HomeController> {
     );
   }
 
-  Widget _buildMetricBox(String title, String todayVal, String totalVal) {
+  Widget _buildMetricBox(String title, String todayVal, String totalVal, Color color) {
     return Container(
-      padding: EdgeInsets.all(6.w),
+      padding: EdgeInsets.all(12.w),
       decoration: BoxDecoration(
         color: AppColors.themeColor.cardBgColor,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: AppColors.themeColor.bordercolror.withOpacity(0.5), width: 1.w),
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: color.withOpacity(0.12), width: 1.w),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: color.withOpacity(0.02),
             blurRadius: 8.r,
             offset: Offset(0, 4.h),
           ),
@@ -208,62 +219,65 @@ class DashboardPage extends GetView<HomeController> {
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
             decoration: BoxDecoration(
-              color: AppColors.themeColor.scaffoldBackgroundColor,
-              borderRadius: BorderRadius.circular(AppDimens.radius12),
+              color: color.withOpacity(0.08),
+              borderRadius: BorderRadius.circular(6.r),
             ),
             child: Text(
               title,
               style: AppTextStyle.bold8.copyWith(
-                fontSize: AppDimens.fontSize12,
-                color: AppColors.themeColor.textPrimaryColor,
+                fontSize: 11.sp,
+                color: color,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: 12.h),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Expanded(
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       todayVal,
-                      style: AppTextStyle.bold11.copyWith(fontSize: AppDimens.fontSize20),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyle.bold11.copyWith(
+                        fontSize: 18.sp,
+                        color: AppColors.themeColor.textPrimaryColor,
+                      ),
                     ),
                     Text(
                       "today".tr,
                       style: AppTextStyle.regular6.copyWith(
-                        fontSize: AppDimens.fontSize12,
+                        fontSize: 10.sp,
                         color: AppColors.themeColor.textSecondaryColor,
                       ),
                     ),
                   ],
                 ),
               ),
-              SizedBox(width: 5.w),
-              Container(width: 1.w, height: 40.h, color: AppColors.themeColor.bordercolror),
-              SizedBox(width: 5.w),
+              Container(width: 1.w, height: 30.h, color: AppColors.themeColor.bordercolror.withOpacity(0.3)),
+              SizedBox(width: 8.w),
               Expanded(
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       totalVal,
-                      style: AppTextStyle.bold11.copyWith(fontSize: AppDimens.fontSize20),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyle.bold11.copyWith(
+                        fontSize: 18.sp,
+                        color: AppColors.themeColor.textPrimaryColor,
+                      ),
                     ),
                     Text(
                       "total".tr,
                       style: AppTextStyle.regular6.copyWith(
-                        fontSize: AppDimens.fontSize12,
+                        fontSize: 10.sp,
                         color: AppColors.themeColor.textSecondaryColor,
                       ),
                     ),
@@ -330,21 +344,25 @@ class DashboardPage extends GetView<HomeController> {
                       "all".tr,
                       "${controller.dashboardController.leadContactAllToday.value}",
                       "${controller.dashboardController.leadContactAllTotal.value}",
+                      AppColors.themeColor.primaryColor,
                     )),
                     Obx(() => _buildMetricBox(
                       "completed".tr,
                       "${controller.dashboardController.leadContactCompletedToday.value}",
                       "${controller.dashboardController.leadContactCompletedTotal.value}",
+                      AppColors.themeColor.completedColor,
                     )),
                     Obx(() => _buildMetricBox(
                       "scheduled".tr,
                       "${controller.dashboardController.leadContactScheduledToday.value}",
                       "${controller.dashboardController.leadContactScheduledTotal.value}",
+                      AppColors.themeColor.availablekeyiconColor,
                     )),
                     Obx(() => _buildMetricBox(
                       "pending".tr,
                       "${controller.dashboardController.leadContactPendingToday.value}",
                       "${controller.dashboardController.leadContactPendingTotal.value}",
+                      AppColors.themeColor.expairekeyiconColor,
                     )),
                   ],
                 );
@@ -409,21 +427,25 @@ class DashboardPage extends GetView<HomeController> {
                       "incoming".tr,
                       "${controller.dashboardController.callsIncomingToday.value}",
                       "${controller.dashboardController.callsIncomingTotal.value}",
+                      AppColors.themeColor.completeColor,
                     )),
                     Obx(() => _buildMetricBox(
                       "missed".tr,
                       "${controller.dashboardController.callsMissedToday.value}",
                       "${controller.dashboardController.callsMissedTotal.value}",
+                      AppColors.themeColor.failColor,
                     )),
                     Obx(() => _buildMetricBox(
                       "not_answered".tr,
                       "${controller.dashboardController.callsNotAnsweredToday.value}",
                       "${controller.dashboardController.callsNotAnsweredTotal.value}",
+                      AppColors.themeColor.activekeyiconColor,
                     )),
                     Obx(() => _buildMetricBox(
                       "outgoing".tr,
                       "${controller.dashboardController.callsOutgoingToday.value}",
                       "${controller.dashboardController.callsOutgoingTotal.value}",
+                      AppColors.themeColor.primaryColor,
                     )),
                   ],
                 );
