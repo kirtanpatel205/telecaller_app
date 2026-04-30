@@ -202,5 +202,6 @@
   "data_retention": "Data Retention",
   "your_rights": "Your Rights",
   "contact_us": "Contact Us",
-  "yes_logout": "Yes, Logout"
+  "yes_logout": "Yes, Logout",
+  "no_language_found": "No languages match your search"
 }

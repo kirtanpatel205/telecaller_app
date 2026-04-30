@@ -74,5 +74,5 @@ class AppConstants {
   static String API_CALL_CHART = '$API_URL/telecaller/calls/analytics';
   static String API_LEAD_CHART = '$API_URL/telecaller/lead-contacts/analytics';
   static String API_CALL_LOG = '$API_URL/telecaller/sync-call-logs';
-  static String API_SESSION = '$API_URL/sessions/logout';
+  static String API_SESSION = '$API_URL/auth/sessions/logout';
 }
