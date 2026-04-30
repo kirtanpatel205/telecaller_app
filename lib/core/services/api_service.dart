@@ -72,6 +72,13 @@ class ApiService extends GetxService {
     return LoginResponseEntity.fromJson(response);
   }
 
+  Future<ApiResponseEntity> sessionLogout() async {
+    Map<String, dynamic> response = await client.post(
+      AppConstants.API_SESSION,
+    );
+    return ApiResponseEntity.fromJson(response);
+  }
+
   //profile
   Future<LoginResponseProfile> profile() async {
     Map<String, dynamic> response = await client.get(AppConstants.API_PROFILE);
@@ -388,4 +395,14 @@ print("callChart request data $data");
     print("✅ Call log sync response: $response");
     return ApiResponseEntity.fromJson(response);
   }
+
+
+  Future<ApiResponseEntity> seessionLogout() async {
+    Map<String, dynamic> response = await client.post(
+      AppConstants.API_SESSION,
+    );
+    print("session logout $response");
+    return ApiResponseEntity.fromJson(response);
+  }
+
 }

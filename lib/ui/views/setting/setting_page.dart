@@ -456,21 +456,9 @@ class _Divider extends StatelessWidget {
 class _LogoutButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final controller = Get.find<HomeController>();
     return GestureDetector(
-      onTap: () {
-        Get.defaultDialog(
-          title: "logout".tr,
-          middleText: "logout_confirm".tr,
-          textConfirm: "yes".tr,
-          textCancel: "cancel".tr,
-          confirmTextColor: Colors.white,
-          buttonColor: Colors.red,
-          onConfirm: () {
-            Storage.clearStorage();
-            Get.offAllNamed(Routes.WELCOME);
-          },
-        );
-      },
+      onTap: () => _showLogoutDialog(context, controller),
       child: Container(
         width: double.infinity,
         padding: EdgeInsets.symmetric(vertical: 15.h),
@@ -494,6 +482,109 @@ class _LogoutButton extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  void _showLogoutDialog(BuildContext context, HomeController controller) {
+    Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.r)),
+        backgroundColor: AppColors.themeColor.cardColor,
+        child: Padding(
+          padding: EdgeInsets.all(24.w),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Branded Icon
+              Container(
+                padding: EdgeInsets.all(16.w),
+                decoration: BoxDecoration(
+                  color: Colors.red.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.logout_rounded,
+                  color: Colors.red,
+                  size: 32.sp,
+                ),
+              ),
+              SizedBox(height: 20.h),
+              // Title
+              Text(
+                "logout".tr,
+                style: AppTextStyle.bold9.copyWith(
+                  fontSize: AppDimens.fontSize20,
+                  color: AppColors.themeColor.textPrimaryColor,
+                ),
+              ),
+              SizedBox(height: 12.h),
+              // Description
+              Text(
+                "logout_confirm".tr,
+                textAlign: TextAlign.center,
+                style: AppTextStyle.medium7.copyWith(
+                  fontSize: AppDimens.fontSize14,
+                  color: AppColors.themeColor.textSecondaryColor,
+                ),
+              ),
+              SizedBox(height: 32.h),
+              // Buttons
+              Row(
+                children: [
+                  // Cancel Button
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Get.back(),
+                      style: OutlinedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(vertical: 12.h),
+                        side: BorderSide(color: AppColors.themeColor.bordercolror),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.r),
+                        ),
+                      ),
+                      child: Text(
+                        "cancel".tr,
+                        style: AppTextStyle.bold7.copyWith(
+                          color: AppColors.themeColor.textPrimaryColor,
+                          fontSize: AppDimens.fontSize14,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 12.w),
+                  // Logout Button
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Get.back();
+                        controller.authController.signOut();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        padding: EdgeInsets.symmetric(vertical: 12.h),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.r),
+                        ),
+                      ),
+                      child: Text(
+                        "yes_logout".tr,
+                        style: AppTextStyle.bold7.copyWith(
+                          color: Colors.white,
+                          fontSize: AppDimens.fontSize14,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+      barrierDismissible: true,
+      transitionCurve: Curves.easeInOutBack,
     );
   }
 }

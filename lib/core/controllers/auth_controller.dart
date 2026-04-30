@@ -107,53 +107,45 @@ class AuthController extends GetxController {
   }
 
   Future<void> signOut() async {
-    //   print("🔴 Signing out...");
-    //   try {
-    //     // ✅ Server par logout call karo
-    //     try {
-    //       final apiResponse = await api.sessionLogout();
-    //       if (apiResponse.status == true) {
-    //         print("✅ Server logout successful");
-    //       } else {
-    //         print("⚠️ Server logout failed: ${apiResponse.message}");
-    //       }
-    //     } catch (e) {
-    //       // Token invalid ho to bhi continue karo local cleanup ke sath
-    //       print("⚠️ Server logout request failed (token might be invalid): $e");
-    //     }
-    //
-    //     // ✅ Local cleanup karo (server call successful ho ya fail)
-    //     // await Storage.clearStorage();
-    //     Storage.removeValue(AppConstants.USER_ID);
-    //     Storage.removeValue(AppConstants.FIRE_USER_ID);
-    //     Storage.removeValue(AppConstants.TOKEN);
-    //     Storage.removeValue(AppConstants.PHONE);
-    //     Storage.removeValue("notification_setup");
-    //     Storage.removeValue("backgroundService_setup");
-    //
-    //     Storage.saveToSharedPrefs(AppConstants.ISLOGGING, false);
-    //     final prefs = await SharedPreferences.getInstance();
-    //     await prefs.clear();
-    //
-    //     // Stop background service
-    //     final service = FlutterBackgroundService();
-    //     bool isRunning = await service.isRunning();
-    //     if (isRunning) {
-    //       service.invoke("stop");
-    //       print("🛑 Background service stopped");
-    //       await Future.delayed(const Duration(milliseconds: 800));
-    //     }
-    //
-    //     await NativeServiceBridge.stopOverlay();
-    //     bool isLoggedIn = await prefs.getBool(AppConstants.ISLOGGING) ?? false;
-    //     print("isLoggedIn after signout: $isLoggedIn");
-    //     print("✅ User logged out successfully");
-    //   } catch (e) {
-    //     print("❌ SignOut Error: $e");
-    //   } finally {
-    //     // Always navigate to welcome screen
-    //     Get.offAllNamed(Routes.WELCOME);
-    //   }
-    // }
+    print("🔴 Signing out...");
+    try {
+      // 1. Server-side logout (Best effort)
+      try {
+        final apiResponse = await api.sessionLogout();
+        if (apiResponse.status == true) {
+          print("✅ Server logout successful");
+        } else {
+          print("⚠️ Server logout failed: ${apiResponse.message}");
+        }
+      } catch (e) {
+        print("⚠️ Server logout request failed (token might be invalid or network error): $e");
+      }
+
+      // 2. Stop Background Service
+      try {
+        final service = FlutterBackgroundService();
+        bool isRunning = await service.isRunning();
+        if (isRunning) {
+          service.invoke("stop");
+          print("🛑 Background service stop signal sent");
+        }
+      } catch (e) {
+        print("⚠️ Failed to stop background service: $e");
+      }
+
+      // 3. Clear Local Storage (GetStorage & SharedPreferences)
+      await Storage.clearStorage();
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.clear();
+      
+      print("✅ Local session cleared");
+
+    } catch (e) {
+      print("❌ SignOut Error: $e");
+    } finally {
+      // 4. Always navigate to welcome screen
+      Get.offAllNamed(Routes.WELCOME);
+    }
   }
 }
+

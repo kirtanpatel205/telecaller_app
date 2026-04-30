@@ -1,4 +1,4 @@
-﻿{
+{
   "active_telecallers": "Active Telecallers",
   "alert_employees_about_customer_calls": "Alert employees about customer calls",
   "all_collected_information_is_used_only_for_employee_crm_and_": "All collected information is used only for employee CRM and business communication features",
@@ -201,7 +201,6 @@
   "data_security": "Data Security",
   "data_retention": "Data Retention",
   "your_rights": "Your Rights",
-  "contact_us": "Contact Us"
-
-
+  "contact_us": "Contact Us",
+  "yes_logout": "Yes, Logout"
 }
