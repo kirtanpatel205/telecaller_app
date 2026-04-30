@@ -203,5 +203,15 @@
   "your_rights": "Your Rights",
   "contact_us": "Contact Us",
   "yes_logout": "Yes, Logout",
-  "no_language_found": "No languages match your search"
+  "no_language_found": "No languages match your search",
+  "address": "Address",
+  "addressLine1": "Address Line",
+  "city": "City",
+  "state": "State",
+  "zipcode": "Zip Code",
+  "country": "Country",
+  "save": "Save",
+  "logout_confirm": "Logout_Confirm",
+  "yes_logout": "Yes Logout"
+
 }

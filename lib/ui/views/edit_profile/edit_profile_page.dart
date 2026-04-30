@@ -186,7 +186,7 @@ class EditProfilePage extends GetView<EditProfileController> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "Name".tr,
+                              "name".tr,
                               style: AppTextStyle.bold7.copyWith(
                                   color: AppColors.themeColor.textPrimaryColor,
                                   fontSize: AppDimens.fontSize14),
@@ -195,16 +195,16 @@ class EditProfilePage extends GetView<EditProfileController> {
                               height: 8.h,
                             ),
                             CustomTextFormField(
-                              hint: "entername".tr,
+                              hint: "Enter Name",
                               controller: controller.firstNameController,
                               validator: (value) {
                                 if (value!.isEmpty) {
-                                  return "fisrstrequired".tr;
+                                  return "Fisrst Required";
                                 } else {
                                   bool Fullname = RegExp(r'^[a-zA-Z\s\-]+$')
                                       .hasMatch(value);
                                   if (!Fullname) {
-                                    return "entervalidfirstname".tr;
+                                    return "Enter Valid Firstname";
                                   }
                                 }
                               },
@@ -218,24 +218,24 @@ class EditProfilePage extends GetView<EditProfileController> {
                           height: 15.h,
                         ),
                         Text(
-                          "Email".tr,
+                          "email".tr,
                           style: AppTextStyle.bold7.copyWith(
                               color: AppColors.themeColor.textPrimaryColor,
                               fontSize: AppDimens.fontSize14),
                         ),
                         CustomTextFormField(
-                          hint: "enteremail".tr,
+                          hint: "Enter Email",
                           inputType: TextInputType.emailAddress,
                           controller: controller.emailAddressController,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'emailrequired'.tr;
+                              return 'Email Required';
                             } else {
                               bool emailValid = RegExp(
                                       r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
                                   .hasMatch(value);
                               if (!emailValid) {
-                                return 'entervalidemail'.tr;
+                                return 'Enter Valid Email';
                               }
                             }
                           },
@@ -259,13 +259,13 @@ class EditProfilePage extends GetView<EditProfileController> {
                           ),
                         ),
                         CustomTextFormField(
-                          hint: "enteraddressline1".tr,
+                          hint: "Enter Address Line 1",
                           controller: controller.addressLine1Controller,
                           validator: (value) {
                             if (value!.isEmpty &&
                                 controller
                                     .addressLine1Controller.text.isEmpty) {
-                              return "addressrequired1".tr;
+                              return "Address Required 1".tr;
                             } /*else {
                               bool Fullname =
                                   RegExp(r'^[a-zA-Z\s\-]+$').hasMatch(value);
@@ -279,18 +279,18 @@ class EditProfilePage extends GetView<EditProfileController> {
                           height: 15.h,
                         ),
                         Text(
-                          "addressline2".tr,
+                          "${"addressline1".tr} 2" ,
                           style: AppTextStyle.bold7.copyWith(
                             color: AppColors.themeColor.textPrimaryColor,
                             fontSize: AppDimens.fontSize14,
                           ),
                         ),
                         CustomTextFormField(
-                          hint: "enteraddressline2".tr,
+                          hint: "Enter Address Line2",
                           controller: controller.addressLine2Controller,
                           validator: (value) {
                             if (value!.isEmpty) {
-                              return "addressrequired2".tr;
+                              return "Address R 2".tr;
                             } /*else {
                               bool Fullname =
                                   RegExp(r'^[a-zA-Z\s\-]+$').hasMatch(value);
@@ -311,16 +311,16 @@ class EditProfilePage extends GetView<EditProfileController> {
                           ),
                         ),
                         CustomTextFormField(
-                          hint: "entercityname".tr,
+                          hint: "Enter City Name",
                           controller: controller.cityController,
                           validator: (value) {
                             if (value!.isEmpty) {
-                              return 'cityrequired'.tr;
+                              return 'City Required';
                             } else {
                               bool Cityvalid =
                                   RegExp(r'^[a-zA-Z\s\-]+$').hasMatch(value);
                               if (!Cityvalid) {
-                                return 'entervalidcity'.tr;
+                                return 'Enter Valid City';
                               }
                             }
                           },
@@ -335,16 +335,16 @@ class EditProfilePage extends GetView<EditProfileController> {
                               fontSize: AppDimens.fontSize14),
                         ),
                         CustomTextFormField(
-                          hint: "enterstatename".tr,
+                          hint: "Enter State Name",
                           controller: controller.stateController,
                           validator: (value) {
                             if (value!.isEmpty) {
-                              return 'staterequired'.tr;
+                              return 'State Required';
                             } else {
                               bool Statevalid =
                                   RegExp(r'^[a-zA-Z\s\-]+$').hasMatch(value);
                               if (!Statevalid) {
-                                return 'entervalidstate'.tr;
+                                return 'Enter Valid State'.tr;
                               }
                             }
                           },
@@ -353,7 +353,7 @@ class EditProfilePage extends GetView<EditProfileController> {
                           height: 15.h,
                         ),
                         Text(
-                          "Country".tr,
+                          "country".tr,
                           style: AppTextStyle.bold7.copyWith(
                               color: AppColors.themeColor.textPrimaryColor,
                               fontSize: AppDimens.fontSize14),
@@ -416,7 +416,7 @@ class EditProfilePage extends GetView<EditProfileController> {
                           height: 8.h,
                         ),
                         CustomTextFormField(
-                            hint: "enterzipCode".tr,
+                            hint: "Enter Zip Code",
                             inputType: TextInputType.number,
                             inputFormatters: [
                               LengthLimitingTextInputFormatter(6),
@@ -425,7 +425,7 @@ class EditProfilePage extends GetView<EditProfileController> {
                             controller: controller.zipCodeController,
                             validator: (value) {
                               if (value!.isEmpty) {
-                                return 'ziprequired'.tr;
+                                return 'Zip Required'.tr;
                               }
                             }),
                         SizedBox(

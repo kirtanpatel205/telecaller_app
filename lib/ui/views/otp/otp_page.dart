@@ -28,7 +28,7 @@ class OtpPage extends GetView<OtpController> {
           child: Scaffold(
       //resizeToAvoidBottomInset: true,
       appBar: CustomAppBar(
-        titleText: "Otp Verification".tr,
+        titleText: "otp_verification".tr,
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
