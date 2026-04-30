@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:telecaller_app/constants/app_colors.dart';
 
 class AppSafeArea extends StatelessWidget {
@@ -23,7 +24,7 @@ class AppSafeArea extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return Obx(() => Container(
       color: color ?? AppColors.themeColor.scaffoldBackgroundColor,
       child: SafeArea(
         top: top,
@@ -33,6 +34,6 @@ class AppSafeArea extends StatelessWidget {
         minimum: minimum,
         child: child,
       ),
-    );
+    ));
   }
 }

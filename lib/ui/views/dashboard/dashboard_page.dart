@@ -19,7 +19,7 @@ class DashboardPage extends GetView<HomeController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Obx(() => Scaffold(
       body: CustomScrollView(
         slivers: [
           DashboardAppBar(controller: controller),
@@ -53,7 +53,7 @@ class DashboardPage extends GetView<HomeController> {
           ),
         ],
       ),
-    );
+    ));
   }
 
   Widget _buildSummaryCard({

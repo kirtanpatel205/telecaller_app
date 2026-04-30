@@ -100,7 +100,7 @@ class CustomSearchBar extends StatelessWidget {
               onTap: onSearch,
               child: Icon(
                 Icons.search,
-                color: AppColors.themeColor.cardColor,
+                color: AppColors.themeColor.onPrimaryColor,
                 size: 24.sp,
               ),
             ),

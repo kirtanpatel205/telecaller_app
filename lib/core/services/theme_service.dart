@@ -18,22 +18,31 @@ class ThemeService extends GetxService {
         Storage.getValue<bool>(AppConstants.IS_DARK_MODE) ?? true;
   }
 
-  Future<bool> toggleTheme(BuildContext context) async {
+  Future<bool> toggleTheme(BuildContext context, {bool? isDark}) async {
     if (!inProgress.value) {
       inProgress.value = true;
 
-      //isDarkMode.value = Storage.getValue<bool>(AppConstants.IS_DARK_MODE) ?? true;
-      isDarkMode.toggle();
+      if (isDark != null) {
+        isDarkMode.value = isDark;
+      } else {
+        isDarkMode.toggle();
+      }
 
       await Storage.saveValue(AppConstants.IS_DARK_MODE, isDarkMode.value);
       final theme = isDarkMode.value ? AppTheme.darkTheme : AppTheme.theme;
-      ThemeSwitcher.of(context).changeTheme(
-        theme: theme,
-      );
+      
+      try {
+        ThemeSwitcher.of(context).changeTheme(
+          theme: theme,
+        );
+      } catch (e) {
+        // Fallback if ThemeSwitcher is not found in the context tree
+        Get.changeTheme(theme);
+      }
       Get.changeThemeMode(isDarkMode.value ? ThemeMode.dark : ThemeMode.light);
       getCurrentStatusNavigationBarColor();
 
-      await Future.delayed(Duration(milliseconds: 1500));
+      await Future.delayed(const Duration(milliseconds: 500));
       inProgress.value = false;
 
       return true;

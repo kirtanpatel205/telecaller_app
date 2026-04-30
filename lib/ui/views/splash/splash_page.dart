@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import 'package:telecaller_app/ui/views/splash/splash_controller.dart';
 import 'package:telecaller_app/ui/widgets/app_safe_area.dart';
 
+import 'package:telecaller_app/constants/app_colors.dart';
+
 class SplashPage extends GetView<SplashController> {
   SplashPage() {
     controller.startTime();
@@ -13,7 +15,7 @@ class SplashPage extends GetView<SplashController> {
     double screenWidth = MediaQuery.of(context).size.width;
 
     return AppSafeArea(child: Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.themeColor.bgColor,
       body: Center(
           child: Image.asset(
         'assets/images/Frame.png',

@@ -27,9 +27,8 @@ class HomeController extends GetxController {
   RxBool get isDarkMode => themeService.isDarkMode;
 
   Future<void> toggleTheme(bool value, BuildContext context) async {
-    // value is from DayNightSwitcher, but we use ThemeService to toggle
-    // Context is needed for AnimatedThemeSwitcher
-    await themeService.toggleTheme(context);
+    // value is from DayNightSwitcher, we pass it to ThemeService to stay in sync
+    await themeService.toggleTheme(context, isDark: value);
   }
   // FCMService fcmService = Get.put(FCMService().init());
 

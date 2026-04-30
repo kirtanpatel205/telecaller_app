@@ -36,7 +36,7 @@ class CustomButton extends StatelessWidget {
         ),
         child: isLoading
             ? CircularProgressIndicator(
-          color: AppColors.themeColor.cardColor,
+          color: AppColors.themeColor.onPrimaryColor,
         )
             : Text(
           title,

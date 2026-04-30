@@ -45,10 +45,10 @@ class HomePage extends GetView<HomeController> {
             backgroundColor: Colors.transparent,
 
             items: [
-              Icon(Icons.home, size: 24.sp, color: AppColors.themeColor.cardColor),
-              Icon(Icons.call, size: 24.sp, color: AppColors.themeColor.cardColor),
-              Icon(Icons.quick_contacts_dialer, size: 24.sp, color: AppColors.themeColor.cardColor),
-              Icon(Icons.settings, size: 24.sp, color: AppColors.themeColor.cardColor),
+              Icon(Icons.home, size: 24.sp, color: AppColors.themeColor.onPrimaryColor),
+              Icon(Icons.call, size: 24.sp, color: AppColors.themeColor.onPrimaryColor),
+              Icon(Icons.quick_contacts_dialer, size: 24.sp, color: AppColors.themeColor.onPrimaryColor),
+              Icon(Icons.settings, size: 24.sp, color: AppColors.themeColor.onPrimaryColor),
             ],
 
             onTap: (index) {

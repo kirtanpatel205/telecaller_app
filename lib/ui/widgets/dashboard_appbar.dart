@@ -51,8 +51,8 @@ class DashboardAppBar extends StatelessWidget {
                 ),
                 child: Container(
                   padding: EdgeInsets.all(1.5.w), // Thinner inner ring
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
+                  decoration: BoxDecoration(
+                    color: AppColors.themeColor.cardColor,
                     shape: BoxShape.circle,
                   ),
                   child: Container(
@@ -148,7 +148,7 @@ class DashboardAppBar extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: Colors.redAccent,
                         shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 2),
+                        border: Border.all(color: AppColors.themeColor.scaffoldBackgroundColor, width: 2),
                       ),
                       constraints: const BoxConstraints(
                         minWidth: 10,

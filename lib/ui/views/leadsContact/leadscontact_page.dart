@@ -613,7 +613,7 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                         "apply".tr,
                         style: AppTextStyle.bold7.copyWith(
                           fontSize: AppDimens.fontSize14,
-                          color: AppColors.themeColor.cardColor,
+                          color: AppColors.themeColor.onPrimaryColor,
                         ),
                       ),
                     ),

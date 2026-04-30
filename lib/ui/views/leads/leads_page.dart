@@ -19,7 +19,7 @@ class LeadsPage extends GetView<LeadsController> {
 
   @override
   Widget build(BuildContext context) {
-    return RefreshIndicator(
+    return Obx(() => RefreshIndicator(
       onRefresh: () async {
         await controller.resetAndReload();
       },
@@ -88,7 +88,7 @@ class LeadsPage extends GetView<LeadsController> {
           ),
         ],
       ),
-    );
+    ));
   }
 
   // Widget buildHorizontalDateList() {
@@ -699,7 +699,7 @@ class LeadsPage extends GetView<LeadsController> {
                       ),
                       child:  Text(
                         "apply".tr,
-                        style: AppTextStyle.bold7.copyWith(color: AppColors.themeColor.cardColor, fontSize: AppDimens.fontSize14),
+                        style: AppTextStyle.bold7.copyWith(color: AppColors.themeColor.onPrimaryColor, fontSize: AppDimens.fontSize14),
                       ),
                     ),
                   ),

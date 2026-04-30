@@ -72,7 +72,7 @@ class OtpPage extends GetView<OtpController> {
           //   child:
           PinCodeTextField(
             textStyle: AppTextStyle.bold7.copyWith(
-              color: AppColors.themeColor.cardColor,
+              color: AppColors.themeColor.onPrimaryColor,
               fontSize: AppDimens.fontSize18,
             ),
 
@@ -89,7 +89,7 @@ class OtpPage extends GetView<OtpController> {
             //controller: controller.otpController,
             backgroundColor: Colors.transparent,
             animationType: AnimationType.fade,
-            cursorColor: AppColors.themeColor.cardColor,
+            cursorColor: AppColors.themeColor.onPrimaryColor,
             //enableActiveFill: true,
             pinTheme: PinTheme(
               shape: PinCodeFieldShape.box,

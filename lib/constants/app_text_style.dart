@@ -22,7 +22,7 @@ class AppTextStyle {
   static TextStyle get buttonTextStyle => TextStyle(
         fontSize: AppDimens.fontSize16,
         fontWeight: FontWeight.w600,
-        color: Colors.white,
+        color: AppColors.themeColor.onPrimaryColor,
       );
 
   static TextStyle get bodyTextStyle => TextStyle(

@@ -15,159 +15,157 @@ class SettingPage extends GetView<HomeController> {
   const SettingPage({super.key});
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.themeColor.bgColor,
-      body: Obx(() {
-        controller.isDarkMode.value;
-        return RefreshIndicator(
-          onRefresh: () async {
-            await controller.authController.refreshProfile();
-            log("profile refreshed");
-          },
-          child: CustomScrollView(
-            physics: const BouncingScrollPhysics(),
-            slivers: [
-              // ─── Profile Header ─────────────────────────────────────────
-              SliverToBoxAdapter(
-                child: _ProfileHeader(controller: controller),
-              ),
+    return Obx(() => Scaffold(
+      backgroundColor: AppColors.themeColor.scaffoldBackgroundColor,
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await controller.authController.refreshProfile();
+          log("profile refreshed");
+        },
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            // ─── Profile Header ─────────────────────────────────────────
+            SliverToBoxAdapter(
+              child: _ProfileHeader(controller: controller),
+            ),
 
-              // ─── Menu Items ─────────────────────────────────────────────
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: 24.h),
+            // ─── Menu Items ─────────────────────────────────────────────
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 24.h),
 
-                      // ── Account Section ─────────────────────────────────
-                      _SectionLabel(label: "account".tr),
-                      SizedBox(height: 10.h),
-                      _MenuCard(
-                        children: [
-                          _MenuItem(
-                            icon: Icons.person_outline_rounded,
-                            label: "editProfile".tr,
-                            onTap: () => Get.toNamed(Routes.EDITPROFILE),
-                          ),
-                        ],
-                      ),
+                    // ── Account Section ─────────────────────────────────
+                    _SectionLabel(label: "account".tr),
+                    SizedBox(height: 10.h),
+                    _MenuCard(
+                      children: [
+                        _MenuItem(
+                          icon: Icons.person_outline_rounded,
+                          label: "editProfile".tr,
+                          onTap: () => Get.toNamed(Routes.EDITPROFILE),
+                        ),
+                      ],
+                    ),
 
-                      SizedBox(height: 20.h),
+                    SizedBox(height: 20.h),
 
-                      // ── Appearance Section ───────────────────────────────
-                      _SectionLabel(label: "appearance".tr),
-                      SizedBox(height: 10.h),
-                      _MenuCard(
-                        children: [
-                          // Dark Mode Toggle
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 16.w, vertical: 4.h),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 40.w,
-                                  height: 40.w,
-                                  decoration: BoxDecoration(
-                                    color: AppColors.themeColor.primaryColor
-                                        .withOpacity(0.12),
-                                    borderRadius: BorderRadius.circular(10.r),
-                                  ),
-                                  child: Icon(
-                                    Icons.nightlight_round,
-                                    color: AppColors.themeColor.primaryColor,
-                                    size: 20.sp,
+                    // ── Appearance Section ───────────────────────────────
+                    _SectionLabel(label: "appearance".tr),
+                    SizedBox(height: 10.h),
+                    _MenuCard(
+                      children: [
+                        // Dark Mode Toggle
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 16.w, vertical: 4.h),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 40.w,
+                                height: 40.w,
+                                decoration: BoxDecoration(
+                                  color: AppColors.themeColor.primaryColor
+                                      .withOpacity(0.12),
+                                  borderRadius: BorderRadius.circular(10.r),
+                                ),
+                                child: Icon(
+                                  Icons.nightlight_round,
+                                  color: AppColors.themeColor.primaryColor,
+                                  size: 20.sp,
+                                ),
+                              ),
+                              SizedBox(width: 14.w),
+                              Expanded(
+                                child: Text(
+                                  "dark_mode".tr,
+                                  style: AppTextStyle.medium7.copyWith(
+                                    fontSize: AppDimens.fontSize14,
+                                    color:
+                                        AppColors.themeColor.textPrimaryColor,
                                   ),
                                 ),
-                                SizedBox(width: 14.w),
-                                Expanded(
-                                  child: Text(
-                                    "dark_mode".tr,
-                                    style: AppTextStyle.medium7.copyWith(
-                                      fontSize: AppDimens.fontSize14,
-                                      color:
-                                          AppColors.themeColor.textPrimaryColor,
-                                    ),
+                              ),
+                              SizedBox(
+                                height: 36.h,
+                                width: 46.w,
+                                child: ThemeSwitcher(
+                                  builder: (ctx) => DayNightSwitcher(
+                                    isDarkModeEnabled:
+                                        controller.isDarkMode.value,
+                                    onStateChanged: (value) {
+                                      controller.toggleTheme(value, ctx);
+                                    },
                                   ),
                                 ),
-                                SizedBox(
-                                  height: 36.h,
-                                  width: 46.w,
-                                  child: ThemeSwitcher(
-                                    builder: (ctx) => DayNightSwitcher(
-                                      isDarkModeEnabled:
-                                          controller.isDarkMode.value,
-                                      onStateChanged: (value) {
-                                        controller.toggleTheme(value, context);
-                                      },
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          _Divider(),
-                          _MenuItem(
-                            icon: Icons.language_outlined,
-                            label: "language".tr,
-                            onTap: () => Get.toNamed(Routes.LANGUAGE),
-                          ),
-                        ],
-                      ),
-
-                      SizedBox(height: 20.h),
-
-                      // ── Legal Section ────────────────────────────────────
-                      _SectionLabel(label: "legal".tr),
-                      SizedBox(height: 10.h),
-                      _MenuCard(
-                        children: [
-                          _MenuItem(
-                            icon: Icons.privacy_tip_outlined,
-                            label: "privacy_policy".tr,
-                            onTap: () => Get.toNamed(Routes.PRIVACY_POLICY),
-                          ),
-                          _Divider(),
-                          _MenuItem(
-                            icon: Icons.description_outlined,
-                            label: "terms_conditions".tr,
-                            onTap: () =>
-                                Get.toNamed(Routes.TERMS_CONDITIONS),
-                          ),
-                        ],
-                      ),
-
-                      SizedBox(height: 28.h),
-
-                      // ── Logout ───────────────────────────────────────────
-                      _LogoutButton(),
-
-                      SizedBox(height: 32.h),
-
-                      // App version tag
-                      Center(
-                        child: Text(
-                          "v1.0.0",
-                          style: AppTextStyle.regular7.copyWith(
-                            fontSize: AppDimens.fontSize11,
-                            color: AppColors.themeColor.textSecondaryColor,
+                              ),
+                            ],
                           ),
                         ),
+                        _Divider(),
+                        _MenuItem(
+                          icon: Icons.language_outlined,
+                          label: "language".tr,
+                          onTap: () => Get.toNamed(Routes.LANGUAGE),
+                        ),
+                      ],
+                    ),
+
+                    SizedBox(height: 20.h),
+
+                    // ── Legal Section ────────────────────────────────────
+                    _SectionLabel(label: "legal".tr),
+                    SizedBox(height: 10.h),
+                    _MenuCard(
+                      children: [
+                        _MenuItem(
+                          icon: Icons.privacy_tip_outlined,
+                          label: "privacy_policy".tr,
+                          onTap: () => Get.toNamed(Routes.PRIVACY_POLICY),
+                        ),
+                        _Divider(),
+                        _MenuItem(
+                          icon: Icons.description_outlined,
+                          label: "terms_conditions".tr,
+                          onTap: () =>
+                              Get.toNamed(Routes.TERMS_CONDITIONS),
+                        ),
+                      ],
+                    ),
+
+                    SizedBox(height: 28.h),
+
+                    // ── Logout ───────────────────────────────────────────
+                    _LogoutButton(),
+
+                    SizedBox(height: 32.h),
+
+                    // App version tag
+                    Center(
+                      child: Text(
+                        "v1.0.0",
+                        style: AppTextStyle.regular7.copyWith(
+                          fontSize: AppDimens.fontSize11,
+                          color: AppColors.themeColor.textSecondaryColor,
+                        ),
                       ),
-                      SizedBox(height: 24.h),
-                    ],
-                  ),
+                    ),
+                    SizedBox(height: 24.h),
+                  ],
                 ),
               ),
-            ],
-          ),
-        );
-      }),
-    );
+            ),
+          ],
+        ),
+      ),
+    ));
   }
-}
+  }
+
 
 // ─── Profile Header Widget ─────────────────────────────────────────────────
 

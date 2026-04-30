@@ -23,7 +23,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
   Widget build(BuildContext context) {
     final bool isTablet = MediaQuery.of(context).size.shortestSide > 600;
 
-    return AppSafeArea(
+    return Obx(() => AppSafeArea(
       top: false,
       child: Scaffold(
         backgroundColor: AppColors.themeColor.scaffoldBackgroundColor,
@@ -115,8 +115,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
             child: _buildStickyControlCenter(isTablet),
           ),
         ],
-      ),
-    ));
+      ))));
   }
 
   Widget _buildSimpleAppBar(BuildContext context) {

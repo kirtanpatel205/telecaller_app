@@ -188,9 +188,9 @@ class CallFormPage extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: const Color(0xFFF0F7FF),
+        color: AppColors.themeColor.primaryColor.withOpacity(0.08),
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: const Color(0xFFD0E3FF), width: 1.w),
+        border: Border.all(color: AppColors.themeColor.primaryColor.withOpacity(0.2), width: 1.w),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -202,7 +202,7 @@ class CallFormPage extends StatelessWidget {
               "please_fill_in_all_required_fields_your_responses_ensure_acc".tr,
               style: AppTextStyle.regular7.copyWith(
                 fontSize: AppDimens.fontSize12,
-                color: const Color(0xFF2C5282),
+                color: AppColors.themeColor.textPrimaryColor.withOpacity(0.9),
                 height: 1.4,
               ),
             ),
@@ -220,9 +220,9 @@ class CallFormPage extends StatelessWidget {
       width: double.infinity,
       padding: EdgeInsets.all(14.w),
       decoration: BoxDecoration(
-        color: const Color(0xFFFEF2F2),
+        color: Colors.red.withOpacity(0.08),
         borderRadius: BorderRadius.circular(10.r),
-        border: Border.all(color: const Color(0xFFFEE2E2), width: 1.w),
+        border: Border.all(color: Colors.red.withOpacity(0.2), width: 1.w),
       ),
       child: Row(
         children: [
@@ -233,7 +233,7 @@ class CallFormPage extends StatelessWidget {
               "fields_marked_with_are_mandatory_for_submission".tr,
               style: AppTextStyle.medium7.copyWith(
                 fontSize: AppDimens.fontSize12,
-                color: const Color(0xFF991B1B),
+                color: Colors.red.shade400,
               ),
             ),
           ),
@@ -487,10 +487,10 @@ class CallFormPage extends StatelessWidget {
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
             decoration: BoxDecoration(
-              color: isSelected ? AppColors.themeColor.primaryColor.withOpacity(0.08) : Colors.white,
+              color: isSelected ? AppColors.themeColor.primaryColor.withOpacity(0.08) : AppColors.themeColor.cardColor,
               borderRadius: BorderRadius.circular(12.r),
               border: Border.all(
-                color: isSelected ? AppColors.themeColor.primaryColor : Colors.grey.shade200,
+                color: isSelected ? AppColors.themeColor.primaryColor : AppColors.themeColor.bordercolror,
                 width: 1.5.w,
               ),
             ),
@@ -547,10 +547,10 @@ class CallFormPage extends StatelessWidget {
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
               decoration: BoxDecoration(
-                color: isSelected ? AppColors.themeColor.primaryColor.withOpacity(0.08) : Colors.white,
+                color: isSelected ? AppColors.themeColor.primaryColor.withOpacity(0.08) : AppColors.themeColor.cardColor,
                 borderRadius: BorderRadius.circular(12.r),
                 border: Border.all(
-                  color: isSelected ? AppColors.themeColor.primaryColor : Colors.grey.shade200,
+                  color: isSelected ? AppColors.themeColor.primaryColor : AppColors.themeColor.bordercolror,
                   width: 1.5.w,
                 ),
               ),
@@ -811,14 +811,14 @@ class CallFormPage extends StatelessWidget {
               onPressed: controller.isLoading.value ? null : () => controller.onSaveAndSubmit(),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.themeColor.primaryColor,
-                foregroundColor: AppColors.themeColor.cardColor,
+                foregroundColor: AppColors.themeColor.onPrimaryColor,
                 padding: EdgeInsets.symmetric(vertical: 14.h),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
                 elevation: 0,
               ),
               child: controller.isLoading.value
-                ? SizedBox(width: 20.sp, height: 20.sp, child: CircularProgressIndicator(strokeWidth: 2.5, color: AppColors.themeColor.cardColor))
-                : Text("save_submit".tr, style: AppTextStyle.bold7.copyWith(fontSize: AppDimens.fontSize15, color: AppColors.themeColor.cardColor)),
+                ? SizedBox(width: 20.sp, height: 20.sp, child: CircularProgressIndicator(strokeWidth: 2.5, color: AppColors.themeColor.onPrimaryColor))
+                : Text("save_submit".tr, style: AppTextStyle.bold7.copyWith(fontSize: AppDimens.fontSize15, color: AppColors.themeColor.onPrimaryColor)),
             )),
           ),
         ],
