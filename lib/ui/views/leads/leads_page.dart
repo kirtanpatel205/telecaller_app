@@ -38,9 +38,8 @@ class LeadsPage extends GetView<LeadsController> {
                     SizedBox(height: 10.h),
                     CustomSearchBar(
                       controller: controller.searchController,
-                      onSearch: () {
-                        controller.searchText.value =
-                            controller.searchController.text;
+                      onSearch: (value) {
+                        controller.searchText.value = value;
                       },
                     ),
                     SizedBox(height: 10.h),

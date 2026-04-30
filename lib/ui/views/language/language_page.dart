@@ -39,7 +39,7 @@ class LanguagePage extends GetView<LanguageController> {
                   children: [
                     CustomSearchBar(
                       controller: controller.searchlangController,
-                      onSearch: controller.onSearch,
+                      onSearch: (value) => controller.onSearch(),
                     ),
                     SizedBox(height: 12.h),
                   ],

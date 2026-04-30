@@ -45,9 +45,8 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
                     child: CustomSearchBar(
                     controller: controller.searchController,
-                    onSearch: () {
-                      controller.searchText.value =
-                          controller.searchController.text;
+                    onSearch: (value) {
+                      controller.searchText.value = value;
                     },
                   ),
                   ),
