@@ -617,18 +617,37 @@ class DashboardPage extends GetView<HomeController> {
                           bottomTitles: AxisTitles(
                             sideTitles: SideTitles(
                               showTitles: true,
+                              reservedSize: 32,
+                              interval: 1,
                               getTitlesWidget: (value, meta) {
                                 int index = value.toInt();
-                                if (index >= data.length) {
+                                if (index < 0 || index >= data.length) {
                                   return const SizedBox();
+                                }
+
+                                String label = data[index].label;
+                                String formattedLabel = label;
+                                
+                                // Simple date formatting if it's a date string
+                                try {
+                                  if (label.contains('-') || label.contains('/')) {
+                                    DateTime dt = DateTime.parse(label);
+                                    formattedLabel = DateFormat('dd MMM').format(dt);
+                                  }
+                                } catch (_) {
+                                  // Fallback to original label if parsing fails
                                 }
 
                                 return SideTitleWidget(
                                   axisSide: meta.axisSide,
-                                  space: 8.w,
+                                  space: 8,
                                   child: Text(
-                                    data[index].label,
-                                    style: TextStyle(fontSize: AppDimens.fontSize10),
+                                    formattedLabel,
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w500,
+                                      color: AppColors.themeColor.textSecondaryColor,
+                                    ),
                                   ),
                                 );
                               },
@@ -1067,15 +1086,37 @@ class DashboardPage extends GetView<HomeController> {
                           bottomTitles: AxisTitles(
                             sideTitles: SideTitles(
                               showTitles: true,
+                              reservedSize: 32,
+                              interval: 1,
                               getTitlesWidget: (value, meta) {
                                 int index = value.toInt();
-                                if (index >= data.length) return const SizedBox();
+                                if (index < 0 || index >= data.length) {
+                                  return const SizedBox();
+                                }
+
+                                String label = data[index].label;
+                                String formattedLabel = label;
+                                
+                                // Simple date formatting if it's a date string
+                                try {
+                                  if (label.contains('-') || label.contains('/')) {
+                                    DateTime dt = DateTime.parse(label);
+                                    formattedLabel = DateFormat('dd MMM').format(dt);
+                                  }
+                                } catch (_) {
+                                  // Fallback to original label if parsing fails
+                                }
+
                                 return SideTitleWidget(
                                   axisSide: meta.axisSide,
                                   space: 8,
                                   child: Text(
-                                    data[index].label,
-                                    style: const TextStyle(fontSize: 10),
+                                    formattedLabel,
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w500,
+                                      color: AppColors.themeColor.textSecondaryColor,
+                                    ),
                                   ),
                                 );
                               },

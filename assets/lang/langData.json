@@ -200,7 +200,9 @@
     "country": "Country",
     "save": "Save",
     "logout_confirm": "Logout Confirm",
-    "yes_logout": "Yes Logout"
+    "yes_logout": "Yes Logout",
+    "openCamera": "Open Camera",
+    "openGallery": "Open Gallery"
   },
   "pt": {
     "welcome": "Ação",
@@ -403,7 +405,9 @@
     "country": "País",
     "save": "Salvar",
     "logout_confirm": "Confirmar logout",
-    "yes_logout": "Sim, sair"
+    "yes_logout": "Sim, sair",
+    "openCamera": "Abrir câmera",
+    "openGallery": "Abrir galeria"
   },
   "hi": {
     "welcome": "कार्रवाई",
@@ -606,7 +610,9 @@
     "country": "देश",
     "save": "बचाना",
     "logout_confirm": "लॉगआउट की पुष्टि करें",
-    "yes_logout": "हां लॉगआउट"
+    "yes_logout": "हां लॉगआउट",
+    "openCamera": "कैमरा खोलें",
+    "openGallery": "गैलरी खोलें"
   },
   "ta": {
     "welcome": "செயல்",
@@ -809,7 +815,9 @@
     "country": "நாடு",
     "save": "சேமிக்கவும்",
     "logout_confirm": "வெளியேறுவதை உறுதிப்படுத்து",
-    "yes_logout": "ஆம் வெளியேறு"
+    "yes_logout": "ஆம் வெளியேறு",
+    "openCamera": "கேமராவைத் திறக்கவும்",
+    "openGallery": "கேலரியைத் திறக்கவும்"
   },
   "te": {
     "welcome": "చర్య",
@@ -1012,7 +1020,9 @@
     "country": "దేశం",
     "save": "సేవ్ చేయండి",
     "logout_confirm": "లాగౌట్ నిర్ధారణ",
-    "yes_logout": "అవును లాగౌట్"
+    "yes_logout": "అవును లాగౌట్",
+    "openCamera": "కెమెరాను తెరవండి",
+    "openGallery": "గ్యాలరీని తెరవండి"
   },
   "es": {
     "welcome": "Acción",
@@ -1215,7 +1225,9 @@
     "country": "País",
     "save": "Ahorrar",
     "logout_confirm": "Confirmar cierre de sesión",
-    "yes_logout": "Sí, cerrar sesión"
+    "yes_logout": "Sí, cerrar sesión",
+    "openCamera": "Abrir cámara",
+    "openGallery": "Galería abierta"
   },
   "fr": {
     "welcome": "Action",
@@ -1418,7 +1430,9 @@
     "country": "Pays",
     "save": "Sauvegarder",
     "logout_confirm": "Confirmer la déconnexion",
-    "yes_logout": "Oui Déconnexion"
+    "yes_logout": "Oui Déconnexion",
+    "openCamera": "Ouvrir la caméra",
+    "openGallery": "Galerie ouverte"
   },
   "ar": {
     "welcome": "الاجراء",
@@ -1621,7 +1635,9 @@
     "country": "بين",
     "save": "بين",
     "logout_confirm": "بين",
-    "yes_logout": "بين"
+    "yes_logout": "بين",
+    "openCamera": "بين",
+    "openGallery": "بين"
   },
   "th": {
     "welcome": "การกระทำ",
@@ -1824,7 +1840,9 @@
     "country": "ประเทศ",
     "save": "บันทึก",
     "logout_confirm": "ยืนยันการออกจากระบบ",
-    "yes_logout": "ใช่ ออกจากระบบ"
+    "yes_logout": "ใช่ ออกจากระบบ",
+    "openCamera": "เปิดกล้อง",
+    "openGallery": "เปิดแกลเลอรี่"
   },
   "ms": {
     "welcome": "Tindakan",
@@ -2027,7 +2045,9 @@
     "country": "Negara",
     "save": "Simpan",
     "logout_confirm": "Log Keluar Sahkan",
-    "yes_logout": "Ya Log Keluar"
+    "yes_logout": "Ya Log Keluar",
+    "openCamera": "Buka Kamera",
+    "openGallery": "Buka Galeri"
   },
   "de": {
     "welcome": "Aktion",
@@ -2230,7 +2250,9 @@
     "country": "Land",
     "save": "Speichern",
     "logout_confirm": "Abmeldebestätigung",
-    "yes_logout": "Ja Abmelden"
+    "yes_logout": "Ja Abmelden",
+    "openCamera": "Kamera öffnen",
+    "openGallery": "Galerie öffnen"
   },
   "id": {
     "welcome": "Tindakan",
@@ -2433,7 +2455,9 @@
     "country": "Negara",
     "save": "Menyimpan",
     "logout_confirm": "Konfirmasi Keluar",
-    "yes_logout": "Ya, Keluar"
+    "yes_logout": "Ya, Keluar",
+    "openCamera": "Buka Kamera",
+    "openGallery": "Buka Galeri"
   },
   "tr": {
     "welcome": "Aksiyon",
@@ -2636,7 +2660,9 @@
     "country": "Ülke",
     "save": "Kaydetmek",
     "logout_confirm": "Çıkış Yap Onayla",
-    "yes_logout": "Evet Çıkış Yap"
+    "yes_logout": "Evet Çıkış Yap",
+    "openCamera": "Kamerayı Aç",
+    "openGallery": "Galeriyi Aç"
   },
   "ru": {
     "welcome": "Действие",
@@ -2839,7 +2865,9 @@
     "country": "Страна",
     "save": "Сохранять",
     "logout_confirm": "Выйти Подтвердить",
-    "yes_logout": "Да Выйти"
+    "yes_logout": "Да Выйти",
+    "openCamera": "Открыть камеру",
+    "openGallery": "Открытая галерея"
   },
   "bn": {
     "welcome": "অ্যাকশন",
@@ -3042,7 +3070,9 @@
     "country": "দেশ",
     "save": "সংরক্ষণ করুন",
     "logout_confirm": "লগআউট নিশ্চিত করুন",
-    "yes_logout": "হ্যাঁ লগআউট"
+    "yes_logout": "হ্যাঁ লগআউট",
+    "openCamera": "ক্যামেরা খুলুন",
+    "openGallery": "গ্যালারি খুলুন"
   },
   "km": {
     "welcome": "សកម្មភាព",
@@ -3245,7 +3275,9 @@
     "country": "ប្រទេស",
     "save": "រក្សាទុក",
     "logout_confirm": "បញ្ជាក់ការចាកចេញ",
-    "yes_logout": "បាទ/ចាស៎ ចាកចេញ"
+    "yes_logout": "បាទ/ចាស៎ ចាកចេញ",
+    "openCamera": "បើកកាមេរ៉ា",
+    "openGallery": "បើកវិចិត្រសាល"
   },
   "he": {
     "welcome": "פְּעוּלָה",
@@ -3448,7 +3480,9 @@
     "country": "מְדִינָה",
     "save": "לְהַצִיל",
     "logout_confirm": "יציאה אישור",
-    "yes_logout": "כן התנתק"
+    "yes_logout": "כן התנתק",
+    "openCamera": "פתח את המצלמה",
+    "openGallery": "פתח את הגלריה"
   },
   "ur": {
     "welcome": "ایکشن",
@@ -3651,7 +3685,9 @@
     "country": "ملک",
     "save": "محفوظ کریں۔",
     "logout_confirm": "لاگ آؤٹ کی تصدیق کریں۔",
-    "yes_logout": "ہاں لاگ آؤٹ"
+    "yes_logout": "ہاں لاگ آؤٹ",
+    "openCamera": "کیمرہ کھولیں۔",
+    "openGallery": "گیلری کھولیں۔"
   },
   "el": {
     "welcome": "Δράση",
@@ -3854,7 +3890,9 @@
     "country": "Χώρα",
     "save": "Εκτός",
     "logout_confirm": "Επιβεβαίωση αποσύνδεσης",
-    "yes_logout": "Ναι Αποσύνδεση"
+    "yes_logout": "Ναι Αποσύνδεση",
+    "openCamera": "Άνοιγμα κάμερας",
+    "openGallery": "Άνοιγμα Συλλογής"
   },
   "pl": {
     "welcome": "Działanie",
@@ -4057,7 +4095,9 @@
     "country": "Kraj",
     "save": "Ratować",
     "logout_confirm": "Potwierdź wylogowanie",
-    "yes_logout": "Tak Wyloguj"
+    "yes_logout": "Tak Wyloguj",
+    "openCamera": "Otwórz kamerę",
+    "openGallery": "Otwórz galerię"
   },
   "nl": {
     "welcome": "Actie",
@@ -4260,7 +4300,9 @@
     "country": "Land",
     "save": "Redden",
     "logout_confirm": "Uitloggen Bevestigen",
-    "yes_logout": "Ja, uitloggen"
+    "yes_logout": "Ja, uitloggen",
+    "openCamera": "Open camera",
+    "openGallery": "Open galerij"
   },
   "uk": {
     "welcome": "Дія",
@@ -4463,7 +4505,9 @@
     "country": "Країна",
     "save": "Зберегти",
     "logout_confirm": "Підтвердження виходу",
-    "yes_logout": "Так Вийти"
+    "yes_logout": "Так Вийти",
+    "openCamera": "Відкрити камеру",
+    "openGallery": "Відкрити галерею"
   },
   "vi": {
     "welcome": "Hoạt động",
@@ -4666,7 +4710,9 @@
     "country": "Quốc gia",
     "save": "Cứu",
     "logout_confirm": "Xác nhận đăng xuất",
-    "yes_logout": "Có Đăng xuất"
+    "yes_logout": "Có Đăng xuất",
+    "openCamera": "Mở camera",
+    "openGallery": "Triển lãm mở"
   },
   "pt_br": {
     "welcome": "Ação",
@@ -4869,7 +4915,9 @@
     "country": "País",
     "save": "Salvar",
     "logout_confirm": "Confirmar logout",
-    "yes_logout": "Sim, sair"
+    "yes_logout": "Sim, sair",
+    "openCamera": "Abrir câmera",
+    "openGallery": "Abrir galeria"
   },
   "zh_cn": {
     "welcome": "行动",
@@ -5072,7 +5120,9 @@
     "country": "国家",
     "save": "节省",
     "logout_confirm": "登出确认",
-    "yes_logout": "是的，注销"
+    "yes_logout": "是的，注销",
+    "openCamera": "打开摄像头",
+    "openGallery": "打开画廊"
   },
   "it": {
     "welcome": "Azione",
@@ -5275,7 +5325,9 @@
     "country": "Paese",
     "save": "Salva",
     "logout_confirm": "Disconnetti Conferma",
-    "yes_logout": "Sì, esci"
+    "yes_logout": "Sì, esci",
+    "openCamera": "Apri la fotocamera",
+    "openGallery": "Galleria aperta"
   },
   "af": {
     "welcome": "Aksie",
@@ -5478,7 +5530,9 @@
     "country": "Land",
     "save": "Stoor",
     "logout_confirm": "Uitmeld Bevestig",
-    "yes_logout": "Ja Meld af"
+    "yes_logout": "Ja Meld af",
+    "openCamera": "Maak Kamera Oop",
+    "openGallery": "Maak Galery Oop"
   },
   "am": {
     "welcome": "ድርጊት",
@@ -5681,7 +5735,9 @@
     "country": "አገር",
     "save": "አስቀምጥ",
     "logout_confirm": "ውጣ አረጋግጥ",
-    "yes_logout": "አዎ ውጣ"
+    "yes_logout": "አዎ ውጣ",
+    "openCamera": "ካሜራ ክፈት",
+    "openGallery": "ጋለሪ ክፈት"
   },
   "az": {
     "welcome": "Fəaliyyət",
@@ -5884,7 +5940,9 @@
     "country": "Ölkə",
     "save": "Yadda saxla",
     "logout_confirm": "Çıxışı Təsdiqləyin",
-    "yes_logout": "Bəli Çıxış"
+    "yes_logout": "Bəli Çıxış",
+    "openCamera": "Kameranı Açın",
+    "openGallery": "Qalereyanı Açın"
   },
   "bg": {
     "welcome": "Действие",
@@ -6087,7 +6145,9 @@
     "country": "Държава",
     "save": "Запазване",
     "logout_confirm": "Изход Потвърждаване",
-    "yes_logout": "Да Изход"
+    "yes_logout": "Да Изход",
+    "openCamera": "Отвори камерата",
+    "openGallery": "Отвори галерия"
   },
   "ca": {
     "welcome": "Acció",
@@ -6290,7 +6350,9 @@
     "country": "País",
     "save": "Desa",
     "logout_confirm": "Confirmació de tancament de sessió",
-    "yes_logout": "Sí Tanca la sessió"
+    "yes_logout": "Sí Tanca la sessió",
+    "openCamera": "Obre la càmera",
+    "openGallery": "Galeria Oberta"
   },
   "es_es": {
     "welcome": "Acción",
@@ -6493,7 +6555,9 @@
     "country": "País",
     "save": "Ahorrar",
     "logout_confirm": "Confirmar cierre de sesión",
-    "yes_logout": "Sí, cerrar sesión"
+    "yes_logout": "Sí, cerrar sesión",
+    "openCamera": "Abrir cámara",
+    "openGallery": "Galería abierta"
   },
   "gu": {
     "welcome": "ક્રિયા",
@@ -6696,7 +6760,9 @@
     "country": "દેશ",
     "save": "સાચવો",
     "logout_confirm": "લૉગઆઉટ પુષ્ટિ કરો",
-    "yes_logout": "હા લોગઆઉટ"
+    "yes_logout": "હા લોગઆઉટ",
+    "openCamera": "કૅમેરો ખોલો",
+    "openGallery": "ગેલેરી ખોલો"
   },
   "kn": {
     "welcome": "ಕ್ರಿಯೆ",
@@ -6899,7 +6965,9 @@
     "country": "ದೇಶ",
     "save": "ಉಳಿಸಿ",
     "logout_confirm": "ಲಾಗ್ಔಟ್ ದೃಢೀಕರಿಸಿ",
-    "yes_logout": "ಹೌದು ಲಾಗ್ಔಟ್ ಮಾಡಿ"
+    "yes_logout": "ಹೌದು ಲಾಗ್ಔಟ್ ಮಾಡಿ",
+    "openCamera": "ಕ್ಯಾಮೆರಾ ತೆರೆಯಿರಿ",
+    "openGallery": "ಗ್ಯಾಲರಿ ತೆರೆಯಿರಿ"
   },
   "ml": {
     "welcome": "ആക്ഷൻ",
@@ -7102,7 +7170,9 @@
     "country": "രാജ്യം",
     "save": "രക്ഷിക്കും",
     "logout_confirm": "ലോഗൗട്ട് സ്ഥിരീകരിക്കുക",
-    "yes_logout": "അതെ ലോഗൗട്ട് ചെയ്യുക"
+    "yes_logout": "അതെ ലോഗൗട്ട് ചെയ്യുക",
+    "openCamera": "ക്യാമറ തുറക്കുക",
+    "openGallery": "ഗാലറി തുറക്കുക"
   },
   "pa": {
     "welcome": "ਕਾਰਵਾਈ",
@@ -7305,7 +7375,9 @@
     "country": "ਦੇਸ਼",
     "save": "ਸੇਵ ਕਰੋ",
     "logout_confirm": "ਲਾਗਆਉਟ ਪੁਸ਼ਟੀ",
-    "yes_logout": "ਹਾਂ ਲਾਗਆਉਟ"
+    "yes_logout": "ਹਾਂ ਲਾਗਆਉਟ",
+    "openCamera": "ਕੈਮਰਾ ਖੋਲ੍ਹੋ",
+    "openGallery": "ਗੈਲਰੀ ਖੋਲ੍ਹੋ"
   },
   "sq": {
     "welcome": "Veprimi",
@@ -7508,7 +7580,9 @@
     "country": "Vendi",
     "save": "Ruaj",
     "logout_confirm": "Konfirmo daljen",
-    "yes_logout": "Po Dilni"
+    "yes_logout": "Po Dilni",
+    "openCamera": "Hap Kamerën",
+    "openGallery": "Hap Galerinë"
   },
   "uz": {
     "welcome": "Harakat",
@@ -7711,7 +7785,9 @@
     "country": "Mamlakat",
     "save": "Saqlash",
     "logout_confirm": "Chiqishni tasdiqlash",
-    "yes_logout": "Ha, tizimdan chiqish"
+    "yes_logout": "Ha, tizimdan chiqish",
+    "openCamera": "Kamerani ochish",
+    "openGallery": "Galereyani ochish"
   },
   "fil": {
     "welcome": "Aksyon",
@@ -7914,7 +7990,9 @@
     "country": "Bansa",
     "save": "I-save",
     "logout_confirm": "Kumpirmahin ang Pag-logout",
-    "yes_logout": "Oo Mag-logout"
+    "yes_logout": "Oo Mag-logout",
+    "openCamera": "Buksan ang Kamera",
+    "openGallery": "Buksan ang Gallery"
   },
   "zh_hk": {
     "welcome": "行動",
@@ -8117,7 +8195,9 @@
     "country": "國家",
     "save": "節省",
     "logout_confirm": "登出確認",
-    "yes_logout": "是的，註銷"
+    "yes_logout": "是的，註銷",
+    "openCamera": "打開攝影機",
+    "openGallery": "打開畫廊"
   },
   "zh_tw": {
     "welcome": "行動",
@@ -8320,7 +8400,9 @@
     "country": "國家",
     "save": "節省",
     "logout_confirm": "登出確認",
-    "yes_logout": "是的，註銷"
+    "yes_logout": "是的，註銷",
+    "openCamera": "打開攝影機",
+    "openGallery": "打開畫廊"
   },
   "es_mx": {
     "welcome": "Acción",
@@ -8523,7 +8605,9 @@
     "country": "País",
     "save": "Ahorrar",
     "logout_confirm": "Confirmar cierre de sesión",
-    "yes_logout": "Sí, cerrar sesión"
+    "yes_logout": "Sí, cerrar sesión",
+    "openCamera": "Abrir cámara",
+    "openGallery": "Galería abierta"
   },
   "fi": {
     "welcome": "Toiminta",
@@ -8726,6 +8810,8 @@
     "country": "Maa",
     "save": "Tallentaa",
     "logout_confirm": "Vahvista uloskirjautuminen",
-    "yes_logout": "Kyllä Kirjaudu ulos"
+    "yes_logout": "Kyllä Kirjaudu ulos",
+    "openCamera": "Avaa kamera",
+    "openGallery": "Avaa galleria"
   }
 }
