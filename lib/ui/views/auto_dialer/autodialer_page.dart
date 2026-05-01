@@ -14,6 +14,8 @@ import 'package:telecaller_app/constants/app_dimens.dart';
 import 'package:telecaller_app/constants/app_text_style.dart';
 import 'package:telecaller_app/ui/widgets/app_safe_area.dart';
 import 'package:telecaller_app/ui/views/home/overlay/overlay_pages.dart';
+import 'package:intl/intl.dart';
+import 'package:telecaller_app/constants/app_routes.dart';
 
 // Note: flutter_pagewise is still needed for the contacts PagewiseSliverList
 
@@ -485,101 +487,274 @@ class AutoDialerPage extends GetView<AutoDialerController> {
           itemBuilder: (context, LeadContactIdLeadContacts lead, int index) {
             return Obx(() {
               final isCurrent = controller.currentContact.value?.id == lead.id;
-              final String name = lead.contact?.name ?? 'Unknown';
-              final String phone = lead.contact?.phone ?? 'No phone';
-              final String status = lead.status ?? '';
+              final isOpen = controller.openedIndex.value == index;
+              final String name = controller.capitalizeEachWord(lead.contact?.name ?? 'Unknown');
+              final String phone = lead.contact?.phone ?? 'No Phone';
+              final String? email = lead.contact?.email;
+              final bool hasEmail = email != null && email.trim().isNotEmpty;
+              final String status = lead.status ?? 'Pending';
+              final isCompleted = controller.selectedContactStatus.value == 'completed';
+              final statusColor = controller.getStatusColor(isCompleted ? (lead.logs?.isNotEmpty == true ? lead.logs!.first.answer : 'completed') : status);
 
               return Padding(
                 padding: EdgeInsets.fromLTRB(hPad, 0, hPad, 12.h),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  padding: EdgeInsets.all(16.w),
-                  decoration: BoxDecoration(
-                    color: isCurrent ? AppColors.themeColor.primaryColor.withOpacity(0.05) : AppColors.themeColor.cardBgColor,
-                    borderRadius: BorderRadius.circular(20.r),
-                    border: Border.all(
-                      color: isCurrent ? AppColors.themeColor.primaryColor.withOpacity(0.3) : AppColors.themeColor.bordercolror.withOpacity(0.5),
-                      width: isCurrent ? 1.5.w : 1.w,
+                child: InkWell(
+                  onTap: () {
+                    // Toggle expansion for all contacts (Pending and Completed)
+                    controller.openedIndex.value = (isOpen ? -1 : index);
+                  },
+                  child: Card(
+                    elevation: 0,
+                    margin: EdgeInsets.zero,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16.r),
+                      side: BorderSide(
+                        color: (isCurrent || isOpen) 
+                          ? AppColors.themeColor.primaryColor 
+                          : AppColors.themeColor.bordercolror.withOpacity(0.5),
+                        width: (isCurrent || isOpen) ? 1.5.w : 1.w,
+                      ),
                     ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: isCurrent ? AppColors.themeColor.primaryColor.withOpacity(0.1) : Colors.black.withOpacity(0.03),
-                        blurRadius: 15.r,
-                        offset: Offset(0, 8.h),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 48.w,
-                        height: 48.h,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: isCurrent ? [AppColors.themeColor.primaryColor, AppColors.themeColor.primaryColor.withOpacity(0.8)] : [Colors.grey.shade200, Colors.grey.shade100],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
+                    color: (isCurrent || isOpen) 
+                      ? AppColors.themeColor.primaryColor.withOpacity(0.05) 
+                      : AppColors.themeColor.cardBgColor,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16.r),
+                        boxShadow: [
+                          BoxShadow(
+                            color: (isCurrent || isOpen) 
+                              ? AppColors.themeColor.primaryColor.withOpacity(0.1) 
+                              : Colors.black.withOpacity(0.03),
+                            blurRadius: 15.r,
+                            offset: Offset(0, 8.h),
                           ),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Center(
-                          child: Text(
-                            name[0].toUpperCase(),
-                            style: AppTextStyle.bold7.copyWith(
-                              color: isCurrent ? Colors.white : AppColors.themeColor.textPrimaryColor,
-                              fontSize: AppDimens.fontSize18,
+                        ],
+                      ),
+                      child: Stack(
+                        children: [
+                          // Status Indicator Bar
+                          Positioned(
+                            left: 0,
+                            top: 20.h,
+                            bottom: 20.h,
+                            child: Container(
+                              width: 4.w,
+                              decoration: BoxDecoration(
+                                color: statusColor,
+                                borderRadius: BorderRadius.horizontal(right: Radius.circular(4.r)),
+                              ),
                             ),
                           ),
-                        ),
-                      ),
-                      SizedBox(width: 16.w),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(name, style: AppTextStyle.bold7.copyWith(color: AppColors.themeColor.textPrimaryColor, fontSize: AppDimens.fontSize15)),
-                            SizedBox(height: 4.h),
-                            Row(
-                              children: [
-                                Icon(Icons.phone_outlined, size: 12.sp, color: AppColors.themeColor.textSecondaryColor),
-                                SizedBox(width: 4.w),
-                                Text(phone, style: AppTextStyle.medium7.copyWith(color: AppColors.themeColor.textSecondaryColor, fontSize: AppDimens.fontSize13)),
-                              ],
-                            ),
-                            if (status.isNotEmpty) ...[
-                              SizedBox(height: 8.h),
-                              Container(
-                                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                                decoration: BoxDecoration(color: Colors.orange.withOpacity(0.1), borderRadius: BorderRadius.circular(6.r)),
-                                child: Text(status, style: AppTextStyle.bold7.copyWith(fontSize: AppDimens.fontSize10, color: Colors.orange)),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.fromLTRB(20.w, 16.h, 16.w, 16.h),
+                                child: Row(
+                                  children: [
+                                    // Avatar
+                                    Container(
+                                      height: 50.h,
+                                      width: 50.w,
+                                      decoration: BoxDecoration(
+                                        color: AppColors.themeColor.cardColor,
+                                        border: Border.all(
+                                          color: (isCurrent || isOpen) ? AppColors.themeColor.primaryColor : statusColor.withOpacity(0.5),
+                                          width: 2,
+                                        ),
+                                        borderRadius: BorderRadius.circular(25.r),
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          name.isNotEmpty ? name[0].toUpperCase() : 'N',
+                                          style: AppTextStyle.semiBold18.copyWith(
+                                            color: statusColor,
+                                            fontSize: 20.sp,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(width: 14.w),
+                                    // Info
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Icon(Icons.person, size: 14.sp, color: AppColors.themeColor.textSecondaryColor),
+                                              SizedBox(width: 6.w),
+                                              Expanded(
+                                                child: Text(
+                                                  name,
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 15.sp,
+                                                    color: AppColors.themeColor.textPrimaryColor,
+                                                  ),
+                                                  overflow: TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          SizedBox(height: 4.h),
+                                          Row(
+                                            children: [
+                                              Icon(Icons.call, size: 14.sp, color: AppColors.themeColor.textSecondaryColor),
+                                              SizedBox(width: 6.w),
+                                              Text(
+                                                phone,
+                                                style: TextStyle(
+                                                  fontSize: 13.sp,
+                                                  color: AppColors.themeColor.textSecondaryColor,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          if (hasEmail) ...[
+                                            SizedBox(height: 4.h),
+                                            Row(
+                                              children: [
+                                                Icon(Icons.email_outlined, size: 14.sp, color: AppColors.themeColor.textSecondaryColor),
+                                                SizedBox(width: 6.w),
+                                                Expanded(
+                                                  child: Text(
+                                                    email!,
+                                                    style: TextStyle(
+                                                      fontSize: 12.sp,
+                                                      color: AppColors.themeColor.textSecondaryColor,
+                                                    ),
+                                                    overflow: TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ],
+                                      ),
+                                    ),
+                                    if (isCompleted)
+                                      Container(
+                                        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+                                        decoration: BoxDecoration(
+                                          color: statusColor.withOpacity(0.12),
+                                          borderRadius: BorderRadius.circular(20.r),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Container(
+                                              width: 6.w,
+                                              height: 6.h,
+                                              decoration: BoxDecoration(
+                                                color: statusColor,
+                                                shape: BoxShape.circle
+                                              ),
+                                            ),
+                                            SizedBox(width: 6.w),
+                                            Text(
+                                              lead.logs != null && lead.logs!.isNotEmpty 
+                                                ? lead.logs![0].answer.toString().capitalizeFirst! 
+                                                : 'Finished',
+                                              style: TextStyle(
+                                                color: statusColor,
+                                                fontSize: 10.sp,
+                                                fontWeight: FontWeight.bold
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                              
+                              // Expandable Section (Pending & Completed)
+                              AnimatedSize(
+                                duration: const Duration(milliseconds: 250),
+                                curve: Curves.easeInOut,
+                                child: isOpen
+                                    ? Column(
+                                        children: [
+                                          Divider(height: 1, color: statusColor.withOpacity(0.2)),
+                                          Container(
+                                            padding: EdgeInsets.fromLTRB(20.w, 15.h, 12.w, 15.h),
+                                            child: SingleChildScrollView(
+                                              scrollDirection: Axis.horizontal,
+                                              child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                                children: [
+                                                  _buildActionButton(
+                                                    icon: Icons.call_rounded,
+                                                    label: "call".tr,
+                                                    onTap: () => controller.makeManualCall(lead),
+                                                    color: Colors.green,
+                                                  ),
+                                                  _buildActionButton(
+                                                    icon: Icons.message_rounded,
+                                                    label: "sms".tr,
+                                                    onTap: () => controller.launchSms(lead.contact?.phone),
+                                                    color: Colors.blue,
+                                                  ),
+                                                  _buildActionButton(
+                                                    icon: Icons.share_rounded,
+                                                    label: "WhatsApp",
+                                                    onTap: () => controller.launchWhatsApp(lead.contact?.phone),
+                                                    color: const Color(0xFF25D366),
+                                                  ),
+                                                  if (hasEmail)
+                                                    _buildActionButton(
+                                                      icon: Icons.email_rounded,
+                                                      label: "email".tr,
+                                                      onTap: () => controller.launchEmail(email),
+                                                      color: Colors.orange,
+                                                    ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    : const SizedBox.shrink(),
+                              ),
+
+                            // Bottom Row (Completed)
+                            if (isCompleted) ...[
+                              Divider(height: 1, color: statusColor.withOpacity(0.1)),
+                              Padding(
+                                padding: EdgeInsets.fromLTRB(20.w, 12.h, 16.w, 12.h),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      _formatDate(lead.updatedAt),
+                                      style: TextStyle(fontSize: 11.sp, color: AppColors.themeColor.textSecondaryColor),
+                                    ),
+                                    Text(
+                                      (lead.logs != null && lead.logs!.isNotEmpty && lead.logs![0].duration != 0)
+                                          ? controller.formatDuration(Duration(seconds: lead.logs![0].duration!))
+                                          : '00:00',
+                                      style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.bold, color: statusColor),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ],
                         ),
-                      ),
-                      Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          onTap: () => controller.makeManualCall(lead),
-                          borderRadius: BorderRadius.circular(14.r),
-                          child: Container(
-                            width: 44.w,
-                            height: 44.h,
-                            decoration: BoxDecoration(color: Colors.green.withOpacity(0.1), borderRadius: BorderRadius.circular(14.r)),
-                            child: Icon(Icons.call_rounded, color: Colors.green, size: 22.sp),
-                          ),
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              );
-            });
-          },
-        );
-      },
-    );
-  }
+              ),
+            );
+          });
+        },
+      );
+    },
+  );
+}
   Widget _buildStickyControlCenter(bool isTablet) {
     return Obx(() {
       final status = controller.status.value;
@@ -993,6 +1168,56 @@ class AutoDialerPage extends GetView<AutoDialerController> {
         ],
       ),
     );
+  }
+
+  Widget _buildActionButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    Color? color,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12.r),
+      child: Container(
+        width: 80.w,
+        padding: EdgeInsets.symmetric(vertical: 8.h),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: EdgeInsets.all(10.w),
+              decoration: BoxDecoration(
+                color: (color ?? AppColors.themeColor.primaryColor).withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: color ?? AppColors.themeColor.primaryColor, size: 20.sp),
+            ),
+            SizedBox(height: 6.h),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11.sp,
+                fontWeight: FontWeight.w600,
+                color: AppColors.themeColor.textPrimaryColor,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _formatDate(String? dateStr) {
+    if (dateStr == null || dateStr.isEmpty) return 'N/A';
+    try {
+      final dateTime = DateTime.parse(dateStr).toLocal();
+      // IST is +5:30
+      final istTime = dateTime.add(const Duration(hours: 5, minutes: 30));
+      return DateFormat('dd MMM yyyy, hh:mm a').format(istTime);
+    } catch (e) {
+      return dateStr;
+    }
   }
 }
 

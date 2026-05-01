@@ -8,6 +8,7 @@ import 'package:telecaller_app/core/models/all_lead_entity.dart';
 import 'package:telecaller_app/core/models/lead_contact_id_entity.dart';
 import 'package:telecaller_app/core/services/api_service.dart';
 import 'package:telecaller_app/core/services/phone_status_service.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AutoDialerController extends GetxController {
   late final ApiService _apiService;
@@ -72,6 +73,9 @@ class AutoDialerController extends GetxController {
   final currentContact = Rxn<LeadContactIdLeadContacts>();
   final nextContact = Rxn<LeadContactIdLeadContacts>();
   final countdown = 0.obs;
+
+  // For expandable list items
+  final openedIndex = (-1).obs;
 
   // ─────────────────────────────────────────────
   // LIFECYCLE
@@ -275,6 +279,14 @@ class AutoDialerController extends GetxController {
                 // Keep flat list in sync for startDialing()
                 if (pageNumber == 0) {
                   contactQueue.assignAll(items);
+                  
+                  // Auto-expand the first contact on initial load
+                  if (items.isNotEmpty) {
+                    openedIndex.value = 0;
+                  } else {
+                    openedIndex.value = -1;
+                  }
+
                   // Populate initial current and next if we are idle
                   if (status.value == 'idle' && items.isNotEmpty) {
                     currentContact.value = items[0];
@@ -305,6 +317,9 @@ class AutoDialerController extends GetxController {
   void onContactStatusChanged(String statusValue) {
     if (selectedContactStatus.value == statusValue) return;
     selectedContactStatus.value = statusValue;
+    
+    // Reset selection/expansion index when switching filters
+    openedIndex.value = -1;
 
     final lead = selectedLeadDataset.value;
     if (lead != null && lead.id != null) {
@@ -534,6 +549,14 @@ class AutoDialerController extends GetxController {
           }
         }
       }
+
+      // Auto-expand the card for the currently active/dialing contact
+      if (currentContact.value != null) {
+        final qIndex = contactQueue.indexWhere((l) => l.id == currentContact.value!.id);
+        if (qIndex != -1 && openedIndex.value != qIndex) {
+          openedIndex.value = qIndex;
+        }
+      }
     }
 
     final dynamic dynOverlay = overlayCtrl;
@@ -629,6 +652,88 @@ class AutoDialerController extends GetxController {
     if (index != -1) {
       contactQueue[index].status = newStatus;
       contactQueue.refresh();
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  // UTILS
+  // ─────────────────────────────────────────────────────────────────
+  String capitalizeEachWord(String text) {
+    if (text.isEmpty) return text;
+    return text.split(' ').map((word) {
+      if (word.isEmpty) return word;
+      return word[0].toUpperCase() + word.substring(1).toLowerCase();
+    }).join(' ');
+  }
+
+  String formatDuration(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, "0");
+    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
+    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+    if (duration.inHours > 0) {
+      return "${twoDigits(duration.inHours)}:$twoDigitMinutes:$twoDigitSeconds";
+    }
+    return "$twoDigitMinutes:$twoDigitSeconds";
+  }
+
+  Future<void> launchPhoneDialer(String? phone) async {
+    if (phone == null || phone.isEmpty) return;
+    final Uri url = Uri(scheme: 'tel', path: phone);
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url);
+    }
+  }
+
+  Future<void> launchSms(String? phone) async {
+    if (phone == null || phone.isEmpty) return;
+    final Uri url = Uri(scheme: 'sms', path: phone);
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url);
+    }
+  }
+
+  Future<void> launchWhatsApp(String? phone) async {
+    if (phone == null || phone.isEmpty) return;
+    // Remove non-numeric characters for WhatsApp
+    final cleanPhone = phone.replaceAll(RegExp(r'[^0-9]'), '');
+    final Uri url = Uri.parse("https://wa.me/$cleanPhone");
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    }
+  }
+
+  Future<void> launchEmail(String? email) async {
+    if (email == null || email.isEmpty) return;
+    final Uri url = Uri(scheme: 'mailto', path: email);
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url);
+    }
+  }
+
+  Color getStatusColor(String? status) {
+    switch (status?.toLowerCase()) {
+      case 'scheduled':
+        return const Color(0xFF4F46E5);
+      case 'completed':
+        return const Color(0xFF10B981);
+      case 'pending':
+        return const Color(0xFFF59E0B);
+      case 'cancelled':
+        return const Color(0xFFEF4444);
+      case 'interested':
+        return const Color(0xFF8BC34A);
+      case 'not interested':
+        return const Color(0xFFF44336);
+      case 'follow up':
+        return const Color(0xFF9C27B0);
+      case 'invalid':
+        return const Color(0xFF757575);
+      case 'no response':
+        return const Color(0xFFBDBDBD);
+      case 'answered':
+        return const Color(0xFF10B981);
+      default:
+        return Get.theme.primaryColor;
     }
   }
 }
