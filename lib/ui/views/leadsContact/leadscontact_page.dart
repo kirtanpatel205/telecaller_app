@@ -417,6 +417,7 @@ class LeadsContactPage extends GetView<LeadsContactController> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
+
           children: [
             Icon(icon, size: 12.sp, color: AppColors.themeColor.primaryColor),
             SizedBox(width: 4.w),

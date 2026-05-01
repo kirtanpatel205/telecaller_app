@@ -602,38 +602,8 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                                         ],
                                       ),
                                     ),
-                                    if (isCompleted)
-                                      Container(
-                                        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
-                                        decoration: BoxDecoration(
-                                          color: statusColor.withOpacity(0.12),
-                                          borderRadius: BorderRadius.circular(20.r),
-                                        ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Container(
-                                              width: 6.w,
-                                              height: 6.h,
-                                              decoration: BoxDecoration(
-                                                color: statusColor,
-                                                shape: BoxShape.circle
-                                              ),
-                                            ),
-                                            SizedBox(width: 6.w),
-                                            Text(
-                                              lead.logs != null && lead.logs!.isNotEmpty 
-                                                ? lead.logs![0].answer.toString().capitalizeFirst! 
-                                                : 'Finished',
-                                              style: TextStyle(
-                                                color: statusColor,
-                                                fontSize: 10.sp,
-                                                fontWeight: FontWeight.bold
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
+                                    // Status Badge
+                                    _buildStatusBadge(status),
                                   ],
                                 ),
                               ),
@@ -1134,6 +1104,30 @@ class AutoDialerPage extends GetView<AutoDialerController> {
             Icon(Icons.check_rounded, color: AppColors.themeColor.primaryColor, size: 16.sp),
           ],
         ],
+      ),
+    );
+  }
+
+  Widget _buildStatusBadge(String status) {
+    final bool isPending = status.toLowerCase() == 'pending';
+    final Color color = isPending ? const Color(0xFFF59E0B) : const Color(0xFF10B981);
+    final String label = isPending ? 'Pending' : 'Completed';
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(10.r),
+        border: Border.all(color: color.withOpacity(0.3), width: 1.w),
+      ),
+      child: Text(
+        label.toUpperCase(),
+        style: TextStyle(
+          color: color,
+          fontSize: 9.sp,
+          fontWeight: FontWeight.w900,
+          letterSpacing: 0.8,
+        ),
       ),
     );
   }
