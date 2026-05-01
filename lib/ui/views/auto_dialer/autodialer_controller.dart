@@ -276,25 +276,18 @@ class AutoDialerController extends GetxController {
                 totalContacts.value = response.total ?? 0;
                 final items = response.leadContacts ?? [];
 
-                // Keep flat list in sync for startDialing()
-                if (pageNumber == 0) {
-                  contactQueue.assignAll(items);
-                  
-                  // Auto-expand the first contact on initial load
-                  if (items.isNotEmpty) {
-                    openedIndex.value = 0;
-                  } else {
-                    openedIndex.value = -1;
-                  }
-
-                  // Populate initial current and next if we are idle
-                  if (status.value == 'idle' && items.isNotEmpty) {
-                    currentContact.value = items[0];
-                    if (items.length > 1) {
-                      nextContact.value = items[1];
+                  // Keep flat list in sync for startDialing()
+                  if (pageNumber == 0) {
+                    contactQueue.assignAll(items);
+                    
+                    // Populate initial current and next if we are idle
+                    if (status.value == 'idle' && items.isNotEmpty) {
+                      currentContact.value = items[0];
+                      if (items.length > 1) {
+                        nextContact.value = items[1];
+                      }
                     }
-                  }
-                } else {
+                  } else {
                   // Avoid duplicates on refetch
                   final existing = contactQueue.map((e) => e.id).toSet();
                   final newItems = items.where((i) => !existing.contains(i.id));
@@ -437,13 +430,23 @@ class AutoDialerController extends GetxController {
       return;
     }
 
-    overlayCtrl.callQueue = queue;
-    overlayCtrl.currentQueueIndex.value = 0; // Start at 0 for the first lead
-    overlayCtrl.isAutoCallMode.value = true;
+    // Determine where to start: either from the user-selected contact or the first one
+    int startIndex = 0;
+    if (openedIndex.value != -1 && openedIndex.value < contactQueue.length) {
+      final selectedContact = contactQueue[openedIndex.value];
+      final qIndex = queue.indexWhere((l) => l['leadContactId'] == selectedContact.id);
+      if (qIndex != -1) {
+        startIndex = qIndex;
+      }
+    }
 
+    overlayCtrl.callQueue = queue;
+    overlayCtrl.currentQueueIndex.value = startIndex;
+    overlayCtrl.isAutoCallMode.value = true;
+    
     _syncWithOverlay(overlayCtrl);
 
-    final firstLead = queue.first;
+    final firstLead = queue[startIndex];
 
     // Sync metadata with OverlayController & PhoneStatusService BEFORE dialing
     overlayCtrl.currentLeadId = firstLead['id'] ?? '';
@@ -551,11 +554,15 @@ class AutoDialerController extends GetxController {
       }
 
       // Auto-expand the card for the currently active/dialing contact
-      if (currentContact.value != null) {
+      if (overlayCtrl.isAutoCallMode.value && currentContact.value != null) {
         final qIndex = contactQueue.indexWhere((l) => l.id == currentContact.value!.id);
         if (qIndex != -1 && openedIndex.value != qIndex) {
           openedIndex.value = qIndex;
         }
+      } else if (!overlayCtrl.isAutoCallMode.value) {
+        // If not dialing, don't force expansion unless the user manually did it
+        // We can optionally reset openedIndex here if you want it to collapse when stopping
+        // openedIndex.value = -1;
       }
     }
 
@@ -601,6 +608,39 @@ class AutoDialerController extends GetxController {
     currentContact.value = null;
     if (Get.isRegistered<OverlayController>()) {
       Get.find<OverlayController>().stopCountdown();
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  // SELECTION LOGIC
+  // ─────────────────────────────────────────────────────────────────
+  void onContactManualSelect(int index) {
+    if (index < 0 || index >= contactQueue.length) {
+      openedIndex.value = -1;
+      return;
+    }
+
+    final bool isClosing = openedIndex.value == index;
+    
+    // 1. Immediately update expansion state
+    openedIndex.value = isClosing ? -1 : index;
+    
+    // 2. Immediately update active contact for real-time UI highlight (no sticky selection)
+    if (!isClosing) {
+      currentContact.value = contactQueue[index];
+    }
+
+    // 3. If dialer is running, jump to this contact immediately in the background
+    if (status.value != 'idle' && Get.isRegistered<OverlayController>()) {
+      final overlayCtrl = Get.find<OverlayController>();
+      if (overlayCtrl.isAutoCallMode.value && !isClosing) {
+         final contact = contactQueue[index];
+         final qIndex = overlayCtrl.callQueue.indexWhere((l) => l['leadContactId'] == contact.id);
+         if (qIndex != -1) {
+           // This will trigger the dialer to switch
+           overlayCtrl.currentQueueIndex.value = qIndex;
+         }
+      }
     }
   }
 

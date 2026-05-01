@@ -500,8 +500,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                 padding: EdgeInsets.fromLTRB(hPad, 0, hPad, 12.h),
                 child: InkWell(
                   onTap: () {
-                    // Toggle expansion for all contacts (Pending and Completed)
-                    controller.openedIndex.value = (isOpen ? -1 : index);
+                    controller.onContactManualSelect(index);
                   },
                   child: Card(
                     elevation: 0,
