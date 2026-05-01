@@ -390,16 +390,18 @@ class AutoDialerController extends GetxController {
                   l.contact?.phone != null &&
                   l.contact!.phone!.isNotEmpty &&
                   (
-                    // Current Status Match
-                    l.status == selectedContactStatus.value ||
+                    // Current Status Match (Case Insensitive)
+                    (l.status?.toLowerCase() == selectedContactStatus.value.toLowerCase()) ||
+                    
                     // Pending fallback (null or empty also counts as pending)
-                    (selectedContactStatus.value == 'pending' && (l.status == null || l.status!.isEmpty)) ||
+                    (selectedContactStatus.value.toLowerCase() == 'pending' && (l.status == null || l.status!.isEmpty)) ||
+                    
                     // Completed broad match (anything that is NOT pending or scheduled)
-                    (selectedContactStatus.value == 'completed' && 
-                     l.status != 'pending' && 
+                    (selectedContactStatus.value.toLowerCase() == 'completed' && 
+                     l.status?.toLowerCase() != 'pending' && 
                      l.status != null && 
                      l.status!.isNotEmpty && 
-                     l.status != 'scheduled')
+                     l.status?.toLowerCase() != 'scheduled')
                   ),
             )
             .map(

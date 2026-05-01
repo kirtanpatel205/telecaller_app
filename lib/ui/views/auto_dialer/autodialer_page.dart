@@ -619,9 +619,9 @@ class AutoDialerPage extends GetView<AutoDialerController> {
   Widget _buildIdleStartButton(bool isTablet) {
     return Obx(() {
       final hasLead = controller.selectedLeadDataset.value != null;
-      final isPendingView = controller.selectedContactStatus.value == 'pending';
+      final totalContacts = controller.totalContacts.value;
       
-      if (!hasLead) return const SizedBox.shrink();
+      if (!hasLead || totalContacts == 0) return const SizedBox.shrink();
 
       return Padding(
         padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 24.h),
