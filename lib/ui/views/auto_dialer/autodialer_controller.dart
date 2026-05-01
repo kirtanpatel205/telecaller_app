@@ -233,6 +233,19 @@ class AutoDialerController extends GetxController {
     _fetchFirstLeadsPage(); // re-fetch first page after reset
   }
 
+  /// Refresh only the contacts for the currently selected lead.
+  Future<void> refreshContacts() async {
+    final lead = selectedLeadDataset.value;
+    if (lead != null && lead.id != null) {
+      _initContactsPagewise(lead.id!);
+      // We can wait a bit or return immediately as Pagewise handles its own loading state.
+      // But for RefreshIndicator, we might want to wait for the first page.
+      await Future.delayed(const Duration(milliseconds: 500)); 
+    } else {
+      resetLeads();
+    }
+  }
+
   // ─────────────────────────────────────────────
   // PAGEWISE INIT — CONTACTS
   // ─────────────────────────────────────────────

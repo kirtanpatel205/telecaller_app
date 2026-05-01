@@ -66,7 +66,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
               // ── SCROLLABLE MIDDLE SECTION ──────────────
               Expanded(
                 child: RefreshIndicator(
-                  onRefresh: () async => controller.resetLeads(),
+                  onRefresh: () async => controller.refreshContacts(),
                   displacement: 20,
                   color: AppColors.themeColor.primaryColor,
                   child: Obx(() {
