@@ -13,6 +13,7 @@ class CustomSearchBar extends StatefulWidget {
   final Function(String)? onSearch;
   final String? hintText;
   final Duration debounceDuration;
+  final EdgeInsets? margin;
 
   const CustomSearchBar({
     Key? key,
@@ -20,6 +21,7 @@ class CustomSearchBar extends StatefulWidget {
     this.onSearch,
     this.hintText,
     this.debounceDuration = const Duration(milliseconds: 500),
+    this.margin,
   }) : super(key: key);
 
   @override
@@ -63,7 +65,7 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
       final theme = AppColors.themeColor;
       return AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+        margin: widget.margin ?? EdgeInsets.zero,
         decoration: BoxDecoration(
           color: theme.cardColor,
           borderRadius: BorderRadius.circular(12.r),

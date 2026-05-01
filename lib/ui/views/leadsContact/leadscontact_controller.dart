@@ -49,10 +49,6 @@ class LeadsContactController extends GetxController {
     super.onInit();
     argumnetGet();
     apiService = Get.find<ApiService>();
-
-    // Debounce search to avoid multiple redundant calls
-    debounce(searchText, (_) => resetAndReload(),
-        time: const Duration(milliseconds: 500));
   }
 
   void argumnetGet() {

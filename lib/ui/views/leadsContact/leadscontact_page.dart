@@ -64,23 +64,24 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                 SliverPersistentHeader(
                   pinned: true,
                   delegate: _SliverHeaderDelegate(
-                    minHeight: 120.h,
-                    maxHeight: 120.h,
+                    minHeight: 125.h,
+                    maxHeight: 125.h,
                     child: Container(
                       color: AppColors.themeColor.scaffoldBackgroundColor,
-                      padding: EdgeInsets.only(bottom: 8.h),
                       child: Column(
                         children: [
+                          SizedBox(height: 12.h),
                           Padding(
                             padding: EdgeInsets.symmetric(horizontal: 16.w),
                             child: CustomSearchBar(
                               controller: controller.searchController,
                               onSearch: (value) {
                                 controller.searchText.value = value;
+                                controller.resetAndReload();
                               },
                             ),
                           ),
-                          SizedBox(height: 10.h),
+                          SizedBox(height: 12.h),
                           Padding(
                             padding: EdgeInsets.symmetric(horizontal: 16.w),
                             child: Obx(() {
@@ -122,6 +123,7 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                               );
                             }),
                           ),
+                          SizedBox(height: 8.h),
                         ],
                       ),
                     ),
@@ -141,15 +143,15 @@ class LeadsContactPage extends GetView<LeadsContactController> {
 
   Widget _buildStatsCards() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
       child: GridView(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3,
-          crossAxisSpacing: 10.w,
-          mainAxisSpacing: 10.h,
-          childAspectRatio: 1.3,
+          crossAxisSpacing: 12.w,
+          mainAxisSpacing: 12.h,
+          childAspectRatio: 1.4,
         ),
         children: [
           _buildGridCard('total'.tr, controller.totalLeadsId.value.toString(), const Color(0xFF6366F1), Icons.people_outline),

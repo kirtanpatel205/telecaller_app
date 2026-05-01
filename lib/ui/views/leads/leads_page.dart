@@ -38,6 +38,7 @@ class LeadsPage extends GetView<LeadsController> {
                     SizedBox(height: 10.h),
                     CustomSearchBar(
                       controller: controller.searchController,
+                      margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
                       onSearch: (value) {
                         controller.searchText.value = value;
                       },
