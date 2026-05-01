@@ -518,32 +518,32 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Padding(
-                                padding: EdgeInsets.fromLTRB(20.w, 16.h, 16.w, 16.h),
+                                padding: EdgeInsets.fromLTRB(16.w, 12.h, 12.w, 12.h),
                                 child: Row(
                                   children: [
                                     // Avatar
                                     Container(
-                                      height: 50.h,
-                                      width: 50.w,
+                                      height: 40.h,
+                                      width: 40.w,
                                       decoration: BoxDecoration(
                                         color: AppColors.themeColor.cardColor,
                                         border: Border.all(
                                           color: (isCurrent || isOpen) ? AppColors.themeColor.primaryColor : statusColor.withOpacity(0.5),
                                           width: 2,
                                         ),
-                                        borderRadius: BorderRadius.circular(25.r),
+                                        borderRadius: BorderRadius.circular(20.r),
                                       ),
                                       child: Center(
                                         child: Text(
                                           name.isNotEmpty ? name[0].toUpperCase() : 'N',
                                           style: AppTextStyle.semiBold18.copyWith(
                                             color: statusColor,
-                                            fontSize: 20.sp,
+                                            fontSize: 16.sp,
                                           ),
                                         ),
                                       ),
                                     ),
-                                    SizedBox(width: 14.w),
+                                    SizedBox(width: 10.w),
                                     // Info
                                     Expanded(
                                       child: Column(
@@ -584,13 +584,13 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                                             SizedBox(height: 4.h),
                                             Row(
                                               children: [
-                                                Icon(Icons.email_outlined, size: 14.sp, color: AppColors.themeColor.textSecondaryColor),
-                                                SizedBox(width: 6.w),
+                                                Icon(Icons.email_outlined, size: 12.sp, color: AppColors.themeColor.textSecondaryColor),
+                                                SizedBox(width: 4.w),
                                                 Expanded(
                                                   child: Text(
                                                     email!,
                                                     style: TextStyle(
-                                                      fontSize: 12.sp,
+                                                      fontSize: 11.sp,
                                                       color: AppColors.themeColor.textSecondaryColor,
                                                     ),
                                                     overflow: TextOverflow.ellipsis,
@@ -602,7 +602,6 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                                         ],
                                       ),
                                     ),
-                                    // Status Badge
                                     _buildStatusBadge(status),
                                   ],
                                 ),
@@ -617,39 +616,36 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                                         children: [
                                           Divider(height: 1, color: statusColor.withOpacity(0.2)),
                                           Container(
-                                            padding: EdgeInsets.fromLTRB(20.w, 15.h, 12.w, 15.h),
-                                            child: SingleChildScrollView(
-                                              scrollDirection: Axis.horizontal,
-                                              child: Row(
-                                                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                                children: [
+                                            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                                            child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                _buildActionButton(
+                                                  icon: Icons.call_rounded,
+                                                  label: "call".tr,
+                                                  onTap: () => controller.makeManualCall(lead),
+                                                  color: const Color(0xFF10B981),
+                                                ),
+                                                _buildActionButton(
+                                                  icon: Icons.share_rounded,
+                                                  label: "WhatsApp",
+                                                  onTap: () => controller.launchWhatsApp(lead.contact?.phone),
+                                                  color: const Color(0xFF25D366),
+                                                ),
+                                                _buildActionButton(
+                                                  icon: Icons.message_rounded,
+                                                  label: "sms".tr,
+                                                  onTap: () => controller.launchSms(lead.contact?.phone),
+                                                  color: const Color(0xFF3B82F6),
+                                                ),
+                                                if (hasEmail)
                                                   _buildActionButton(
-                                                    icon: Icons.call_rounded,
-                                                    label: "call".tr,
-                                                    onTap: () => controller.makeManualCall(lead),
-                                                    color: Colors.green,
+                                                    icon: Icons.email_rounded,
+                                                    label: "email".tr,
+                                                    onTap: () => controller.launchEmail(email),
+                                                    color: const Color(0xFFF59E0B),
                                                   ),
-                                                  _buildActionButton(
-                                                    icon: Icons.message_rounded,
-                                                    label: "sms".tr,
-                                                    onTap: () => controller.launchSms(lead.contact?.phone),
-                                                    color: Colors.blue,
-                                                  ),
-                                                  _buildActionButton(
-                                                    icon: Icons.share_rounded,
-                                                    label: "WhatsApp",
-                                                    onTap: () => controller.launchWhatsApp(lead.contact?.phone),
-                                                    color: const Color(0xFF25D366),
-                                                  ),
-                                                  if (hasEmail)
-                                                    _buildActionButton(
-                                                      icon: Icons.email_rounded,
-                                                      label: "email".tr,
-                                                      onTap: () => controller.launchEmail(email),
-                                                      color: Colors.orange,
-                                                    ),
-                                                ],
-                                              ),
+                                              ],
                                             ),
                                           ),
                                         ],
@@ -1135,34 +1131,50 @@ class AutoDialerPage extends GetView<AutoDialerController> {
   Widget _buildActionButton({
     required IconData icon,
     required String label,
-    required VoidCallback onTap,
+    required VoidCallback? onTap,
     Color? color,
   }) {
+    final bool isDisabled = onTap == null;
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12.r),
+      borderRadius: BorderRadius.circular(16.r),
       child: Container(
-        width: 80.w,
-        padding: EdgeInsets.symmetric(vertical: 8.h),
+        constraints: BoxConstraints(minWidth: 60.w),
+        padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 2.w),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
               padding: EdgeInsets.all(10.w),
               decoration: BoxDecoration(
-                color: (color ?? AppColors.themeColor.primaryColor).withOpacity(0.1),
+                color: isDisabled 
+                    ? Colors.grey.withOpacity(0.1) 
+                    : (color ?? AppColors.themeColor.primaryColor).withOpacity(0.12),
                 shape: BoxShape.circle,
+                border: Border.all(
+                  color: isDisabled 
+                      ? Colors.grey.withOpacity(0.2) 
+                      : (color ?? AppColors.themeColor.primaryColor).withOpacity(0.3),
+                  width: 1.w,
+                ),
               ),
-              child: Icon(icon, color: color ?? AppColors.themeColor.primaryColor, size: 20.sp),
+              child: Icon(
+                icon, 
+                color: isDisabled ? Colors.grey : (color ?? AppColors.themeColor.primaryColor), 
+                size: 18.sp
+              ),
             ),
             SizedBox(height: 6.h),
             Text(
               label,
               style: TextStyle(
-                fontSize: 11.sp,
-                fontWeight: FontWeight.w600,
-                color: AppColors.themeColor.textPrimaryColor,
+                fontSize: 9.sp,
+                fontWeight: FontWeight.bold,
+                color: isDisabled ? Colors.grey : AppColors.themeColor.textPrimaryColor,
+                letterSpacing: 0.1,
               ),
+              textAlign: TextAlign.center,
             ),
           ],
         ),
