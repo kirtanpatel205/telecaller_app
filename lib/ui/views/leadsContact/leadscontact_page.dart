@@ -27,85 +27,116 @@ class LeadsContactPage extends GetView<LeadsContactController> {
   @override
   Widget build(BuildContext context) {
     return AppSafeArea(
-      top: false,
-      child: Scaffold(
-      backgroundColor: AppColors.themeColor.scaffoldBackgroundColor,
-      appBar: CustomAppBar(
-        titleText: 'leads_contact'.tr,
-      ),
-      body: Obx(
-        () => controller.isLoading.value
-            ? const Center(child: CircularProgressIndicator())
-            : Column(
-                children: [
-                  SizedBox(height: 12.h),
-                  _buildStatsCards(),
-                  SizedBox(height: 12.h),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    child: CustomSearchBar(
-                    controller: controller.searchController,
-                    onSearch: (value) {
-                      controller.searchText.value = value;
-                    },
-                  ),
-                  ),
-                  SizedBox(height: 10.h),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    child: Obx(() {
-                      final hasActiveFilters = controller.isApplyFilter.value;
-                      final hasActiveSort = controller.sortBy.value != "create";
-                      final showReset = hasActiveFilters || hasActiveSort;
+        top: false,
+        child: Scaffold(
+          backgroundColor: AppColors.themeColor.scaffoldBackgroundColor,
+          appBar: CustomAppBar(
+            titleText: 'leads_contact'.tr,
+          ),
+          body: RefreshIndicator(
+            onRefresh: () async {
+              controller.resetAndReload();
+              await Future.delayed(const Duration(milliseconds: 500));
+            },
+            child: CustomScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              slivers: [
+                // 1. Stats Cards
+                SliverToBoxAdapter(
+                  child: Obx(() {
+                    if (controller.isLoading.value) {
+                      return SizedBox(
+                        height: 200.h,
+                        child: const Center(child: CircularProgressIndicator()),
+                      );
+                    }
+                    return Column(
+                      children: [
+                        SizedBox(height: 12.h),
+                        _buildStatsCards(),
+                        SizedBox(height: 12.h),
+                      ],
+                    );
+                  }),
+                ),
 
-                      return Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
+                // 2. Pinned Search and Filters
+                SliverPersistentHeader(
+                  pinned: true,
+                  delegate: _SliverHeaderDelegate(
+                    minHeight: 120.h,
+                    maxHeight: 120.h,
+                    child: Container(
+                      color: AppColors.themeColor.scaffoldBackgroundColor,
+                      padding: EdgeInsets.only(bottom: 8.h),
+                      child: Column(
                         children: [
-                          if (showReset) ...[
-                            CustomActionButton(
-                              title: "reset".tr,
-                              icon: Icons.refresh,
-                              onTap: () {
-                                controller.resetFilters();
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 16.w),
+                            child: CustomSearchBar(
+                              controller: controller.searchController,
+                              onSearch: (value) {
+                                controller.searchText.value = value;
                               },
                             ),
-                            SizedBox(width: 8.w),
-                          ],
-                          CustomActionButton(
-                            title: "filter".tr,
-                            icon: Icons.filter_alt_outlined,
-                            showBadge: hasActiveFilters,
-                            onTap: () {
-                              _showFilterBottomSheet(context);
-                            },
                           ),
-                          SizedBox(width: 8.w),
-                          CustomActionButton(
-                            title: "sort".tr,
-                            icon: Icons.sort,
-                            showBadge: hasActiveSort,
-                            onTap: () {
-                              _showSortBottomSheet(context);
-                            },
+                          SizedBox(height: 10.h),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 16.w),
+                            child: Obx(() {
+                              final hasActiveFilters = controller.isApplyFilter.value;
+                              final hasActiveSort = controller.sortBy.value != "create";
+                              final showReset = hasActiveFilters || hasActiveSort;
+
+                              return Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  if (showReset) ...[
+                                    CustomActionButton(
+                                      title: "reset".tr,
+                                      icon: Icons.refresh,
+                                      onTap: () {
+                                        controller.resetFilters();
+                                      },
+                                    ),
+                                    SizedBox(width: 8.w),
+                                  ],
+                                  CustomActionButton(
+                                    title: "filter".tr,
+                                    icon: Icons.filter_alt_outlined,
+                                    showBadge: hasActiveFilters,
+                                    onTap: () {
+                                      _showFilterBottomSheet(context);
+                                    },
+                                  ),
+                                  SizedBox(width: 8.w),
+                                  CustomActionButton(
+                                    title: "sort".tr,
+                                    icon: Icons.sort,
+                                    showBadge: hasActiveSort,
+                                    onTap: () {
+                                      _showSortBottomSheet(context);
+                                    },
+                                  ),
+                                ],
+                              );
+                            }),
                           ),
                         ],
-                      );
-                    }),
-                  ),
-                  SizedBox(height: 10.h),
-                  Expanded(
-                    child: RefreshIndicator(
-                      onRefresh: () async {
-                        controller.resetAndReload();
-                        await Future.delayed(const Duration(milliseconds: 500));
-                      },
-                      child: _buildLeadsTable(context),
+                      ),
                     ),
                   ),
-                ],
-              ),
-      ),
-      ));
+                ),
+
+                // 3. Leads List
+                _buildLeadsTableSliver(context),
+                
+                // Bottom padding
+                SliverToBoxAdapter(child: SizedBox(height: 20.h)),
+              ],
+            ),
+          ),
+        ));
   }
 
   Widget _buildStatsCards() {
@@ -187,11 +218,11 @@ class LeadsContactPage extends GetView<LeadsContactController> {
     );
   }
 
-  Widget _buildLeadsTable(BuildContext context) {
+  Widget _buildLeadsTableSliver(BuildContext context) {
     if (controller.pagewiseLoadLeadIdController == null) {
-      return const Center(child: CircularProgressIndicator());
+      return const SliverToBoxAdapter(child: Center(child: CircularProgressIndicator()));
     }
-    return PagewiseListView<LeadContactIdLeadContacts>(
+    return PagewiseSliverList<LeadContactIdLeadContacts>(
       pageLoadController: controller.pagewiseLoadLeadIdController,
       showRetry: true,
       noItemsFoundBuilder: (context) {
@@ -252,7 +283,12 @@ class LeadsContactPage extends GetView<LeadsContactController> {
           ),
         );
       },
-      loadingBuilder: (context) => const Center(child: CircularProgressIndicator()),
+      loadingBuilder: (context) => const Center(
+        child: Padding(
+          padding: EdgeInsets.all(20.0),
+          child: CircularProgressIndicator(),
+        ),
+      ),
       itemBuilder: (context, item, index) => _buildLeadCardMobile(item),
     );
   }
@@ -689,5 +725,39 @@ class LeadsContactPage extends GetView<LeadsContactController> {
         ),
       ),
     );
+  }
+}
+
+class _SliverHeaderDelegate extends SliverPersistentHeaderDelegate {
+  final double minHeight;
+  final double maxHeight;
+  final Widget child;
+
+  _SliverHeaderDelegate({
+    required this.minHeight,
+    required this.maxHeight,
+    required this.child,
+  });
+
+  @override
+  double get minExtent => minHeight;
+
+  @override
+  double get maxExtent => maxHeight;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return SizedBox.expand(child: child);
+  }
+
+  @override
+  bool shouldRebuild(_SliverHeaderDelegate oldDelegate) {
+    return maxHeight != oldDelegate.maxHeight ||
+        minHeight != oldDelegate.minHeight ||
+        child != oldDelegate.child;
   }
 }

@@ -124,7 +124,7 @@
   "write_call_log_access": "Write Call Log Access",
   "you_may_deny_or_revoke_permissions_anytime_from_device_setti": "You may deny or revoke permissions anytime from device settings",
   "orders": "Orders",
-  "total":"Total",
+  "total": "Total",
   "all": "All",
   "completed": "Completed",
   "scheduled": "Scheduled",
@@ -184,7 +184,7 @@
   "create-at": "Created At",
   "start_date": "Start Date",
   "end_date": "End Date",
-  "email ":"Email",
+  "email ": "Email",
   "phone": "Phone",
   "select_time": "Select Time",
   "done": "Done",
@@ -214,6 +214,6 @@
   "logout_confirm": "Logout_Confirm",
   "yes_logout": "Yes Logout",
   "openCamera": "Open Camera",
-  "openGallery": "Open Gallery"
-
+  "openGallery": "Open Gallery",
+  "call_survey_form": "Call Survey Form"
 }
