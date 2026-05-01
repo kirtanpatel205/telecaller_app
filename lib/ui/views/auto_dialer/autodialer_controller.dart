@@ -23,6 +23,9 @@ class AutoDialerController extends GetxController {
   final connected = 0.obs;
   final successful = 0.obs;
   final failed = 0.obs;
+  final pending = 0.obs;
+  final completed = 0.obs;
+  final overallTotal = 0.obs;
 
   double get successRate {
     if (totalAttempts.value == 0) return 0.0;
@@ -242,6 +245,7 @@ class AutoDialerController extends GetxController {
     final lead = selectedLeadDataset.value;
     if (lead != null && lead.id != null) {
       _initContactsPagewise(lead.id!);
+      fetchLeadStats();
       // We can wait a bit or return immediately as Pagewise handles its own loading state.
       // But for RefreshIndicator, we might want to wait for the first page.
       await Future.delayed(const Duration(milliseconds: 500)); 
@@ -327,6 +331,7 @@ class AutoDialerController extends GetxController {
     selectedLeadDataset.value = dataset;
     if (dataset.id != null && dataset.id!.isNotEmpty) {
       _initContactsPagewise(dataset.id!);
+      fetchLeadStats();
     }
 
     final List<AllLeadLeadsFormIdFields> formFields =
@@ -348,7 +353,43 @@ class AutoDialerController extends GetxController {
     pagewiseContactsController?.dispose();
     pagewiseContactsController = null;
     totalContacts.value = 0;
+    successful.value = 0;
+    failed.value = 0;
+    pending.value = 0;
+    completed.value = 0;
+    overallTotal.value = 0;
     update();
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  // STATS FETCH
+  // ─────────────────────────────────────────────────────────────────
+  Future<void> fetchLeadStats() async {
+    final lead = selectedLeadDataset.value;
+    if (lead == null || lead.id == null) return;
+
+    try {
+      // 1. Get Overall Total count (No filter)
+      final tResp = await _apiService.getCallLead(id: lead.id, page: 0, limit: 1, filterBy: null);
+      overallTotal.value = tResp.total ?? 0;
+
+      // 2. Get Pending count
+      final pResp = await _apiService.getCallLead(id: lead.id, page: 0, limit: 1, filterBy: {"status": "pending"});
+      pending.value = pResp.total ?? 0;
+
+      // 3. Completed is everything else (Total - Pending)
+      completed.value = (overallTotal.value - pending.value).clamp(0, overallTotal.value);
+
+      // Keep successful/failed for internal use/rate calculation if needed
+      final sResp = await _apiService.getCallLead(id: lead.id, page: 0, limit: 1, filterBy: {"status": "interested"});
+      successful.value = sResp.total ?? 0;
+      final fResp = await _apiService.getCallLead(id: lead.id, page: 0, limit: 1, filterBy: {"status": "not interested"});
+      failed.value = fResp.total ?? 0;
+
+      totalAttempts.value = successful.value + failed.value;
+    } catch (e) {
+      print("❌ fetchLeadStats error: $e");
+    }
   }
 
   // ─────────────────────────────────────────────────────────────────
@@ -690,8 +731,31 @@ class AutoDialerController extends GetxController {
   void updateContactStatusLocally(String contactId, String newStatus) {
     final index = contactQueue.indexWhere((c) => c.id == contactId);
     if (index != -1) {
+      final oldStatus = contactQueue[index].status;
       contactQueue[index].status = newStatus;
       contactQueue.refresh();
+
+      // Update counters locally
+      if (oldStatus != newStatus) {
+        if (oldStatus?.toLowerCase() == 'pending') {
+          if (pending.value > 0) pending.value--;
+        }
+        
+        if (newStatus.toLowerCase() == 'pending') {
+          pending.value++;
+        }
+
+        // Recalculate completed dynamically
+        completed.value = (overallTotal.value - pending.value).clamp(0, overallTotal.value);
+
+        if (newStatus.toLowerCase() == 'interested') {
+          successful.value++;
+          totalAttempts.value++;
+        } else if (newStatus.toLowerCase() == 'not interested' || newStatus.toLowerCase() == 'invalid' || newStatus.toLowerCase() == 'no response') {
+          failed.value++;
+          totalAttempts.value++;
+        }
+      }
     }
   }
 

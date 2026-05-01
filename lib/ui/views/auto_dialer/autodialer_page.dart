@@ -44,24 +44,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                     leading: const SizedBox.shrink(),
                     titleText: 'auto_dialer'.tr,
                     showBackButton: false,
-                    actions: [
-                      Obx(() => Container(
-                        margin: EdgeInsets.only(right: 16.w),
-                        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                        decoration: BoxDecoration(
-                          color: Colors.green.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(8.r),
-                        ),
-                        child: Text(
-                          '${controller.successRate.toStringAsFixed(1)}%',
-                          style: TextStyle(
-                            color: Colors.green,
-                            fontSize: AppDimens.fontSize10,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ).marginSymmetric(vertical: 12.h)),
-                    ],
+                    actions: const [],
                   ),
 
                   // 2. Lead Dropdown Section
@@ -179,9 +162,9 @@ class AutoDialerPage extends GetView<AutoDialerController> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _buildStatCard('total'.tr, controller.totalAttempts, AppColors.themeColor.primaryColor),
-        _buildStatCard('success'.tr, controller.successful, const Color(0xFF10B981)),
-        _buildStatCard('failed'.tr, controller.failed, const Color(0xFFEF4444)),
+        _buildStatCard('total'.tr, controller.overallTotal, AppColors.themeColor.primaryColor),
+        _buildStatCard('pending'.tr, controller.pending, const Color(0xFFF59E0B)),
+        _buildStatCard('completed'.tr, controller.completed, const Color(0xFF4F46E5)),
       ],
     );
   }
@@ -189,11 +172,11 @@ class AutoDialerPage extends GetView<AutoDialerController> {
   Widget _buildStatCard(String label, RxInt value, Color color) {
     return Expanded(
       child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 4.w),
-        padding: EdgeInsets.symmetric(vertical: 16.h),
+        margin: EdgeInsets.symmetric(horizontal: 2.w),
+        padding: EdgeInsets.symmetric(vertical: 12.h),
         decoration: BoxDecoration(
           color: color.withOpacity(0.05),
-          borderRadius: BorderRadius.circular(20.r),
+          borderRadius: BorderRadius.circular(16.r),
           border: Border.all(color: color.withOpacity(0.2)),
         ),
         child: Column(
@@ -201,20 +184,23 @@ class AutoDialerPage extends GetView<AutoDialerController> {
             Obx(() => Text(
               value.value.toString(),
               style: TextStyle(
-                fontSize: AppDimens.fontSize20,
+                fontSize: AppDimens.fontSize16,
                 fontWeight: FontWeight.bold,
                 color: color,
               ),
             )),
-            SizedBox(height: 4.h),
+            SizedBox(height: 2.h),
             Text(
               label.toUpperCase(),
               style: TextStyle(
-                fontSize: AppDimens.fontSize9,
+                fontSize: 8.sp,
                 fontWeight: FontWeight.bold,
                 color: AppColors.themeColor.textSecondaryColor,
-                letterSpacing: 1,
+                letterSpacing: 0.5,
               ),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
@@ -418,18 +404,6 @@ class AutoDialerPage extends GetView<AutoDialerController> {
         Obx(() => Row(
           children: [
             _buildStatusFilterDropdown(),
-            SizedBox(width: 8.w),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-              decoration: BoxDecoration(
-                color: AppColors.themeColor.primaryColor.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(20.r),
-              ),
-              child: Text(
-                '${controller.totalContacts.value} ${"reachable".tr}',
-                style: TextStyle(fontSize: AppDimens.fontSize11, fontWeight: FontWeight.bold, color: AppColors.themeColor.primaryColor),
-              ),
-            ),
           ],
         )),
       ],
