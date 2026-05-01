@@ -264,7 +264,7 @@ class LeadsContactController extends GetxController {
   }
 
   String formatDuration(int? seconds) {
-    if (seconds == null || seconds == 0) return 'NaN Sec';
+    if (seconds == null || seconds == 0) return '0 Sec';
     if (seconds < 60) return '$seconds Sec';
     final minutes = seconds ~/ 60;
     final secs = seconds % 60;
