@@ -278,58 +278,53 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                 borderRadius: BorderRadius.circular(16.r),
                 border: Border.all(color: AppColors.themeColor.bordercolror),
               ),
-              child: leads.isEmpty
-                  ? Padding(
-                      padding: EdgeInsets.symmetric(vertical: 14.h),
-                      child: SizedBox(height: 20.h, width: 20.w, child: const CircularProgressIndicator(strokeWidth: 2)),
-                    )
-                  : DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        isExpanded: true,
-                        value: selected?.id,
-                        hint: Text(
-                          'select_a_campaign…'.tr,
-                          style: TextStyle(color: AppColors.themeColor.textSecondaryColor, fontSize: AppDimens.fontSize13),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  isExpanded: true,
+                  value: selected?.id,
+                  hint: Text(
+                    'select_a_campaign…'.tr,
+                    style: TextStyle(color: AppColors.themeColor.textSecondaryColor, fontSize: AppDimens.fontSize13),
+                  ),
+                  icon: Icon(Icons.unfold_more_rounded, color: AppColors.themeColor.primaryColor, size: 20.sp),
+                  items: [
+                    ...leads.map((lead) => DropdownMenuItem<String>(
+                      value: lead.id,
+                      child: Text(
+                        lead.name ?? 'Unnamed',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: AppDimens.fontSize14,
+                          color: AppColors.themeColor.textPrimaryColor,
                         ),
-                        icon: Icon(Icons.unfold_more_rounded, color: AppColors.themeColor.primaryColor, size: 20.sp),
-                        items: [
-                          ...leads.map((lead) => DropdownMenuItem<String>(
-                                value: lead.id,
-                                child: Text(
-                                  lead.name ?? 'Unnamed',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: AppDimens.fontSize14,
-                                    color: AppColors.themeColor.textPrimaryColor,
-                                  ),
-                                ),
-                              )),
-                          if (hasMore)
-                            DropdownMenuItem<String>(
-                              value: '__load_more__',
-                              child: Center(
-                                child: Text(
-                                  isLoadingMore ? 'Loading…' : 'Load More',
-                                  style: TextStyle(fontSize: AppDimens.fontSize12, color: AppColors.themeColor.primaryColor, fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                            ),
-                        ],
-                        onChanged: (val) {
-                          if (val == null) return;
-                          if (val == '__load_more__') {
-                            controller.loadMoreLeadsForDropdown();
-                            return;
-                          }
-                          final match = leads.firstWhere((l) => l.id == val, orElse: () => leads.first);
-                          if (selected?.id == match.id) {
-                            controller.clearLeadSelection();
-                          } else {
-                            controller.onLeadSelected(match);
-                          }
-                        },
                       ),
-                    ),
+                    )),
+                    if (hasMore)
+                      DropdownMenuItem<String>(
+                        value: '__load_more__',
+                        child: Center(
+                          child: Text(
+                            isLoadingMore ? 'Loading…' : 'Load More',
+                            style: TextStyle(fontSize: AppDimens.fontSize12, color: AppColors.themeColor.primaryColor, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                  ],
+                  onChanged: (val) {
+                    if (val == null) return;
+                    if (val == '__load_more__') {
+                      controller.loadMoreLeadsForDropdown();
+                      return;
+                    }
+                    final match = leads.firstWhere((l) => l.id == val, orElse: () => leads.first);
+                    if (selected?.id == match.id) {
+                      controller.clearLeadSelection();
+                    } else {
+                      controller.onLeadSelected(match);
+                    }
+                  },
+                ),
+              )
             ),
             if (selected != null) ...[
               SizedBox(height: 12.h),
