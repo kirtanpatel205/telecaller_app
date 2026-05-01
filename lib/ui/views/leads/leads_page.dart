@@ -45,35 +45,45 @@ class LeadsPage extends GetView<LeadsController> {
                     SizedBox(height: 10.h),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 10.w),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          CustomActionButton(
-                            title: "reset".tr,
-                            icon: Icons.refresh,
-                            onTap: () {
-                              controller.resetFilters();
-                            },
-                          ),
-                          SizedBox(width: 8.w),
-                          CustomActionButton(
-                            title: "filter".tr,
-                            icon: Icons.filter_alt_outlined,
-                            onTap: () {
-                              _showFilterBottomSheet(context);
-                            },
-                          ),
-                          SizedBox(width: 8.w),
-                          CustomActionButton(
-                            title: "sort".tr,
-                            icon: Icons.sort,
-                            onTap: () {
-                              _showSortBottomSheet(context);
-                            },
-                          ),
-                          SizedBox(width: 8.w),
-                        ],
-                      ),
+                      child: Obx(() {
+                        final hasActiveFilters = controller.isApplyFilter.value;
+                        final hasActiveSort = controller.sortBy.value != "create";
+                        final showReset = hasActiveFilters || hasActiveSort;
+
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            if (showReset) ...[
+                              CustomActionButton(
+                                title: "reset".tr,
+                                icon: Icons.refresh,
+                                onTap: () {
+                                  controller.resetFilters();
+                                },
+                              ),
+                              SizedBox(width: 8.w),
+                            ],
+                            CustomActionButton(
+                              title: "filter".tr,
+                              icon: Icons.filter_alt_outlined,
+                              showBadge: hasActiveFilters,
+                              onTap: () {
+                                _showFilterBottomSheet(context);
+                              },
+                            ),
+                            SizedBox(width: 8.w),
+                            CustomActionButton(
+                              title: "sort".tr,
+                              icon: Icons.sort,
+                              showBadge: hasActiveSort,
+                              onTap: () {
+                                _showSortBottomSheet(context);
+                              },
+                            ),
+                            SizedBox(width: 8.w),
+                          ],
+                        );
+                      }),
                     ),
                   ],
                 ),

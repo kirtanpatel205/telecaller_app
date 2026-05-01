@@ -145,6 +145,7 @@ class LeadsController extends GetxController {
     startDate.value = null;
     endDate.value = null;
     searchText.value = "";
+    sortBy.value = "create";
     searchController.clear();
     resetAndReload();
   }
