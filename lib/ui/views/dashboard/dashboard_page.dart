@@ -203,17 +203,26 @@ class DashboardPage extends GetView<HomeController> {
     );
   }
 
-  Widget _buildMetricBox(String title, String todayVal, String totalVal, Color color) {
+  Widget _buildMetricBox({
+    required String title,
+    required String todayVal,
+    required String totalVal,
+    required Color color,
+    required IconData icon,
+  }) {
     return Container(
       padding: EdgeInsets.all(12.w),
       decoration: BoxDecoration(
         color: AppColors.themeColor.cardBgColor,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: color.withOpacity(0.12), width: 1.w),
+        borderRadius: BorderRadius.circular(20.r),
+        border: Border.all(
+          color: color.withOpacity(0.12),
+          width: 1.w,
+        ),
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.02),
-            blurRadius: 8.r,
+            color: color.withOpacity(0.04),
+            blurRadius: 10.r,
             offset: Offset(0, 4.h),
           ),
         ],
@@ -222,23 +231,34 @@ class DashboardPage extends GetView<HomeController> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.08),
-              borderRadius: BorderRadius.circular(6.r),
-            ),
-            child: Text(
-              title,
-              style: AppTextStyle.bold8.copyWith(
-                fontSize: 11.sp,
-                color: color,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+                child: Text(
+                  title,
+                  style: AppTextStyle.bold8.copyWith(
+                    fontSize: 10.sp,
+                    color: color,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
+              Icon(
+                icon,
+                size: 16.sp,
+                color: color.withOpacity(0.5),
+              ),
+            ],
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: 14.h),
           Row(
             children: [
               Expanded(
@@ -250,6 +270,7 @@ class DashboardPage extends GetView<HomeController> {
                       style: AppTextStyle.bold11.copyWith(
                         fontSize: 18.sp,
                         color: AppColors.themeColor.textPrimaryColor,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
                     Text(
@@ -257,13 +278,28 @@ class DashboardPage extends GetView<HomeController> {
                       style: AppTextStyle.regular6.copyWith(
                         fontSize: 10.sp,
                         color: AppColors.themeColor.textSecondaryColor,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ],
                 ),
               ),
-              Container(width: 1.w, height: 30.h, color: AppColors.themeColor.bordercolror.withOpacity(0.3)),
-              SizedBox(width: 8.w),
+              Container(
+                width: 1.w,
+                height: 24.h,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      AppColors.themeColor.bordercolror.withOpacity(0),
+                      AppColors.themeColor.bordercolror.withOpacity(0.5),
+                      AppColors.themeColor.bordercolror.withOpacity(0),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(width: 10.w),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -273,6 +309,7 @@ class DashboardPage extends GetView<HomeController> {
                       style: AppTextStyle.bold11.copyWith(
                         fontSize: 18.sp,
                         color: AppColors.themeColor.textPrimaryColor,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
                     Text(
@@ -280,6 +317,7 @@ class DashboardPage extends GetView<HomeController> {
                       style: AppTextStyle.regular6.copyWith(
                         fontSize: 10.sp,
                         color: AppColors.themeColor.textSecondaryColor,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ],
@@ -342,28 +380,32 @@ class DashboardPage extends GetView<HomeController> {
                   ),
                   children: [
                     Obx(() => _buildMetricBox(
-                      "all".tr,
-                      "${controller.dashboardController.leadContactAllToday.value}",
-                      "${controller.dashboardController.leadContactAllTotal.value}",
-                      AppColors.themeColor.primaryColor,
+                      title: "all".tr,
+                      todayVal: "${controller.dashboardController.leadContactAllToday.value}",
+                      totalVal: "${controller.dashboardController.leadContactAllTotal.value}",
+                      color: AppColors.themeColor.primaryColor,
+                      icon: Icons.list_alt_rounded,
                     )),
                     Obx(() => _buildMetricBox(
-                      "completed".tr,
-                      "${controller.dashboardController.leadContactCompletedToday.value}",
-                      "${controller.dashboardController.leadContactCompletedTotal.value}",
-                      AppColors.themeColor.completedColor,
+                      title: "completed".tr,
+                      todayVal: "${controller.dashboardController.leadContactCompletedToday.value}",
+                      totalVal: "${controller.dashboardController.leadContactCompletedTotal.value}",
+                      color: AppColors.themeColor.completedColor,
+                      icon: Icons.check_circle_outline_rounded,
                     )),
                     Obx(() => _buildMetricBox(
-                      "scheduled".tr,
-                      "${controller.dashboardController.leadContactScheduledToday.value}",
-                      "${controller.dashboardController.leadContactScheduledTotal.value}",
-                      AppColors.themeColor.availablekeyiconColor,
+                      title: "scheduled".tr,
+                      todayVal: "${controller.dashboardController.leadContactScheduledToday.value}",
+                      totalVal: "${controller.dashboardController.leadContactScheduledTotal.value}",
+                      color: AppColors.themeColor.availablekeyiconColor,
+                      icon: Icons.calendar_today_rounded,
                     )),
                     Obx(() => _buildMetricBox(
-                      "pending".tr,
-                      "${controller.dashboardController.leadContactPendingToday.value}",
-                      "${controller.dashboardController.leadContactPendingTotal.value}",
-                      AppColors.themeColor.expairekeyiconColor,
+                      title: "pending".tr,
+                      todayVal: "${controller.dashboardController.leadContactPendingToday.value}",
+                      totalVal: "${controller.dashboardController.leadContactPendingTotal.value}",
+                      color: AppColors.themeColor.expairekeyiconColor,
+                      icon: Icons.pending_actions_rounded,
                     )),
                   ],
                 );
@@ -425,28 +467,32 @@ class DashboardPage extends GetView<HomeController> {
                   ),
                   children: [
                     Obx(() => _buildMetricBox(
-                      "incoming".tr,
-                      "${controller.dashboardController.callsIncomingToday.value}",
-                      "${controller.dashboardController.callsIncomingTotal.value}",
-                      AppColors.themeColor.completeColor,
+                      title: "incoming".tr,
+                      todayVal: "${controller.dashboardController.callsIncomingToday.value}",
+                      totalVal: "${controller.dashboardController.callsIncomingTotal.value}",
+                      color: AppColors.themeColor.completedColor,
+                      icon: Icons.call_received_rounded,
                     )),
                     Obx(() => _buildMetricBox(
-                      "missed".tr,
-                      "${controller.dashboardController.callsMissedToday.value}",
-                      "${controller.dashboardController.callsMissedTotal.value}",
-                      AppColors.themeColor.failColor,
+                      title: "missed".tr,
+                      todayVal: "${controller.dashboardController.callsMissedToday.value}",
+                      totalVal: "${controller.dashboardController.callsMissedTotal.value}",
+                      color: AppColors.themeColor.failColor,
+                      icon: Icons.call_missed_rounded,
                     )),
                     Obx(() => _buildMetricBox(
-                      "not_answered".tr,
-                      "${controller.dashboardController.callsNotAnsweredToday.value}",
-                      "${controller.dashboardController.callsNotAnsweredTotal.value}",
-                      AppColors.themeColor.activekeyiconColor,
+                      title: "not_answered".tr,
+                      todayVal: "${controller.dashboardController.callsNotAnsweredToday.value}",
+                      totalVal: "${controller.dashboardController.callsNotAnsweredTotal.value}",
+                      color: AppColors.themeColor.activekeyiconColor,
+                      icon: Icons.phone_callback_rounded,
                     )),
                     Obx(() => _buildMetricBox(
-                      "outgoing".tr,
-                      "${controller.dashboardController.callsOutgoingToday.value}",
-                      "${controller.dashboardController.callsOutgoingTotal.value}",
-                      AppColors.themeColor.primaryColor,
+                      title: "outgoing".tr,
+                      todayVal: "${controller.dashboardController.callsOutgoingToday.value}",
+                      totalVal: "${controller.dashboardController.callsOutgoingTotal.value}",
+                      color: AppColors.themeColor.primaryColor,
+                      icon: Icons.call_made_rounded,
                     )),
                   ],
                 );
