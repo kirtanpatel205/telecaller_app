@@ -24,6 +24,32 @@ import 'dart:io';
 import 'dart:isolate';
 import 'package:call_log/call_log.dart';
 import 'package:telecaller_app/core/services/api_service.dart';
+import 'package:workmanager/workmanager.dart';
+
+@pragma('vm:entry-point')
+void callbackDispatcher() {
+  Workmanager().executeTask((task, inputData) async {
+    print("🛠️ [Workmanager] Background task started: $task");
+    
+    try {
+      // 1. Restart Service if needed
+      final service = FlutterBackgroundService();
+      bool isRunning = await service.isRunning();
+      if (!isRunning) {
+        print("🛠️ [Workmanager] Background service not running. Restarting...");
+        await BackgroundServiceManager.initializeService();
+      }
+
+      // 2. Sync Call Logs if this is a sync task or periodic watchdog
+      print("📋 [Workmanager] Triggering call log sync...");
+      await _syncCallLogs();
+      
+    } catch (e) {
+      print("❌ [Workmanager] Error in task execution: $e");
+    }
+    return Future.value(true);
+  });
+}
 
 @pragma('vm:entry-point')
 class BackgroundServiceManager {
@@ -65,6 +91,26 @@ class BackgroundServiceManager {
     );
 
     service.startService();
+
+    // Register Workmanager watchdog
+    try {
+      await Workmanager().initialize(
+        callbackDispatcher,
+        isInDebugMode: false,
+      );
+      await Workmanager().registerPeriodicTask(
+        "bg_service_watchdog",
+        "bg_service_watchdog_task",
+        frequency: const Duration(minutes: 15),
+        existingWorkPolicy: ExistingWorkPolicy.keep,
+        constraints: Constraints(
+          networkType: NetworkType.connected,
+        ),
+      );
+      print("✅ [Background] Workmanager watchdog registered.");
+    } catch (e) {
+      print("❌ [Background] Workmanager init failed: $e");
+    }
   }
 
   static const _channel = MethodChannel(
@@ -129,30 +175,35 @@ class BackgroundServiceManager {
 
   static Future<void> openManufacturerSettings() async {
     if (Platform.isAndroid) {
-      // Common OEM settings intents
-      final intents = [
-        // Xiaomi Auto-start
-        const AndroidIntent(
-          action: 'miui.intent.action.OP_AUTO_START_SETTINGS',
-          package: 'com.miui.securitycenter',
-        ),
-        // Xiaomi/Generic Battery Saver
-        const AndroidIntent(
-          action: 'android.settings.APPLICATION_DETAILS_SETTINGS',
-          data: 'package:com.digibulkmarketing.telecaller_app',
-        ),
-        // General Battery Optimization
-        const AndroidIntent(
-          action: 'android.settings.IGNORE_BATTERY_OPTIMIZATION_SETTINGS',
-        ),
-      ];
+      try {
+        await _channel.invokeMethod('openAutoStartSettings');
+      } catch (e) {
+        print("Failed to open auto-start settings via MethodChannel: $e");
+        // Fallback to manual intents
+        final intents = [
+          // Xiaomi Auto-start
+          const AndroidIntent(
+            action: 'miui.intent.action.OP_AUTO_START_SETTINGS',
+            package: 'com.miui.securitycenter',
+          ),
+          // Generic App Details for Battery Saver
+          const AndroidIntent(
+            action: 'android.settings.APPLICATION_DETAILS_SETTINGS',
+            data: 'package:com.digibulkmarketing.telecaller_app',
+          ),
+          // General Battery Optimization
+          const AndroidIntent(
+            action: 'android.settings.IGNORE_BATTERY_OPTIMIZATION_SETTINGS',
+          ),
+        ];
 
-      for (var intent in intents) {
-        try {
-          await intent.launch();
-          break;
-        } catch (e) {
-          print("Failed to launch intent: $e");
+        for (var intent in intents) {
+          try {
+            await intent.launch();
+            break;
+          } catch (e) {
+            print("Failed to launch intent: $e");
+          }
         }
       }
     }
@@ -366,17 +417,15 @@ void onStart(ServiceInstance service) async {
     service.stopSelf();
   });
 
+  if (service is AndroidServiceInstance) {
+    service.setForegroundNotificationInfo(
+      title: "Telecaller Service",
+      content: "Service is active and monitoring tasks",
+    );
+  }
+
   // Diagnostic Heartbeat
   print("💓 Background Service Started: ${DateTime.now()}");
-
-  if (service is AndroidServiceInstance) {
-    if (await service.isForegroundService()) {
-      service.setForegroundNotificationInfo(
-        title: "Telecaller Active",
-        content: "Service tracking is active",
-      );
-    }
-  }
   // Sync Call Logs every 15 minutes
   Timer.periodic(const Duration(minutes: 15), (timer) async {
     print("🕒 [Background] Starting periodic call log sync...");
@@ -438,12 +487,19 @@ void onStart(ServiceInstance service) async {
     }
   });
 
-  // Bring to foreground (checking if still foreground)
-  Timer.periodic(const Duration(seconds: 5), (timer) async {
+  // 🚨 Maintain foreground status silently without updating notification content
+  Timer.periodic(const Duration(minutes: 5), (timer) async {
     if (service is AndroidServiceInstance) {
-      if (await service.isForegroundService()) {
-        // service.setAsForegroundService();
+      bool isForeground = await service.isForegroundService();
+      if (!isForeground) {
+        print("⚠️ [Background] Service lost foreground status! Re-applying...");
+        service.setAsForegroundService();
       }
+    }
+    
+    // Ensure socket is still alive
+    if (Get.isRegistered<SocketController>()) {
+      Get.find<SocketController>().ensureConnected();
     }
   });
 }

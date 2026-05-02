@@ -20,6 +20,7 @@ import 'package:android_intent_plus/android_intent.dart';
 import 'package:android_intent_plus/flag.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'api_service.dart';
+import 'background_service_manager.dart';
 
 // ✅ Platform channel to check lock screen status from native
 const _platform = MethodChannel(
@@ -158,6 +159,17 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     } catch (e) {
       print('⚠️ [FCM BG] SocketController init error: $e');
     }
+    try {
+      final service = FlutterBackgroundService();
+      bool isRunning = await service.isRunning();
+      if (!isRunning) {
+        print('🔔 [FCM BG] Background service not running. Initializing...');
+        await BackgroundServiceManager.initializeService();
+      }
+    } catch (e) {
+      print('⚠️ [FCM BG] Failed to ensure background service is running: $e');
+    }
+
   } catch (e, stack) {
     print('❌ [FCM BG] Critical error in background handler: $e');
     print(stack);
@@ -479,6 +491,9 @@ class FCMService extends GetxService {
       'Call Task Notifications',
       description: 'This channel is used for important call transitions.',
       importance: Importance.max,
+      playSound: true,
+      enableVibration: true,
+      showBadge: true,
     );
 
     flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();

@@ -151,6 +151,34 @@ class MainActivity : FlutterActivity() {
                         }
                     }
                 }
+                "openAutoStartSettings" -> {
+                    val manufacturer = Build.MANUFACTURER.lowercase()
+                    val intent = Intent()
+                    when {
+                        manufacturer.contains("xiaomi") -> {
+                            intent.component = android.content.ComponentName("com.miui.securitycenter", "com.miui.permcenter.autostart.AutoStartManagementActivity")
+                        }
+                        manufacturer.contains("oppo") -> {
+                            intent.component = android.content.ComponentName("com.coloros.safecenter", "com.coloros.safecenter.permission.startup.StartupAppListActivity")
+                        }
+                        manufacturer.contains("vivo") -> {
+                            intent.component = android.content.ComponentName("com.vivo.permissionmanager", "com.vivo.permissionmanager.activity.BgStartUpManagerActivity")
+                        }
+                        manufacturer.contains("letv") -> {
+                            intent.component = android.content.ComponentName("com.letv.android.letvsafe", "com.letv.android.letvsafe.AutobootManageActivity")
+                        }
+                        manufacturer.contains("huawei") -> {
+                            intent.component = android.content.ComponentName("com.huawei.systemmanager", "com.huawei.systemmanager.optimize.process.ProtectActivity")
+                        }
+                    }
+                    try {
+                        startActivity(intent)
+                        result.success(true)
+                    } catch (e: Exception) {
+                        Log.e("MainActivity", "Failed to open Auto-start settings: ${e.message}")
+                        result.error("AUTOSTART_FAILED", e.message, null)
+                    }
+                }
                 "getSimInfo" -> {
                     try {
                         val simInfoList = mutableListOf<Map<String, String>>()

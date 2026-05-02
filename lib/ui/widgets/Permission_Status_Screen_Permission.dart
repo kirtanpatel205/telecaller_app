@@ -59,11 +59,11 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
       if (Platform.isAndroid) {
         final bool result = await _channel.invokeMethod('isXiaomi');
         setState(() => isXiaomi = result);
-        if (result) {
-          setState(() {
-            permissionGroups['Manufacturer Optimization'] = []; // Placeholder for the UI
-          });
-        }
+        
+        // Always show Manufacturer Optimization group on Android for critical background apps
+        setState(() {
+          permissionGroups['Manufacturer Optimization'] = []; 
+        });
       }
     } catch (e) {
       print("Error checking device type: $e");
@@ -695,7 +695,7 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
                                       final groupName = groupEntry.key;
                                       final permissions = groupEntry.value;
 
-                                      if (groupName == 'Manufacturer Optimization' && isXiaomi) {
+                                      if (groupName == 'Manufacturer Optimization' && Platform.isAndroid) {
                                         return Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
@@ -714,16 +714,13 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
                                             Padding(
                                               padding: EdgeInsets.only(bottom: 12),
                                               child: PermissionCard(
-                                                title: 'Xiaomi Background Guide',
-                                                description: 'Mandatory steps for 24/7 uptime',
+                                                title: 'Auto-start Settings',
+                                                description: 'Allow app to start automatically on reboot',
                                                 icon: Icons.tips_and_updates_rounded,
-                                                isGranted: Storage.getValue('xiaomi_optimization_shown') ?? false,
+                                                isGranted: Storage.getValue('manufacturer_optimization_shown') ?? false,
                                                 onTap: () async {
-                                                  await Get.dialog(
-                                                    const OptimizationGuideDialog(isXiaomi: true),
-                                                    barrierDismissible: false,
-                                                  );
-                                                  await Storage.saveValue('xiaomi_optimization_shown', true);
+                                                  await BackgroundServiceManager.openManufacturerSettings();
+                                                  await Storage.saveValue('manufacturer_optimization_shown', true);
                                                   _checkAllPermissions();
                                                 },
                                               ),
