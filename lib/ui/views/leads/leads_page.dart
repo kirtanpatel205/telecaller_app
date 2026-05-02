@@ -251,209 +251,212 @@ class LeadsPage extends GetView<LeadsController> {
         );
       },
       itemBuilder: (context, lead, index) {
-        final isSelected = controller.selectedLeadId.value == lead.id;
-
-        return Padding(
-          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-          child: GestureDetector(
-            onTap: () {
-              controller.selectedLeadId.value = lead.id ?? '';
-              controller.LedadContectId(id: lead.id.toString());
-            },
-            child: Container(
+        return Obx(() {
+          final isSelected = controller.selectedLeadId.value == lead.id;
+          
+          return Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeInOut,
               decoration: BoxDecoration(
-                color: isSelected ? AppColors.themeColor.primaryColor.withOpacity(0.05) : AppColors.themeColor.cardBgColor,
+                color: isSelected 
+                    ? AppColors.themeColor.primaryColor.withOpacity(0.04) 
+                    : AppColors.themeColor.cardColor,
                 borderRadius: BorderRadius.circular(16.r),
                 border: Border.all(
-                  color: isSelected ? AppColors.themeColor.primaryColor.withOpacity(0.3) : AppColors.themeColor.bordercolror.withOpacity(0.5),
+                  color: isSelected 
+                      ? AppColors.themeColor.primaryColor.withOpacity(0.5) 
+                      : AppColors.themeColor.bordercolror.withOpacity(0.3),
                   width: isSelected ? 1.5.w : 1.w,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: isSelected ? AppColors.themeColor.primaryColor.withOpacity(0.1) : Colors.black.withOpacity(0.03),
-                    blurRadius: 15.r,
-                    offset: Offset(0, 8.h),
+                    color: isSelected 
+                        ? AppColors.themeColor.primaryColor.withOpacity(0.15) 
+                        : Colors.black.withOpacity(0.03),
+                    blurRadius: isSelected ? 12.r : 8.r,
+                    offset: Offset(0, 4.h),
                   ),
                 ],
               ),
-              child: Padding(
-                padding: EdgeInsets.all(16.w),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Lead Header
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            lead.name ?? 'Unknown',
-                            style: AppTextStyle.bold8.copyWith(
-                              fontSize: AppDimens.fontSize16,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: -0.3,
-                              color: AppColors.themeColor.textPrimaryColor,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16.r),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () {
+                      controller.selectedLeadId.value = lead.id ?? '';
+                      controller.LedadContectId(id: lead.id.toString());
+                    },
+                    splashColor: AppColors.themeColor.primaryColor.withOpacity(0.1),
+                    highlightColor: AppColors.themeColor.primaryColor.withOpacity(0.05),
+                    child: Padding(
+                      padding: EdgeInsets.all(16.w),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Header: Name and Status
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      lead.name ?? 'Unknown',
+                                      style: AppTextStyle.bold11.copyWith(
+                                        fontSize: AppDimens.fontSize17,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppColors.themeColor.textPrimaryColor,
+                                        letterSpacing: -0.2,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    SizedBox(height: 6.h),
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.assignment_outlined,
+                                          size: 14.sp,
+                                          color: AppColors.themeColor.primaryColor.withOpacity(0.7),
+                                        ),
+                                        SizedBox(width: 6.w),
+                                        Expanded(
+                                          child: Text(
+                                            lead.formId?.title ?? 'no_form_assigned'.tr,
+                                            style: AppTextStyle.medium7.copyWith(
+                                              fontSize: AppDimens.fontSize12,
+                                              color: AppColors.themeColor.textSecondaryColor,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(width: 8.w),
+                              _buildStatusBadge(lead.status),
+                            ],
+                          ),
+                          
+                          Padding(
+                            padding: EdgeInsets.symmetric(vertical: 14.h),
+                            child: Divider(
+                              height: 1,
+                              thickness: 1,
+                              color: AppColors.themeColor.bordercolror.withOpacity(0.1),
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
                           ),
-                        ),
-                        SizedBox(width: 12.w),
-                        // Status Badge
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 10.w,
-                            vertical: 6.h,
+                          
+                          // Dates Section
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: _buildStatItem(
+                                  'start_date'.tr,
+                                  lead.schedule?.startDate.toString(),
+                                  Icons.calendar_today_rounded,
+                                  isDate: true,
+                                ),
+                              ),
+                              _buildVerticalSeparator(),
+                              Expanded(
+                                child: _buildStatItem(
+                                  'end_date'.tr,
+                                  lead.schedule?.endDate.toString(),
+                                  Icons.event_available_rounded,
+                                  isDate: true,
+                                ),
+                              ),
+                              _buildVerticalSeparator(),
+                              Expanded(
+                                child: _buildStatItem(
+                                  'created'.tr,
+                                  lead.createdAt.toString(),
+                                  Icons.history_rounded,
+                                  isDate: true,
+                                ),
+                              ),
+                            ],
                           ),
-                          decoration: BoxDecoration(
-                            color: _getStatusColor(
-                              lead.status,
-                            ).withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(20.r),
-                            border: Border.all(
-                              color: _getStatusColor(
-                                lead.status,
-                              ).withOpacity(0.3),
-                              width: 1,
-                            ),
-                          ),
-                          child: Text(
-                            (lead.status ?? 'Unknown').tr,
-                            style: AppTextStyle.bold6.copyWith(
-                              fontSize: AppDimens.fontSize11,
-                              fontWeight: FontWeight.w600,
-                              color: _getStatusColor(lead.status),
-                            ),
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                    SizedBox(height: 10.h),
-                    // Form Info
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.description_outlined,
-                          size: 14.sp,
-                          color: AppColors.themeColor.textSecondaryColor,
-                        ),
-                        SizedBox(width: 6.w),
-                        Expanded(
-                          child: Text(
-                            lead.formId?.title ?? 'No form',
-                            style: AppTextStyle.regular7.copyWith(
-                              fontSize: AppDimens.fontSize12,
-                              color: AppColors.themeColor.textSecondaryColor,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 10.h),
-                    // Dates Row
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildDateInfo(
-                            'start_date'.tr,
-                            lead.schedule?.startDate.toString(),
-                            Icons.calendar_today_outlined,
-                          ),
-                        ),
-                        SizedBox(width: 12.w),
-                        Expanded(
-                          child: _buildDateInfo(
-                            'end_date'.tr,
-                            lead.schedule?.endDate.toString(),
-                            Icons.event_available_outlined,
-                          ),
-                        ),
-                        SizedBox(width: 12.w),
-                        Expanded(
-                          child: _buildDateInfo(
-                            'create-at'.tr,
-                            lead.createdAt.toString(),
-                            Icons.history_outlined,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 12.h),
-
-                    // Action Button
-                    // SizedBox(
-                    //   width: double.infinity,
-                    //   child: ElevatedButton.icon(
-                    //     onPressed: () {
-                    //       // Note: Leads list usually takes you to contacts,
-                    //       // but providing a placeholder dialog as requested
-                    //       Get.dialog(
-                    //         AlertDialog(
-                    //           title: const Text('Call Lead'),
-                    //           content: Text(
-                    //             'Calling ${lead.name}',
-                    //           ),
-                    //           actions: [
-                    //             TextButton(
-                    //               onPressed: () => Get.back(),
-                    //               child: const Text('Close'),
-                    //             ),
-                    //           ],
-                    //         ),
-                    //       );
-                    //     },
-                    //     icon: const Icon(Icons.call, size: 16),
-                    //     label: const Text('Call Lead'),
-                    //     style: ElevatedButton.styleFrom(
-                    //       backgroundColor:
-                    //       AppColors.themeColor.primaryColor,
-                    //       foregroundColor: Colors.white,
-                    //       padding: const EdgeInsets.symmetric(
-                    //         vertical: 10,
-                    //       ),
-                    //       shape: RoundedRectangleBorder(
-                    //         borderRadius: BorderRadius.circular(8),
-                    //       ),
-                    //     ),
-                    //   ),
-                    // ),
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
-        );
+          );
+        });
       },
+
       loadingBuilder: (context) {
         return Center(child: CircularProgressIndicator());
       },
     );
   }
 
-  Widget _buildDateInfo(String label, String? dateTime, IconData icon) {
-    String formattedDate = 'n_a'.tr;
-    if (dateTime != null) {
+  Widget _buildStatusBadge(String? status) {
+    final color = _getStatusColor(status);
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(20.r),
+        border: Border.all(color: color.withOpacity(0.2), width: 1),
+      ),
+      child: Text(
+        (status ?? 'Unknown').tr,
+        style: AppTextStyle.bold7.copyWith(
+          fontSize: AppDimens.fontSize10,
+          fontWeight: FontWeight.w700,
+          color: color,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatItem(String label, String? value, IconData icon, {bool isDate = false}) {
+    String displayValue = value ?? 'n_a'.tr;
+    if (isDate && displayValue.isNotEmpty && displayValue != 'null' && displayValue != 'n_a'.tr) {
       try {
-        formattedDate = DateFormat('dd MMM, yyyy').format(DateTime.parse(dateTime));
-      } catch (_) {}
+        final date = DateTime.parse(displayValue);
+        displayValue = DateFormat('dd MMM, yy').format(date);
+      } catch (_) {
+        displayValue = value ?? 'n_a'.tr;
+      }
+    } else if (isDate && (value == null || value == 'null')) {
+      displayValue = 'n_a'.tr;
     }
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
         Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 12.sp, color: AppColors.themeColor.primaryColor),
+            Icon(
+              icon,
+              size: 13.sp,
+              color: AppColors.themeColor.primaryColor.withOpacity(0.8),
+            ),
             SizedBox(width: 4.w),
-            Expanded(
+            Flexible(
               child: Text(
                 label,
                 style: AppTextStyle.medium7.copyWith(
-                  fontSize: AppDimens.fontSize11,
-                  color: AppColors.themeColor.primaryColor,
+                  fontSize: 10.sp,
+                  color: AppColors.themeColor.textSecondaryColor,
+                  fontWeight: FontWeight.w600,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -461,19 +464,31 @@ class LeadsPage extends GetView<LeadsController> {
             ),
           ],
         ),
-        SizedBox(height: 4.h),
+        SizedBox(height: 5.h),
         Text(
-          formattedDate,
+          displayValue,
           style: AppTextStyle.bold7.copyWith(
-            fontSize: AppDimens.fontSize12,
+            fontSize: 12.sp,
             color: AppColors.themeColor.textPrimaryColor,
+            fontWeight: FontWeight.w700,
           ),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
+          textAlign: TextAlign.center,
         ),
       ],
     );
   }
+
+  Widget _buildVerticalSeparator() {
+    return Container(
+      height: 30.h,
+      width: 1.w,
+      margin: EdgeInsets.symmetric(horizontal: 4.w),
+      color: AppColors.themeColor.bordercolror.withOpacity(0.15),
+    );
+  }
+
 
   Color _getStatusColor(String? status) {
     switch (status?.toLowerCase()) {
