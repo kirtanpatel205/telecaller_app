@@ -383,7 +383,7 @@ class LeadsContactPage extends GetView<LeadsContactController> {
               children: [
                 Expanded(
                   child: _buildInfoItem(
-                    'telecaller'.tr,
+                    'telecaller',
                     lead.assignedTo?.name ?? 'N/A',
                     Icons.person_outline,
                   ),
@@ -391,7 +391,7 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                 SizedBox(width: 12.w),
                 Expanded(
                   child: _buildInfoItem(
-                    'logs'.tr,
+                    'logs',
                     '${lead.logs?.length ?? 0}',
                     Icons.history_outlined,
                   ),
@@ -399,7 +399,7 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                 SizedBox(width: 12.w),
                 Expanded(
                   child: _buildInfoItem(
-                    'duration'.tr,
+                    'duration',
                     controller.formatDuration(controller.getTotalDuration(lead.logs)),
                     Icons.timer_outlined,
                   ),
@@ -425,7 +425,7 @@ class LeadsContactPage extends GetView<LeadsContactController> {
               ),
               const WidgetSpan(child: SizedBox(width: 4)),
               TextSpan(
-                text: label,
+                text: label.tr,
                 style: AppTextStyle.medium7.copyWith(
                   fontSize: AppDimens.fontSize11,
                   color: AppColors.themeColor.primaryColor,
