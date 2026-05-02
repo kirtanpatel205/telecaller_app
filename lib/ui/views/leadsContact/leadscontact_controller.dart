@@ -280,5 +280,32 @@ class LeadsContactController extends GetxController {
     selectedOptionCall.value = value;
   }
 
+  Future<void> sendWhatsApp(String? phoneNumber) async {
+    if (phoneNumber != null && phoneNumber.isNotEmpty) {
+      final url = "https://wa.me/$phoneNumber";
+      await Utils.launchURL(url);
+    } else {
+      Utils.showToast("Phone number not available");
+    }
+  }
+
+  Future<void> sendSMS(String? phoneNumber) async {
+    if (phoneNumber != null && phoneNumber.isNotEmpty) {
+      final url = "sms:$phoneNumber";
+      await Utils.launchURL(url);
+    } else {
+      Utils.showToast("Phone number not available");
+    }
+  }
+
+  Future<void> sendEmail(String? email) async {
+    if (email != null && email.isNotEmpty) {
+      final url = "mailto:$email";
+      await Utils.launchURL(url);
+    } else {
+      Utils.showToast("Email address not available");
+    }
+  }
+
 
 }

@@ -296,174 +296,225 @@ class LeadsContactPage extends GetView<LeadsContactController> {
   }
 
   Widget _buildLeadCardMobile(LeadContactIdLeadContacts lead) {
+    final name = lead.contact?.name ?? 'Unknown';
+    final initials = name.isNotEmpty ? name[0].toUpperCase() : '?';
+    final phone = lead.contact?.phone;
+    final email = lead.contact?.email;
+
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
+      margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
       decoration: BoxDecoration(
         color: AppColors.themeColor.cardBgColor,
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: AppColors.themeColor.bordercolror.withOpacity(0.5), width: 1.w),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.03),
             blurRadius: 15.r,
-            offset: Offset(0, 8.h),
+            offset: Offset(0, 4.h),
           ),
         ],
+        border: Border.all(
+          color: AppColors.themeColor.bordercolror.withOpacity(0.4),
+          width: 0.8.w,
+        ),
       ),
-      child: Padding(
-        padding: EdgeInsets.all(16.w),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Name + Status
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.all(16.w),
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Text(
-                    lead.contact?.name ?? 'Unknown',
-                    style: AppTextStyle.bold8.copyWith(
-                      fontSize: AppDimens.fontSize16,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: -0.3,
-                      color: AppColors.themeColor.textPrimaryColor,
+                // Avatar Squircle
+                Container(
+                  width: 52.w,
+                  height: 52.w,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        AppColors.themeColor.primaryColor.withOpacity(0.8),
+                        AppColors.themeColor.primaryColor,
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                    borderRadius: BorderRadius.circular(14.r),
                   ),
-                ),
-                SizedBox(width: 12.w),
-                _buildStatusBadge(lead.status ?? 'Unknown'),
-              ],
-            ),
-            SizedBox(height: 12.h),
-
-            // Contact Info
-            Row(
-              children: [
-                Icon(Icons.phone_outlined, size: 14.sp, color: AppColors.themeColor.textSecondaryColor),
-                SizedBox(width: 6.w),
-                Expanded(
-                  child: Text(
-                    lead.contact?.phone ?? 'N/A',
-                    style: AppTextStyle.regular7.copyWith(
-                      fontSize: AppDimens.fontSize12,
-                      color: AppColors.themeColor.textSecondaryColor,
+                  child: Center(
+                    child: Text(
+                      initials,
+                      style: AppTextStyle.bold7.copyWith(
+                        fontSize: 20.sp,
+                        color: Colors.white,
+                      ),
                     ),
-                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                SizedBox(width: 14.w),
+                // Main Info
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              name,
+                              style: AppTextStyle.bold8.copyWith(
+                                fontSize: 16.sp,
+                                color: AppColors.themeColor.textPrimaryColor,
+                                fontWeight: FontWeight.w700,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          _buildStatusBadge(lead.status ?? 'Unknown'),
+                        ],
+                      ),
+                      SizedBox(height: 8.h),
+                      _buildContactLink(Icons.phone_outlined, phone ?? 'N/A'),
+                      if (email != null && email.isNotEmpty) ...[
+                        SizedBox(height: 4.h),
+                        _buildContactLink(Icons.mail_outline_rounded, email),
+                      ],
+                    ],
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 8.h),
-
-            Row(
+          ),
+          
+          Divider(height: 1, color: AppColors.themeColor.bordercolror.withOpacity(0.15)),
+          
+          // Stats Row: Telecaller, Logs, Duration
+          Container(
+            padding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 16.w),
+            decoration: BoxDecoration(
+              color: AppColors.themeColor.scaffoldBackgroundColor.withOpacity(0.3),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(16.r),
+                bottomRight: Radius.circular(16.r),
+              ),
+            ),
+            child: Row(
               children: [
-                Icon(Icons.email_outlined, size: 14.sp, color: AppColors.themeColor.textSecondaryColor),
-                SizedBox(width: 6.w),
-                Expanded(
-                  child: Text(
-                    lead.contact?.email ?? 'N/A',
-                    style: AppTextStyle.regular7.copyWith(
-                      fontSize: AppDimens.fontSize12,
-                      color: AppColors.themeColor.textSecondaryColor,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
+                Expanded(child: _buildInfoBlock('telecaller'.tr, lead.assignedTo?.name ?? 'N/A', Icons.person_pin_rounded)),
+                _buildVerticalSeparator(),
+                Expanded(child: _buildInfoBlock('logs'.tr, '${lead.logs?.length ?? 0}', Icons.history_edu_rounded)),
+                _buildVerticalSeparator(),
+                Expanded(child: _buildInfoBlock('duration'.tr, controller.formatDuration(controller.getTotalDuration(lead.logs)), Icons.timer_rounded)),
               ],
             ),
-            SizedBox(height: 12.h),
-            Divider(color: AppColors.themeColor.bordercolror.withOpacity(0.3), height: 1.h),
-            SizedBox(height: 12.h),
-
-            // Additional Info
-            Row(
-              children: [
-                Expanded(
-                  child: _buildInfoItem(
-                    'telecaller',
-                    lead.assignedTo?.name ?? 'N/A',
-                    Icons.person_outline,
-                  ),
-                ),
-                SizedBox(width: 12.w),
-                Expanded(
-                  child: _buildInfoItem(
-                    'logs',
-                    '${lead.logs?.length ?? 0}',
-                    Icons.history_outlined,
-                  ),
-                ),
-                SizedBox(width: 12.w),
-                Expanded(
-                  child: _buildInfoItem(
-                    'duration',
-                    controller.formatDuration(controller.getTotalDuration(lead.logs)),
-                    Icons.timer_outlined,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildInfoItem(String label, String value, IconData icon) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildVerticalSeparator() {
+    return Container(
+      height: 24.h,
+      width: 1.w,
+      margin: EdgeInsets.symmetric(horizontal: 8.w),
+      color: AppColors.themeColor.bordercolror.withOpacity(0.2),
+    );
+  }
+
+  Widget _buildContactLink(IconData icon, String value) {
+    return Row(
       children: [
-        Text.rich(
-          TextSpan(
-            children: [
-              WidgetSpan(
-                alignment: PlaceholderAlignment.middle,
-                child: Icon(icon, size: 12.sp, color: AppColors.themeColor.primaryColor),
-              ),
-              const WidgetSpan(child: SizedBox(width: 4)),
-              TextSpan(
-                text: label.tr,
-                style: AppTextStyle.medium7.copyWith(
-                  fontSize: AppDimens.fontSize11,
-                  color: AppColors.themeColor.primaryColor,
-                ),
-              ),
-            ],
+        Icon(icon, size: 14.sp, color: AppColors.themeColor.textSecondaryColor.withOpacity(0.7)),
+        SizedBox(width: 6.w),
+        Expanded(
+          child: Text(
+            value,
+            style: AppTextStyle.regular7.copyWith(
+              fontSize: 12.sp,
+              color: AppColors.themeColor.textSecondaryColor,
+            ),
+            overflow: TextOverflow.ellipsis,
           ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        SizedBox(height: 4.h),
-        Text(
-          value,
-          style: AppTextStyle.bold7.copyWith(
-            fontSize: AppDimens.fontSize12,
-            color: AppColors.themeColor.textPrimaryColor,
-          ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
         ),
       ],
     );
   }
 
+  Widget _buildInfoBlock(String label, String value, IconData icon) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 12.sp, color: AppColors.themeColor.primaryColor.withOpacity(0.7)),
+            SizedBox(width: 4.w),
+            Flexible(
+              child: Text(
+                label,
+                style: AppTextStyle.medium7.copyWith(
+                  fontSize: 10.sp,
+                  color: AppColors.themeColor.textSecondaryColor,
+                  fontWeight: FontWeight.w600,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 4.h),
+        Text(
+          value,
+          style: AppTextStyle.bold7.copyWith(
+            fontSize: 13.sp,
+            color: AppColors.themeColor.textPrimaryColor,
+            fontWeight: FontWeight.w700,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          textAlign: TextAlign.center,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDetailItem(IconData icon, String value) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 14.sp, color: AppColors.themeColor.textSecondaryColor),
+        SizedBox(width: 6.w),
+        Flexible(
+          child: Text(
+            value,
+            style: AppTextStyle.regular7.copyWith(
+              fontSize: 13.sp,
+              color: AppColors.themeColor.textSecondaryColor,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
+
+
   Widget _buildStatusBadge(String status) {
     final color = controller.getStatusColor(status);
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
-        border: Border.all(color: color.withOpacity(0.3), width: 1),
-        borderRadius: BorderRadius.circular(20.r),
+        borderRadius: BorderRadius.circular(6.r),
       ),
       child: Text(
         status.tr,
         style: AppTextStyle.bold6.copyWith(
-          fontSize: AppDimens.fontSize11,
-          fontWeight: FontWeight.w600,
+          fontSize: 10.sp,
+          fontWeight: FontWeight.w700,
           color: color,
         ),
       ),
