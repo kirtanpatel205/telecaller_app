@@ -319,7 +319,7 @@ class LeadsPage extends GetView<LeadsController> {
                             ),
                           ),
                           child: Text(
-                            lead.status ?? 'Unknown',
+                            (lead.status ?? 'Unknown').tr,
                             style: AppTextStyle.bold6.copyWith(
                               fontSize: AppDimens.fontSize11,
                               fontWeight: FontWeight.w600,
@@ -358,7 +358,7 @@ class LeadsPage extends GetView<LeadsController> {
                       children: [
                         Expanded(
                           child: _buildDateInfo(
-                            'Start',
+                            'start_date'.tr,
                             lead.schedule?.startDate.toString(),
                             Icons.calendar_today_outlined,
                           ),
@@ -366,7 +366,7 @@ class LeadsPage extends GetView<LeadsController> {
                         SizedBox(width: 12.w),
                         Expanded(
                           child: _buildDateInfo(
-                            'End',
+                            'end_date'.tr,
                             lead.schedule?.endDate.toString(),
                             Icons.event_available_outlined,
                           ),
@@ -374,7 +374,7 @@ class LeadsPage extends GetView<LeadsController> {
                         SizedBox(width: 12.w),
                         Expanded(
                           child: _buildDateInfo(
-                            'Created',
+                            'create-at'.tr,
                             lead.createdAt.toString(),
                             Icons.history_outlined,
                           ),
@@ -448,11 +448,15 @@ class LeadsPage extends GetView<LeadsController> {
           children: [
             Icon(icon, size: 12.sp, color: AppColors.themeColor.primaryColor),
             SizedBox(width: 4.w),
-            Text(
-              label,
-              style: AppTextStyle.medium7.copyWith(
-                fontSize: AppDimens.fontSize11,
-                color: AppColors.themeColor.primaryColor,
+            Expanded(
+              child: Text(
+                label,
+                style: AppTextStyle.medium7.copyWith(
+                  fontSize: AppDimens.fontSize11,
+                  color: AppColors.themeColor.primaryColor,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
@@ -735,47 +739,53 @@ class LeadsPage extends GetView<LeadsController> {
             topRight: Radius.circular(20.r),
           ),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "sort_leads_by".tr,
-                  style: AppTextStyle.appBarTitleStyle.copyWith(
-                    color: AppColors.themeColor.textPrimaryColor,
-                    fontSize: AppDimens.fontSize18,
-                    fontWeight: FontWeight.bold,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "sort_leads_by".tr,
+                    style: AppTextStyle.appBarTitleStyle.copyWith(
+                      color: AppColors.themeColor.textPrimaryColor,
+                      fontSize: AppDimens.fontSize18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                IconButton(
-                  onPressed: () => Get.back(),
-                  icon: Icon(Icons.close, size: 24.sp),
-                ),
-              ],
-            ),
-            SizedBox(height: 10.h),
-            ...controller.sortOptions.entries.map((entry) {
-              return Obx(
-                () => RadioListTile<String>(
-                  title: Text(entry.value.tr, style: AppTextStyle.regular7.copyWith(fontSize: AppDimens.fontSize14, color: AppColors.themeColor.textPrimaryColor)),
-                  value: entry.key,
-                  groupValue: controller.sortBy.value,
-                  activeColor: AppColors.themeColor.primaryColor,
-                  onChanged: (value) {
-                    controller.sortBy.value = value!;
-                    controller.resetAndReload();
-                    Get.back();
-                  },
-                ),
-              );
-            }).toList(),
-            SizedBox(height: 20.h),
-          ],
+                  IconButton(
+                    onPressed: () => Get.back(),
+                    icon: Icon(Icons.close, size: 24.sp),
+                  ),
+                ],
+              ),
+              SizedBox(height: 10.h),
+              ...controller.sortOptions.entries.map((entry) {
+                return Obx(
+                  () => RadioListTile<String>(
+                    title: Text(entry.value.tr,
+                        style: AppTextStyle.regular7.copyWith(
+                            fontSize: AppDimens.fontSize14,
+                            color: AppColors.themeColor.textPrimaryColor)),
+                    value: entry.key,
+                    groupValue: controller.sortBy.value,
+                    activeColor: AppColors.themeColor.primaryColor,
+                    onChanged: (value) {
+                      controller.sortBy.value = value!;
+                      controller.resetAndReload();
+                      Get.back();
+                    },
+                  ),
+                );
+              }).toList(),
+              SizedBox(height: 20.h),
+            ],
+          ),
         ),
       ),
+      isScrollControlled: true,
     );
   }
 }

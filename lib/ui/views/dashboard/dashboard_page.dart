@@ -3,6 +3,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:intl/intl.dart';
 import 'package:telecaller_app/constants/app_colors.dart';
@@ -859,7 +860,7 @@ class DashboardPage extends GetView<HomeController> {
               items: ['Today', 'Week', 'Month', 'Year', 'Specific']
                   .map((value) => DropdownMenuItem(
                 value: value,
-                child: Text(value),
+                child: Text(value.toLowerCase().tr),
               ))
                   .toList(),
             ),
@@ -1269,7 +1270,7 @@ class DashboardPage extends GetView<HomeController> {
                 }
               },
               items: ['Today', 'Week', 'Month', 'Year', 'Specific']
-                  .map((value) => DropdownMenuItem(value: value, child: Text(value)))
+                  .map((value) => DropdownMenuItem(value: value, child: Text(value.toLowerCase().tr)))
                   .toList(),
             ),
           )),

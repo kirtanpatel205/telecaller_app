@@ -215,5 +215,9 @@
   "yes_logout": "Yes Logout",
   "openCamera": "Open Camera",
   "openGallery": "Open Gallery",
-  "call_survey_form": "Call Survey Form"
+  "call_survey_form": "Call Survey Form",
+  "logs": "Logs",
+  "telecaller": "Telecaller"
+
+
 }

@@ -383,7 +383,7 @@ class LeadsContactPage extends GetView<LeadsContactController> {
               children: [
                 Expanded(
                   child: _buildInfoItem(
-                    'Telecaller',
+                    'telecaller'.tr,
                     lead.assignedTo?.name ?? 'N/A',
                     Icons.person_outline,
                   ),
@@ -391,7 +391,7 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                 SizedBox(width: 12.w),
                 Expanded(
                   child: _buildInfoItem(
-                    'Logs',
+                    'logs'.tr,
                     '${lead.logs?.length ?? 0}',
                     Icons.history_outlined,
                   ),
@@ -399,7 +399,7 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                 SizedBox(width: 12.w),
                 Expanded(
                   child: _buildInfoItem(
-                    'Duration',
+                    'duration'.tr,
                     controller.formatDuration(controller.getTotalDuration(lead.logs)),
                     Icons.timer_outlined,
                   ),
@@ -416,19 +416,25 @@ class LeadsContactPage extends GetView<LeadsContactController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-
-          children: [
-            Icon(icon, size: 12.sp, color: AppColors.themeColor.primaryColor),
-            SizedBox(width: 4.w),
-            Text(
-              label,
-              style: AppTextStyle.medium7.copyWith(
-                fontSize: AppDimens.fontSize11,
-                color: AppColors.themeColor.primaryColor,
+        Text.rich(
+          TextSpan(
+            children: [
+              WidgetSpan(
+                alignment: PlaceholderAlignment.middle,
+                child: Icon(icon, size: 12.sp, color: AppColors.themeColor.primaryColor),
               ),
-            ),
-          ],
+              const WidgetSpan(child: SizedBox(width: 4)),
+              TextSpan(
+                text: label,
+                style: AppTextStyle.medium7.copyWith(
+                  fontSize: AppDimens.fontSize11,
+                  color: AppColors.themeColor.primaryColor,
+                ),
+              ),
+            ],
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
         SizedBox(height: 4.h),
         Text(
@@ -454,7 +460,7 @@ class LeadsContactPage extends GetView<LeadsContactController> {
         borderRadius: BorderRadius.circular(20.r),
       ),
       child: Text(
-        status,
+        status.tr,
         style: AppTextStyle.bold6.copyWith(
           fontSize: AppDimens.fontSize11,
           fontWeight: FontWeight.w600,

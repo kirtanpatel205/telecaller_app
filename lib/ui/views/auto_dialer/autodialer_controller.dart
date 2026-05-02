@@ -801,16 +801,28 @@ class AutoDialerController extends GetxController {
     // Remove non-numeric characters for WhatsApp
     final cleanPhone = phone.replaceAll(RegExp(r'[^0-9]'), '');
     final Uri url = Uri.parse("https://wa.me/$cleanPhone");
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url, mode: LaunchMode.externalApplication);
+    
+    try {
+      // Try launching with external application mode first
+      final launched = await launchUrl(url, mode: LaunchMode.externalApplication);
+      if (!launched) {
+        // Fallback for some devices/browsers
+        await launchUrl(url, mode: LaunchMode.platformDefault);
+      }
+    } catch (e) {
+      print('❌ WhatsApp launch error: $e');
+      Get.snackbar('Error', 'Could not open WhatsApp. Please ensure it is installed.');
     }
   }
 
   Future<void> launchEmail(String? email) async {
     if (email == null || email.isEmpty) return;
     final Uri url = Uri(scheme: 'mailto', path: email);
-    if (await canLaunchUrl(url)) {
+    try {
       await launchUrl(url);
+    } catch (e) {
+      print('❌ Email launch error: $e');
+      Get.snackbar('Error', 'Could not open Email app.');
     }
   }
 

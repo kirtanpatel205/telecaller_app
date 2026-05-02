@@ -74,7 +74,7 @@ class CallFormPage extends StatelessWidget {
                                   Obx(() => Text(
                                     controller.leadId.value.isNotEmpty ? "${"call_feedback:".tr} ${controller.leadId.value}" : "call_survey_form".tr,
                                     style: AppTextStyle.bold7.copyWith(
-                                      fontSize: AppDimens.fontSize20,
+                                      fontSize: AppDimens.fontSize18,
                                       color: AppColors.themeColor.textPrimaryColor,
                                       letterSpacing: -0.5,
                                     ),
@@ -85,7 +85,7 @@ class CallFormPage extends StatelessWidget {
                                   Text(
                                     "complete_the_following_fields_to_save_call_details".tr,
                                     style: AppTextStyle.regular7.copyWith(
-                                      fontSize: AppDimens.fontSize13,
+                                      fontSize: AppDimens.fontSize11,
                                       color: AppColors.themeColor.textSecondaryColor,
                                     ),
                                   ),
@@ -154,7 +154,7 @@ class CallFormPage extends StatelessWidget {
           Text(
             "form_preview".tr,
             style: AppTextStyle.bold7.copyWith(
-              fontSize: AppDimens.fontSize12,
+              fontSize: AppDimens.fontSize11,
               fontWeight: FontWeight.w800,
               color: AppColors.themeColor.textSecondaryColor,
               letterSpacing: 1.2,
@@ -201,7 +201,7 @@ class CallFormPage extends StatelessWidget {
             child: Text(
               "please_fill_in_all_required_fields_your_responses_ensure_acc".tr,
               style: AppTextStyle.regular7.copyWith(
-                fontSize: AppDimens.fontSize12,
+                fontSize: AppDimens.fontSize11,
                 color: AppColors.themeColor.textPrimaryColor.withOpacity(0.9),
                 height: 1.4,
               ),
@@ -232,7 +232,7 @@ class CallFormPage extends StatelessWidget {
             child: Text(
               "fields_marked_with_are_mandatory_for_submission".tr,
               style: AppTextStyle.medium7.copyWith(
-                fontSize: AppDimens.fontSize12,
+                fontSize: AppDimens.fontSize11,
                 color: Colors.red.shade400,
               ),
             ),
@@ -254,7 +254,7 @@ class CallFormPage extends StatelessWidget {
             TextSpan(
               text: label,
               style: AppTextStyle.bold7.copyWith(
-                fontSize: AppDimens.fontSize14,
+                fontSize: AppDimens.fontSize13,
                 fontWeight: FontWeight.w600,
                 color: AppColors.themeColor.textPrimaryColor,
               ),
@@ -263,7 +263,7 @@ class CallFormPage extends StatelessWidget {
               TextSpan(
                 text: " *",
                 style: AppTextStyle.bold7.copyWith(
-                  fontSize: AppDimens.fontSize16,
+                  fontSize: AppDimens.fontSize14,
                   fontWeight: FontWeight.bold,
                   color: Colors.red.shade600,
                 ),
@@ -405,10 +405,10 @@ class CallFormPage extends StatelessWidget {
       onTap: onTap,
       maxLines: maxLines,
       autovalidateMode: AutovalidateMode.onUserInteraction,
-      style: AppTextStyle.medium7.copyWith(fontSize: AppDimens.fontSize14, color: AppColors.themeColor.textPrimaryColor),
+      style: AppTextStyle.medium7.copyWith(fontSize: AppDimens.fontSize13, color: AppColors.themeColor.textPrimaryColor),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: AppTextStyle.regular7.copyWith(fontSize: AppDimens.fontSize14, color: Colors.grey.shade400),
+        hintStyle: AppTextStyle.regular7.copyWith(fontSize: AppDimens.fontSize12, color: Colors.grey.shade400),
         filled: true,
         fillColor: Colors.grey.withOpacity(0.03),
         contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
@@ -454,13 +454,13 @@ class CallFormPage extends StatelessWidget {
         child: DropdownButton<String>(
           isExpanded: true,
           value: selectedValue.value.isEmpty ? null : selectedValue.value,
-          hint: Text(hint, style: AppTextStyle.regular7.copyWith(color: Colors.grey.shade400, fontSize: AppDimens.fontSize14)),
+          hint: Text(hint, style: AppTextStyle.regular7.copyWith(color: Colors.grey.shade400, fontSize: AppDimens.fontSize12)),
           icon: Icon(Icons.expand_more_rounded, color: Colors.grey, size: 24.sp),
           onChanged: (value) => selectedValue.value = value ?? "",
           items: options.map<DropdownMenuItem<String>>((option) {
             return DropdownMenuItem<String>(
               value: option,
-              child: Text(option, style: AppTextStyle.medium7.copyWith(fontSize: AppDimens.fontSize14, color: AppColors.themeColor.textPrimaryColor)),
+              child: Text(option, style: AppTextStyle.medium7.copyWith(fontSize: AppDimens.fontSize13, color: AppColors.themeColor.textPrimaryColor)),
             );
           }).toList(),
         ),
@@ -506,7 +506,7 @@ class CallFormPage extends StatelessWidget {
                 Text(
                   option,
                   style: AppTextStyle.medium7.copyWith(
-                    fontSize: AppDimens.fontSize14,
+                    fontSize: AppDimens.fontSize13,
                     color: isSelected ? AppColors.themeColor.primaryColor : AppColors.themeColor.textPrimaryColor,
                   ),
                 ),
@@ -566,7 +566,7 @@ class CallFormPage extends StatelessWidget {
                   Text(
                     option,
                     style: AppTextStyle.medium7.copyWith(
-                      fontSize: AppDimens.fontSize14,
+                      fontSize: AppDimens.fontSize13,
                       color: isSelected ? AppColors.themeColor.primaryColor : AppColors.themeColor.textPrimaryColor,
                     ),
                   ),
@@ -662,7 +662,7 @@ class CallFormPage extends StatelessWidget {
             icon: Icon(
               isSelected ? Icons.star_rounded : Icons.star_outline_rounded,
               color: isSelected ? Colors.amber : Colors.grey.shade300,
-              size: 32.sp,
+              size: 24.sp,
             ),
           );
         }),
@@ -736,7 +736,7 @@ class CallFormPage extends StatelessWidget {
                         ? (rx.value.contains('|') ? rx.value.split('|').last : rx.value) 
                         : displayHint,
                       style: AppTextStyle.medium7.copyWith(
-                        fontSize: AppDimens.fontSize14,
+                        fontSize: AppDimens.fontSize13,
                         color: isSelected ? AppColors.themeColor.textPrimaryColor : Colors.grey.shade400,
                       ),
                       maxLines: 2,
@@ -798,7 +798,7 @@ class CallFormPage extends StatelessWidget {
               ),
               child: Text(
                 "cancel".tr,
-                style: AppTextStyle.bold7.copyWith(fontSize: AppDimens.fontSize14, color: AppColors.themeColor.textSecondaryColor),
+                style: AppTextStyle.bold7.copyWith(fontSize: AppDimens.fontSize13, color: AppColors.themeColor.textSecondaryColor),
               ),
             ),
           ),
@@ -818,7 +818,7 @@ class CallFormPage extends StatelessWidget {
               ),
               child: controller.isLoading.value
                 ? SizedBox(width: 20.sp, height: 20.sp, child: CircularProgressIndicator(strokeWidth: 2.5, color: AppColors.themeColor.onPrimaryColor))
-                : Text("save_submit".tr, style: AppTextStyle.bold7.copyWith(fontSize: AppDimens.fontSize15, color: AppColors.themeColor.onPrimaryColor)),
+                : Text("save_submit".tr, style: AppTextStyle.bold7.copyWith(fontSize: AppDimens.fontSize14, color: AppColors.themeColor.onPrimaryColor)),
             )),
           ),
         ],

@@ -367,29 +367,16 @@ void onStart(ServiceInstance service) async {
   });
 
   // Diagnostic Heartbeat
-  Timer.periodic(const Duration(seconds: 30), (timer) async {
-    print("💓 Background Service Heartbeat: ${DateTime.now()}");
+  print("💓 Background Service Started: ${DateTime.now()}");
 
-    if (service is AndroidServiceInstance) {
-      if (await service.isForegroundService()) {
-        service.setForegroundNotificationInfo(
-          title: "Telecaller Active",
-          content:
-              "Service tracking is active. Last Refresh: ${DateTime.now().hour}:${DateTime.now().minute}",
-        );
-      }
+  if (service is AndroidServiceInstance) {
+    if (await service.isForegroundService()) {
+      service.setForegroundNotificationInfo(
+        title: "Telecaller Active",
+        content: "Service tracking is active",
+      );
     }
-
-    if (Get.isRegistered<SocketController>()) {
-      final socket = Get.find<SocketController>();
-      print("🔌 Background Socket Connected: ${socket.isConnected.value}");
-      if (!socket.isConnected.value) {
-        print("🔄 Attempting background socket reconnect...");
-        socket.ensureConnected();
-      }
-    }
-  });
-
+  }
   // Sync Call Logs every 15 minutes
   Timer.periodic(const Duration(minutes: 15), (timer) async {
     print("🕒 [Background] Starting periodic call log sync...");
