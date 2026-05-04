@@ -14,19 +14,14 @@ class LanguageController extends GetxController {
   final LangService langService = Get.find();
   final storage = GetStorage();
 
-  RxInt selectedLanguage = 0.obs;
+  RxString selectedLanguage = "".obs;
   TextEditingController searchlangController = TextEditingController();
   RxList<LanguageEntity> filteredLanguages = RxList<LanguageEntity>();
 
   @override
   void onInit() {
     super.onInit();
-
-    // Delay locale setting until after first frame to avoid rebuild error
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      loadSelectedLanguage();
-    });
-
+    selectedLanguage.value = langService.selectedLang.value;
     filteredLanguages.value = langService.langs.value;
 
     searchlangController.addListener(() {
@@ -51,36 +46,14 @@ class LanguageController extends GetxController {
 
   void onChangeLang(int index) {
     LanguageEntity selectedLang = filteredLanguages[index];
-    int actualIndex = langService.langs.value.indexOf(selectedLang);
-
-    selectedLanguage.value = actualIndex;
-    storage.write('selectedLanguage', actualIndex);
-
-    final selectedKey = langService.langs.value[actualIndex].key!;
+    final selectedKey = selectedLang.key!;
+    
+    selectedLanguage.value = selectedKey;
     langService.onChangeLang(selectedKey);
 
     Utils.showToast("Language : ${selectedLang.name}");
     Get.back();
   }
 
-  void loadSelectedLanguage() {
-    int englishIndex = langService.langs.value.indexWhere(
-          (lang) => lang.name?.toLowerCase() == 'english',
-    );
 
-    selectedLanguage.value =
-        storage.read('selectedLanguage') ?? englishIndex;
-
-    if (storage.read<int>('selectedLanguage') == null) {
-      storage.write('selectedLanguage', englishIndex);
-    }
-
-    final selectedKey =
-    langService.langs.value[selectedLanguage.value].key!;
-
-    // Only update if different from current locale
-    if (Get.locale?.languageCode != selectedKey) {
-      langService.onChangeLang(selectedKey);
-    }
-  }
 }

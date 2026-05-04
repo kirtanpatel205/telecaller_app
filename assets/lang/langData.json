@@ -223,7 +223,12 @@
     "enter_valid_state": "Please enter a valid state",
     "select_country_required": "Please select a country",
     "enter_zip_code": "Enter Zip Code",
-    "zip_code_required": "Zip Code is required"
+    "zip_code_required": "Zip Code is required",
+    "follow-up": "Follow-up",
+    "reschedule": "Reschedule",
+    "other": "Other",
+    "no_contacts_found_for_this_lead": "No contacts found for this lead",
+    "invalid": "Invalid"
   },
   "pt": {
     "welcome": "Ação",
@@ -449,7 +454,12 @@
     "enter_valid_state": "Por favor, insira um estado válido.",
     "select_country_required": "Por favor, selecione um país.",
     "enter_zip_code": "Digite o código postal",
-    "zip_code_required": "É necessário o código postal."
+    "zip_code_required": "É necessário o código postal.",
+    "follow-up": "Seguir",
+    "reschedule": "Remarcar",
+    "other": "Outro",
+    "no_contacts_found_for_this_lead": "Nenhum contato encontrado para esta pista.",
+    "invalid": "Inválido"
   },
   "hi": {
     "welcome": "कार्रवाई",
@@ -675,7 +685,12 @@
     "enter_valid_state": "कृपया एक मान्य राज्य दर्ज करें",
     "select_country_required": "कृपया देश को चुनें",
     "enter_zip_code": "ज़िप कोड डालें",
-    "zip_code_required": "ज़िप कोड आवश्यक है"
+    "zip_code_required": "ज़िप कोड आवश्यक है",
+    "follow-up": "पालन ​​करें",
+    "reschedule": "पुनर्निर्धारित",
+    "other": "अन्य",
+    "no_contacts_found_for_this_lead": "इस लीड के लिए कोई संपर्क नहीं मिला",
+    "invalid": "अमान्य"
   },
   "ta": {
     "welcome": "செயல்",
@@ -901,7 +916,12 @@
     "enter_valid_state": "சரியான மாநிலத்தை உள்ளிடவும்",
     "select_country_required": "தயவுசெய்து ஒரு நாட்டைத் தேர்ந்தெடுக்கவும்",
     "enter_zip_code": "அஞ்சல் குறியீட்டை உள்ளிடவும்",
-    "zip_code_required": "அஞ்சல் குறியீடு தேவைப்படுகிறது"
+    "zip_code_required": "அஞ்சல் குறியீடு தேவைப்படுகிறது",
+    "follow-up": "பின்தொடர்தல்",
+    "reschedule": "மறு அட்டவணை",
+    "other": "மற்றவை",
+    "no_contacts_found_for_this_lead": "இந்த முன்னணிக்கு எந்தத் தொடர்புகளும் காணப்படவில்லை",
+    "invalid": "செல்லாதது"
   },
   "te": {
     "welcome": "చర్య",
@@ -1127,7 +1147,12 @@
     "enter_valid_state": "దయచేసి చెల్లుబాటు అయ్యే స్థితిని నమోదు చేయండి",
     "select_country_required": "దయచేసి దేశాన్ని ఎంచుకోండి",
     "enter_zip_code": "జిప్ కోడ్ నమోదు చేయండి",
-    "zip_code_required": "జిప్ కోడ్ అవసరం"
+    "zip_code_required": "జిప్ కోడ్ అవసరం",
+    "follow-up": "తదుపరి చర్యలు",
+    "reschedule": "పునః షెడ్యూల్ చేయండి",
+    "other": "ఇతర",
+    "no_contacts_found_for_this_lead": "ఈ లీడ్ కోసం ఎలాంటి సంప్రదింపులు కనుగొనబడలేదు",
+    "invalid": "చెల్లనిది"
   },
   "es": {
     "welcome": "Acción",
@@ -1353,7 +1378,12 @@
     "enter_valid_state": "Por favor, ingrese un estado válido.",
     "select_country_required": "Seleccione un país",
     "enter_zip_code": "Ingrese el código postal",
-    "zip_code_required": "Se requiere el código postal."
+    "zip_code_required": "Se requiere el código postal.",
+    "follow-up": "Hacer un seguimiento",
+    "reschedule": "Reprogramar",
+    "other": "Otro",
+    "no_contacts_found_for_this_lead": "No se encontraron contactos para esta pista.",
+    "invalid": "Inválido"
   },
   "fr": {
     "welcome": "Action",
@@ -1579,7 +1609,12 @@
     "enter_valid_state": "Veuillez saisir un état valide",
     "select_country_required": "Veuillez sélectionner un pays",
     "enter_zip_code": "Saisissez le code postal",
-    "zip_code_required": "Le code postal est requis."
+    "zip_code_required": "Le code postal est requis.",
+    "follow-up": "Suivi",
+    "reschedule": "reprogrammer",
+    "other": "Autre",
+    "no_contacts_found_for_this_lead": "Aucun contact trouvé pour ce prospect",
+    "invalid": "Invalide"
   },
   "ar": {
     "welcome": "الاجراء",
@@ -1805,7 +1840,12 @@
     "enter_valid_state": "بين",
     "select_country_required": "بين",
     "enter_zip_code": "بين",
-    "zip_code_required": "بين"
+    "zip_code_required": "بين",
+    "follow-up": "بين",
+    "reschedule": "بين",
+    "other": "بين",
+    "no_contacts_found_for_this_lead": "بين",
+    "invalid": "بين"
   },
   "th": {
     "welcome": "การกระทำ",
@@ -2031,7 +2071,12 @@
     "enter_valid_state": "โปรดระบุรัฐที่ถูกต้อง",
     "select_country_required": "โปรดเลือกประเทศ",
     "enter_zip_code": "ป้อนรหัสไปรษณีย์",
-    "zip_code_required": "ต้องระบุรหัสไปรษณีย์"
+    "zip_code_required": "ต้องระบุรหัสไปรษณีย์",
+    "follow-up": "การติดตามผล",
+    "reschedule": "เลื่อนกำหนดการ",
+    "other": "อื่น",
+    "no_contacts_found_for_this_lead": "ไม่พบข้อมูลติดต่อสำหรับข้อมูลนี้",
+    "invalid": "ไม่ถูกต้อง"
   },
   "ms": {
     "welcome": "Tindakan",
@@ -2257,7 +2302,12 @@
     "enter_valid_state": "Sila masukkan negeri yang sah",
     "select_country_required": "Sila pilih negara",
     "enter_zip_code": "Masukkan Poskod",
-    "zip_code_required": "Poskod diperlukan"
+    "zip_code_required": "Poskod diperlukan",
+    "follow-up": "Susulan",
+    "reschedule": "Jadualkan semula",
+    "other": "Lain-lain",
+    "no_contacts_found_for_this_lead": "Tiada kenalan ditemui untuk bakal pelanggan ini",
+    "invalid": "Tidak sah"
   },
   "de": {
     "welcome": "Aktion",
@@ -2483,7 +2533,12 @@
     "enter_valid_state": "Bitte geben Sie einen gültigen Bundesstaat ein.",
     "select_country_required": "Bitte wählen Sie ein Land aus.",
     "enter_zip_code": "Postleitzahl eingeben",
-    "zip_code_required": "Postleitzahl erforderlich"
+    "zip_code_required": "Postleitzahl erforderlich",
+    "follow-up": "Nachverfolgen",
+    "reschedule": "Neu terminieren",
+    "other": "Andere",
+    "no_contacts_found_for_this_lead": "Für diesen Hinweis wurden keine Kontakte gefunden.",
+    "invalid": "Ungültig"
   },
   "id": {
     "welcome": "Tindakan",
@@ -2709,7 +2764,12 @@
     "enter_valid_state": "Silakan masukkan negara bagian yang valid.",
     "select_country_required": "Silakan pilih negara",
     "enter_zip_code": "Masukkan Kode Pos",
-    "zip_code_required": "Kode Pos wajib diisi."
+    "zip_code_required": "Kode Pos wajib diisi.",
+    "follow-up": "Menindaklanjuti",
+    "reschedule": "Menjadwalkan ulang",
+    "other": "Lainnya",
+    "no_contacts_found_for_this_lead": "Tidak ditemukan kontak untuk prospek ini.",
+    "invalid": "Tidak sah"
   },
   "tr": {
     "welcome": "Aksiyon",
@@ -2935,7 +2995,12 @@
     "enter_valid_state": "Lütfen geçerli bir eyalet girin.",
     "select_country_required": "Lütfen bir ülke seçin.",
     "enter_zip_code": "Posta kodunu girin",
-    "zip_code_required": "Posta kodu zorunludur."
+    "zip_code_required": "Posta kodu zorunludur.",
+    "follow-up": "Takip etmek",
+    "reschedule": "Yeniden planla",
+    "other": "Diğer",
+    "no_contacts_found_for_this_lead": "Bu ipucu için hiçbir iletişim bilgisi bulunamadı.",
+    "invalid": "Geçersiz"
   },
   "ru": {
     "welcome": "Действие",
@@ -3161,7 +3226,12 @@
     "enter_valid_state": "Пожалуйста, введите действительный штат.",
     "select_country_required": "Пожалуйста, выберите страну.",
     "enter_zip_code": "Введите почтовый индекс",
-    "zip_code_required": "Требуется почтовый индекс"
+    "zip_code_required": "Требуется почтовый индекс",
+    "follow-up": "Следовать за",
+    "reschedule": "Перенести",
+    "other": "Другой",
+    "no_contacts_found_for_this_lead": "Контактные данные по этому запросу не найдены.",
+    "invalid": "Неверный"
   },
   "bn": {
     "welcome": "অ্যাকশন",
@@ -3387,7 +3457,12 @@
     "enter_valid_state": "অনুগ্রহ করে একটি বৈধ রাজ্য লিখুন।",
     "select_country_required": "অনুগ্রহ করে একটি দেশ নির্বাচন করুন",
     "enter_zip_code": "জিপ কোড লিখুন",
-    "zip_code_required": "জিপ কোড প্রয়োজন"
+    "zip_code_required": "জিপ কোড প্রয়োজন",
+    "follow-up": "ফলোআপ",
+    "reschedule": "পুনঃনির্ধারণ",
+    "other": "অন্যান্য",
+    "no_contacts_found_for_this_lead": "এই লিডের জন্য কোনো যোগাযোগ খুঁজে পাওয়া যায়নি।",
+    "invalid": "অবৈধ"
   },
   "km": {
     "welcome": "សកម្មភាព",
@@ -3613,7 +3688,12 @@
     "enter_valid_state": "សូមបញ្ចូលរដ្ឋដែលត្រឹមត្រូវ",
     "select_country_required": "សូមជ្រើសរើសប្រទេសមួយ",
     "enter_zip_code": "បញ្ចូលលេខកូដប្រៃសណីយ៍",
-    "zip_code_required": "តម្រូវឲ្យមានលេខកូដប្រៃសណីយ៍"
+    "zip_code_required": "តម្រូវឲ្យមានលេខកូដប្រៃសណីយ៍",
+    "follow-up": "ការតាមដាន",
+    "reschedule": "កំណត់ពេលឡើងវិញ",
+    "other": "ផ្សេងៗ",
+    "no_contacts_found_for_this_lead": "រកមិនឃើញទំនាក់ទំនងសម្រាប់អ្នកដឹកនាំនេះទេ",
+    "invalid": "មិនត្រឹមត្រូវ"
   },
   "he": {
     "welcome": "פְּעוּלָה",
@@ -3839,7 +3919,12 @@
     "enter_valid_state": "אנא הזן מדינה חוקית",
     "select_country_required": "אנא בחר מדינה",
     "enter_zip_code": "הזן מיקוד",
-    "zip_code_required": "נדרש מיקוד"
+    "zip_code_required": "נדרש מיקוד",
+    "follow-up": "מעקב",
+    "reschedule": "שינוי מועד",
+    "other": "אַחֵר",
+    "no_contacts_found_for_this_lead": "לא נמצאו אנשי קשר עבור ליד זה",
+    "invalid": "לֹא בְּתוֹקֶף"
   },
   "ur": {
     "welcome": "ایکشن",
@@ -4065,7 +4150,12 @@
     "enter_valid_state": "براہ کرم ایک درست حالت درج کریں۔",
     "select_country_required": "براہ کرم ایک ملک منتخب کریں۔",
     "enter_zip_code": "زپ کوڈ درج کریں۔",
-    "zip_code_required": "زپ کوڈ درکار ہے۔"
+    "zip_code_required": "زپ کوڈ درکار ہے۔",
+    "follow-up": "فالو اپ",
+    "reschedule": "ری شیڈول کریں۔",
+    "other": "دیگر",
+    "no_contacts_found_for_this_lead": "اس لیڈ کے لیے کوئی رابطے نہیں ملے",
+    "invalid": "غلط"
   },
   "el": {
     "welcome": "Δράση",
@@ -4291,7 +4381,12 @@
     "enter_valid_state": "Παρακαλώ εισάγετε μια έγκυρη πολιτεία",
     "select_country_required": "Επιλέξτε μια χώρα",
     "enter_zip_code": "Εισαγάγετε τον Ταχυδρομικό Κώδικα",
-    "zip_code_required": "Απαιτείται ταχυδρομικός κώδικας"
+    "zip_code_required": "Απαιτείται ταχυδρομικός κώδικας",
+    "follow-up": "Παρακολούθηση",
+    "reschedule": "Αναπρογραμματισμός",
+    "other": "Αλλος",
+    "no_contacts_found_for_this_lead": "Δεν βρέθηκαν επαφές για αυτόν τον υποψήφιο πελάτη",
+    "invalid": "Ακυρος"
   },
   "pl": {
     "welcome": "Działanie",
@@ -4517,7 +4612,12 @@
     "enter_valid_state": "Proszę podać prawidłowy stan",
     "select_country_required": "Proszę wybrać kraj",
     "enter_zip_code": "Wprowadź kod pocztowy",
-    "zip_code_required": "Kod pocztowy jest wymagany"
+    "zip_code_required": "Kod pocztowy jest wymagany",
+    "follow-up": "Podejmować właściwe kroki",
+    "reschedule": "Przełóż termin",
+    "other": "Inny",
+    "no_contacts_found_for_this_lead": "Nie znaleziono kontaktów dla tego potencjalnego klienta",
+    "invalid": "Nieważny"
   },
   "nl": {
     "welcome": "Actie",
@@ -4743,7 +4843,12 @@
     "enter_valid_state": "Voer een geldige staat in.",
     "select_country_required": "Selecteer een land",
     "enter_zip_code": "Voer de postcode in",
-    "zip_code_required": "Postcode is verplicht"
+    "zip_code_required": "Postcode is verplicht",
+    "follow-up": "Vervolg",
+    "reschedule": "Opnieuw plannen",
+    "other": "Ander",
+    "no_contacts_found_for_this_lead": "Er zijn geen contactpersonen gevonden voor deze aanwijzing.",
+    "invalid": "Ongeldig"
   },
   "uk": {
     "welcome": "Дія",
@@ -4969,7 +5074,12 @@
     "enter_valid_state": "Будь ласка, введіть дійсний штат",
     "select_country_required": "Будь ласка, виберіть країну",
     "enter_zip_code": "Введіть поштовий індекс",
-    "zip_code_required": "Поштовий індекс обов'язковий"
+    "zip_code_required": "Поштовий індекс обов'язковий",
+    "follow-up": "Подальші дії",
+    "reschedule": "Перенести",
+    "other": "Інше",
+    "no_contacts_found_for_this_lead": "Для цього потенційного клієнта контактів не знайдено",
+    "invalid": "Недійсний"
   },
   "vi": {
     "welcome": "Hoạt động",
@@ -5195,7 +5305,12 @@
     "enter_valid_state": "Vui lòng nhập tiểu bang hợp lệ",
     "select_country_required": "Vui lòng chọn quốc gia",
     "enter_zip_code": "Nhập mã bưu chính",
-    "zip_code_required": "Cần có mã bưu chính."
+    "zip_code_required": "Cần có mã bưu chính.",
+    "follow-up": "Theo dõi",
+    "reschedule": "Lên lịch lại",
+    "other": "Khác",
+    "no_contacts_found_for_this_lead": "Không tìm thấy thông tin liên hệ nào cho khách hàng tiềm năng này.",
+    "invalid": "Không hợp lệ"
   },
   "pt_br": {
     "welcome": "Ação",
@@ -5421,7 +5536,12 @@
     "enter_valid_state": "Por favor, insira um estado válido.",
     "select_country_required": "Por favor, selecione um país.",
     "enter_zip_code": "Digite o código postal",
-    "zip_code_required": "É necessário o código postal."
+    "zip_code_required": "É necessário o código postal.",
+    "follow-up": "Seguir",
+    "reschedule": "Remarcar",
+    "other": "Outro",
+    "no_contacts_found_for_this_lead": "Nenhum contato encontrado para esta pista.",
+    "invalid": "Inválido"
   },
   "zh_cn": {
     "welcome": "行动",
@@ -5647,7 +5767,12 @@
     "enter_valid_state": "请输入有效的州名",
     "select_country_required": "请选择一个国家/地区",
     "enter_zip_code": "输入邮政编码",
-    "zip_code_required": "邮政编码为必填项"
+    "zip_code_required": "邮政编码为必填项",
+    "follow-up": "后续",
+    "reschedule": "重新安排",
+    "other": "其他",
+    "no_contacts_found_for_this_lead": "未找到与此线索相关的联系人",
+    "invalid": "无效的"
   },
   "it": {
     "welcome": "Azione",
@@ -5873,7 +5998,12 @@
     "enter_valid_state": "Inserisci uno stato valido",
     "select_country_required": "Seleziona un paese",
     "enter_zip_code": "Inserisci il codice postale",
-    "zip_code_required": "È richiesto il codice postale"
+    "zip_code_required": "È richiesto il codice postale",
+    "follow-up": "Seguito",
+    "reschedule": "Riprogrammare",
+    "other": "Altro",
+    "no_contacts_found_for_this_lead": "Nessun contatto trovato per questo potenziale cliente.",
+    "invalid": "Non valido"
   },
   "af": {
     "welcome": "Aksie",
@@ -6099,7 +6229,12 @@
     "enter_valid_state": "Voer asseblief 'n geldige staat in",
     "select_country_required": "Kies asseblief 'n land",
     "enter_zip_code": "Voer poskode in",
-    "zip_code_required": "Poskode word vereis"
+    "zip_code_required": "Poskode word vereis",
+    "follow-up": "Opvolg",
+    "reschedule": "Herskeduleer",
+    "other": "Ander",
+    "no_contacts_found_for_this_lead": "Geen kontakte vir hierdie potensiële klant gevind nie",
+    "invalid": "Ongeldig"
   },
   "am": {
     "welcome": "ድርጊት",
@@ -6325,7 +6460,12 @@
     "enter_valid_state": "እባክዎ ትክክለኛ ሁኔታ ያስገቡ",
     "select_country_required": "እባክዎ አገር ይምረጡ",
     "enter_zip_code": "የፖስታ ኮድ ያስገቡ",
-    "zip_code_required": "የፖስታ ኮድ ያስፈልጋል"
+    "zip_code_required": "የፖስታ ኮድ ያስፈልጋል",
+    "follow-up": "ክትትል",
+    "reschedule": "እንደገና መርሐግብር አስይዝ",
+    "other": "ሌላ",
+    "no_contacts_found_for_this_lead": "ለዚህ መሪ ምንም እውቂያዎች አልተገኙም",
+    "invalid": "ልክ ያልሆነ"
   },
   "az": {
     "welcome": "Fəaliyyət",
@@ -6551,7 +6691,12 @@
     "enter_valid_state": "Zəhmət olmasa, düzgün ştat daxil edin",
     "select_country_required": "Zəhmət olmasa, ölkə seçin",
     "enter_zip_code": "Poçt kodu daxil edin",
-    "zip_code_required": "Poçt kodu tələb olunur"
+    "zip_code_required": "Poçt kodu tələb olunur",
+    "follow-up": "İzləmə",
+    "reschedule": "Yenidən planlaşdırın",
+    "other": "Digər",
+    "no_contacts_found_for_this_lead": "Bu potensial müştəri üçün əlaqə tapılmadı",
+    "invalid": "Yanlış"
   },
   "bg": {
     "welcome": "Действие",
@@ -6777,7 +6922,12 @@
     "enter_valid_state": "Моля, въведете валиден щат",
     "select_country_required": "Моля, изберете държава",
     "enter_zip_code": "Въведете пощенски код",
-    "zip_code_required": "Пощенският код е задължителен"
+    "zip_code_required": "Пощенският код е задължителен",
+    "follow-up": "Последващи действия",
+    "reschedule": "Пренасрочване",
+    "other": "Друго",
+    "no_contacts_found_for_this_lead": "Няма намерени контакти за този потенциален клиент",
+    "invalid": "Невалиден"
   },
   "ca": {
     "welcome": "Acció",
@@ -6861,7 +7011,7 @@
     "pick_date": "Tria la data",
     "please_accept_all_permissions_to_continue": "Si us plau, accepteu tots els permisos per continuar",
     "please_check_the_terms_and_conditions_to_continue": "Si us plau, reviseu els termes i condicions per continuar",
-    "please_enter_a_valid_phone_number": "Si us plau, introduïu un número de telèfon vàlid",
+    "please_enter_a_valid_phone_number": "Si us plau, introdueix un número de telèfon vàlid",
     "please_fill_in_all_required_fields_your_responses_ensure_acc": "Si us plau, ompliu tots els camps obligatoris. Les vostres respostes garanteixen un seguiment precís dels clients potencials i un millor seguiment del servei.",
     "privacy_policy": "Política de privacitat",
     "processed_purchases": "Compres processades",
@@ -7003,7 +7153,12 @@
     "enter_valid_state": "Si us plau, introduïu un estat vàlid",
     "select_country_required": "Si us plau, seleccioneu un país",
     "enter_zip_code": "Introdueix el codi postal",
-    "zip_code_required": "Cal el codi postal"
+    "zip_code_required": "Cal el codi postal",
+    "follow-up": "Seguiment",
+    "reschedule": "Reprogramar",
+    "other": "Altres",
+    "no_contacts_found_for_this_lead": "No s'han trobat contactes per a aquest client potencial",
+    "invalid": "No vàlid"
   },
   "es_es": {
     "welcome": "Acción",
@@ -7229,7 +7384,12 @@
     "enter_valid_state": "Por favor, ingrese un estado válido.",
     "select_country_required": "Seleccione un país",
     "enter_zip_code": "Ingrese el código postal",
-    "zip_code_required": "Se requiere el código postal."
+    "zip_code_required": "Se requiere el código postal.",
+    "follow-up": "Hacer un seguimiento",
+    "reschedule": "Reprogramar",
+    "other": "Otro",
+    "no_contacts_found_for_this_lead": "No se encontraron contactos para esta pista.",
+    "invalid": "Inválido"
   },
   "gu": {
     "welcome": "ક્રિયા",
@@ -7455,7 +7615,12 @@
     "enter_valid_state": "કૃપા કરીને માન્ય રાજ્ય દાખલ કરો",
     "select_country_required": "કૃપા કરીને એક દેશ પસંદ કરો.",
     "enter_zip_code": "ઝિપ કોડ દાખલ કરો",
-    "zip_code_required": "ઝિપ કોડ જરૂરી છે"
+    "zip_code_required": "ઝિપ કોડ જરૂરી છે",
+    "follow-up": "ફોલો-અપ",
+    "reschedule": "ફરીથી શેડ્યૂલ કરો",
+    "other": "અન્ય",
+    "no_contacts_found_for_this_lead": "આ લીડ માટે કોઈ સંપર્કો મળ્યા નથી.",
+    "invalid": "અમાન્ય"
   },
   "kn": {
     "welcome": "ಕ್ರಿಯೆ",
@@ -7681,7 +7846,12 @@
     "enter_valid_state": "ದಯವಿಟ್ಟು ಮಾನ್ಯವಾದ ರಾಜ್ಯವನ್ನು ನಮೂದಿಸಿ.",
     "select_country_required": "ದಯವಿಟ್ಟು ಒಂದು ದೇಶವನ್ನು ಆಯ್ಕೆಮಾಡಿ.",
     "enter_zip_code": "ಪಿನ್ ಕೋಡ್ ನಮೂದಿಸಿ",
-    "zip_code_required": "ಪಿನ್ ಕೋಡ್ ಅಗತ್ಯವಿದೆ"
+    "zip_code_required": "ಪಿನ್ ಕೋಡ್ ಅಗತ್ಯವಿದೆ",
+    "follow-up": "ಫಾಲೋ-ಅಪ್",
+    "reschedule": "ಮರು ನಿಗದಿಪಡಿಸಿ",
+    "other": "ಇತರೆ",
+    "no_contacts_found_for_this_lead": "ಈ ಲೀಡ್‌ಗೆ ಯಾವುದೇ ಸಂಪರ್ಕಗಳು ಕಂಡುಬಂದಿಲ್ಲ.",
+    "invalid": "ಅಮಾನ್ಯ"
   },
   "ml": {
     "welcome": "ആക്ഷൻ",
@@ -7907,7 +8077,12 @@
     "enter_valid_state": "ദയവായി ഒരു സാധുവായ സംസ്ഥാനം നൽകുക.",
     "select_country_required": "ദയവായി ഒരു രാജ്യം തിരഞ്ഞെടുക്കുക.",
     "enter_zip_code": "പിൻ കോഡ് നൽകുക",
-    "zip_code_required": "പിൻ കോഡ് ആവശ്യമാണ്"
+    "zip_code_required": "പിൻ കോഡ് ആവശ്യമാണ്",
+    "follow-up": "ഫോളോ അപ്പ്",
+    "reschedule": "റീഷെഡ്യൂൾ ചെയ്യുക",
+    "other": "മറ്റുള്ളവ",
+    "no_contacts_found_for_this_lead": "ഈ ലീഡിനായി കോൺടാക്റ്റുകളൊന്നും കണ്ടെത്തിയില്ല.",
+    "invalid": "അസാധുവാണ്"
   },
   "pa": {
     "welcome": "ਕਾਰਵਾਈ",
@@ -8133,7 +8308,12 @@
     "enter_valid_state": "ਕਿਰਪਾ ਕਰਕੇ ਇੱਕ ਵੈਧ ਸਥਿਤੀ ਦਾਖਲ ਕਰੋ।",
     "select_country_required": "ਕਿਰਪਾ ਕਰਕੇ ਕੋਈ ਦੇਸ਼ ਚੁਣੋ।",
     "enter_zip_code": "ਜ਼ਿਪ ਕੋਡ ਦਰਜ ਕਰੋ",
-    "zip_code_required": "ਜ਼ਿਪ ਕੋਡ ਲੋੜੀਂਦਾ ਹੈ"
+    "zip_code_required": "ਜ਼ਿਪ ਕੋਡ ਲੋੜੀਂਦਾ ਹੈ",
+    "follow-up": "Ran leti",
+    "reschedule": "ਮੁੜ-ਨਿਯਤ ਕਰੋ",
+    "other": "ਹੋਰ",
+    "no_contacts_found_for_this_lead": "ਇਸ ਲੀਡ ਲਈ ਕੋਈ ਸੰਪਰਕ ਨਹੀਂ ਮਿਲਿਆ",
+    "invalid": "ਅਵੈਧ"
   },
   "sq": {
     "welcome": "Veprimi",
@@ -8359,7 +8539,12 @@
     "enter_valid_state": "Ju lutemi futni një shtet të vlefshëm",
     "select_country_required": "Ju lutem zgjidhni një vend",
     "enter_zip_code": "Fut Kodin Postar",
-    "zip_code_required": "Kodi Postar është i detyrueshëm"
+    "zip_code_required": "Kodi Postar është i detyrueshëm",
+    "follow-up": "Ndjekje",
+    "reschedule": "Ricaktoni një orar",
+    "other": "Të tjera",
+    "no_contacts_found_for_this_lead": "Nuk u gjetën kontakte për këtë klient potencial",
+    "invalid": "I pavlefshëm"
   },
   "uz": {
     "welcome": "Harakat",
@@ -8585,7 +8770,12 @@
     "enter_valid_state": "Iltimos, to'g'ri shtatni kiriting",
     "select_country_required": "Iltimos, mamlakatni tanlang",
     "enter_zip_code": "Pochta indeksini kiriting",
-    "zip_code_required": "Pochta indeksi talab qilinadi"
+    "zip_code_required": "Pochta indeksi talab qilinadi",
+    "follow-up": "Kuzatish",
+    "reschedule": "Qayta rejalashtirish",
+    "other": "Boshqa",
+    "no_contacts_found_for_this_lead": "Ushbu mijoz uchun hech qanday kontakt topilmadi",
+    "invalid": "Noto'g'ri"
   },
   "fil": {
     "welcome": "Aksyon",
@@ -8811,7 +9001,12 @@
     "enter_valid_state": "Mangyaring maglagay ng wastong estado",
     "select_country_required": "Pumili ng bansa",
     "enter_zip_code": "Ilagay ang Zip Code",
-    "zip_code_required": "Kinakailangan ang Zip Code"
+    "zip_code_required": "Kinakailangan ang Zip Code",
+    "follow-up": "Pagsubaybay",
+    "reschedule": "Muling iiskedyul",
+    "other": "Iba pa",
+    "no_contacts_found_for_this_lead": "Walang nakitang contact para sa lead na ito",
+    "invalid": "Hindi wasto"
   },
   "zh_hk": {
     "welcome": "行動",
@@ -9037,7 +9232,12 @@
     "enter_valid_state": "請輸入有效的州名",
     "select_country_required": "請選擇一個國家/地區",
     "enter_zip_code": "輸入郵遞區號",
-    "zip_code_required": "郵遞區號為必填項"
+    "zip_code_required": "郵遞區號為必填項",
+    "follow-up": "後續",
+    "reschedule": "重新安排",
+    "other": "其他",
+    "no_contacts_found_for_this_lead": "未找到與此線索相關的聯絡人",
+    "invalid": "無效的"
   },
   "zh_tw": {
     "welcome": "行動",
@@ -9263,7 +9463,12 @@
     "enter_valid_state": "請輸入有效的州名",
     "select_country_required": "請選擇一個國家/地區",
     "enter_zip_code": "輸入郵遞區號",
-    "zip_code_required": "郵遞區號為必填項"
+    "zip_code_required": "郵遞區號為必填項",
+    "follow-up": "後續",
+    "reschedule": "重新安排",
+    "other": "其他",
+    "no_contacts_found_for_this_lead": "未找到與此線索相關的聯絡人",
+    "invalid": "無效的"
   },
   "es_mx": {
     "welcome": "Acción",
@@ -9489,7 +9694,12 @@
     "enter_valid_state": "Por favor, ingrese un estado válido.",
     "select_country_required": "Seleccione un país",
     "enter_zip_code": "Ingrese el código postal",
-    "zip_code_required": "Se requiere el código postal."
+    "zip_code_required": "Se requiere el código postal.",
+    "follow-up": "Hacer un seguimiento",
+    "reschedule": "Reprogramar",
+    "other": "Otro",
+    "no_contacts_found_for_this_lead": "No se encontraron contactos para esta pista.",
+    "invalid": "Inválido"
   },
   "fi": {
     "welcome": "Toiminta",
@@ -9715,6 +9925,11 @@
     "enter_valid_state": "Anna kelvollinen osavaltio",
     "select_country_required": "Valitse maa",
     "enter_zip_code": "Anna postinumero",
-    "zip_code_required": "Postinumero on pakollinen"
+    "zip_code_required": "Postinumero on pakollinen",
+    "follow-up": "Seuranta",
+    "reschedule": "Uudelleenaikataulutus",
+    "other": "Muut",
+    "no_contacts_found_for_this_lead": "Tälle liidille ei löytynyt yhteystietoja",
+    "invalid": "Virheellinen"
   }
 }

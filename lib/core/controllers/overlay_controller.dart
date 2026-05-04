@@ -50,13 +50,13 @@ class OverlayController extends GetxController {
   RxString callDropdownValue = "".obs;
 
   final List<Map<String, String>> leadOptions = [
-    {"label": "Interested", "value": "interested"},
-    {"label": "Not Interested", "value": "not_interested"},
-    {"label": "Reschedule", "value": "reschedule"},
-    {"label": "Follow-up", "value": "follow_up"},
-    {"label": "Invalid", "value": "invalid"},
-    {"label": "No Response", "value": "no_response"},
-    {"label": "Other", "value": "other"},
+    {"label": "interested", "value": "interested"},
+    {"label": "not_interested", "value": "not_interested"},
+    {"label": "reschedule", "value": "scheduled"},
+    {"label": "follow-up", "value": "follow_up"},
+    {"label": "invalid", "value": "invalid"},
+    {"label": "no_response", "value": "no_response"},
+    {"label": "other", "value": "other"},
   ];
 
   void onDropdownChange(String value) {
@@ -396,6 +396,7 @@ class OverlayController extends GetxController {
             duration: durationInSeconds,
             lead_id: currentLeadContactId, // 🎯 USE CONTACT ID HERE
             answertype: answertype,
+            schedule_at: answertype == "scheduled" ? rescheduleDate.value : "",
           );
 
       print("✅ Lead log update: ${response.status}");
@@ -415,7 +416,7 @@ class OverlayController extends GetxController {
             leadContactId: currentLeadContactId, // 🎯 USE CONTACT ID HERE
             duration: durationInSeconds,
             answerType: answertype,
-            answer: "", // Optional answer text if needed
+            answer: answertype == "scheduled" ? "Scheduled at ${rescheduleDate.value}" : "", // Optional answer text if needed
           );
           print("📤 Socket: final call-end emitted with answerType: $answertype");
         }

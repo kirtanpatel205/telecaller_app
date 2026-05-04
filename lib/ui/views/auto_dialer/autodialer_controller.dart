@@ -78,7 +78,7 @@ class AutoDialerController extends GetxController {
   final countdown = 0.obs;
 
   // For expandable list items
-  final openedIndex = (-1).obs;
+  final openedContactId = RxnString();
 
   // ─────────────────────────────────────────────
   // LIFECYCLE
@@ -315,8 +315,8 @@ class AutoDialerController extends GetxController {
     if (selectedContactStatus.value == statusValue) return;
     selectedContactStatus.value = statusValue;
     
-    // Reset selection/expansion index when switching filters
-    openedIndex.value = -1;
+    // Reset selection/expansion state when switching filters
+    openedContactId.value = null;
 
     final lead = selectedLeadDataset.value;
     if (lead != null && lead.id != null) {
@@ -473,9 +473,8 @@ class AutoDialerController extends GetxController {
 
     // Determine where to start: either from the user-selected contact or the first one
     int startIndex = 0;
-    if (openedIndex.value != -1 && openedIndex.value < contactQueue.length) {
-      final selectedContact = contactQueue[openedIndex.value];
-      final qIndex = queue.indexWhere((l) => l['leadContactId'] == selectedContact.id);
+    if (openedContactId.value != null) {
+      final qIndex = queue.indexWhere((l) => l['leadContactId'] == openedContactId.value);
       if (qIndex != -1) {
         startIndex = qIndex;
       }
@@ -596,14 +595,11 @@ class AutoDialerController extends GetxController {
 
       // Auto-expand the card for the currently active/dialing contact
       if (overlayCtrl.isAutoCallMode.value && currentContact.value != null) {
-        final qIndex = contactQueue.indexWhere((l) => l.id == currentContact.value!.id);
-        if (qIndex != -1 && openedIndex.value != qIndex) {
-          openedIndex.value = qIndex;
+        if (openedContactId.value != currentContact.value!.id) {
+          openedContactId.value = currentContact.value!.id;
         }
       } else if (!overlayCtrl.isAutoCallMode.value) {
-        // If not dialing, don't force expansion unless the user manually did it
-        // We can optionally reset openedIndex here if you want it to collapse when stopping
-        // openedIndex.value = -1;
+        // If not dialing, we don't force expansion, let the user control it.
       }
     }
 
@@ -657,25 +653,25 @@ class AutoDialerController extends GetxController {
   // ─────────────────────────────────────────────────────────────────
   void onContactManualSelect(int index) {
     if (index < 0 || index >= contactQueue.length) {
-      openedIndex.value = -1;
+      openedContactId.value = null;
       return;
     }
 
-    final bool isClosing = openedIndex.value == index;
+    final contact = contactQueue[index];
+    final bool isClosing = openedContactId.value == contact.id;
     
     // 1. Immediately update expansion state
-    openedIndex.value = isClosing ? -1 : index;
+    openedContactId.value = isClosing ? null : contact.id;
     
-    // 2. Immediately update active contact for real-time UI highlight (no sticky selection)
+    // 2. Immediately update active contact for real-time UI highlight
     if (!isClosing) {
-      currentContact.value = contactQueue[index];
+      currentContact.value = contact;
     }
 
     // 3. If dialer is running, jump to this contact immediately in the background
     if (status.value != 'idle' && Get.isRegistered<OverlayController>()) {
       final overlayCtrl = Get.find<OverlayController>();
       if (overlayCtrl.isAutoCallMode.value && !isClosing) {
-         final contact = contactQueue[index];
          final qIndex = overlayCtrl.callQueue.indexWhere((l) => l['leadContactId'] == contact.id);
          if (qIndex != -1) {
            // This will trigger the dialer to switch
@@ -734,6 +730,11 @@ class AutoDialerController extends GetxController {
       final oldStatus = contactQueue[index].status;
       contactQueue[index].status = newStatus;
       contactQueue.refresh();
+
+      // ✅ Trigger a refresh to ensure the Pagewise list removes the item if filters are active
+      Future.delayed(const Duration(milliseconds: 300), () {
+        refreshContacts();
+      });
 
       // Update counters locally
       if (oldStatus != newStatus) {

@@ -125,7 +125,9 @@ class DashboardAppBar extends StatelessWidget {
         Padding(
           padding: EdgeInsets.only(right: 16.w),
           child: Bounce(
-            onTap: () => Get.toNamed(Routes.NOTIFICATION),
+            onTap: (){
+              // Get.toNamed(Routes.NOTIFICATION);
+            },
             child: Container(
               padding: EdgeInsets.all(8.w),
               decoration: BoxDecoration(

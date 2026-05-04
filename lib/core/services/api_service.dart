@@ -302,19 +302,26 @@ class ApiService extends GetxService {
     String type = "outgoing",
     String answertype = "interested",
     String answer = "",
+    String schedule_at = "",
     int duration = 180,
   }) async {
-    print("callUpdateLeadById ${lead_id} $duration $type $answertype $answer");
+    print("callUpdateLeadById ${lead_id} $duration $type $answertype $answer $schedule_at");
+    Map<String, dynamic> data = {
+      "id": lead_id,
+      "type": type,
+      "answertype": answertype,
+      "duration": duration,
+      "answer": answer,
+    };
+
+    if (schedule_at.isNotEmpty) {
+      data["schedule_at"] = schedule_at;
+    }
+
     Map<String, dynamic> response = await client.post(
       "${AppConstants.API_LEADS_UPDATE}",
       isRaw: true,
-      data: {
-        "id": lead_id,
-        "type": type,
-        "answertype": answertype,
-        "duration": duration,
-        "answer": answer,
-      },
+      data: data,
     );
     print("callUpdateLeadById response: ${response}");
     return CallLeadUpdateResponseEntity.fromJson(response);

@@ -174,7 +174,7 @@ class DashboardPage extends GetView<HomeController> {
               iconColor: AppColors.themeColor.totalkeyiconColor,
             )),
             Obx(() => _buildSummaryCard(
-              title: "Leads",
+              title: "leads".tr,
               value: "${controller.dashboardController.leadsCount.value}",
               subtitle: "awaiting_contact".tr,
               bgColor: AppColors.themeColor.avilablekeyColor,
@@ -232,23 +232,24 @@ class DashboardPage extends GetView<HomeController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
-                child: Text(
-                  title,
-                  style: AppTextStyle.bold8.copyWith(
-                    fontSize: 10.sp,
-                    color: color,
-                    fontWeight: FontWeight.w700,
+              Expanded(
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8.r),
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                  child: Text(
+                    title,
+                    style: AppTextStyle.bold8.copyWith(
+                      fontSize: 10.sp,
+                      color: color,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ),
               Icon(
@@ -577,9 +578,13 @@ class DashboardPage extends GetView<HomeController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                "calls_over_time".tr,
-                style: AppTextStyle.bold8.copyWith(fontSize: AppDimens.fontSize16),
+              Expanded(
+                child: Text(
+                  "calls_over_time".tr,
+                  style: AppTextStyle.bold8.copyWith(fontSize: AppDimens.fontSize16),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
               _buildTimeFilter(context),
             ],
@@ -1027,8 +1032,10 @@ class DashboardPage extends GetView<HomeController> {
           ),
           const Expanded(child: SizedBox()),
           // Legend
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 12.w,
+            runSpacing: 8.h,
             children: [
               _buildLegendItem(AppColors.themeColor.completedColor, "incoming".tr),
               _buildLegendItem(AppColors.themeColor.activekeyiconColor, "missed".tr),
@@ -1066,9 +1073,13 @@ class DashboardPage extends GetView<HomeController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                "leads_over_time".tr,
-                style: AppTextStyle.semiBold8.copyWith(fontSize: 16),
+              Expanded(
+                child: Text(
+                  "leads_over_time".tr,
+                  style: AppTextStyle.semiBold8.copyWith(fontSize: 16),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
               _buildLeadTimeFilter(context),
             ],
@@ -1410,8 +1421,10 @@ class DashboardPage extends GetView<HomeController> {
             ),
           ),
           const Expanded(child: SizedBox()),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 12.w,
+            runSpacing: 8.h,
             children: [
                _buildLegendItem(AppColors.themeColor.failColor, "pending".tr),
             ],

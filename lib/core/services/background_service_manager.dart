@@ -29,6 +29,8 @@ import 'package:workmanager/workmanager.dart';
 @pragma('vm:entry-point')
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
+    WidgetsFlutterBinding.ensureInitialized();
+    await GetStorage.init();
     print("🛠️ [Workmanager] Background task started: $task");
     
     try {
@@ -538,10 +540,12 @@ Future<void> _syncCallLogs() async {
     }
 
     // Ensure we have SIM info cached
-    final List<dynamic>? cachedSimInfo = GetStorage().read('sim_info_cache');
+    List<dynamic>? cachedSimInfo = GetStorage().read('sim_info_cache');
     if (cachedSimInfo == null) {
       print("⚠️ [Sync] SIM info cache is empty. Attempting immediate fetch...");
       await BackgroundServiceManager.fetchAndSaveSimInfo();
+      // Re-read after attempt (it might have been filled or might still be null)
+      cachedSimInfo = GetStorage().read('sim_info_cache');
     }
 
     List<Map<String, dynamic>> logs = [];

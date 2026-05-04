@@ -237,5 +237,9 @@
   "enter_valid_state": "Please enter a valid state",
   "select_country_required": "Please select a country",
   "enter_zip_code": "Enter Zip Code",
-  "zip_code_required": "Zip Code is required"
+  "zip_code_required": "Zip Code is required",
+  "follow-up": "Follow-up",
+  "reschedule": "Reschedule",
+  "other": "Other",
+  "no_contacts_found_for_this_lead": "No contacts found for this lead",
 }

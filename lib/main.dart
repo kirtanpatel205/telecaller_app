@@ -23,6 +23,7 @@ import 'core/helpers/initializer.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'core/helpers/utils.dart';
+import 'core/services/lang_service.dart';
 import 'core/services/theme_service.dart';
 final logger = Logger();
 
@@ -101,11 +102,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     Size size = MediaQuery.sizeOf(context);
     final ThemeService themeService = Get.find();
-    int selectedIndex = GetStorage().read('selectedLanguage') ?? 9;
-    int safeIndex = selectedIndex < (widget.jsonData?.length ?? 0)
-        ? selectedIndex
-        : 0;
-    String languageKey = widget.jsonData?[safeIndex]['key'] ?? 'en';
+    final LangService langService = Get.find();
 
     return ThemeProvider(
       initTheme: themeService.isDarkMode.value ? AppTheme.darkTheme : AppTheme.theme,
@@ -119,7 +116,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
               title: AppStrings.appName,
               debugShowCheckedModeBanner: false,
               theme: theme, // Use theme from ThemeProvider
-              locale: Locale(languageKey),
+              locale: Locale(langService.selectedLang.value),
               darkTheme: AppTheme.darkTheme,
               themeMode: themeService.isDarkMode.value ? ThemeMode.dark : ThemeMode.light,
               initialRoute: AppPages.INITIAL,

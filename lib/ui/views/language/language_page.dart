@@ -82,8 +82,7 @@ class LanguagePage extends GetView<LanguageController> {
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
                       final lang = controller.filteredLanguages[index];
-                      final isSelected = controller.selectedLanguage.value ==
-                          controller.langService.langs.value.indexOf(lang);
+                      final isSelected = controller.selectedLanguage.value == lang.key;
 
                       return _LanguageTile(
                         lang: lang,
