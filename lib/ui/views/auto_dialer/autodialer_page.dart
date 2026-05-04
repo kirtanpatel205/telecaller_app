@@ -1085,6 +1085,19 @@ class AutoDialerPage extends GetView<AutoDialerController> {
           Row(
             children: [
               _buildMiniControlButton(
+                onTap: () {
+                  if (isPaused) {
+                    controller.resumeDialing();
+                  } else {
+                    controller.pauseDialing();
+                  }
+                },
+                icon: isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded,
+                color: isPaused ? Colors.green : Colors.orange,
+                isPrimary: true,
+              ),
+              SizedBox(width: 8.w),
+              _buildMiniControlButton(
                 onTap: () => controller.stopDialing(),
                 icon: Icons.stop_rounded,
                 color: Colors.red,

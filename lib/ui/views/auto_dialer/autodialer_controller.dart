@@ -623,7 +623,7 @@ class AutoDialerController extends GetxController {
   // CONTROLS
   // ─────────────────────────────────────────────────────────────────
   void pauseDialing() {
-    if (status.value == 'dialing' || status.value == 'counting_down') {
+    if (status.value == 'dialing' || status.value == 'counting_down' || status.value == 'settled') {
       status.value = 'paused';
       if (Get.isRegistered<OverlayController>()) {
         Get.find<OverlayController>().pauseCountdown();

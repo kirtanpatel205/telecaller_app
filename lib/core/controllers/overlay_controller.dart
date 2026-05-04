@@ -140,8 +140,20 @@ class OverlayController extends GetxController {
       if (countdown.value > 0) {
         startCountdown(seconds: countdown.value, isPreCall: _isPreCallInternal);
       } else {
-        // If countdown reached 0, treat as a fresh pre-call start
-        _prepareNextCall();
+        // If countdown reached 0, it means we were either about to dial or just finished a call.
+        // If we were in pre-call mode (isPreCall), we should retry the CURRENT lead.
+        if (_isPreCallInternal) {
+          // Safety: Don't redial if a call is already active
+          final bool isCallActive = Get.isRegistered<PhoneStatusService>() && 
+                                   Get.find<PhoneStatusService>().isCallActive.value;
+          if (!isCallActive) {
+            _actuallyDialNext();
+          }
+        } else {
+          // If we weren't in pre-call mode, it means we just finished a call and were waiting 
+          // for the post-call timer. In this case, we move to the next one.
+          _prepareNextCall();
+        }
       }
     }
   }
@@ -209,8 +221,13 @@ class OverlayController extends GetxController {
     );
 
     // After call ends, overlay shows up.
-    // currentQueueIndex points to the lead that JUST finished.
-    startCountdown(seconds: 10, isPreCall: false);
+    // If the call was zero duration (likely failed/cancelled), pause the dialer.
+    if (duration.inSeconds == 0 && isAutoCallMode.value) {
+      print("⚠️ Call failed (zero duration). Pausing autodialer.");
+      pauseCountdown();
+    } else {
+      startCountdown(seconds: 10, isPreCall: false);
+    }
   }
 
   String _currentLeadIdInternal = "";
@@ -366,9 +383,14 @@ class OverlayController extends GetxController {
   Future<void> makeDirectCall(String number) async {
     try {
       print("📞 Calling: $number");
-      await FlutterPhoneDirectCaller.callNumber(number);
+      final bool? res = await FlutterPhoneDirectCaller.callNumber(number);
+      if (res == null || !res) {
+        print("⚠️ Call failed to initiate (returned false or null)");
+        handleCallCancelled();
+      }
     } catch (e) {
       if (kDebugMode) print("Call error: $e");
+      handleCallCancelled();
     }
   }
 
