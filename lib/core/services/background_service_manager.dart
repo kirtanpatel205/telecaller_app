@@ -506,161 +506,389 @@ void onStart(ServiceInstance service) async {
   });
 }
 
+// ============================================================
+//  _syncCallLogs  –  Production-grade SIM detection
+//  Fixes: hardcoded SIM2, unknown SIM inclusion, duplicates,
+//         SIM number reliability, pattern mismatch, weak exclusion,
+//         performance loops, logging, empty fields, cache issues
+// ============================================================
+
 Future<void> _syncCallLogs() async {
   try {
-    print("📋 [Sync] Starting call log synchronization process...");
+    print("📋 [Sync] ══════════════ START ══════════════");
 
-    final now = DateTime.now();
-    // Increase window to 24 hours to ensure we don't miss calls due to clock sync issues
-    final searchWindow = now.subtract(const Duration(hours: 24));
+    final now     = DateTime.now();
+    final storage = GetStorage();
 
-    print(
-      "📋 [Sync] Querying system call logs since ${searchWindow.toIso8601String()}",
-    );
-
-    // Verify permission inside the isolate
+    // ── Permission check ─────────────────────────────────────────────────────
     if (!(await Permission.phone.isGranted)) {
-      print("🚫 [Sync] PHONE permission not granted in background isolate.");
+      print("🚫 [Sync] PHONE permission not granted. Aborting.");
       return;
     }
 
+    // ── Search window ────────────────────────────────────────────────────────
+    final int? lastSyncMs = storage.read<int>('last_call_log_sync_timestamp');
+    final DateTime searchWindow = lastSyncMs != null
+        ? DateTime.fromMillisecondsSinceEpoch(lastSyncMs)
+        .subtract(const Duration(minutes: 5))
+        : now.subtract(const Duration(days: 30));
+
+    print("📋 [Sync] Window: ${searchWindow.toIso8601String()} → ${now.toIso8601String()}");
+
+    // ── Fetch call log entries (NO full-history fallback) ────────────────────
     Iterable<CallLogEntry> entries;
     try {
       entries = await CallLog.query(
         dateFrom: searchWindow.millisecondsSinceEpoch,
       );
-
-      if (entries.isEmpty) {
-        print("⚠️ [Sync] No logs found in last 24h. Trying broad fallback...");
-        entries = await CallLog.get();
-      }
     } catch (e) {
-      print("❌ [Sync] Critical Error querying CallLog: $e");
+      print("❌ [Sync] CallLog.query failed: $e");
       return;
     }
 
-    // Ensure we have SIM info cached
-    List<dynamic>? cachedSimInfo = GetStorage().read('sim_info_cache');
-    if (cachedSimInfo == null) {
-      print("⚠️ [Sync] SIM info cache is empty. Attempting immediate fetch...");
-      await BackgroundServiceManager.fetchAndSaveSimInfo();
-      // Re-read after attempt (it might have been filled or might still be null)
-      cachedSimInfo = GetStorage().read('sim_info_cache');
+    if (entries.isEmpty) {
+      print("ℹ️ [Sync] No new logs in window. Saving timestamp.");
+      await _saveTimestamp(storage, now);
+      return;
     }
 
-    List<Map<String, dynamic>> logs = [];
-    print("📋 [Sync] Found ${entries.length} entries in system log.");
+    print("📋 [Sync] Raw entries fetched: ${entries.length}");
 
-    for (var entry in entries) {
-      // SIM identification logic
-      bool isTargetSim = false;
-      bool isDualSim = (cachedSimInfo != null && cachedSimInfo.length > 1);
+    // ── SIM info cache ───────────────────────────────────────────────────────
+    List<dynamic>? cachedSimInfo = storage.read<List>('sim_info_cache');
+    if (cachedSimInfo == null || cachedSimInfo.isEmpty) {
+      print("⚠️ [Sync] SIM cache empty — fetching fresh...");
+      await BackgroundServiceManager.fetchAndSaveSimInfo();
+      cachedSimInfo = storage.read<List>('sim_info_cache');
+    }
 
-      String simDisplayName = (entry.simDisplayName ?? "").toLowerCase();
-      String phoneAccountId = entry.phoneAccountId ?? "";
+    if (cachedSimInfo == null || cachedSimInfo.isEmpty) {
+      print("❌ [Sync] SIM info unavailable after fetch. Aborting.");
+      return;
+    }
 
-      if (isDualSim) {
-        if (simDisplayName.contains("2") ||
-            phoneAccountId == "1" ||
-            phoneAccountId.contains("_1") ||
-            phoneAccountId.toLowerCase().contains("slot1")) {
-          isTargetSim = true;
-        } else if (cachedSimInfo != null) {
-          for (var sim in cachedSimInfo) {
-            if (sim['subscriptionId'] == phoneAccountId &&
-                sim['slotIndex'] == "1") {
-              isTargetSim = true;
-              break;
-            }
-          }
-        }
-      } else {
-        isTargetSim = true; // Single SIM device
+    print("📋 [Sync] SIM slots available: ${cachedSimInfo.length}");
+
+    // ── Build fingerprint map: slotIndex → _SimFingerprint ───────────────────
+    final Map<int, _SimFingerprint> fpMap = _buildFingerprintMap(cachedSimInfo);
+
+    if (fpMap.isEmpty) {
+      print("❌ [Sync] Could not build any SIM fingerprint. Aborting.");
+      return;
+    }
+
+    final bool isDualSim  = fpMap.length > 1;
+    final int  targetSlot = isDualSim ? 1 : 0;
+
+    final _SimFingerprint? targetFp = fpMap[targetSlot];
+    if (targetFp == null) {
+      print("❌ [Sync] No fingerprint for target slot=$targetSlot. Aborting.");
+      return;
+    }
+
+    // Pre-compute SIM1 accountIds for O(1) exclusion lookup
+    final Set<String> sim1AccountIds = fpMap[0]?.accountIds ?? {};
+
+    print("🎯 [Sync] Target: SIM${targetSlot + 1}  number=${targetFp.displayNumber}");
+    print("🎯 [Sync] Known accountIds: ${targetFp.accountIds}");
+
+    // ── Dedup set from previous sync overlap ────────────────────────────────
+    // Key = "phone|timestamp" prevents duplicates from the 5-min overlap window
+    final Set<String> syncedKeys = Set<String>.from(
+      storage.read<List>('last_synced_call_keys') ?? [],
+    );
+    final Set<String> newKeys = {};
+
+    // ── Process entries ──────────────────────────────────────────────────────
+    final List<Map<String, dynamic>> logs = [];
+
+    for (final entry in entries) {
+
+      // Skip entries with no timestamp
+      if (entry.timestamp == null) {
+        print("⚠️ [Sync] Skip: null timestamp — phone=${entry.number}");
+        continue;
       }
 
-      if (!isTargetSim) continue;
-
-      // Map "proper" number
-      String properSimNumber =
-          entry.simDisplayName ?? entry.phoneAccountId ?? "Unknown";
-      if (cachedSimInfo != null && cachedSimInfo.isNotEmpty) {
-        String targetSlot = isDualSim ? "1" : "0";
-        for (var sim in cachedSimInfo) {
-          if (sim['slotIndex'] == targetSlot) {
-            String? num = sim['number'];
-            if (num != null && num.isNotEmpty) {
-              properSimNumber = num;
-            } else {
-              properSimNumber =
-                  sim['displayName'] ?? sim['carrierName'] ?? properSimNumber;
-            }
-            break;
-          }
-        }
+      // Dedup check
+      final String callKey = "${entry.number ?? ''}|${entry.timestamp}";
+      if (syncedKeys.contains(callKey)) {
+        print("⏭️ [Sync] Skip duplicate: $callKey");
+        continue;
       }
 
-      String callTypeStr = "unknown";
-      switch (entry.callType) {
-        case CallType.outgoing:
-          callTypeStr = "outgoing_call";
-          break;
-        case CallType.incoming:
-          callTypeStr = "incoming_call";
-          break;
-        case CallType.missed:
-          callTypeStr = "missed_call";
-          break;
-        case CallType.rejected:
-          callTypeStr = "rejected_call";
-          break;
-        case CallType.blocked:
-          callTypeStr = "blocked_call";
-          break;
-        default:
-          callTypeStr = entry.callType.toString().split('.').last;
+      final String accountId = (entry.phoneAccountId ?? "").trim();
+      final String simName   = (entry.simDisplayName  ?? "").toLowerCase().trim();
+
+      // Single SIM: every call is the target SIM — no matching needed
+      final bool isTarget = !isDualSim
+          ? true
+          : _matchesSim(
+        accountId:      accountId,
+        simName:        simName,
+        targetFp:       targetFp,
+        sim1AccountIds: sim1AccountIds,
+      );
+
+      if (!isTarget) {
+        print("⏭️ [Sync] Skip (not SIM${targetSlot + 1}): "
+            "accountId='$accountId' simName='$simName'");
+        continue;
       }
+
+      newKeys.add(callKey);
 
       logs.add({
-        "callType": callTypeStr,
-        "name":
-            (entry.name == null || entry.name!.isEmpty)
-                ? "Unknown"
-                : entry.name,
-        "duration": entry.duration ?? 0,
-        "phone": entry.number ?? "",
-        "timeStamp":
-            DateTime.fromMillisecondsSinceEpoch(
-              entry.timestamp ?? 0,
-            ).toIso8601String(),
-        "simNumber": properSimNumber,
+        "callType":  _mapCallType(entry.callType),
+        "name":      _safeStr(entry.name,   fallback: "Unknown"),
+        "duration":  entry.duration ?? 0,
+        "phone":     _safeStr(entry.number, fallback: ""),
+        "timeStamp": DateTime.fromMillisecondsSinceEpoch(entry.timestamp!)
+            .toIso8601String(),
+        "simNumber": targetFp.displayNumber,
       });
     }
 
+    print("📋 [Sync] Matched SIM${targetSlot + 1} logs: ${logs.length}");
+
+    // ── Send to API ──────────────────────────────────────────────────────────
     if (logs.isNotEmpty) {
-      print("🚀 [Sync] Prepared ${logs.length} logs. Sending to API...");
+      print("🚀 [Sync] Sending ${logs.length} logs to API...");
       try {
-        if (Get.isRegistered<ApiService>()) {
-          final response = await Get.find<ApiService>().syncCallLogs({
-            "logs": logs,
-          });
-          print(
-            "✅ [Sync] API Response: ${response.status} - ${response.message}",
-          );
-        } else {
-          print(
-            "⚠️ [Sync] ApiService missing in isolate. Creating fallback...",
-          );
-          final apiService = ApiService();
-          await apiService.init();
-          await apiService.syncCallLogs({"logs": logs});
-        }
+        final apiService = Get.isRegistered<ApiService>()
+            ? Get.find<ApiService>()
+            : Get.put(ApiService()..init());
+
+        final response = await apiService.syncCallLogs({"logs": logs});
+        print("✅ [Sync] API: ${response.status} — ${response.message}");
+
+        // Persist dedup keys — cap at 500 to prevent unbounded storage growth
+        final List<String> merged = [...syncedKeys, ...newKeys];
+        await storage.write(
+          'last_synced_call_keys',
+          merged.length > 500 ? merged.sublist(merged.length - 500) : merged,
+        );
       } catch (e) {
-        print("❌ [Sync] API Error: $e");
+        print("❌ [Sync] API error: $e  — timestamp NOT saved, will retry.");
+        return; // Do not save timestamp on API failure → retry next cycle
       }
     } else {
-      print("ℹ [Sync] No matching call logs found to sync.");
+      print("ℹ️ [Sync] No SIM${targetSlot + 1} logs matched.");
     }
-  } catch (e) {
-    print("❌ [Sync] General Error: $e");
+
+    await _saveTimestamp(storage, now);
+    print("📋 [Sync] ══════════════  END  ══════════════");
+
+  } catch (e, st) {
+    print("❌ [Sync] Unhandled error: $e\n$st");
   }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  SIM matching — 5 layers, hard exclusion first
+// ─────────────────────────────────────────────────────────────────────────────
+bool _matchesSim({
+  required String          accountId,
+  required String          simName,
+  required _SimFingerprint targetFp,
+  required Set<String>     sim1AccountIds,
+}) {
+
+  // ── L1: Hard exclusion — confirmed SIM1 entry ────────────────────────────
+  // Check FIRST to prevent any false positives downstream
+  if (accountId.isNotEmpty && sim1AccountIds.contains(accountId)) {
+    print("🚫 [Sync] L1 SIM1 exclusion: '$accountId'");
+    return false;
+  }
+
+  // ── L2: Exact accountId match in target fingerprint ids ──────────────────
+  if (accountId.isNotEmpty && targetFp.accountIds.contains(accountId)) {
+    print("✅ [Sync] L2 exact match: '$accountId'");
+    return true;
+  }
+
+  // ── L3: simDisplayName match (min 3 chars to avoid false positives) ───────
+  if (simName.isNotEmpty) {
+    final c = targetFp.carrierName.toLowerCase();
+    final d = targetFp.displayName.toLowerCase();
+    final n = targetFp.simNumber.toLowerCase();
+    if ((c.length >= 3 && simName.contains(c)) ||
+        (d.length >= 3 && simName.contains(d)) ||
+        (n.length >= 3 && simName.contains(n))) {
+      print("✅ [Sync] L3 simName match: '$simName'");
+      return true;
+    }
+  }
+
+  // ── L4: OEM accountId patterns (pre-compiled, O(n) on pattern count) ─────
+  if (accountId.isNotEmpty) {
+    for (final p in _kSim2Patterns) {
+      if (p.hasMatch(accountId)) {
+        print("✅ [Sync] L4 OEM accountId pattern: '$accountId'");
+        return true;
+      }
+    }
+  }
+
+  // ── L5: OEM simDisplayName patterns ──────────────────────────────────────
+  if (simName.isNotEmpty) {
+    for (final p in _kSim2Patterns) {
+      if (p.hasMatch(simName)) {
+        print("✅ [Sync] L5 OEM simName pattern: '$simName'");
+        return true;
+      }
+    }
+  }
+
+  // ── STRICT: No match = exclude. Never include unknown SIM entries. ────────
+  return false;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Pre-compiled SIM 2 OEM patterns
+//  Only used in dual-SIM mode. Each pattern is SPECIFIC to slot-1/SIM-2.
+// ─────────────────────────────────────────────────────────────────────────────
+final List<RegExp> _kSim2Patterns = [
+  RegExp(r'^1$'),                                    // Xiaomi/Redmi: "1"
+  RegExp(r'^sim\s*2$',          caseSensitive: false), // "SIM2" / "sim 2"
+  RegExp(r'^slot\s*[_-]?\s*1$', caseSensitive: false), // "slot1","slot_1","slot-1"
+  RegExp(r'^slot\s*[_-]?\s*2$', caseSensitive: false), // "slot2" (1-indexed OEMs)
+  RegExp(r'[_\-\.]1$'),                              // "_1" / "-1" / ".1"
+  RegExp(r':1$'),                                    // "SLOT:1" / "SIM:1"
+  RegExp(r'^\bsub\s*1\b$',      caseSensitive: false), // "sub1" (2nd subscription)
+  RegExp(r'^phone1$',           caseSensitive: false), // "phone1"
+  RegExp(r'^telecom/sim/1$',    caseSensitive: false), // AOSP telecom URI
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Build fingerprint map from raw SIM cache list
+// ─────────────────────────────────────────────────────────────────────────────
+Map<int, _SimFingerprint> _buildFingerprintMap(List<dynamic> simList) {
+  final map = <int, _SimFingerprint>{};
+
+  for (int i = 0; i < simList.length; i++) {
+    final raw = Map<String, dynamic>.from(simList[i] as Map);
+    // Use slotIndex from data; fall back to list position
+    final slotIndex = _parseInt(raw['slotIndex'], fallback: i);
+
+    final subId   = _clean(raw['subscriptionId']);
+    final iccId   = _clean(raw['iccId']);
+    final serial  = _clean(raw['simSerialNumber']);
+    final carrier = _clean(raw['carrierName']) ?? "";
+    final display = _clean(raw['displayName']) ?? "";
+    final number  = _clean(raw['number']);
+
+    final ids = <String>{};
+    if (subId != null)  ids.add(subId);
+    if (iccId != null) {
+      ids.add(iccId);
+      if (iccId.length > 6) ids.add(iccId.substring(0, 6)); // issuer prefix
+    }
+    if (serial != null) ids.add(serial);
+
+    final displayNumber = _resolveDisplayNumber(
+      number: number, carrier: carrier, display: display, slotIndex: slotIndex,
+    );
+
+    map[slotIndex] = _SimFingerprint(
+      slotIndex:     slotIndex,
+      accountIds:    ids,
+      carrierName:   carrier,
+      displayName:   display,
+      simNumber:     number ?? "",
+      displayNumber: displayNumber,
+    );
+
+    print("📱 [Sync] SIM${slotIndex + 1} fingerprint: "
+        "accountIds=${ids} displayNumber=$displayNumber");
+  }
+
+  return map;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Resolve best display number — actual number > carrier > display > label
+// ─────────────────────────────────────────────────────────────────────────────
+String _resolveDisplayNumber({
+  required String? number,
+  required String  carrier,
+  required String  display,
+  required int     slotIndex,
+}) {
+  final label = "SIM${slotIndex + 1}";
+  if (number != null && number.isNotEmpty) return number;
+  if (carrier.isNotEmpty && display.isNotEmpty && carrier != display) {
+    return "$label ($carrier / $display)";
+  }
+  if (carrier.isNotEmpty) return "$label ($carrier)";
+  if (display.isNotEmpty) return "$label ($display)";
+  return label;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Small helpers
+// ─────────────────────────────────────────────────────────────────────────────
+
+Future<void> _saveTimestamp(GetStorage storage, DateTime time) async {
+  await storage.write('last_call_log_sync_timestamp', time.millisecondsSinceEpoch);
+  print("💾 [Sync] Timestamp saved: $time");
+}
+
+String? _clean(dynamic value) {
+  final s = value?.toString().trim() ?? "";
+  return (s.isEmpty || s.toLowerCase() == "null") ? null : s;
+}
+
+String _safeStr(dynamic value, {required String fallback}) =>
+    _clean(value) ?? fallback;
+
+int _parseInt(dynamic value, {int fallback = 0}) {
+  if (value == null) return fallback;
+  if (value is int) return value;
+  return int.tryParse(value.toString()) ?? fallback;
+}
+
+String _mapCallType(CallType? callType) {
+  switch (callType) {
+    case CallType.outgoing: return "outgoing_call";
+    case CallType.incoming: return "incoming_call";
+    case CallType.missed:   return "missed_call";
+    case CallType.blocked:  return "not_answered_call";
+    default:
+      return callType?.toString().split('.').last ?? "unknown_call";
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  SIM Fingerprint model
+// ─────────────────────────────────────────────────────────────────────────────
+class _SimFingerprint {
+  final int         slotIndex;
+  final Set<String> accountIds;
+  final String      carrierName;
+  final String      displayName;
+  final String      simNumber;
+  final String      displayNumber;
+
+  const _SimFingerprint({
+    required this.slotIndex,
+    required this.accountIds,
+    required this.carrierName,
+    required this.displayName,
+    required this.simNumber,
+    required this.displayNumber,
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Backward-compat stub (used elsewhere in codebase)
+// ─────────────────────────────────────────────────────────────────────────────
+String _resolveSimNumber(Map<String, dynamic>? simInfo) {
+  if (simInfo == null) return "SIM2";
+  return _resolveDisplayNumber(
+    number:    _clean(simInfo['number']),
+    carrier:   _clean(simInfo['carrierName']) ?? "",
+    display:   _clean(simInfo['displayName']) ?? "",
+    slotIndex: 1,
+  );
 }
