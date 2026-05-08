@@ -119,15 +119,15 @@ class OtpPage extends GetView<OtpController> {
                       activeColor: AppColors.themeColor.primaryColor,
                       selectedColor: AppColors.themeColor.primaryColor,
                       inactiveColor: AppColors.themeColor.bordercolror.withOpacity(0.5),
-                      activeFillColor: Colors.white,
-                      selectedFillColor: Colors.white,
-                      inactiveFillColor: Colors.white.withOpacity(0.5),
+                      activeFillColor: AppColors.themeColor.cardColor,
+                      selectedFillColor: AppColors.themeColor.cardColor,
+                      inactiveFillColor: AppColors.themeColor.cardColor.withOpacity(0.5),
                     ),
                     enableActiveFill: true,
                     boxShadows: [
                       BoxShadow(
                         offset: Offset(0, 4),
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withOpacity(Get.isDarkMode ? 0.2 : 0.05),
                         blurRadius: 10,
                       )
                     ],
