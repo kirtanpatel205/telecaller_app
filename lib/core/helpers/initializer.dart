@@ -101,6 +101,8 @@ class Initializer {
 
         if (phonePermission.isGranted) {
           await BackgroundServiceManager.fetchAndSaveSimInfo();
+
+
           await BackgroundServiceManager.initializeService();
           try {
             final token = await Storage.getToken();

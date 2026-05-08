@@ -22,10 +22,12 @@ class SimSelectionController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    print("🚀 [SimSelection] Controller Initialized");
     loadSimInfo();
   }
 
   Future<void> loadSimInfo() async {
+    print("📱 [SimSelection] Loading SIM info...");
     isLoading.value = true;
     try {
       // Refresh SIM info using existing logic
@@ -35,25 +37,45 @@ class SimSelectionController extends GetxController {
       final cached = await Storage.getSimInfo();
       if (cached != null) {
         simCards.value = cached.cast<Map<String, dynamic>>();
+        print("📱 [SimSelection] Found ${simCards.length} SIM cards in cache");
         
-        // Auto-select if only one SIM
-        if (simCards.length == 1) {
-          selectedSimIndex.value = 0;
+        // Check if we have a previously selected slot
+        final int? savedSlot = await Storage.getFromSharedPrefs<int>('selected_sim_slot_index');
+        if (savedSlot != null) {
+          print("📱 [SimSelection] Found saved slot index: $savedSlot");
+          for (int i = 0; i < simCards.length; i++) {
+            if ((simCards[i]['slotIndex'] ?? i) == savedSlot) {
+              selectedSimIndex.value = i;
+              print("📱 [SimSelection] Auto-selected SIM at index $i (slot $savedSlot)");
+              break;
+            }
+          }
         }
+
+        // Auto-select if only one SIM and nothing was saved
+        if (simCards.length == 1 && selectedSimIndex.value == -1) {
+          selectedSimIndex.value = 0;
+          print("📱 [SimSelection] Single SIM detected, auto-selecting index 0");
+        }
+      } else {
+        print("⚠️ [SimSelection] No SIM info found in storage");
       }
     } catch (e) {
-      print("Error loading SIM info: $e");
+      print("❌ [SimSelection] Error loading SIM info: $e");
     } finally {
       isLoading.value = false;
     }
   }
 
   void selectSim(int index) {
+    print("🔘 [SimSelection] User selected SIM index: $index");
     selectedSimIndex.value = index;
   }
 
   Future<void> proceed() async {
+    print("🚀 [SimSelection] Proceeding with selection...");
     if (selectedSimIndex.value == -1) {
+      print("⚠️ [SimSelection] No SIM selected");
       Get.snackbar("Selection Required", "Please select a SIM card to continue.");
       return;
     }
@@ -61,19 +83,17 @@ class SimSelectionController extends GetxController {
     final selectedSim = simCards[selectedSimIndex.value];
     String? rawNumber = selectedSim['number'];
     int slotIndex = selectedSim['slotIndex'] ?? selectedSimIndex.value;
+    String carrier = selectedSim['carrierName'] ?? "Unknown";
+
+    print("📱 [SimSelection] Selected SIM: $carrier, Slot: $slotIndex, Number: $rawNumber");
 
     // Save selection for background services
     await Storage.saveToSharedPrefs('selected_sim_slot_index', slotIndex);
     await GetStorage().write('selected_sim_slot_index', slotIndex);
     
-    // If number is missing, we might need to ask the user, 
-    // but the request said "sim choses pages like add in this login pages add"
-    // Usually banking apps use the SIM to send a message or verify.
-    
-    if (rawNumber == null || rawNumber.isEmpty) {
-      // If we can't get the number, we might need a fallback or show a field.
-      // But let's try to proceed if we have SOMETHING.
-      // For now, let's show a dialog to enter number if missing.
+    if (rawNumber == null || rawNumber.isEmpty || rawNumber == "null") {
+      print("⚠️ [SimSelection] SIM number missing for Chinese phone/OEM");
+      // If we can't get the number, we MUST ask the user
       _showNumberInputDialog();
       return;
     }
@@ -82,33 +102,34 @@ class SimSelectionController extends GetxController {
   }
 
   Future<void> sendOtpForNumber(String number) async {
+    print("📲 [SimSelection] Sending OTP for: $number");
     isSendingOtp.value = true;
     try {
       // Normalize number if needed (e.g., add +91 if missing and 10 digits)
-      String normalized = number;
+      String normalized = number.trim();
       if (!normalized.startsWith('+')) {
         if (normalized.length == 10) {
           normalized = "+91$normalized";
         }
       }
 
-      print("Sending OTP for: $normalized");
+      print("📲 [SimSelection] Normalized number: $normalized");
       
       ApiResponseEntity response = await apiService.sendOtp(
         phone: normalized,
       );
 
       if (response.status == true) {
-        // Store the number in AuthController for OTP page
-        // Need to parse into PhoneNumber object for compatibility
+        print("✅ [SimSelection] OTP sent successfully");
         final parsed = _parsePhoneNumber(normalized);
         authController.storePhoneNumber(parsed);
-        
         Get.toNamed(Routes.OTP);
       } else {
+        print("❌ [SimSelection] API Error: ${response.message}");
         Get.snackbar("Error", response.message ?? "Failed to send OTP.");
       }
     } catch (e) {
+      print("❌ [SimSelection] Connection Error: $e");
       Get.snackbar("Error", "Failed to send OTP. Please try again.");
     } finally {
       isSendingOtp.value = false;
@@ -116,7 +137,7 @@ class SimSelectionController extends GetxController {
   }
 
   PhoneNumber _parsePhoneNumber(String completeNumber) {
-    // Simple parser for compatibility with existing AuthController/LoginController
+    print("🔍 [SimSelection] Parsing number: $completeNumber");
     if (completeNumber.startsWith('+91')) {
       return PhoneNumber(
         countryISOCode: 'IN',
@@ -132,21 +153,47 @@ class SimSelectionController extends GetxController {
   }
 
   void _showNumberInputDialog() {
-    // Fallback if SIM number is not readable
+    print("📝 [SimSelection] Showing manual number input dialog");
+    final textController = TextEditingController();
     Get.defaultDialog(
-      title: "Enter Number",
-      content: Column(
-        children: [
-          Text("Could not auto-detect number for this SIM. Please enter it manually."),
-          SizedBox(height: 10),
-          // We can use a simple text field here
-        ],
+      title: "Enter SIM Number",
+      content: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              "We couldn't automatically detect your phone number from this SIM. Please enter it manually to proceed.",
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14),
+            ),
+            SizedBox(height: 16),
+            TextField(
+              controller: textController,
+              keyboardType: TextInputType.phone,
+              decoration: InputDecoration(
+                labelText: "Phone Number",
+                hintText: "Enter 10-digit number",
+                border: OutlineInputBorder(),
+                prefixText: "+91 ",
+              ),
+            ),
+          ],
+        ),
       ),
+      textConfirm: "Login",
+      textCancel: "Cancel",
+      confirmTextColor: Colors.white,
       onConfirm: () {
-        // ... logic to handle manual input if needed
+        String input = textController.text.trim();
+        if (input.length == 10) {
+          Get.back(); // Close dialog
+          sendOtpForNumber("+91$input");
+        } else {
+          Get.snackbar("Invalid Number", "Please enter a valid 10-digit phone number.");
+        }
       }
     );
-    // Actually, I'll just redirect to Login for now if number is missing, 
-    // or better, I'll implement a clean input in the SIM selection page itself.
   }
 }
+

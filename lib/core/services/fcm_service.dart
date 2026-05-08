@@ -15,6 +15,7 @@ import 'package:telecaller_app/constants/app_constants.dart';
 import 'package:telecaller_app/core/controllers/socket_controller.dart';
 import 'package:telecaller_app/core/services/internetcheck.dart';
 import 'package:telecaller_app/core/helpers/storage.dart';
+import 'package:telecaller_app/core/helpers/utils.dart';
 import 'package:telecaller_app/firebase_options.dart';
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:android_intent_plus/flag.dart';
@@ -442,24 +443,31 @@ Future<Map<String, String>> _handleNotificationPayload(
         );
 
         print('🚀 Launching translucent CallActivity for background call');
+        
+        // Fetch pre-selected SIM slot index
+        final int? slotIndex = await Storage.getFromSharedPrefs<int>('selected_sim_slot_index');
+        print('📱 [FCM BG] Using SIM slot: ${slotIndex ?? "default"}');
+
         final intent = AndroidIntent(
           action: 'android.intent.action.MAIN',
           package: 'com.digibulkmarketing.telecaller_app',
           componentName: 'com.digibulkmarketing.telecaller_app.CallActivity',
-          arguments: <String, dynamic>{'phoneNumber': phoneNumber},
+          arguments: <String, dynamic>{
+            'phoneNumber': phoneNumber,
+            'slotIndex': slotIndex,
+          },
           flags: <int>[Flag.FLAG_ACTIVITY_NEW_TASK],
         );
         await intent.launch();
         print('✅ CallActivity intent sent successfully');
       } else {
-        bool? res = await FlutterPhoneDirectCaller.callNumber(phoneNumber!);
-        print('Call initiated result: $res');
+        await Utils.makeDirectCall(phoneNumber!);
       }
     } catch (e) {
       print('❌ Error launching CallActivity: $e');
       try {
-        print('Attempting fallback to FlutterPhoneDirectCaller');
-        await FlutterPhoneDirectCaller.callNumber(phoneNumber!);
+        print('Attempting fallback to Utils.makeDirectCall');
+        await Utils.makeDirectCall(phoneNumber!);
       } catch (e2) {
         print('Final fallback failed: $e2');
       }

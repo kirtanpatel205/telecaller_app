@@ -179,8 +179,79 @@ class MainActivity : FlutterActivity() {
                         result.error("AUTOSTART_FAILED", e.message, null)
                     }
                 }
+                "makeDirectCall" -> {
+                    val number = call.argument<String>("number")
+                    val slotIndex = call.argument<Int>("slotIndex") // 0 or 1
+                    
+                    if (number != null) {
+                        try {
+                            makeCall(number, slotIndex)
+                            result.success(true)
+                        } catch (e: Exception) {
+                            Log.e("MainActivity", "Call failed: ${e.message}")
+                            result.error("CALL_FAILED", e.message, null)
+                        }
+                    } else {
+                        result.error("INVALID_ARGUMENT", "Number is null", null)
+                    }
+                }
                 else -> result.notImplemented()
             }
         }
     }
-}
+
+    private fun makeCall(number: String, slotIndex: Int?) {
+        val uri = Uri.parse("tel:${Uri.encode(number)}")
+        val intent = Intent(Intent.ACTION_CALL, uri)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        
+        if (slotIndex != null) {
+            Log.d("MainActivity", "Making call to $number using SIM slot $slotIndex")
+            
+            // Multi-SIM support extras (various manufacturers)
+            val slotKey = if (slotIndex == 0) "0" else "1"
+            
+            intent.putExtra("com.android.phone.extra.slot", slotIndex)
+            intent.putExtra("com.android.phone.force.slot", true)
+            intent.putExtra("Slot", slotIndex)
+            intent.putExtra("simSlot", slotIndex)
+            intent.putExtra("sim_slot", slotIndex)
+            intent.putExtra("subscription", slotIndex) // Some OEMs use slot as subId fallback
+            
+            // Samsung specific
+            intent.putExtra("phone", slotIndex)
+            
+            // For newer Android versions using SubscriptionManager to find the actual subscription ID
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                    val subscriptionManager = getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager
+                    val activeSubscriptionInfoList = subscriptionManager.activeSubscriptionInfoList
+                    if (activeSubscriptionInfoList != null) {
+                        for (subscriptionInfo in activeSubscriptionInfoList) {
+                            if (subscriptionInfo.simSlotIndex == slotIndex) {
+                                val subId = subscriptionInfo.subscriptionId
+                                Log.d("MainActivity", "Found subId $subId for slot $slotIndex")
+                                
+                                // Standard Android extras for subscription ID
+                                intent.putExtra("subscription", subId)
+                                intent.putExtra("com.android.phone.extra.SUBSCRIPTION_ID", subId)
+                                
+                                // Samsung extras for subId
+                                intent.putExtra("phone_id", subId)
+                                break
+                            }
+                        }
+                    }
+                }
+            } catch (e: SecurityException) {
+                Log.w("MainActivity", "SecurityException: Missing READ_PHONE_STATE to get subId")
+            } catch (e: Exception) {
+                Log.w("MainActivity", "Error getting subscription ID: ${e.message}")
+            }
+        } else {
+            Log.d("MainActivity", "Making call to $number using default SIM")
+        }
+        
+        startActivity(intent)
+    }
+}

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_pagewise/flutter_pagewise.dart';
 import 'package:get/get.dart';
+import 'package:telecaller_app/core/helpers/utils.dart';
+import 'package:telecaller_app/core/helpers/storage.dart';
 import 'package:telecaller_app/core/controllers/overlay_controller.dart';
 import 'package:telecaller_app/core/models/all_lead_entity.dart';
 import 'package:telecaller_app/core/models/lead_contact_id_entity.dart';
@@ -783,10 +785,8 @@ class AutoDialerController extends GetxController {
 
   Future<void> launchPhoneDialer(String? phone) async {
     if (phone == null || phone.isEmpty) return;
-    final Uri url = Uri(scheme: 'tel', path: phone);
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url);
-    }
+    print("📞 [AutoDialer] Manual dial: $phone");
+    await Utils.makeDirectCall(phone);
   }
 
   Future<void> launchSms(String? phone) async {

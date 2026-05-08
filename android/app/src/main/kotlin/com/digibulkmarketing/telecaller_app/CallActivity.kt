@@ -9,12 +9,15 @@ import android.content.Context
 import android.util.Log
 import android.view.WindowManager
 import android.os.Build
+import android.telephony.SubscriptionManager
+import android.telephony.SubscriptionInfo
 import io.flutter.embedding.engine.FlutterEngineCache
 import io.flutter.plugin.common.MethodChannel
 
 class CallActivity : Activity() {
     private var callInitiated = false
     private var hasBeenPaused = false
+    private var selectedSlotIndex: Int = -1
 
     override fun onPause() {
         super.onPause()
@@ -75,8 +78,11 @@ class CallActivity : Activity() {
         val wakeOnly = intent.getBooleanExtra("wakeOnly", false)
         val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
         val isLocked = keyguardManager.isKeyguardLocked
+        
+        // Extract slotIndex if present (from FCM/BackgroundService)
+        selectedSlotIndex = intent.getIntExtra("slotIndex", -1)
 
-        Log.d("CallActivity", "handleIntent - wakeOnly: $wakeOnly, isLocked: $isLocked")
+        Log.d("CallActivity", "handleIntent - wakeOnly: $wakeOnly, isLocked: $isLocked, slotIndex: $selectedSlotIndex")
 
         // ✅ 1. Apply lock screen flags immediately so any UI (Dialer/Activity) can show over lock screen
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
@@ -139,10 +145,10 @@ class CallActivity : Activity() {
         */
 
         // 2. Wait 1 second before starting the dialer to avoid focus competition with SIM dialog
-        Log.d("CallActivity", "Waiting 1000ms for MainActivity to settle before dialer...")
+        Log.d("CallActivity", "Waiting 1000ms for dialer to start...")
         window.decorView.postDelayed({
             if (!isFinishing) {
-                initiateCall(finalNumber)
+                initiateCall(finalNumber, if (selectedSlotIndex == -1) null else selectedSlotIndex)
                 callInitiated = true
                 Log.d("CallActivity", "Call initiated after delay")
             }
@@ -155,12 +161,46 @@ class CallActivity : Activity() {
         }
     }
 
-    private fun initiateCall(phoneNumber: String) {
+    private fun initiateCall(phoneNumber: String, slotIndex: Int?) {
         try {
-            Log.d("CallActivity", "Initiating ACTION_CALL to $phoneNumber")
+            Log.d("CallActivity", "Initiating ACTION_CALL to $phoneNumber using slot ${slotIndex ?: "default"}")
             val callIntent = Intent(Intent.ACTION_CALL)
-            callIntent.data = Uri.parse("tel:$phoneNumber")
+            callIntent.data = Uri.parse("tel:${Uri.encode(phoneNumber)}")
             callIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            
+            if (slotIndex != null) {
+                // Multi-SIM support extras
+                callIntent.putExtra("com.android.phone.extra.slot", slotIndex)
+                callIntent.putExtra("com.android.phone.force.slot", true)
+                callIntent.putExtra("Slot", slotIndex)
+                callIntent.putExtra("simSlot", slotIndex)
+                callIntent.putExtra("sim_slot", slotIndex)
+                callIntent.putExtra("subscription", slotIndex)
+                callIntent.putExtra("phone", slotIndex)
+
+                // Try to find subscription ID for better compatibility
+                try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                        val sm = getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager
+                        val list = sm.activeSubscriptionInfoList
+                        if (list != null) {
+                            for (info in list) {
+                                if (info.simSlotIndex == slotIndex) {
+                                    val subId = info.subscriptionId
+                                    callIntent.putExtra("subscription", subId)
+                                    callIntent.putExtra("com.android.phone.extra.SUBSCRIPTION_ID", subId)
+                                    callIntent.putExtra("phone_id", subId)
+                                    Log.d("CallActivity", "Added subId $subId for slot $slotIndex")
+                                    break
+                                }
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.w("CallActivity", "Error setting subId: ${e.message}")
+                }
+            }
+
             startActivity(callIntent)
             Log.d("CallActivity", "ACTION_CALL intent started successfully")
         } catch (e: Exception) {

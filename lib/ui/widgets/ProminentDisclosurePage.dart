@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:telecaller_app/core/helpers/storage.dart';
+import 'package:telecaller_app/core/services/background_service_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../constants/app_routes.dart';
@@ -65,6 +66,7 @@ class _ProminentDisclosurePageState extends State<ProminentDisclosurePage> {
       await Storage.saveValue("user_consent_given", true);
 
       if (mounted) {
+        await BackgroundServiceManager.fetchAndSaveSimInfo();
         Get.offAllNamed(Routes.SIM_SELECTION);
       }
     } catch (e) {

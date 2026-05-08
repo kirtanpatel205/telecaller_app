@@ -17,6 +17,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:telecaller_app/core/helpers/storage.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 
 import '../../constants/app_colors.dart';
 import '../../constants/app_constants.dart';
@@ -162,9 +163,44 @@ class Utils {
     );
   }
 
+  static const _channel = MethodChannel('com.digibulkmarketing.telecaller_app/lockscreen');
+
+  static Future<void> makeDirectCall(String number) async {
+    try {
+      if (number.isEmpty) return;
+      print("📞 [Utils] Initiating direct call to: $number");
+      
+      // 1. Get the user-selected SIM slot index
+      final int? slotIndex = await Storage.getFromSharedPrefs<int>('selected_sim_slot_index');
+      print("📱 [Utils] Preferred SIM slot: ${slotIndex ?? 'default'}");
+
+      // 2. Try native MethodChannel first to specify SIM slot
+      try {
+        final bool? success = await _channel.invokeMethod('makeDirectCall', {
+          'number': number,
+          'slotIndex': slotIndex,
+        });
+        
+        if (success == true) {
+          print("✅ [Utils] Native call triggered successfully");
+          return;
+        }
+      } catch (e) {
+        print("⚠️ [Utils] Native call failed: $e. Falling back to plugin.");
+      }
+
+      // 3. Fallback to standard plugin (may show system SIM picker)
+      // Note: We use the external plugin as a safe fallback
+      await FlutterPhoneDirectCaller.callNumber(number);
+      
+    } catch (e) {
+      print("❌ [Utils] Fatal error making call: $e");
+    }
+  }
+
   static Future<bool> launchURL(String url) async {
     if (await canLaunchUrl(Uri.parse(url))) {
-      return await launch(url);
+      return await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
     } else {
       print('Could not launch $url');
       return false;

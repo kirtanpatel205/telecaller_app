@@ -1,15 +1,19 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
+import 'package:telecaller_app/core/helpers/storage.dart';
+import 'package:telecaller_app/core/helpers/utils.dart';
 import 'package:telecaller_app/core/controllers/socket_controller.dart';
 import 'package:telecaller_app/core/models/call_lead_update_response_entity.dart';
 import 'package:telecaller_app/core/services/api_service.dart';
 import 'package:telecaller_app/core/services/phone_status_service.dart';
 
 class OverlayController extends GetxController {
+  static const _channel = MethodChannel('com.digibulkmarketing.telecaller_app/lockscreen');
   // ─────────────────────────────────────────────
   // AUTO-DIALER STATE
   // ─────────────────────────────────────────────
@@ -382,12 +386,8 @@ class OverlayController extends GetxController {
   // ─────────────────────────────────────────────
   Future<void> makeDirectCall(String number) async {
     try {
-      print("📞 Calling: $number");
-      final bool? res = await FlutterPhoneDirectCaller.callNumber(number);
-      if (res == null || !res) {
-        print("⚠️ Call failed to initiate (returned false or null)");
-        handleCallCancelled();
-      }
+      print("📞 [Overlay] Calling: $number");
+      await Utils.makeDirectCall(number);
     } catch (e) {
       if (kDebugMode) print("Call error: $e");
       handleCallCancelled();

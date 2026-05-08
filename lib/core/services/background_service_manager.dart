@@ -150,34 +150,82 @@ class BackgroundServiceManager {
 
   static Future<void> fetchAndSaveSimInfo() async {
     try {
-      // 1. Try sim_card_code for better Chinese OEM support
-      final List<SimCardInfo> simCards = await SimCardManager.allSimInfo;
-      
+
+      // =========================
+      // PHONE PERMISSION CHECK
+      // =========================
+
+      final phonePermission =
+      await Permission.phone.status;
+
+      if (!phonePermission.isGranted) {
+
+        final result =
+        await Permission.phone.request();
+
+        if (!result.isGranted) {
+          print("❌ [SIM] Phone permission denied");
+          return;
+        }
+      }
+
+      // =========================
+      // FETCH SIM INFO
+      // =========================
+
+      final List<SimCardInfo> simCards =
+      await SimCardManager.allSimInfo;
+
       if (simCards.isNotEmpty) {
-        final List<Map<String, dynamic>> simInfoList = simCards.map<Map<String, dynamic>>((sim) => {
+
+        final List<Map<String, dynamic>> simInfoList =
+        simCards.map<Map<String, dynamic>>((sim) => {
+
           'slotIndex': sim.slotIndex,
           'displayName': sim.displayName,
           'carrierName': sim.carrierName,
           'number': sim.phoneNumber,
           'subscriptionId': sim.subscriptionId,
+
         }).toList();
 
-        print("📱 [SIM] Fetched ${simInfoList.length} SIM slots via sim_card_code");
-        await GetStorage().write('sim_info_cache', simInfoList);
+        print(
+            "📱 [SIM] Fetched ${simInfoList.length} SIM slots"
+        );
+
+        await GetStorage().write(
+          'sim_info_cache',
+          simInfoList,
+        );
+
         await Storage.saveSimInfo(simInfoList);
+
       } else {
-        print("ℹ️ [SIM] No SIM cards detected via sim_card_code.");
+
+        print(
+            "ℹ️ [SIM] No SIM cards detected."
+        );
       }
+
     } catch (e) {
+
       final errorStr = e.toString();
-      if (errorStr.contains("MissingPluginException") || errorStr.contains("no_implementation")) {
-        print("ℹ️ [SIM] Native channel not available. Relying on cache. (Error: $errorStr)");
+
+      if (errorStr.contains("MissingPluginException") ||
+          errorStr.contains("no_implementation")) {
+
+        print(
+            "ℹ️ [SIM] Native channel not available."
+        );
+
       } else {
-        print("⚠️ [SIM] Error fetching SIM info: $e");
+
+        print(
+            "⚠️ [SIM] Error fetching SIM info: $e"
+        );
       }
     }
   }
-
   static Future<void> openXiaomiOtherPermissions() async {
     try {
       await _channel.invokeMethod('openXiaomiPermissions');

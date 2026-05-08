@@ -26,7 +26,7 @@ class SimSelectionPage extends GetView<SimSelectionController> {
           ),
           centerTitle: true,
           title: Text(
-            "Select SIM Card",
+            "Dual SIM Login",
             style: AppTextStyle.bold7.copyWith(
               color: AppColors.themeColor.textPrimaryColor,
               fontSize: 18.sp,
@@ -41,7 +41,7 @@ class SimSelectionPage extends GetView<SimSelectionController> {
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 40.w),
               child: Text(
-                "Choose the SIM card associated with your business account.",
+                "Select the SIM card you want to use for login and business calls.",
                 textAlign: TextAlign.center,
                 style: AppTextStyle.regular7.copyWith(
                   fontSize: 14.sp,
@@ -80,13 +80,14 @@ class SimSelectionPage extends GetView<SimSelectionController> {
               padding: EdgeInsets.all(24.r),
               child: Obx(() => CustomButton(
                 onClick: controller.proceed,
-                title: "Confirm & Continue",
+                title: "Login with Selected SIM",
                 isLoading: controller.isSendingOtp.value,
                 enabled: controller.selectedSimIndex.value != -1,
               )),
             ),
           ],
         ),
+
       ),
     );
   }

@@ -253,7 +253,7 @@ class LeadsContactController extends GetxController {
 
   Future<void> makeCall(String? phoneNumber) async {
     if (phoneNumber != null && phoneNumber.isNotEmpty) {
-      await FlutterPhoneDirectCaller.callNumber(phoneNumber);
+      await Utils.makeDirectCall(phoneNumber);
     } else {
       Get.snackbar(
         "Error",

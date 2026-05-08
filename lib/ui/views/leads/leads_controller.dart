@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pagewise/flutter_pagewise.dart';
-import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:telecaller_app/constants/app_routes.dart';
+import 'package:telecaller_app/core/helpers/utils.dart';
 import 'package:telecaller_app/core/models/all_lead_entity.dart';
 import 'package:telecaller_app/core/services/api_service.dart';
 
@@ -162,7 +162,7 @@ class LeadsController extends GetxController {
 
   Future<void> makeCall(String? phoneNumber) async {
     if (phoneNumber != null && phoneNumber.isNotEmpty) {
-      await FlutterPhoneDirectCaller.callNumber(phoneNumber);
+      await Utils.makeDirectCall(phoneNumber);
     } else {
       Get.snackbar(
         "Error",
