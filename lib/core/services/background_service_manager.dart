@@ -667,9 +667,6 @@ Future<void> _syncCallLogs() async {
       return;
     }
 
-    // Pre-compute SIM1 accountIds for O(1) exclusion lookup
-    final Set<String> sim1AccountIds = fpMap[0]?.accountIds ?? {};
-
     print("🎯 [Sync] Target: SIM${targetSlot + 1}  number=${targetFp.displayNumber}");
     print("🎯 [Sync] Known accountIds: ${targetFp.accountIds}");
 
@@ -705,14 +702,15 @@ Future<void> _syncCallLogs() async {
       final bool isTarget = !isDualSim
           ? true
           : _matchesSim(
-        accountId:      accountId,
-        simName:        simName,
-        targetFp:       targetFp,
-        sim1AccountIds: sim1AccountIds,
+        accountId:       accountId,
+        simName:         simName,
+        targetSlotIndex: targetSlot,
+        targetFp:        targetFp,
+        allFingerprints: fpMap,
       );
 
       if (!isTarget) {
-        print("⏭️ [Sync] Skip (not SIM${targetSlot + 1}): "
+        print("⏭️ [Sync] Skip (not target SIM${targetSlot + 1}): "
             "accountId='$accountId' simName='$simName'");
         continue;
       }
@@ -769,17 +767,23 @@ Future<void> _syncCallLogs() async {
 //  SIM matching — 5 layers, hard exclusion first
 // ─────────────────────────────────────────────────────────────────────────────
 bool _matchesSim({
-  required String          accountId,
-  required String          simName,
-  required _SimFingerprint targetFp,
-  required Set<String>     sim1AccountIds,
+  required String                    accountId,
+  required String                    simName,
+  required int                       targetSlotIndex,
+  required _SimFingerprint           targetFp,
+  required Map<int, _SimFingerprint> allFingerprints,
 }) {
 
-  // ── L1: Hard exclusion — confirmed SIM1 entry ────────────────────────────
+  // ── L1: Hard exclusion — confirmed other SIM entry ────────────────────────
   // Check FIRST to prevent any false positives downstream
-  if (accountId.isNotEmpty && sim1AccountIds.contains(accountId)) {
-    print("🚫 [Sync] L1 SIM1 exclusion: '$accountId'");
-    return false;
+  for (final entry in allFingerprints.entries) {
+    if (entry.key == targetSlotIndex) continue;
+    
+    final otherFp = entry.value;
+    if (accountId.isNotEmpty && otherFp.accountIds.contains(accountId)) {
+      print("🚫 [Sync] L1 exclusion: '$accountId' belongs to SIM${entry.key + 1}");
+      return false;
+    }
   }
 
   // ── L2: Exact accountId match in target fingerprint ids ──────────────────
@@ -801,11 +805,21 @@ bool _matchesSim({
     }
   }
 
-  // ── L4: OEM accountId patterns (pre-compiled, O(n) on pattern count) ─────
+  // ── L4: OEM accountId patterns (Conditional based on slot) ────────────────
   if (accountId.isNotEmpty) {
-    for (final p in _kSim2Patterns) {
-      if (p.hasMatch(accountId)) {
-        print("✅ [Sync] L4 OEM accountId pattern: '$accountId'");
+    // SIM 2 specific patterns
+    if (targetSlotIndex == 1) {
+      for (final p in _kSim2Patterns) {
+        if (p.hasMatch(accountId)) {
+          print("✅ [Sync] L4 SIM2 OEM accountId pattern: '$accountId'");
+          return true;
+        }
+      }
+    }
+    // SIM 1 specific patterns (usually "0" or just blank)
+    if (targetSlotIndex == 0) {
+      if (accountId == "0" || accountId == "sim1" || accountId == "slot0") {
+        print("✅ [Sync] L4 SIM1 OEM accountId: '$accountId'");
         return true;
       }
     }
@@ -813,11 +827,19 @@ bool _matchesSim({
 
   // ── L5: OEM simDisplayName patterns ──────────────────────────────────────
   if (simName.isNotEmpty) {
-    for (final p in _kSim2Patterns) {
-      if (p.hasMatch(simName)) {
-        print("✅ [Sync] L5 OEM simName pattern: '$simName'");
-        return true;
+    if (targetSlotIndex == 1) {
+      for (final p in _kSim2Patterns) {
+        if (p.hasMatch(simName)) {
+          print("✅ [Sync] L5 SIM2 OEM simName pattern: '$simName'");
+          return true;
+        }
       }
+    }
+    if (targetSlotIndex == 0) {
+       if (simName == "sim1" || simName == "slot0" || simName == "sim 1") {
+         print("✅ [Sync] L5 SIM1 OEM simName: '$simName'");
+         return true;
+       }
     }
   }
 
