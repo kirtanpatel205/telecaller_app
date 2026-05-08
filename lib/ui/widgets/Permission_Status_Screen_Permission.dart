@@ -453,6 +453,11 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
       await Storage.saveValue('notification_setup', true);
       await Storage.saveValue('backgroundService_setup', true);
 
+      // ✅ Ensure SIM info is fetched and cached before starting the service
+      if (await Permission.phone.isGranted) {
+        await BackgroundServiceManager.fetchAndSaveSimInfo();
+      }
+
       // ✅ ADDED: Also ensure battery optimization is excluded during setup
       await requestBatteryOptimizationExclusion();
 
@@ -472,20 +477,6 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
 
       if (isServiceRunning) {
         try {
-          final token = await Storage.getValue(AppConstants.TOKEN);
-
-          if (token != null && token.isNotEmpty) {
-            print("sending_token_to_backgroundservice".tr);
-            print("🔑 Token length: ${token.length} chars");
-            print("🔑 Token prefix: ${token.substring(0, 30)}...");
-
-            service.invoke("updateToken", {"token": token});
-
-            print("token_sent_successfully".tr);
-          } else {
-            print("no_valid_token_found_to_send".tr);
-          }
-
           await Future.delayed(Duration(milliseconds: 500));
 
           print("triggering_syncnow".tr);

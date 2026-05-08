@@ -1022,6 +1022,12 @@
       "languageVersion": "3.3"
     },
     {
+      "name": "sim_card_code",
+      "rootUri": "file:///C:/Users/01/AppData/Local/Pub/Cache/hosted/pub.dev/sim_card_code-0.1.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
       "name": "skeletonizer",
       "rootUri": "file:///C:/Users/01/AppData/Local/Pub/Cache/hosted/pub.dev/skeletonizer-1.4.3",
       "packageUri": "lib/",
@@ -1280,7 +1286,7 @@
       "languageVersion": "3.7"
     }
   ],
-  "generated": "2026-05-02T12:07:44.285452Z",
+  "generated": "2026-05-07T09:14:18.881791Z",
   "generator": "pub",
   "generatorVersion": "3.7.0",
   "flutterRoot": "file:///C:/Developer/flutter",

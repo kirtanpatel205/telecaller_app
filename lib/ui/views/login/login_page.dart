@@ -12,8 +12,6 @@ import 'package:telecaller_app/ui/views/login/login_controller.dart';
 import 'package:telecaller_app/ui/widgets/app_safe_area.dart';
 import 'package:telecaller_app/ui/widgets/custom_button.dart';
 
-
-
 class LoginPage extends GetView<LoginController> {
   const LoginPage({super.key});
 
@@ -74,7 +72,9 @@ class LoginPage extends GetView<LoginController> {
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8.r),
-                    borderSide: BorderSide(color: AppColors.themeColor.bordercolror),
+                    borderSide: BorderSide(
+                      color: AppColors.themeColor.bordercolror,
+                    ),
                   ),
                   counterText: '',
                   errorText: null,
@@ -112,7 +112,9 @@ class LoginPage extends GetView<LoginController> {
 
   void _handleSendOtp(BuildContext context) {
     if (!controller.rememberMe.value) {
-      Utils.showSnackbar("please_check_the_terms_and_conditions_to_continue".tr);
+      Utils.showSnackbar(
+        "please_check_the_terms_and_conditions_to_continue".tr,
+      );
 
       return;
     }

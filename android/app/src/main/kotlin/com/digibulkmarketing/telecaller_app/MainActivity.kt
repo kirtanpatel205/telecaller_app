@@ -179,40 +179,6 @@ class MainActivity : FlutterActivity() {
                         result.error("AUTOSTART_FAILED", e.message, null)
                     }
                 }
-                "getSimInfo" -> {
-                    try {
-                        val simInfoList = mutableListOf<Map<String, String>>()
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-                            val subscriptionManager = getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager
-                            val activeSubscriptions = subscriptionManager.activeSubscriptionInfoList
-                            if (activeSubscriptions != null) {
-                                for (info in activeSubscriptions) {
-                                    val simData = mutableMapOf<String, String>()
-                                    simData["slotIndex"] = info.simSlotIndex.toString()
-                                    simData["displayName"] = info.displayName.toString()
-                                    simData["carrierName"] = info.carrierName.toString()
-                                    simData["subscriptionId"] = info.subscriptionId.toString()
-                                    
-                                    // getNumber() is often null, but we try anyway
-                                    var number = ""
-                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                                        number = subscriptionManager.getPhoneNumber(info.subscriptionId) ?: ""
-                                    } else {
-                                        @Suppress("DEPRECATION")
-                                        number = info.number ?: ""
-                                    }
-                                    simData["number"] = number
-                                    
-                                    simInfoList.add(simData)
-                                }
-                            }
-                        }
-                        result.success(simInfoList)
-                    } catch (e: Exception) {
-                        Log.e("MainActivity", "Failed to get SIM info: ${e.message}")
-                        result.error("SIM_INFO_FAILED", e.message, null)
-                    }
-                }
                 else -> result.notImplemented()
             }
         }

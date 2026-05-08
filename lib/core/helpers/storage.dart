@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:get_storage/get_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -18,6 +20,7 @@ class Storage {
   static Future<void> removeValue(String key) => _storage.remove(key);
 
   static Future<void> clearStorage() => _storage.erase();
+
   static Future<void> saveToSharedPrefs(String key, dynamic value) async {
     final prefs = await SharedPreferences.getInstance();
 
@@ -54,12 +57,12 @@ class Storage {
   static Future<String?> getToken() async {
     // 1. Try SharedPrefs (most reliable for background)
     String? token = await getFromSharedPrefs<String>('auth_token');
-    
+
     // 2. Fallback to GetStorage (may work in foreground)
     if (token == null || token.isEmpty) {
       token = getValue<String>('auth_token');
     }
-    
+
     return token;
   }
 
@@ -91,5 +94,25 @@ class Storage {
   static Future<void> clearActiveSessionId() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('active_call_session_id');
+  }
+
+  // Cross-isolate SIM Info Cache
+  static Future<void> saveSimInfo(List<dynamic> simInfo) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('sim_info_cache_json', jsonEncode(simInfo));
+  }
+
+  static Future<List<dynamic>?> getSimInfo() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.reload(); // Force refresh from disk
+    final String? jsonStr = prefs.getString('sim_info_cache_json');
+    if (jsonStr != null && jsonStr.isNotEmpty) {
+      try {
+        return jsonDecode(jsonStr) as List<dynamic>;
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
   }
 }

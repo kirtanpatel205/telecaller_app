@@ -138,6 +138,12 @@
 @import shared_preferences_foundation;
 #endif
 
+#if __has_include(<sim_card_code/SimCardCodePlugin.h>)
+#import <sim_card_code/SimCardCodePlugin.h>
+#else
+@import sim_card_code;
+#endif
+
 #if __has_include(<sqflite_darwin/SqflitePlugin.h>)
 #import <sqflite_darwin/SqflitePlugin.h>
 #else
@@ -181,6 +187,7 @@
   [PhoneStatePlugin registerWithRegistrar:[registry registrarForPlugin:@"PhoneStatePlugin"]];
   [FPPSharePlusPlugin registerWithRegistrar:[registry registrarForPlugin:@"FPPSharePlusPlugin"]];
   [SharedPreferencesPlugin registerWithRegistrar:[registry registrarForPlugin:@"SharedPreferencesPlugin"]];
+  [SimCardCodePlugin registerWithRegistrar:[registry registrarForPlugin:@"SimCardCodePlugin"]];
   [SqflitePlugin registerWithRegistrar:[registry registrarForPlugin:@"SqflitePlugin"]];
   [URLLauncherPlugin registerWithRegistrar:[registry registrarForPlugin:@"URLLauncherPlugin"]];
   [WorkmanagerPlugin registerWithRegistrar:[registry registrarForPlugin:@"WorkmanagerPlugin"]];

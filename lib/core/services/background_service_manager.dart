@@ -25,6 +25,7 @@ import 'dart:isolate';
 import 'package:call_log/call_log.dart';
 import 'package:telecaller_app/core/services/api_service.dart';
 import 'package:workmanager/workmanager.dart';
+import 'package:sim_card_code/sim_card_code.dart';
 
 @pragma('vm:entry-point')
 void callbackDispatcher() {
@@ -149,13 +150,31 @@ class BackgroundServiceManager {
 
   static Future<void> fetchAndSaveSimInfo() async {
     try {
-      final List<dynamic>? simInfo = await _channel.invokeMethod('getSimInfo');
-      if (simInfo != null) {
-        print("📱 [SIM] Fetched native SIM info: $simInfo");
-        await GetStorage().write('sim_info_cache', simInfo);
+      // 1. Try sim_card_code for better Chinese OEM support
+      final List<SimCardInfo> simCards = await SimCardManager.allSimInfo;
+      
+      if (simCards.isNotEmpty) {
+        final List<Map<String, dynamic>> simInfoList = simCards.map<Map<String, dynamic>>((sim) => {
+          'slotIndex': sim.slotIndex,
+          'displayName': sim.displayName,
+          'carrierName': sim.carrierName,
+          'number': sim.phoneNumber,
+          'subscriptionId': sim.subscriptionId,
+        }).toList();
+
+        print("📱 [SIM] Fetched ${simInfoList.length} SIM slots via sim_card_code");
+        await GetStorage().write('sim_info_cache', simInfoList);
+        await Storage.saveSimInfo(simInfoList);
+      } else {
+        print("ℹ️ [SIM] No SIM cards detected via sim_card_code.");
       }
     } catch (e) {
-      print("⚠️ [SIM] Error fetching SIM info: $e");
+      final errorStr = e.toString();
+      if (errorStr.contains("MissingPluginException") || errorStr.contains("no_implementation")) {
+        print("ℹ️ [SIM] Native channel not available. Relying on cache. (Error: $errorStr)");
+      } else {
+        print("⚠️ [SIM] Error fetching SIM info: $e");
+      }
     }
   }
 
@@ -555,11 +574,24 @@ Future<void> _syncCallLogs() async {
     print("📋 [Sync] Raw entries fetched: ${entries.length}");
 
     // ── SIM info cache ───────────────────────────────────────────────────────
-    List<dynamic>? cachedSimInfo = storage.read<List>('sim_info_cache');
+    // 1. Try reliable SharedPreferences cache first
+    List<dynamic>? cachedSimInfo = await Storage.getSimInfo();
+    
+    // 2. Fallback to GetStorage cache
+    if (cachedSimInfo == null || cachedSimInfo.isEmpty) {
+      cachedSimInfo = storage.read<List>('sim_info_cache');
+    }
+
+    // 3. If both empty, try to fetch (will only work in UI isolate)
     if (cachedSimInfo == null || cachedSimInfo.isEmpty) {
       print("⚠️ [Sync] SIM cache empty — fetching fresh...");
       await BackgroundServiceManager.fetchAndSaveSimInfo();
-      cachedSimInfo = storage.read<List>('sim_info_cache');
+      
+      // Try reading again after fetch
+      cachedSimInfo = await Storage.getSimInfo();
+      if (cachedSimInfo == null || cachedSimInfo.isEmpty) {
+        cachedSimInfo = storage.read<List>('sim_info_cache');
+      }
     }
 
     if (cachedSimInfo == null || cachedSimInfo.isEmpty) {

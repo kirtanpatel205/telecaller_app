@@ -1352,6 +1352,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.4.1"
+  sim_card_code:
+    dependency: "direct main"
+    description:
+      name: sim_card_code
+      sha256: cec9a59edd5528a402c08feb77776b370ca64ce3f19a397029b0af5568473c34
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.0"
   skeletonizer:
     dependency: "direct main"
     description:

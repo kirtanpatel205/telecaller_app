@@ -27,8 +27,12 @@ class SplashController extends GetxController {
   @override
   void onReady() {
     super.onReady();
+    // Pre-fetch SIM info as early as possible if permission is already granted
+
     startTime();
   }
+
+
 
   startTime() async {
     var _duration = Duration(milliseconds: 2000);
