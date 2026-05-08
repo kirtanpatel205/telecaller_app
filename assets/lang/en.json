@@ -242,4 +242,10 @@
   "reschedule": "Reschedule",
   "other": "Other",
   "no_contacts_found_for_this_lead": "No contacts found for this lead",
+  "verify_your_sim": "Verify Your SIM",
+  "select_sim_message": "Select the SIM card associated with your account for secure verification.",
+  "verify_and_continue": "Verify & Continue",
+  "no_sim_cards_found": "No SIM Cards Found",
+  "sim_retry_message": "Please ensure your SIM cards are properly inserted and you have granted phone permissions.",
+  "retry": "Retry"
 }

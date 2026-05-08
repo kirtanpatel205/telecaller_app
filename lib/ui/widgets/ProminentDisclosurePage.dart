@@ -65,7 +65,7 @@ class _ProminentDisclosurePageState extends State<ProminentDisclosurePage> {
       await Storage.saveValue("user_consent_given", true);
 
       if (mounted) {
-        Get.offAllNamed(Routes.LOGIN);
+        Get.offAllNamed(Routes.SIM_SELECTION);
       }
     } catch (e) {
       setState(() {

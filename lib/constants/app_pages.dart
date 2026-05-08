@@ -1,4 +1,3 @@
-
 import 'package:get/get.dart';
 import 'package:telecaller_app/ui/views/auto_dialer/autodialer_binding.dart';
 import 'package:telecaller_app/ui/views/auto_dialer/autodialer_page.dart';
@@ -22,6 +21,8 @@ import 'package:telecaller_app/ui/views/splash/splash_binding.dart';
 import 'package:telecaller_app/ui/views/splash/splash_page.dart';
 import 'package:telecaller_app/ui/views/welcome/welcome_binding.dart';
 import 'package:telecaller_app/ui/views/welcome/welcome_page.dart';
+import 'package:telecaller_app/ui/views/sim_selection/sim_selection_binding.dart';
+import 'package:telecaller_app/ui/views/sim_selection/sim_selection_page.dart';
 import 'package:telecaller_app/ui/views/privacy_policy/privacy_policy_page.dart';
 import 'package:telecaller_app/ui/views/terms_conditions/terms_conditions_page.dart';
 
@@ -36,14 +37,26 @@ class AppPages {
 
   static final List<GetPage> routes = [
     GetPage(
-        name: Paths.SPLASH, page: () => SplashPage(), binding: SplashBinding()),
+      name: Paths.SPLASH,
+      page: () => SplashPage(),
+      binding: SplashBinding(),
+    ),
 
     GetPage(
-        name: Paths.WELCOME,
-        page: () => WelcomePage(),
-        binding: WelcomeBinding()),
+      name: Paths.WELCOME,
+      page: () => WelcomePage(),
+      binding: WelcomeBinding(),
+    ),
     GetPage(
-        name: Paths.LOGIN, page: () => LoginPage(), binding: LoginBinding()),
+      name: Paths.LOGIN,
+      page: () => LoginPage(),
+      binding: LoginBinding(),
+    ),
+    GetPage(
+      name: Paths.SIM_SELECTION,
+      page: () => SimSelectionPage(),
+      binding: SimSelectionBinding(),
+    ),
     GetPage(name: Paths.OTP, page: () => OtpPage(), binding: OtpBinding()),
     GetPage(name: Paths.HOME, page: () => HomePage(), binding: HomeBinding()),
     GetPage(
@@ -55,7 +68,8 @@ class AppPages {
       name: Paths.LEADS,
       binding: LeadsBinding(),
       page: () => LeadsPage(),
-    ),GetPage(
+    ),
+    GetPage(
       name: Paths.AUTO_DIAL,
       binding: AutodialerBinding(),
       page: () => AutoDialerPage(),
@@ -64,7 +78,8 @@ class AppPages {
       name: Paths.SETTING,
       binding: SettingBinding(),
       page: () => SettingPage(),
-    ),GetPage(
+    ),
+    GetPage(
       name: Paths.LEADSCONTACT,
       binding: LeadscontactBinding(),
       page: () => LeadsContactPage(),
@@ -74,10 +89,7 @@ class AppPages {
       binding: LanguageBinding(),
       page: () => LanguagePage(),
     ),
-    GetPage(
-      name: Paths.PRIVACY_POLICY,
-      page: () => const PrivacyPolicyPage(),
-    ),
+    GetPage(name: Paths.PRIVACY_POLICY, page: () => const PrivacyPolicyPage()),
     GetPage(
       name: Paths.TERMS_CONDITIONS,
       page: () => const TermsConditionsPage(),

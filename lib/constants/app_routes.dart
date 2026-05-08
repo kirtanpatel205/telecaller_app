@@ -3,6 +3,7 @@ abstract class Routes {
   static const WELCOME = Paths.WELCOME;
   static const CONTACTMASTER = Paths.CONTACTMASTER;
   static const LOGIN = Paths.LOGIN;
+  static const SIM_SELECTION = Paths.SIM_SELECTION;
   static const OTP = Paths.OTP;
   static const HOME = Paths.HOME;
   static const CALL = Paths.CALL;
@@ -22,6 +23,7 @@ abstract class Paths {
   static const SPLASH = '/splash';
   static const WELCOME = '/welcome';
   static const LOGIN = '/login';
+  static const SIM_SELECTION = '/sim-selection';
 
   static const OTP = '/otp';
   static const CONTACTMASTER = '/contactmaster';

@@ -609,8 +609,9 @@ Future<void> _syncCallLogs() async {
       return;
     }
 
+    final int? selectedSlot = await Storage.getFromSharedPrefs<int>('selected_sim_slot_index');
     final bool isDualSim  = fpMap.length > 1;
-    final int  targetSlot = isDualSim ? 1 : 0;
+    final int  targetSlot = selectedSlot ?? (isDualSim ? 1 : 0);
 
     final _SimFingerprint? targetFp = fpMap[targetSlot];
     if (targetFp == null) {

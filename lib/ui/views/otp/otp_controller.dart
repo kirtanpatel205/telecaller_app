@@ -12,11 +12,9 @@ import 'package:telecaller_app/core/helpers/utils.dart';
 import 'package:telecaller_app/core/models/api_response_entity.dart';
 import 'package:telecaller_app/core/models/login_response_entity.dart';
 import 'package:telecaller_app/core/services/api_service.dart';
-import 'package:telecaller_app/ui/views/login/login_controller.dart';
 
 class OtpController extends GetxController {
   AuthController authController = AuthController.to;
-  LoginController loginController = Get.find();
   ApiService apiService = Get.find();
 
   RxString otp = "".obs;
