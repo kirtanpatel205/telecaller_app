@@ -14,6 +14,7 @@ import 'package:telecaller_app/constants/app_text_style.dart';
 const FORM_FIELD_TYPES = {
   "TEXT": "text",
   "NUMBER": "number",
+  "EMAIL": "email",
   "TEXTAREA": "textarea",
   "SELECT": "select",
   "RADIO": "radio",

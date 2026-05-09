@@ -17,6 +17,7 @@ class CallFormPage extends StatelessWidget {
     if (type == FORM_FIELD_TYPES["LINK"]) return Icons.link_rounded;
     if (type == FORM_FIELD_TYPES["LOCATION"]) return Icons.location_on_outlined;
     if (type == FORM_FIELD_TYPES["NUMBER"]) return Icons.onetwothree_rounded;
+    if (type == FORM_FIELD_TYPES["EMAIL"]) return Icons.email_outlined;
     if (type == FORM_FIELD_TYPES["IMAGE"]) return Icons.image_outlined;
     if (type == FORM_FIELD_TYPES["VIDEO"]) return Icons.videocam_outlined;
     if (type == FORM_FIELD_TYPES["EXCEL"]) return Icons.table_chart_outlined;
@@ -297,17 +298,28 @@ class CallFormPage extends StatelessWidget {
         _buildLabel(label, isRequired),
         if (effectiveType == FORM_FIELD_TYPES["TEXT"] ||
             effectiveType == FORM_FIELD_TYPES["NUMBER"] ||
+            effectiveType == FORM_FIELD_TYPES["EMAIL"] ||
             effectiveType == FORM_FIELD_TYPES["TEXTAREA"] ||
             effectiveType == FORM_FIELD_TYPES["LINK"])
           _buildTextField(
             controller: controller.dynamicControllers[fieldId],
             hint: hint,
-            keyboardType: effectiveType == FORM_FIELD_TYPES["NUMBER"] ? TextInputType.number : TextInputType.text,
+            keyboardType: effectiveType == FORM_FIELD_TYPES["NUMBER"] 
+                ? TextInputType.number 
+                : (effectiveType == FORM_FIELD_TYPES["EMAIL"] ? TextInputType.emailAddress : TextInputType.text),
             maxLines: (effectiveType == FORM_FIELD_TYPES["TEXTAREA"]) ? 4 : 1,
             prefixIcon: _getIconForType(effectiveType),
-            validator: isRequired
-                ? (val) => (val == null || val.trim().isEmpty) ? "$label is required" : null
-                : null,
+            validator: (val) {
+              if (isRequired && (val == null || val.trim().isEmpty)) {
+                return "$label is required";
+              }
+              if (effectiveType == FORM_FIELD_TYPES["EMAIL"] && val != null && val.isNotEmpty) {
+                if (!GetUtils.isEmail(val)) {
+                  return "enter_a_valid_email".tr;
+                }
+              }
+              return null;
+            },
           )
         else if (effectiveType == FORM_FIELD_TYPES["LOCATION"])
           Row(

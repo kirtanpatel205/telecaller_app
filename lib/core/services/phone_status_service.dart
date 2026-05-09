@@ -95,7 +95,18 @@ class PhoneStatusService extends GetxService with WidgetsBindingObserver {
     if (_isBackground) return;
     
     if (state == AppLifecycleState.resumed) {
-      print("📱 [LIFECYCLE] App resumed. Checking if dialer was closed/cancelled...");
+      print("📱 [LIFECYCLE] App resumed. Checking for pending UI or dialer state...");
+      
+      // 1. Handle pending overlay from background call
+      if (_isOverlayPending) {
+          print("🔔 [LIFECYCLE] App resumed with PENDING overlay. Opening now.");
+          final number = _pendingOverlayNumber;
+          final duration = _pendingOverlayDuration;
+          final sessionId = _pendingOverlaySessionId;
+          _isOverlayPending = false;
+          _openOverlay(number: number, duration: duration, callSessionId: sessionId);
+      }
+
       handleDialerClosed();
     }
   }
@@ -433,6 +444,13 @@ class PhoneStatusService extends GetxService with WidgetsBindingObserver {
       return;
     }
 
+    // ✅ CRITICAL: Do NOT open UI if app is not in foreground (resumed)
+    if (WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed) {
+      print("⏭️ [UI] App is in background. Skipping automatic CallFormPage launch.");
+      return;
+    }
+
+
     // Brief delay so the native phone dialer surfaces first
     await Future.delayed(const Duration(milliseconds: 500));
 
@@ -494,6 +512,18 @@ class PhoneStatusService extends GetxService with WidgetsBindingObserver {
       _resetToIdle();
       return;
     }
+
+    // ✅ CRITICAL: Do NOT open UI if app is not in foreground (resumed)
+    // Instead, mark as pending so it shows when the user manually opens the app.
+    if (WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed) {
+      print("⏭️ [UI] App is in background. Marking overlay as PENDING for manual resume.");
+      _isOverlayPending = true;
+      _pendingOverlayNumber = number;
+      _pendingOverlayDuration = duration;
+      _pendingOverlaySessionId = callSessionId;
+      return;
+    }
+
 
     // ── Step 1: Ensure any residual dialogs are closed ────────────────────
     if (Get.isRegistered<CallFormController>()) {
