@@ -28,7 +28,6 @@ class MainActivity : FlutterActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
-        applyLockScreenFlags()
 
         // Safety net for modern Android: Isolate WebView data directories
         // if the app starts in multiple processes (common for background services).
@@ -42,39 +41,14 @@ class MainActivity : FlutterActivity() {
 
     override fun onResume() {
         super.onResume()
-        applyLockScreenFlags()
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        applyLockScreenFlags()
     }
 
-    private fun applyLockScreenFlags() {
-        // ✅ Apply lock screen flags so the app can show/resume over lock screen
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-            setShowWhenLocked(true)
-            setTurnScreenOn(true)
-            try {
-                val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    keyguardManager.requestDismissKeyguard(this, null)
-                }
-            } catch (e: Exception) {
-                Log.e("MainActivity", "Failed to dismiss keyguard: ${e.message}")
-            }
-        } else {
-            @Suppress("DEPRECATION")
-            window.addFlags(
-                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-                        WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or
-                        WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD or
-                        WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-            )
-        }
-        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-    }
+
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)

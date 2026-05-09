@@ -84,19 +84,8 @@ class CallActivity : Activity() {
 
         Log.d("CallActivity", "handleIntent - wakeOnly: $wakeOnly, isLocked: $isLocked, slotIndex: $selectedSlotIndex")
 
-        // ✅ 1. Apply lock screen flags immediately so any UI (Dialer/Activity) can show over lock screen
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-            setShowWhenLocked(true)
-            setTurnScreenOn(true)
-        } else {
-            @Suppress("DEPRECATION")
-            window.addFlags(
-                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-                        WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or
-                        WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD or
-                        WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-            )
-        }
+        // Lock screen flags removed as per user request to keep process background/silent.
+
 
         // ✅ 2. Handle wake-only request
         if (wakeOnly) {

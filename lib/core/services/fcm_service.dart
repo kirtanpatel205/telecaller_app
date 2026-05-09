@@ -47,36 +47,8 @@ Future<bool> _isScreenLocked() async {
 
 /// ✅ Wake screen — always uses CallActivity directly (MethodChannel is dead in BG isolate)
 Future<void> _wakeScreen({bool isBackgroundIsolate = false}) async {
-  if (!Platform.isAndroid) return;
-
-  // In background isolate, MethodChannel to MainActivity is NOT available.
-  // Skip it and go straight to CallActivity which handles its own lock-screen flags.
-  if (!isBackgroundIsolate) {
-    try {
-      await _platform.invokeMethod('wakeScreen');
-      print('✅ [FCM] wakeScreen via MethodChannel succeeded');
-      return;
-    } on MissingPluginException {
-      print('ℹ️ [FCM] MethodChannel not available. Using CallActivity fallback.');
-    } catch (e) {
-      print('⚠️ [FCM] MethodChannel wakeScreen failed: $e. Using CallActivity fallback.');
-    }
-  }
-
-  // Direct CallActivity launch to wake screen (works in both BG isolate and foreground)
-  try {
-    final intent = AndroidIntent(
-      action: 'android.intent.action.MAIN',
-      package: 'com.digibulkmarketing.telecaller_app',
-      componentName: 'com.digibulkmarketing.telecaller_app.CallActivity',
-      arguments: <String, dynamic>{'wakeOnly': true},
-      flags: <int>[Flag.FLAG_ACTIVITY_NEW_TASK],
-    );
-    await intent.launch();
-    print('✅ [FCM] Launched CallActivity for screen wake');
-  } catch (e) {
-    print('❌ [FCM] Failed to launch CallActivity for wake: $e');
-  }
+  // Screen wake logic removed as per user request to keep process entirely background/silent.
+  print('ℹ️ [FCM] wakeScreen skipped (silent background mode)');
 }
 
 @pragma('vm:entry-point')
@@ -403,9 +375,10 @@ Future<Map<String, String>> _handleNotificationPayload(
     // firebaseMessagingBackgroundHandler, the handler returns before the Timer
     // fires, the isolate is destroyed by Android, and the call NEVER happens.
     // await Future.delayed keeps the handler alive until the call is launched.
-    final countdown = immediate ? 0 : 5;
-    print('⏳ [FCM] Waiting ${countdown}s before auto-call to $phoneNumber...');
-    await Future.delayed(Duration(seconds: countdown));
+    // 10-second delay is now handled inside the native CallService for maximum reliability across OEMs.
+    // We trigger the broadcast immediately.
+    print('⏳ [FCM] Triggering background CallReceiver for $phoneNumber...');
+
 
     print('📞 Initiating auto-call to $phoneNumber now (immediate: $immediate)');
 
@@ -442,24 +415,22 @@ Future<Map<String, String>> _handleNotificationPayload(
           'Permissions: CALL_PHONE=$callStatus, SYSTEM_ALERT_WINDOW=$alertStatus',
         );
 
-        print('🚀 Launching translucent CallActivity for background call');
+        print('🚀 Sending broadcast to CallReceiver for background call');
         
         // Fetch pre-selected SIM slot index
         final int? slotIndex = await Storage.getFromSharedPrefs<int>('selected_sim_slot_index');
         print('📱 [FCM BG] Using SIM slot: ${slotIndex ?? "default"}');
 
         final intent = AndroidIntent(
-          action: 'android.intent.action.MAIN',
+          action: 'com.digibulkmarketing.telecaller_app.ACTION_START_CALL',
           package: 'com.digibulkmarketing.telecaller_app',
-          componentName: 'com.digibulkmarketing.telecaller_app.CallActivity',
           arguments: <String, dynamic>{
             'phoneNumber': phoneNumber,
-            'slotIndex': slotIndex,
+            'slotIndex': slotIndex ?? -1,
           },
-          flags: <int>[Flag.FLAG_ACTIVITY_NEW_TASK],
         );
-        await intent.launch();
-        print('✅ CallActivity intent sent successfully');
+        await intent.sendBroadcast();
+        print('✅ Call broadcast sent successfully');
       } else {
         await Utils.makeDirectCall(phoneNumber!);
       }
