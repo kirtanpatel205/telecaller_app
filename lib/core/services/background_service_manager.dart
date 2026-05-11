@@ -25,6 +25,7 @@ import 'dart:isolate';
 import 'package:call_log/call_log.dart';
 import 'package:telecaller_app/core/services/api_service.dart';
 import 'package:workmanager/workmanager.dart';
+import 'package:telecaller_app/core/helpers/utils.dart';
 import 'package:sim_card_code/sim_card_code.dart';
 
 @pragma('vm:entry-point')
@@ -184,7 +185,7 @@ class BackgroundServiceManager {
           'slotIndex': sim.slotIndex,
           'displayName': sim.displayName,
           'carrierName': sim.carrierName,
-          'number': sim.phoneNumber,
+          'number': Utils.normalizePhoneNumber(sim.phoneNumber ?? ""),
           'subscriptionId': sim.subscriptionId,
 
         }).toList();
@@ -444,7 +445,7 @@ void onStart(ServiceInstance service) async {
         }
         if (event['phoneNumber'] != null) {
           // New: Explicitly track the number we are supposed to call
-          phoneStatusService.targetPhoneNumber.value = event['phoneNumber'];
+          phoneStatusService.targetPhoneNumber.value = Utils.normalizePhoneNumber(event['phoneNumber']);
           print(
             "✅ Background targetPhoneNumber updated: ${event['phoneNumber']}",
           );
@@ -721,7 +722,7 @@ Future<void> _syncCallLogs() async {
         "callType":  _mapCallType(entry.callType),
         "name":      _safeStr(entry.name,   fallback: "Unknown"),
         "duration":  entry.duration ?? 0,
-        "phone":     _safeStr(entry.number, fallback: ""),
+        "phone":     Utils.normalizePhoneNumber(_safeStr(entry.number, fallback: "")),
         "timeStamp": DateTime.fromMillisecondsSinceEpoch(entry.timestamp!)
             .toIso8601String(),
         "simNumber": targetFp.displayNumber,
@@ -919,7 +920,9 @@ String _resolveDisplayNumber({
   required int     slotIndex,
 }) {
   final label = "SIM${slotIndex + 1}";
-  if (number != null && number.isNotEmpty) return number;
+  if (number != null && number.isNotEmpty) {
+    return Utils.normalizePhoneNumber(number);
+  }
   if (carrier.isNotEmpty && display.isNotEmpty && carrier != display) {
     return "$label ($carrier / $display)";
   }

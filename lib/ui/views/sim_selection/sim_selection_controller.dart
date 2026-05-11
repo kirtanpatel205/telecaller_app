@@ -105,13 +105,8 @@ class SimSelectionController extends GetxController {
     print("📲 [SimSelection] Sending OTP for: $number");
     isSendingOtp.value = true;
     try {
-      // Normalize number if needed (e.g., add +91 if missing and 10 digits)
-      String normalized = number.trim();
-      if (!normalized.startsWith('+')) {
-        if (normalized.length == 10) {
-          normalized = "+91$normalized";
-        }
-      }
+      // Normalize number using central utility
+      String normalized = Utils.normalizePhoneNumber(number);
 
       print("📲 [SimSelection] Normalized number: $normalized");
       

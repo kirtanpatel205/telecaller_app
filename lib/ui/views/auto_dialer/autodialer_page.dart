@@ -16,6 +16,7 @@ import 'package:telecaller_app/ui/widgets/app_safe_area.dart';
 import 'package:telecaller_app/ui/views/home/overlay/overlay_pages.dart';
 import 'package:intl/intl.dart';
 import 'package:telecaller_app/constants/app_routes.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 // Note: flutter_pagewise is still needed for the contacts PagewiseSliverList
 
@@ -39,7 +40,9 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                 displacement: 40,
                 color: AppColors.themeColor.primaryColor,
                 child: CustomScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
+                  physics: controller.selectedLeadDataset.value == null
+                      ? const NeverScrollableScrollPhysics()
+                      : const AlwaysScrollableScrollPhysics(),
                   slivers: [
                     // 1. Pinned App Bar
                     SliverCustomAppBar(
@@ -132,8 +135,17 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                               ),
                     ),
 
-                    // Bottom padding for the sticky control center
-                    SliverToBoxAdapter(child: SizedBox(height: 120.h)),
+                    // Bottom padding for the sticky control center (only when lead is selected)
+                    Obx(
+                      () =>
+                          controller.selectedLeadDataset.value != null
+                              ? SliverToBoxAdapter(
+                                child: SizedBox(height: 120.h),
+                              )
+                              : const SliverToBoxAdapter(
+                                child: SizedBox.shrink(),
+                              ),
+                    ),
                   ],
                 ),
               ),
@@ -777,6 +789,8 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                                         ],
                                       ),
                                     ),
+
+                                    SizedBox(width: 8.w),
                                     _buildStatusBadge(status),
                                   ],
                                 ),
@@ -819,7 +833,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                                                     ),
                                                   ),
                                                   _buildActionButton(
-                                                    icon: Icons.share_rounded,
+                                                    icon: null,
                                                     label: "WhatsApp",
                                                     onTap:
                                                         () => controller
@@ -831,6 +845,8 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                                                     color: const Color(
                                                       0xFF25D366,
                                                     ),
+                                                    isSvg: true,
+                                                    svgPath: 'assets/images/whatsapp-svgrepo-com.svg',
                                                   ),
                                                   _buildActionButton(
                                                     icon: Icons.message_rounded,
@@ -935,6 +951,9 @@ class AutoDialerPage extends GetView<AutoDialerController> {
       final status = controller.status.value;
       final isIdle = status == 'idle';
 
+      // ✅ Hide sticky bar when call ends and overlay is shown (settled state)
+      if (status == 'settled') return const SizedBox.shrink();
+
       return Container(
         margin: EdgeInsets.all(isIdle ? 0 : 16.w),
         decoration: BoxDecoration(
@@ -1004,7 +1023,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
     final status = controller.status.value;
     final isPaused = status == 'paused';
     final isDialing = status == 'dialing';
-    final isCountdown = status == 'counting_down';
+    final isCountdown = status == 'counting_down' || status == 'settled';
     final current = controller.currentContact.value;
 
     return Container(
@@ -1416,10 +1435,12 @@ class AutoDialerPage extends GetView<AutoDialerController> {
   }
 
   Widget _buildActionButton({
-    required IconData icon,
+    IconData? icon,
     required String label,
     required VoidCallback? onTap,
     Color? color,
+    bool isSvg = false,
+    String? svgPath,
   }) {
     final bool isDisabled = onTap == null;
     return InkWell(
@@ -1450,14 +1471,21 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                   width: 1.w,
                 ),
               ),
-              child: Icon(
-                icon,
-                color:
-                    isDisabled
-                        ? Colors.grey
-                        : (color ?? AppColors.themeColor.primaryColor),
-                size: 18.sp,
-              ),
+              child: isSvg && svgPath != null
+                  ? SvgPicture.asset(
+                      svgPath,
+                      width: 18.sp,
+                      height: 18.sp,
+                      // Note: We don't use color here to keep the WhatsApp logo's original colors
+                    )
+                  : Icon(
+                      icon,
+                      color:
+                          isDisabled
+                              ? Colors.grey
+                              : (color ?? AppColors.themeColor.primaryColor),
+                      size: 18.sp,
+                    ),
             ),
             SizedBox(height: 6.h),
             Text(

@@ -463,6 +463,7 @@ class AutoDialerController extends GetxController {
                 'leadContactId': l.id ?? '', // Specific contact record ID
                 'name': l.contact?.name ?? 'Unknown',
                 'number': l.contact?.phone ?? '',
+                'source': selectedContactStatus.value, // Added source track
               },
             )
             .toList();

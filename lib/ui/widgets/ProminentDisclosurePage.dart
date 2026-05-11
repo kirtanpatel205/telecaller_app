@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:telecaller_app/core/helpers/storage.dart';
 import 'package:telecaller_app/core/services/background_service_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
-
 import '../../constants/app_routes.dart';
 import 'package:telecaller_app/ui/widgets/app_safe_area.dart';
 import 'custom-appbar.dart';

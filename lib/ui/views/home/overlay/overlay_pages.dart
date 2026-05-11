@@ -8,6 +8,7 @@ import 'package:telecaller_app/constants/app_dimens.dart';
 import 'package:telecaller_app/constants/app_text_style.dart';
 import 'package:telecaller_app/core/controllers/overlay_controller.dart';
 import 'package:telecaller_app/ui/widgets/custom_dropdown_call.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class OverlayPages extends StatelessWidget {
   final OverlayController controller = Get.find<OverlayController>();
@@ -189,13 +190,24 @@ class OverlayPages extends StatelessWidget {
                   Icons.phone_android_rounded,
                   "number".tr,
                   Obx(
-                    () => Text(
-                      controller.lastCalledNumber.value,
-                      style: AppTextStyle.bold7.copyWith(
-                        fontWeight: FontWeight.w700,
-                        fontSize: AppDimens.fontSize14,
-                        color: AppColors.themeColor.textPrimaryColor,
-                      ),
+                    () => Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            controller.lastCalledNumber.value,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: AppTextStyle.bold7.copyWith(
+                              fontWeight: FontWeight.w700,
+                              fontSize: AppDimens.fontSize12,
+                              color: AppColors.themeColor.textPrimaryColor,
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 6.w),
+
+                  ]
                     ),
                   ),
                 ),
@@ -290,14 +302,28 @@ class OverlayPages extends StatelessWidget {
 
           // ── NEXT CALL BUTTON ────────────────────────────
           Obx(() {
-            final isLastCall = controller.nextLead == null;
+            final isLastCall =
+                controller.currentQueueIndex.value >=
+                controller.callQueue.length - 1;
+            final source = controller.currentLeadSource.toLowerCase();
+            final isPending = source == 'pending';
+            final isCompleted = source == 'completed';
 
             String buttonLabel = "call_next".tr;
-            if (isLastCall) {
-              buttonLabel = "submit".tr;
-            } else if (controller.isAutoCallMode.value &&
-                controller.countdown.value > 0) {
+
+            if (isPending &&
+                controller.isAutoCallMode.value &&
+                controller.countdown.value > 0 &&
+                controller.callDropdownValue.value.isEmpty &&
+                !controller.isPreCallMode.value) {
+              // ✅ Pending leads show countdown
               buttonLabel = "${"next_in".tr} ${controller.countdown.value}s";
+            } else if (isLastCall && !isPending && !isCompleted) {
+              // ✅ Other sources show submit on last call
+              buttonLabel = "submit".tr;
+            } else {
+              // ✅ Completed leads or last pending leads show "Call Next"
+              buttonLabel = "call_next".tr;
             }
 
             return Column(

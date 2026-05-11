@@ -11,6 +11,7 @@ import 'package:telecaller_app/core/controllers/socket_controller.dart';
 import 'package:telecaller_app/core/models/call_lead_update_response_entity.dart';
 import 'package:telecaller_app/core/services/api_service.dart';
 import 'package:telecaller_app/core/services/phone_status_service.dart';
+import 'package:telecaller_app/ui/views/auto_dialer/autodialer_controller.dart';
 
 class OverlayController extends GetxController {
   static const _channel = MethodChannel('com.digibulkmarketing.telecaller_app/lockscreen');
@@ -40,6 +41,8 @@ class OverlayController extends GetxController {
     return callQueue[currentQueueIndex.value];
   }
 
+  String get currentLeadSource => nextLead?['source'] ?? "";
+
   // Current lead info for API update
   String currentLeadId = "";
   String currentLeadContactId = "";
@@ -65,8 +68,10 @@ class OverlayController extends GetxController {
 
   void onDropdownChange(String value) {
     callDropdownValue.value = value;
-    stopCountdown(); // Stop timer completely when a selection is made
-    print("🛑 Timer stopped due to selection: $value");
+    // When a disposition is selected, we stop/pause the countdown 
+    // so the user can review before manually tapping next.
+    pauseCountdown(); 
+    print("🎯 Dropdown selection: $value. Countdown stopped.");
   }
 
   final rescheduleDate = "".obs;
@@ -111,13 +116,17 @@ class OverlayController extends GetxController {
     }
 
     // ✅ Auto mode ma j countdown shuru thay
-    if (!isAutoCallMode.value) return;
+    if (!isAutoCallMode.value) {
+      print("ℹ️ startCountdown: Not in auto mode, skipping timer.");
+      return;
+    }
 
     _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (isPaused.value) return; // Wait if paused
 
       if (countdown.value > 0) {
         countdown.value--;
+        countdown.refresh(); // Ensure UI updates
       } else {
         timer.cancel();
         if (_isPreCallInternal) {
@@ -220,14 +229,28 @@ class OverlayController extends GetxController {
       print("🎯 Resolve: Used Number lookup fallback");
     }
 
+    // ✅ Sync auto-mode status from AutoDialerController if it's currently false
+    if (!isAutoCallMode.value) {
+      try {
+        // We look for any controller that might be the AutoDialerController
+        if (Get.isRegistered<AutoDialerController>()) {
+          final ad = Get.find<AutoDialerController>();
+          if (ad.status.value != 'idle') isAutoCallMode.value = true;
+        }
+      } catch (e) {
+        print("ℹ️ AutoDialerController not found or not active: $e");
+      }
+    }
+
     print(
-      "✅ onCallEnded: number=$calledNumber | name=${lastCalledName.value} | id=$currentLeadId",
+      "✅ onCallEnded: number=$calledNumber | name=${lastCalledName.value} | auto=${isAutoCallMode.value}",
     );
 
     // After call ends, overlay shows up.
-    // If the call was zero duration (likely failed/cancelled), pause the dialer.
-    if (duration.inSeconds == 0 && isAutoCallMode.value) {
-      print("⚠️ Call failed (zero duration). Pausing autodialer.");
+    // Start the 10s post-call countdown immediately only for Pending leads.
+    if (currentLeadSource.toLowerCase() == 'completed') {
+      print("ℹ️ onCallEnded: Lead from Completed list. Pausing auto-countdown.");
+      countdown.value = 10;
       pauseCountdown();
     } else {
       startCountdown(seconds: 10, isPreCall: false);
@@ -293,8 +316,9 @@ class OverlayController extends GetxController {
     // Move to next index
     currentQueueIndex.value++;
 
-    // Close overlay first
-    if (Get.isOverlaysOpen) {
+    // Close overlay/dialogs before starting pre-call timer
+    while (Get.isDialogOpen == true || Get.isOverlaysOpen) {
+      print("🚪 Closing overlay before next call...");
       Get.back();
     }
 
@@ -379,6 +403,21 @@ class OverlayController extends GetxController {
         makeDirectCall(number);
       });
     }
+  }
+
+  // ─────────────────────────────────────────────
+  // WHATSAPP
+  // ─────────────────────────────────────────────
+  Future<void> launchWhatsApp() async {
+    final number = lastCalledNumber.value;
+    if (number.isEmpty) return;
+    
+    // Normalize number for WhatsApp (remove +, spaces, etc)
+    final cleanNumber = number.replaceAll(RegExp(r'\D'), '');
+    final url = "https://wa.me/$cleanNumber";
+    
+    print("💬 Opening WhatsApp for: $cleanNumber");
+    await Utils.launchURL(url);
   }
 
   // ─────────────────────────────────────────────

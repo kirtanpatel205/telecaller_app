@@ -11,6 +11,7 @@ import 'package:telecaller_app/core/helpers/storage.dart';
 import 'package:telecaller_app/ui/views/call_form/call_form_page.dart';
 import 'package:telecaller_app/ui/views/home/overlay/overlay_pages.dart';
 import 'package:telecaller_app/core/models/all_lead_entity.dart';
+import 'package:telecaller_app/core/helpers/utils.dart';
 import 'dart:io';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -28,7 +29,8 @@ class PhoneStatusService extends GetxService with WidgetsBindingObserver {
   // ── Reactive state (for external observers) ───────────────────────────────
   var callStatus = "Idle".obs;
   var phoneNumber = "".obs;
-  var targetPhoneNumber = "".obs; // New: Specific number the app is currently calling
+  var targetPhoneNumber =
+      "".obs; // New: Specific number the app is currently calling
   var isCallActive = false.obs;
 
   // ── Background flag ───────────────────────────────────────────────────────
@@ -93,18 +95,24 @@ class PhoneStatusService extends GetxService with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (_isBackground) return;
-    
+
     if (state == AppLifecycleState.resumed) {
-      print("📱 [LIFECYCLE] App resumed. Checking for pending UI or dialer state...");
-      
+      print(
+        "📱 [LIFECYCLE] App resumed. Checking for pending UI or dialer state...",
+      );
+
       // 1. Handle pending overlay from background call
       if (_isOverlayPending) {
-          print("🔔 [LIFECYCLE] App resumed with PENDING overlay. Opening now.");
-          final number = _pendingOverlayNumber;
-          final duration = _pendingOverlayDuration;
-          final sessionId = _pendingOverlaySessionId;
-          _isOverlayPending = false;
-          _openOverlay(number: number, duration: duration, callSessionId: sessionId);
+        print("🔔 [LIFECYCLE] App resumed with PENDING overlay. Opening now.");
+        final number = _pendingOverlayNumber;
+        final duration = _pendingOverlayDuration;
+        final sessionId = _pendingOverlaySessionId;
+        _isOverlayPending = false;
+        _openOverlay(
+          number: number,
+          duration: duration,
+          callSessionId: sessionId,
+        );
       }
 
       handleDialerClosed();
@@ -131,16 +139,22 @@ class PhoneStatusService extends GetxService with WidgetsBindingObserver {
   // ─────────────────────────────────────────────────────────────────────────
 
   void handleDialerClosed() async {
-    print("🏥 [WATCHDOG] Dialer closed event received. Checking if call started...");
-    
+    print(
+      "🏥 [WATCHDOG] Dialer closed event received. Checking if call started...",
+    );
+
     // Give it a tiny moment for any late OFFHOOK events to arrive from the system
     await Future.delayed(const Duration(milliseconds: 600));
-    
+
     if (_uiState == _CallUIState.idle && targetPhoneNumber.value.isNotEmpty) {
-      print("🚫 [WATCHDOG] Dialer closed without OFFHOOK. Emitting call-failed.");
+      print(
+        "🚫 [WATCHDOG] Dialer closed without OFFHOOK. Emitting call-failed.",
+      );
       _handleCallEnded(null); // This will trigger the cancellation/failed logic
     } else {
-      print("✅ [WATCHDOG] Call already started or no active dial intent. Ignoring dialer closed.");
+      print(
+        "✅ [WATCHDOG] Call already started or no active dial intent. Ignoring dialer closed.",
+      );
     }
   }
 
@@ -165,7 +179,7 @@ class PhoneStatusService extends GetxService with WidgetsBindingObserver {
         case PhoneStateStatus.CALL_INCOMING:
           callStatus.value = "Incoming";
           if (state.number != null && state.number!.isNotEmpty) {
-            phoneNumber.value = state.number!;
+            phoneNumber.value = Utils.normalizePhoneNumber(state.number!);
           }
           break;
 
@@ -194,8 +208,10 @@ class PhoneStatusService extends GetxService with WidgetsBindingObserver {
     // to allow rapid START -> END transitions
     _lastEventTimestamp = now;
 
-    print("📡 [NATIVE] state=$state | number=$number | target=${targetPhoneNumber.value}");
-    
+    print(
+      "📡 [NATIVE] state=$state | number=$number | target=${targetPhoneNumber.value}",
+    );
+
     // Safety: if we get a native state change, ensure we are ready to process it
     if (state != null) {
       callStatus.value = state;
@@ -205,7 +221,7 @@ class PhoneStatusService extends GetxService with WidgetsBindingObserver {
       case "RINGING":
         callStatus.value = "Incoming";
         if (number != null && number.isNotEmpty) {
-          phoneNumber.value = number;
+          phoneNumber.value = Utils.normalizePhoneNumber(number);
         }
         break;
 
@@ -237,18 +253,21 @@ class PhoneStatusService extends GetxService with WidgetsBindingObserver {
       _isCallConfirmed = false;
 
       if (number != null && number.isNotEmpty) {
-        phoneNumber.value = number;
+        phoneNumber.value = Utils.normalizePhoneNumber(number);
       }
 
-      // 🚨 SESSION ID GENERATION: 
-      // Generate and persist immediately so it's available for call-failed 
+      // 🚨 SESSION ID GENERATION:
+      // Generate and persist immediately so it's available for call-failed
       // if the call ends before the 2s confirmation threshold.
-      _currentCallSessionId = _externalCallSessionId ?? 
-                             DateTime.now().millisecondsSinceEpoch.toString();
+      _currentCallSessionId =
+          _externalCallSessionId ??
+          DateTime.now().millisecondsSinceEpoch.toString();
       _externalCallSessionId = null;
       await Storage.saveActiveSessionId(_currentCallSessionId!);
 
-      print("⏳ CALL_STARTED detected (Debouncing 2s): ${phoneNumber.value} | Session: $_currentCallSessionId");
+      print(
+        "⏳ CALL_STARTED detected (Debouncing 2s): ${phoneNumber.value} | Session: $_currentCallSessionId",
+      );
 
       // Start debounce timer to filter out SIM selection cancels
       _debounceTimer?.cancel();
@@ -283,10 +302,9 @@ class PhoneStatusService extends GetxService with WidgetsBindingObserver {
 
       final Iterable<CallLogEntry> entries = await CallLog.query(
         dateFrom:
-        DateTime
-            .now()
-            .subtract(const Duration(minutes: 5))
-            .millisecondsSinceEpoch,
+            DateTime.now()
+                .subtract(const Duration(minutes: 5))
+                .millisecondsSinceEpoch,
       );
 
       // સૌથી recent matching entry શોધો
@@ -294,10 +312,10 @@ class PhoneStatusService extends GetxService with WidgetsBindingObserver {
         final logNumber = entry.number ?? "";
         // number ના last 10 digits compare કરો
         if (logNumber.endsWith(
-          number.length > 10
-              ? number.substring(number.length - 10)
-              : number,
-        ) ||
+              number.length > 10
+                  ? number.substring(number.length - 10)
+                  : number,
+            ) ||
             number.endsWith(
               logNumber.length > 10
                   ? logNumber.substring(logNumber.length - 10)
@@ -305,8 +323,7 @@ class PhoneStatusService extends GetxService with WidgetsBindingObserver {
             )) {
           final seconds = entry.duration ?? 0;
           print(
-            "📋 CallLog found: number=$logNumber | duration=${seconds}s | type=${entry
-                .callType}",
+            "📋 CallLog found: number=$logNumber | duration=${seconds}s | type=${entry.callType}",
           );
           return Duration(seconds: seconds);
         }
@@ -333,8 +350,12 @@ class PhoneStatusService extends GetxService with WidgetsBindingObserver {
     // OR if we were expecting a call (targetPhoneNumber is set)
     final savedSessionId = await Storage.getActiveSessionId();
 
-    if (_uiState == _CallUIState.idle && savedSessionId == null && targetPhoneNumber.value.isEmpty) {
-      print("⚠️ CALL_ENDED ignored — no active call, no saved session, and no target number");
+    if (_uiState == _CallUIState.idle &&
+        savedSessionId == null &&
+        targetPhoneNumber.value.isEmpty) {
+      print(
+        "⚠️ CALL_ENDED ignored — no active call, no saved session, and no target number",
+      );
       return;
     }
 
@@ -347,16 +368,24 @@ class PhoneStatusService extends GetxService with WidgetsBindingObserver {
     try {
       // 🚨 Dual SIM Cancellation Check
       if (!_isCallConfirmed) {
-        print("🚫 CALL_CANCELLED: Detected IDLE before 2s threshold (SIM selection cancel or failed dial)");
-        print("🔍 Debug State: uiState=$_uiState | target=${targetPhoneNumber.value} | confirmed=$_isCallConfirmed");
-        
-        final sessionId = _currentCallSessionId ?? 
-                         _externalCallSessionId ?? 
-                         DateTime.now().millisecondsSinceEpoch.toString();
-        
-        final endedNumber = targetPhoneNumber.value.isNotEmpty
-            ? targetPhoneNumber.value
-            : ((number != null && number.isNotEmpty) ? number : phoneNumber.value);
+        print(
+          "🚫 CALL_CANCELLED: Detected IDLE before 2s threshold (SIM selection cancel or failed dial)",
+        );
+        print(
+          "🔍 Debug State: uiState=$_uiState | target=${targetPhoneNumber.value} | confirmed=$_isCallConfirmed",
+        );
+
+        final sessionId =
+            _currentCallSessionId ??
+            _externalCallSessionId ??
+            DateTime.now().millisecondsSinceEpoch.toString();
+
+        final endedNumber =
+            targetPhoneNumber.value.isNotEmpty
+                ? targetPhoneNumber.value
+                : ((number != null && number.isNotEmpty)
+                    ? number
+                    : phoneNumber.value);
 
         await _emitCallFailed(
           sessionId: sessionId,
@@ -374,9 +403,12 @@ class PhoneStatusService extends GetxService with WidgetsBindingObserver {
       // ── Capture data ───────────────────────────────────────────────────────
       // Prioritize targetPhoneNumber (the one we intended to call) over
       // the dynamic phoneNumber which might have been overwritten by an incoming call.
-      final endedNumber = targetPhoneNumber.value.isNotEmpty
-          ? targetPhoneNumber.value
-          : ((number != null && number.isNotEmpty) ? number : phoneNumber.value);
+      final endedNumber =
+          targetPhoneNumber.value.isNotEmpty
+              ? targetPhoneNumber.value
+              : ((number != null && number.isNotEmpty)
+                  ? number
+                  : phoneNumber.value);
 
       // 🚨 RACE PROTECTION: Update state immediately before any async await
       // to block concurrent events from entering this block.
@@ -399,8 +431,7 @@ class PhoneStatusService extends GetxService with WidgetsBindingObserver {
       await Storage.clearActiveSessionId(); // Done with this session
 
       print(
-        "📴 CALL_ENDED: number=$endedNumber | duration=${callDuration
-            .inSeconds}s | Lead: $currentLeadId | session=$sessionId",
+        "📴 CALL_ENDED: number=$endedNumber | duration=${callDuration.inSeconds}s | Lead: $currentLeadId | session=$sessionId",
       );
 
       await _emitCallEnd(sessionId, callDuration, currentLeadId ?? "");
@@ -408,8 +439,7 @@ class PhoneStatusService extends GetxService with WidgetsBindingObserver {
       if (!_isBackground) {
         final isFormShowing = _isFormShowing();
         print(
-          "🔍 Overlay check: Get.isDialogOpen=${Get
-              .isDialogOpen}, isFormShowing=$isFormShowing",
+          "🔍 Overlay check: Get.isDialogOpen=${Get.isDialogOpen}, isFormShowing=$isFormShowing",
         );
 
         if (isFormShowing) {
@@ -446,10 +476,11 @@ class PhoneStatusService extends GetxService with WidgetsBindingObserver {
 
     // ✅ CRITICAL: Do NOT open UI if app is not in foreground (resumed)
     if (WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed) {
-      print("⏭️ [UI] App is in background. Skipping automatic CallFormPage launch.");
+      print(
+        "⏭️ [UI] App is in background. Skipping automatic CallFormPage launch.",
+      );
       return;
     }
-
 
     // Brief delay so the native phone dialer surfaces first
     await Future.delayed(const Duration(milliseconds: 500));
@@ -516,7 +547,9 @@ class PhoneStatusService extends GetxService with WidgetsBindingObserver {
     // ✅ CRITICAL: Do NOT open UI if app is not in foreground (resumed)
     // Instead, mark as pending so it shows when the user manually opens the app.
     if (WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed) {
-      print("⏭️ [UI] App is in background. Marking overlay as PENDING for manual resume.");
+      print(
+        "⏭️ [UI] App is in background. Marking overlay as PENDING for manual resume.",
+      );
       _isOverlayPending = true;
       _pendingOverlayNumber = number;
       _pendingOverlayDuration = duration;
@@ -524,13 +557,9 @@ class PhoneStatusService extends GetxService with WidgetsBindingObserver {
       return;
     }
 
-
     // ── Step 1: Ensure any residual dialogs are closed ────────────────────
     if (Get.isRegistered<CallFormController>()) {
-      Get
-          .find<CallFormController>()
-          .canClose
-          .value = true;
+      Get.find<CallFormController>().canClose.value = true;
     }
 
     // Safety check: sometimes dialogs linger in GetX
@@ -604,10 +633,7 @@ class PhoneStatusService extends GetxService with WidgetsBindingObserver {
   bool _isFormShowing() {
     if (Get.isDialogOpen == true) return true;
     if (Get.isRegistered<CallFormController>()) {
-      return Get
-          .find<CallFormController>()
-          .isFormVisible
-          .value;
+      return Get.find<CallFormController>().isFormVisible.value;
     }
     return false;
   }
@@ -620,17 +646,20 @@ class PhoneStatusService extends GetxService with WidgetsBindingObserver {
     try {
       if (Get.isRegistered<SocketController>()) {
         final socketCtrl = Get.find<SocketController>();
-        
+
         if (_currentCallSessionId == null) {
-          print("⚠️ _emitCallStart: _currentCallSessionId was null, generating fallback");
-          _currentCallSessionId = DateTime.now().millisecondsSinceEpoch.toString();
+          print(
+            "⚠️ _emitCallStart: _currentCallSessionId was null, generating fallback",
+          );
+          _currentCallSessionId =
+              DateTime.now().millisecondsSinceEpoch.toString();
           await Storage.saveActiveSessionId(_currentCallSessionId!);
         }
 
         await socketCtrl.emitCallStart(
           callSessionId: _currentCallSessionId!,
           leadContactId: currentLeadContactId ?? currentLeadId ?? "",
-          callId: phoneNumber.value,
+          callId: Utils.normalizePhoneNumber(phoneNumber.value),
         );
         print("📤 Socket: call-start emitted | session=$_currentCallSessionId");
       }
@@ -643,9 +672,11 @@ class PhoneStatusService extends GetxService with WidgetsBindingObserver {
   // SOCKET — emit call-end
   // ─────────────────────────────────────────────────────────────────────────
 
-  Future<void> _emitCallEnd(String sessionId,
-      Duration duration,
-      String leadId,) async {
+  Future<void> _emitCallEnd(
+    String sessionId,
+    Duration duration,
+    String leadId,
+  ) async {
     try {
       if (Get.isRegistered<SocketController>()) {
         final socketCtrl = Get.find<SocketController>();
@@ -678,13 +709,15 @@ class PhoneStatusService extends GetxService with WidgetsBindingObserver {
     required String callId,
   }) async {
     try {
-      print("📤 Socket: Emitting call-failed | Session: $sessionId | Lead: $leadContactId | CallId: $callId");
+      print(
+        "📤 Socket: Emitting call-failed | Session: $sessionId | Lead: $leadContactId | CallId: $callId",
+      );
       if (Get.isRegistered<SocketController>()) {
         final socketCtrl = Get.find<SocketController>();
         await socketCtrl.emitCallFailed(
           callSessionId: sessionId,
           leadContactId: leadContactId,
-          callId: callId,
+          callId: Utils.normalizePhoneNumber(callId),
         );
         print("✅ Socket: call-failed emitted successfully");
       }

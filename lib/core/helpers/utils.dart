@@ -163,12 +163,36 @@ class Utils {
     );
   }
 
+  static String normalizePhoneNumber(String number) {
+    String normalized = number.trim().replaceAll(RegExp(r'[\s\-()]+'), '');
+    if (normalized.isEmpty) return normalized;
+
+    // Handle case like 91637... (12 digits starting with 91)
+    if (normalized.startsWith('91') && normalized.length == 12) {
+      return '+$normalized';
+    }
+
+    // Handle 10 digit Indian numbers
+    if (normalized.length == 10 && !normalized.startsWith('+')) {
+      return '+91$normalized';
+    }
+
+    // Ensure it starts with + if it's already a full number but missing the sign
+    if (normalized.length > 10 && !normalized.startsWith('+')) {
+      return '+$normalized';
+    }
+
+    return normalized;
+  }
+
   static const _channel = MethodChannel('com.digibulkmarketing.telecaller_app/lockscreen');
 
   static Future<void> makeDirectCall(String number) async {
     try {
       if (number.isEmpty) return;
-      print("📞 [Utils] Initiating direct call to: $number");
+      
+      final String normalizedNumber = normalizePhoneNumber(number);
+      print("📞 [Utils] Initiating direct call to: $normalizedNumber (Original: $number)");
       
       // 1. Get the user-selected SIM slot index
       final int? slotIndex = await Storage.getFromSharedPrefs<int>('selected_sim_slot_index');
@@ -177,7 +201,7 @@ class Utils {
       // 2. Try native MethodChannel first to specify SIM slot
       try {
         final bool? success = await _channel.invokeMethod('makeDirectCall', {
-          'number': number,
+          'number': normalizedNumber,
           'slotIndex': slotIndex,
         });
         
