@@ -50,14 +50,8 @@ Future<void> main() async {
   } catch (e) {
     logger.e("❌ Local storage error: $e");
   }
-  // ==================== LOAD LANGUAGE JSON ====================
-  String langDataString = await Utils.loadJsonData("assets/lang/lang.json");
-  final List<dynamic> jsonData = json.decode(langDataString);
-  logger.i("✅ Language data loaded");
-
-  // String langDataString = await Utils.loadJsonData("assets/lang/lang.json");
-  // final List<dynamic> jsonData = json.decode(langDataString);
-  logger.i("✅ Language data loaded");
+  // Language data is now handled by LangService in Initializer
+  logger.i("✅ Initializing app services...");
 
 
   // ==================== KEEP SCREEN ON ====================
@@ -70,15 +64,13 @@ Future<void> main() async {
 
   // ==================== SAFE APP START ====================
   Initializer.instance.init(() {
-    runApp(MyApp(jsonData: jsonData));
+    runApp(const MyApp());
   });
 }
 
 // ==================== MAIN APP ====================
 class MyApp extends StatefulWidget {
-  final List<dynamic>? jsonData;
-
-  const MyApp({super.key,this.jsonData});
+  const MyApp({super.key});
 
   @override
   _MyAppState createState() => _MyAppState();
@@ -117,6 +109,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
               debugShowCheckedModeBanner: false,
               theme: theme, // Use theme from ThemeProvider
               locale: Locale(langService.selectedLang.value),
+              fallbackLocale: const Locale('en'),
               darkTheme: AppTheme.darkTheme,
               themeMode: themeService.isDarkMode.value ? ThemeMode.dark : ThemeMode.light,
               initialRoute: AppPages.INITIAL,

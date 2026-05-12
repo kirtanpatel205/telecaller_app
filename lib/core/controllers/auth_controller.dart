@@ -106,19 +106,23 @@ class AuthController extends GetxController {
     }
   }
 
-  Future<void> signOut() async {
-    print("🔴 Signing out...");
+  Future<void> signOut({bool localOnly = false}) async {
+    print("🔴 Signing out (localOnly: $localOnly)...");
     try {
       // 1. Server-side logout (Best effort)
-      try {
-        final apiResponse = await api.sessionLogout();
-        if (apiResponse.status == true) {
-          print("✅ Server logout successful");
-        } else {
-          print("⚠️ Server logout failed: ${apiResponse.message}");
+      if (!localOnly) {
+        try {
+          final apiResponse = await api.sessionLogout();
+          if (apiResponse.status == true) {
+            print("✅ Server logout successful");
+          } else {
+            print("⚠️ Server logout failed: ${apiResponse.message}");
+          }
+        } catch (e) {
+          print("⚠️ Server logout request failed (token might be invalid or network error): $e");
         }
-      } catch (e) {
-        print("⚠️ Server logout request failed (token might be invalid or network error): $e");
+      } else {
+        print("⏭️ Skipping server logout (localOnly)");
       }
 
       // 2. Stop Background Service

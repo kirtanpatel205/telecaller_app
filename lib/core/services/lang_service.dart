@@ -16,7 +16,9 @@ class LangService extends GetxService {
   Future<void> init() async {
     //langs.value = await Utils.langs();
 
-    this.selectedLang.value = Storage.getValue(AppConstants.LANGUAGE) ?? "en";
+    String? savedLang = Storage.getValue(AppConstants.LANGUAGE);
+    this.selectedLang.value = savedLang ?? "en";
+    print("🌍 LangService: Initialized with $selectedLang");
 
     String langString = await Utils.loadJsonData("assets/lang/lang.json");
     String langDataString = await Utils.loadJsonData(
@@ -47,8 +49,10 @@ class LangService extends GetxService {
     //
     // });
 
-    print("langData: " + json.encode(langData));
     Get.addTranslations(convertMap(langData));
+    
+    // Ensure the locale is set to the saved value on initialization
+    Get.updateLocale(Locale(selectedLang.value));
   }
 
   Map<String, Map<String, String>> convertMap(Map<String, dynamic> inputMap) {
@@ -88,9 +92,9 @@ class LangService extends GetxService {
     }
   }
 
-  void onChangeLang(String code) {
-    Get.updateLocale(Locale(code));
-    Storage.saveValue(AppConstants.LANGUAGE, code);
+  Future<void> onChangeLang(String code) async {
+    await Storage.saveValue(AppConstants.LANGUAGE, code);
     this.selectedLang.value = code;
+    Get.updateLocale(Locale(code));
   }
 }

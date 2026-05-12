@@ -43,7 +43,7 @@ class DioClient {
               try {
                 // Check if we are in the main isolate (where AuthController exists)
                 if (Get.isRegistered<AuthController>()) {
-                  await AuthController.to.signOut();
+                  await AuthController.to.signOut(localOnly: true);
                 } else {
                   print(
                     "⚠️ AuthController not found in this isolate (Background Service). Clearing token manually.",

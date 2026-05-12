@@ -9,6 +9,7 @@ import 'package:telecaller_app/constants/app_dimens.dart';
 import 'package:telecaller_app/constants/app_text_style.dart';
 import 'package:telecaller_app/ui/views/otp/otp_controller.dart';
 import 'package:telecaller_app/ui/widgets/app_safe_area.dart';
+import 'package:telecaller_app/ui/widgets/custom-appbar.dart';
 import 'package:telecaller_app/ui/widgets/custom_button.dart';
 
 class OtpPage extends GetView<OtpController> {
@@ -20,45 +21,32 @@ class OtpPage extends GetView<OtpController> {
       top: false,
       child: Scaffold(
         backgroundColor: AppColors.themeColor.bgColor,
-        body: Stack(
-          children: [
-            // Background Gradient
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    AppColors.themeColor.primaryColor.withOpacity(0.05),
-                    AppColors.themeColor.bgColor,
-                    AppColors.themeColor.primaryColor.withOpacity(0.1),
-                  ],
-                ),
-              ),
-            ),
-            
-            // Back Button
-            Positioned(
-              top: 40.h,
-              left: 10.w,
-              child: IconButton(
-                icon: Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.themeColor.textPrimaryColor),
-                onPressed: () => Get.back(),
-              ),
-            ),
-
-            SingleChildScrollView(
-              padding: EdgeInsets.symmetric(horizontal: 24.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: 100.h),
+        appBar: const CustomAppBar(
+          titleText: "OTP Verification",
+          showBackButton: true,
+        ),
+        body: SingleChildScrollView(
+          padding: EdgeInsets.symmetric(horizontal: 24.w),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center, // Center aligned for better design
+            children: [
+                  SizedBox(height: 60.h),
                   
-                  // Top Illustration
-                  Center(
+                  // Top Illustration with subtle shadow
+                  Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.themeColor.primaryColor.withOpacity(0.1),
+                          blurRadius: 40,
+                          spreadRadius: 10,
+                        )
+                      ],
+                    ),
                     child: SvgPicture.asset(
                       'assets/images/otp-banner.svg',
-                      height: 180.h,
+                      height: 160.h,
                       fit: BoxFit.contain,
                     ),
                   ),
@@ -67,8 +55,9 @@ class OtpPage extends GetView<OtpController> {
                   
                   Text(
                     "verification_code".tr,
+                    textAlign: TextAlign.center,
                     style: AppTextStyle.bold7.copyWith(
-                      fontSize: 28.sp,
+                      fontSize: 24.sp,
                       color: AppColors.themeColor.textPrimaryColor,
                       letterSpacing: -0.5,
                     ),
@@ -76,29 +65,33 @@ class OtpPage extends GetView<OtpController> {
                   
                   SizedBox(height: 12.h),
                   
-                  RichText(
-                    text: TextSpan(
-                      style: AppTextStyle.regular7.copyWith(
-                        fontSize: 14.sp,
-                        color: AppColors.themeColor.textSecondaryColor,
-                        height: 1.5,
-                      ),
-                      children: [
-                        TextSpan(text: "we_have_send_the_verification_code_nlon_your_mobile_number".tr.replaceAll("@nl", "\n")),
-                        TextSpan(
-                          text: " ${controller.authController.phoneNumber.value.completeNumber}",
-                          style: AppTextStyle.bold7.copyWith(
-                            color: AppColors.themeColor.primaryColor,
-                            fontSize: 14.sp,
-                          ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10.w),
+                    child: RichText(
+                      textAlign: TextAlign.center,
+                      text: TextSpan(
+                        style: AppTextStyle.regular7.copyWith(
+                          fontSize: 14.sp,
+                          color: AppColors.themeColor.textSecondaryColor,
+                          height: 1.5,
                         ),
-                      ],
+                        children: [
+                          TextSpan(text: "we_have_send_the_verification_code_nlon_your_mobile_number".tr.replaceAll("@nl", "\n")),
+                          TextSpan(
+                            text: " ${controller.authController.phoneNumber.value.completeNumber}",
+                            style: AppTextStyle.bold7.copyWith(
+                              color: AppColors.themeColor.primaryColor,
+                              fontSize: 14.sp,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   
                   SizedBox(height: 40.h),
                   
-                  // OTP Entry Field
+                  // OTP Entry Field with Autofill
                   PinCodeTextField(
                     appContext: context,
                     length: 6,
@@ -106,6 +99,8 @@ class OtpPage extends GetView<OtpController> {
                     keyboardType: TextInputType.number,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     animationType: AnimationType.fade,
+                    autoFocus: true, // Autofill feature: focus automatically
+                    enablePinAutofill: true, // Autofill feature: enable system autofill
                     cursorColor: AppColors.themeColor.primaryColor,
                     textStyle: AppTextStyle.bold7.copyWith(
                       fontSize: 20.sp,
@@ -126,7 +121,7 @@ class OtpPage extends GetView<OtpController> {
                     enableActiveFill: true,
                     boxShadows: [
                       BoxShadow(
-                        offset: Offset(0, 4),
+                        offset: const Offset(0, 4),
                         color: Colors.black.withOpacity(Get.isDarkMode ? 0.2 : 0.05),
                         blurRadius: 10,
                       )
@@ -205,8 +200,6 @@ class OtpPage extends GetView<OtpController> {
                   SizedBox(height: 30.h),
                 ],
               ),
-            ),
-          ],
         ),
       ),
     );

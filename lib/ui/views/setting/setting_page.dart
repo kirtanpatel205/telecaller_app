@@ -23,9 +23,7 @@ class SettingPage extends GetView<HomeController> {
           log("profile refreshed");
         },
         child: CustomScrollView(
-         physics: controller.authController.profile.value == null
-              ? const NeverScrollableScrollPhysics()
-              : const BouncingScrollPhysics(),
+          physics: const NeverScrollableScrollPhysics(),
           slivers: [
             // ─── Profile Header ─────────────────────────────────────────
             SliverToBoxAdapter(

@@ -7,6 +7,7 @@ import 'package:telecaller_app/constants/app_text_style.dart';
 import 'package:telecaller_app/ui/views/sim_selection/sim_selection_controller.dart';
 import 'package:telecaller_app/ui/widgets/app_safe_area.dart';
 import 'package:telecaller_app/ui/widgets/custom_button.dart';
+import 'package:telecaller_app/ui/widgets/custom-appbar.dart';
 
 class SimSelectionPage extends GetView<SimSelectionController> {
   const SimSelectionPage({super.key});
@@ -17,21 +18,10 @@ class SimSelectionPage extends GetView<SimSelectionController> {
       top: false,
       child: Scaffold(
         backgroundColor: AppColors.themeColor.bgColor,
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: AppColors.themeColor.textPrimaryColor),
-            onPressed: () => Get.back(),
-          ),
-          centerTitle: true,
-          title: Text(
-            "Dual SIM Login",
-            style: AppTextStyle.bold7.copyWith(
-              color: AppColors.themeColor.textPrimaryColor,
-              fontSize: 18.sp,
-            ),
-          ),
+        appBar: CustomAppBar(
+          leading: SizedBox(),
+          titleText: "Dual SIM Login",
+          showBackButton: true,
         ),
         body: Column(
           children: [
