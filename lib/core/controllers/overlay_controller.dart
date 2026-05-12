@@ -129,6 +129,14 @@ class OverlayController extends GetxController {
         countdown.refresh(); // Ensure UI updates
       } else {
         timer.cancel();
+        _countdownTimer = null;
+
+        // ✅ SAFETY: Don't proceed if paused, loading, or auto-mode disabled
+        if (isPaused.value || !isAutoCallMode.value || isLoading.value) {
+          print("⚠️ Countdown reached 0 but blocked (paused/loading/not-auto)");
+          return;
+        }
+
         if (_isPreCallInternal) {
           _actuallyDialNext();
         } else {
@@ -277,10 +285,53 @@ class OverlayController extends GetxController {
     }
   }
 
+  /// Called when user clicks "Close" (X) on overlay.
+  /// 1. Updates API for current lead.
+  /// 2. Moves to next lead index.
+  /// 3. STOPS/PAUSES the auto-dialer so user can manually trigger from Sticky Bar.
+  Future<void> onCloseTapped() async {
+    if (isLoading.value) return;
+
+    _countdownTimer?.cancel();
+    _countdownTimer = null;
+
+    // 1. Update API for current lead
+    if (currentLeadId.isNotEmpty) {
+      await updateLeadStatus(
+        leadId: currentLeadId,
+        durationInSeconds: _currentDurationSeconds,
+      );
+    }
+
+    // 2. Check if queue is finished
+    if (currentQueueIndex.value + 1 >= callQueue.length) {
+      _finishQueue();
+      return;
+    }
+
+    // 3. Move to next index but stay PAUSED
+    currentQueueIndex.value++;
+    
+    isPreCallMode.value = true;
+    _isPreCallInternal = true;
+    countdown.value = 0; // Indicates ready to dial
+    isPaused.value = true; 
+    isAutoCallMode.value = true;
+
+    print("⏸️ Close clicked: Moved to next lead and PAUSED for manual start.");
+
+    // 4. Close the overlay dialog safely
+    if (Get.isDialogOpen == true) {
+      Get.back();
+    }
+  }
+
   // ─────────────────────────────────────────────
   // NEXT CALL — User manually taps button
   // ─────────────────────────────────────────────
   Future<void> onNextCallTapped() async {
+    if (isLoading.value) return;
+
     // Resume/Stop the overlay countdown and move to pre-call phase
     _countdownTimer?.cancel();
     _countdownTimer = null;
@@ -330,6 +381,12 @@ class OverlayController extends GetxController {
   }
 
   void _actuallyDialNext() {
+    // ✅ FINAL SAFETY GUARD
+    if (isPaused.value || !isAutoCallMode.value) {
+      print("🚫 _actuallyDialNext blocked: Dialer is paused or inactive.");
+      return;
+    }
+
     final next = callQueue[currentQueueIndex.value];
     final number = next["number"] ?? "";
     print("➡️ Next call: ${next['name']} | $number");

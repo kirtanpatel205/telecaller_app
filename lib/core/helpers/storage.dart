@@ -48,6 +48,12 @@ class Storage {
     }
   }
 
+  static Future<int?> getSelectedSimSlot() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.reload(); // IMPORTANT: Ensure we have latest data
+    return prefs.getInt('selected_sim_slot_index');
+  }
+
   // Specialized Token management for cross-isolate reliability
   static Future<void> saveToken(String token) async {
     await saveValue('auth_token', token); // Still save to GetStorage for UI

@@ -6,6 +6,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:telecaller_app/constants/app_colors.dart';
 import 'package:telecaller_app/core/controllers/overlay_controller.dart';
+import 'package:telecaller_app/core/helpers/storage.dart';
+import 'package:telecaller_app/core/helpers/utils.dart';
 import 'package:telecaller_app/core/models/all_lead_entity.dart';
 import 'package:telecaller_app/core/models/lead_contact_id_entity.dart';
 import 'package:telecaller_app/ui/views/auto_dialer/autodialer_controller.dart';
@@ -1025,6 +1027,16 @@ class AutoDialerPage extends GetView<AutoDialerController> {
     final isDialing = status == 'dialing';
     final isCountdown = status == 'counting_down' || status == 'settled';
     final current = controller.currentContact.value;
+    final overlayCtrl = Get.isRegistered<OverlayController>() ? Get.find<OverlayController>() : null;
+    
+    // Fallback data if currentContact is null (e.g. during list refresh)
+    Map<String, String>? fallbackLead;
+    if (current == null && overlayCtrl != null) {
+      final index = overlayCtrl.currentQueueIndex.value;
+      if (index >= 0 && index < overlayCtrl.callQueue.length) {
+        fallbackLead = overlayCtrl.callQueue[index];
+      }
+    }
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
@@ -1035,11 +1047,11 @@ class AutoDialerPage extends GetView<AutoDialerController> {
               children: [
                 GestureDetector(
                   onTap: () {
-                    if (Get.isRegistered<OverlayController>()) {
-                      final overlayCtrl = Get.find<OverlayController>();
-                      if (overlayCtrl.countdown.value > 0) {
-                        overlayCtrl.countdown.value =
-                            0; // Instantly make the call
+                    if (overlayCtrl != null) {
+                      if (overlayCtrl.isPaused.value) {
+                        overlayCtrl.resumeCountdown();
+                      } else if (overlayCtrl.countdown.value > 0) {
+                        overlayCtrl.countdown.value = 0; // Instantly make the call
                       }
                     }
                   },
@@ -1052,7 +1064,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        current?.contact?.name ?? 'prepare_call'.tr,
+                        current?.contact?.name ?? (fallbackLead?['name'] ?? 'prepare_call'.tr),
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: AppDimens.fontSize14,
@@ -1060,39 +1072,108 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
-                      SizedBox(height: 2.h),
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 6.w,
-                          vertical: 2.h,
-                        ),
-                        decoration: BoxDecoration(
-                          color: (isDialing
-                                  ? Colors.green
-                                  : (isCountdown ? Colors.orange : Colors.grey))
-                              .withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(4.r),
-                        ),
-                        child: Text(
-                          isDialing
-                              ? 'on_call'.tr.toUpperCase()
-                              : (isCountdown
-                                  ? '${'next_dial'.tr} ${controller.countdown.value}s'.toUpperCase()
-                                  : 'paused'.tr.toUpperCase()),
+                      if (current?.contact?.phone != null || fallbackLead?['number'] != null) ...[
+                        SizedBox(height: 1.h),
+                        Text(
+                          current?.contact?.phone ?? (fallbackLead?['number'] ?? ''),
                           style: TextStyle(
-                            fontSize: AppDimens.fontSize9,
-                            color:
-                                isDialing
-                                    ? Colors.green
-                                    : (isCountdown
-                                        ? Colors.orange
-                                        : AppColors
-                                            .themeColor
-                                            .textSecondaryColor),
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 1,
+                            fontSize: AppDimens.fontSize10,
+                            color: AppColors.themeColor.textSecondaryColor,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
+                      ],
+                      SizedBox(height: 6.h),
+                      Wrap(
+                        spacing: 8.w,
+                        runSpacing: 4.h,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          GestureDetector(
+                            onTap: () async {
+                              // Toggle SIM 0 -> 1 -> 0
+                              final int? currentSlot = await Storage.getSelectedSimSlot();
+                              final int newSlot = (currentSlot == 0) ? 1 : 0;
+                              await Storage.saveToSharedPrefs('selected_sim_slot_index', newSlot);
+                              Utils.showToast("Switched to SIM ${newSlot + 1}");
+                              controller.refreshCurrentContact(); // Refresh UI
+                            },
+                            child: FutureBuilder<int?>(
+                              future: Storage.getSelectedSimSlot(),
+                              builder: (context, snapshot) {
+                                final slot = snapshot.data ?? 0;
+                                return Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.themeColor.primaryColor.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(4.r),
+                                    border: Border.all(color: AppColors.themeColor.primaryColor.withOpacity(0.3)),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.sim_card_rounded, size: 10.sp, color: AppColors.themeColor.primaryColor),
+                                      SizedBox(width: 3.w),
+                                      Text(
+                                        "SIM ${slot + 1}",
+                                        style: TextStyle(
+                                          fontSize: AppDimens.fontSize9,
+                                          color: AppColors.themeColor.primaryColor,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              if (isPaused && controller.countdown.value == 0) {
+                                if (Get.isRegistered<OverlayController>()) {
+                                  Get.find<OverlayController>().resumeCountdown();
+                                }
+                              }
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 6.w,
+                                vertical: 2.h,
+                              ),
+                              decoration: BoxDecoration(
+                                color: (isDialing
+                                        ? Colors.green
+                                        : (isCountdown || (isPaused && controller.countdown.value == 0) ? Colors.orange : Colors.grey))
+                                    .withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(4.r),
+                              ),
+                              child: Text(
+                                isDialing
+                                    ? 'on_call'.tr.toUpperCase()
+                                    : (isCountdown || (isPaused && controller.countdown.value == 0)
+                                        ? (controller.countdown.value > 0
+                                            ? '${'next_dial'.tr} ${controller.countdown.value}s'
+                                            : 'ready_to_dial'.tr)
+                                            .toUpperCase()
+                                        : 'paused'.tr.toUpperCase()),
+                                style: TextStyle(
+                                  fontSize: AppDimens.fontSize9,
+                                  color:
+                                      isDialing
+                                          ? Colors.green
+                                          : (isCountdown || (isPaused && controller.countdown.value == 0)
+                                              ? Colors.orange
+                                              : AppColors
+                                                  .themeColor
+                                                  .textSecondaryColor),
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: 1,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),

@@ -195,7 +195,7 @@ class Utils {
       print("📞 [Utils] Initiating direct call to: $normalizedNumber (Original: $number)");
       
       // 1. Get the user-selected SIM slot index
-      final int? slotIndex = await Storage.getFromSharedPrefs<int>('selected_sim_slot_index');
+      final int? slotIndex = await Storage.getSelectedSimSlot();
       print("📱 [Utils] Preferred SIM slot: ${slotIndex ?? 'default'}");
 
       // 2. Try native MethodChannel first to specify SIM slot

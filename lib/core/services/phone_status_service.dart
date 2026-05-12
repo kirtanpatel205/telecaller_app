@@ -143,8 +143,8 @@ class PhoneStatusService extends GetxService with WidgetsBindingObserver {
       "🏥 [WATCHDOG] Dialer closed event received. Checking if call started...",
     );
 
-    // Give it a tiny moment for any late OFFHOOK events to arrive from the system
-    await Future.delayed(const Duration(milliseconds: 600));
+    // Give it more time for slower devices to report OFFHOOK
+    await Future.delayed(const Duration(seconds: 2));
 
     if (_uiState == _CallUIState.idle && targetPhoneNumber.value.isNotEmpty) {
       print(

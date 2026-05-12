@@ -519,98 +519,101 @@ class AutoDialerController extends GetxController {
     overlayCtrl.makeDirectCall(firstLead['number']!);
   }
 
-  void _syncWithOverlay(OverlayController overlayCtrl) {
-    countdown.bindStream(overlayCtrl.countdown.stream);
+  void refreshCurrentContact() {
+    if (!Get.isRegistered<OverlayController>()) return;
+    final overlayCtrl = Get.find<OverlayController>();
+    final index = overlayCtrl.currentQueueIndex.value;
+    final cdValue = overlayCtrl.countdown.value;
 
-    void refreshCurrentContact() {
-      final index = overlayCtrl.currentQueueIndex.value;
-      final cdValue = overlayCtrl.countdown.value;
+    // Update status based on auto-mode, countdown, and pause state
+    if (!overlayCtrl.isAutoCallMode.value) {
+      status.value = 'idle';
+    } else if (overlayCtrl.isPaused.value) {
+      status.value = 'paused';
+    } else if (cdValue > 0) {
+      // Use dynamic to bypass circular dependency errors if they persist
+      final dynamic dynOverlay = overlayCtrl;
+      status.value = dynOverlay.isPreCallMode.value ? 'counting_down' : 'settled';
+    } else {
+      // If auto-mode is active, not paused, and no countdown, we are actively dialing
+      status.value = 'dialing';
+    }
 
-      // Update status based on auto-mode, countdown, and pause state
-      if (!overlayCtrl.isAutoCallMode.value) {
-        status.value = 'idle';
-      } else if (overlayCtrl.isPaused.value) {
-        status.value = 'paused';
-      } else if (cdValue > 0) {
-        // Use dynamic to bypass circular dependency errors if they persist
-        final dynamic dynOverlay = overlayCtrl;
-        status.value = dynOverlay.isPreCallMode.value ? 'counting_down' : 'settled';
-      } else {
-        // If auto-mode is active, not paused, and no countdown, we are actively dialing
-        status.value = 'dialing';
+    if (cdValue > 0) {
+      // We are in countdown to NEXT lead
+      if (index < overlayCtrl.callQueue.length) {
+        final next = overlayCtrl.callQueue[index];
+        currentContact.value = contactQueue.firstWhereOrNull(
+          (l) => l.id == next['leadContactId'],
+        );
+
+        // Also update nextContact for preview
+        if (index + 1 < overlayCtrl.callQueue.length) {
+          final nextNext = overlayCtrl.callQueue[index + 1];
+          nextContact.value = contactQueue.firstWhereOrNull(
+            (l) => l.id == nextNext['leadContactId'],
+          );
+        } else {
+          nextContact.value = null;
+        }
       }
+    } else {
+      // We are DIALING or IDLE
+      if (index >= 0 && index < overlayCtrl.callQueue.length) {
+        final current = overlayCtrl.callQueue[index];
+        currentContact.value = contactQueue.firstWhereOrNull(
+          (l) => l.id == current['leadContactId'],
+        );
 
-      if (cdValue > 0) {
-        // We are in countdown to NEXT lead
-        if (index < overlayCtrl.callQueue.length) {
-          final next = overlayCtrl.callQueue[index];
-          currentContact.value = contactQueue.firstWhereOrNull(
+        // Get the "Next" one too if available
+        if (index + 1 < overlayCtrl.callQueue.length) {
+          final next = overlayCtrl.callQueue[index + 1];
+          nextContact.value = contactQueue.firstWhereOrNull(
             (l) => l.id == next['leadContactId'],
           );
-
-          // Also update nextContact for preview
-          if (index + 1 < overlayCtrl.callQueue.length) {
-            final nextNext = overlayCtrl.callQueue[index + 1];
-            nextContact.value = contactQueue.firstWhereOrNull(
-              (l) => l.id == nextNext['leadContactId'],
-            );
-          } else {
-            nextContact.value = null;
-          }
+        } else {
+          nextContact.value = null;
         }
-      } else {
-        // We are DIALING or IDLE
-        if (index >= 0 && index < overlayCtrl.callQueue.length) {
-          final current = overlayCtrl.callQueue[index];
-          currentContact.value = contactQueue.firstWhereOrNull(
-            (l) => l.id == current['leadContactId'],
+
+        // ── SYNC: Update PhoneStatusService for the CURRENT call ──────────
+        if (Get.isRegistered<PhoneStatusService>()) {
+          final ps = Get.find<PhoneStatusService>();
+          ps.currentLeadId = current['id'];
+          ps.currentLeadContactId = current['leadContactId'];
+
+          // Restore form metadata
+          final dataset = selectedLeadDataset.value;
+          if (dataset != null) {
+            ps.currentFormId = dataset.formId?.id ?? "";
+            ps.currentFormFields = dataset.formId?.fields ?? [];
+          }
+
+          print(
+            "🔄 Dialer Sync (Active): Lead=${ps.currentLeadId} | Contact=${ps.currentLeadContactId} | Form=${ps.currentFormId}",
           );
-
-          // Get the "Next" one too if available
-          if (index + 1 < overlayCtrl.callQueue.length) {
-            final next = overlayCtrl.callQueue[index + 1];
-            nextContact.value = contactQueue.firstWhereOrNull(
-              (l) => l.id == next['leadContactId'],
-            );
-          } else {
-            nextContact.value = null;
-          }
-
-          // ── SYNC: Update PhoneStatusService for the CURRENT call ──────────
-          if (Get.isRegistered<PhoneStatusService>()) {
-            final ps = Get.find<PhoneStatusService>();
-            ps.currentLeadId = current['id'];
-            ps.currentLeadContactId = current['leadContactId'];
-
-            // Restore form metadata
-            final dataset = selectedLeadDataset.value;
-            if (dataset != null) {
-              ps.currentFormId = dataset.formId?.id ?? "";
-              ps.currentFormFields = dataset.formId?.fields ?? [];
-            }
-
-            print(
-              "🔄 Dialer Sync (Active): Lead=${ps.currentLeadId} | Contact=${ps.currentLeadContactId} | Form=${ps.currentFormId}",
-            );
-          }
         }
-      }
-
-      // Auto-expand the card for the currently active/dialing contact
-      if (overlayCtrl.isAutoCallMode.value && currentContact.value != null) {
-        if (openedContactId.value != currentContact.value!.id) {
-          openedContactId.value = currentContact.value!.id;
-        }
-      } else if (!overlayCtrl.isAutoCallMode.value) {
-        // If not dialing, we don't force expansion, let the user control it.
       }
     }
+
+    // Auto-expand the card for the currently active/dialing contact
+    if (overlayCtrl.isAutoCallMode.value && currentContact.value != null) {
+      if (openedContactId.value != currentContact.value!.id) {
+        openedContactId.value = currentContact.value!.id;
+      }
+    }
+  }
+
+  void _syncWithOverlay(OverlayController overlayCtrl) {
+    countdown.bindStream(overlayCtrl.countdown.stream);
 
     final dynamic dynOverlay = overlayCtrl;
     ever(dynOverlay.currentQueueIndex, (_) => refreshCurrentContact());
     ever(dynOverlay.countdown, (_) => refreshCurrentContact());
     ever(dynOverlay.isPreCallMode, (_) => refreshCurrentContact());
     ever(dynOverlay.isPaused, (_) => refreshCurrentContact());
+    
+    // ✅ CRITICAL: Also refresh when the contact list itself changes/finishes loading
+    ever(contactQueue, (_) => refreshCurrentContact());
 
     // Listen to status updates from overlay
     ever(dynOverlay.lastUpdateEvent, (dynamic event) {
@@ -618,8 +621,6 @@ class AutoDialerController extends GetxController {
         updateContactStatusLocally(event['contactId']!, event['status']!);
       }
     });
-
-    refreshCurrentContact();
   }
 
   // ─────────────────────────────────────────────────────────────────
@@ -732,30 +733,38 @@ class AutoDialerController extends GetxController {
     if (index != -1) {
       final oldStatus = contactQueue[index].status;
       contactQueue[index].status = newStatus;
-      contactQueue.refresh();
+      
+      // ✅ LOCAL FILTERING: Remove from list immediately if it no longer matches current tab
+      final currentFilter = selectedContactStatus.value.toLowerCase();
+      final normalizedNewStatus = newStatus.toLowerCase().replaceAll(' ', '_');
+      if (currentFilter == 'pending' && normalizedNewStatus != 'pending') {
+        contactQueue.removeAt(index);
+      } else if (currentFilter == 'completed' && normalizedNewStatus == 'pending') {
+        contactQueue.removeAt(index);
+      }
 
-      // ✅ Trigger a refresh to ensure the Pagewise list removes the item if filters are active
-      Future.delayed(const Duration(milliseconds: 300), () {
-        refreshContacts();
-      });
+      contactQueue.refresh();
+      refreshContacts();
 
       // Update counters locally
       if (oldStatus != newStatus) {
+        final normalizedStatus = newStatus.toLowerCase().replaceAll(' ', '_');
+        
         if (oldStatus?.toLowerCase() == 'pending') {
           if (pending.value > 0) pending.value--;
         }
         
-        if (newStatus.toLowerCase() == 'pending') {
+        if (normalizedStatus == 'pending') {
           pending.value++;
         }
 
         // Recalculate completed dynamically
         completed.value = (overallTotal.value - pending.value).clamp(0, overallTotal.value);
 
-        if (newStatus.toLowerCase() == 'interested') {
+        if (normalizedStatus == 'interested') {
           successful.value++;
           totalAttempts.value++;
-        } else if (newStatus.toLowerCase() == 'not interested' || newStatus.toLowerCase() == 'invalid' || newStatus.toLowerCase() == 'no response') {
+        } else if (['not_interested', 'invalid', 'no_response', 'failed'].contains(normalizedStatus)) {
           failed.value++;
           totalAttempts.value++;
         }
@@ -786,7 +795,6 @@ class AutoDialerController extends GetxController {
 
   Future<void> launchPhoneDialer(String? phone) async {
     if (phone == null || phone.isEmpty) return;
-    print("📞 [AutoDialer] Manual dial: $phone");
     await Utils.makeDirectCall(phone);
   }
 
@@ -802,6 +810,7 @@ class AutoDialerController extends GetxController {
     if (phone == null || phone.isEmpty) return;
     // Remove non-numeric characters for WhatsApp
     final cleanPhone = phone.replaceAll(RegExp(r'[^0-9]'), '');
+    if (cleanPhone.isEmpty) return;
     final Uri url = Uri.parse("https://wa.me/$cleanPhone");
     
     try {

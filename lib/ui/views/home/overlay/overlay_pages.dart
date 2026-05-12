@@ -97,8 +97,7 @@ class OverlayPages extends StatelessWidget {
             alignment: Alignment.topRight,
             child: InkWell(
               onTap: () {
-                controller.stopCountdown();
-                Get.back();
+                controller.onCloseTapped();
               },
               borderRadius: BorderRadius.circular(14.r),
               child: Container(

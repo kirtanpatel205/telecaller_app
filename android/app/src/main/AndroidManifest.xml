@@ -57,6 +57,14 @@
             android:name="flutterEmbedding"
             android:value="2"/>
 
+        <!-- Modern Flutter metadata to resolve deprecation warnings -->
+        <meta-data
+            android:name="io.flutter.embedding.android.FlutterAssetsDir"
+            android:value="flutter_assets" />
+        <meta-data
+            android:name="io.flutter.embedding.android.EnableImpeller"
+            android:value="true" />
+
         <service
             android:name="id.flutter.flutter_background_service.BackgroundService"
             android:foregroundServiceType="specialUse"
