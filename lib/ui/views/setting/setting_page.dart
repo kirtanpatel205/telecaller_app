@@ -329,7 +329,7 @@ class _SectionLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(
-      label.toUpperCase(),
+      label,
       style: AppTextStyle.bold7.copyWith(
         fontSize: AppDimens.fontSize11,
         color: AppColors.themeColor.textSecondaryColor,

@@ -375,10 +375,14 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                         ],
                       ),
                       SizedBox(height: 8.h),
-                      _buildContactLink(Icons.phone_outlined, phone ?? 'N/A'),
+                      _buildContactLink(Icons.phone_outlined, phone ?? 'N/A',
+                          onTap: (phone != null && phone != 'N/A')
+                              ? () => controller.makeCall(phone)
+                              : null),
                       if (email != null && email.isNotEmpty) ...[
                         SizedBox(height: 4.h),
-                        _buildContactLink(Icons.mail_outline_rounded, email),
+                        _buildContactLink(Icons.mail_outline_rounded, email,
+                            onTap: () => controller.sendEmail(email)),
                       ],
                     ],
                   ),
@@ -423,22 +427,35 @@ class LeadsContactPage extends GetView<LeadsContactController> {
     );
   }
 
-  Widget _buildContactLink(IconData icon, String value) {
-    return Row(
-      children: [
-        Icon(icon, size: 14.sp, color: AppColors.themeColor.textSecondaryColor.withOpacity(0.7)),
-        SizedBox(width: 6.w),
-        Expanded(
-          child: Text(
-            value,
-            style: AppTextStyle.regular7.copyWith(
-              fontSize: 12.sp,
-              color: AppColors.themeColor.textSecondaryColor,
+  Widget _buildContactLink(IconData icon, String value, {VoidCallback? onTap}) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(4.r),
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 2.h),
+        child: Row(
+          children: [
+            Icon(icon,
+                size: 14.sp,
+                color: AppColors.themeColor.textSecondaryColor.withOpacity(0.7)),
+            SizedBox(width: 6.w),
+            Expanded(
+              child: Text(
+                value,
+                style: AppTextStyle.regular7.copyWith(
+                  fontSize: 12.sp,
+                  color: onTap != null
+                      ? AppColors.themeColor.primaryColor
+                      : AppColors.themeColor.textSecondaryColor,
+                  decoration: onTap != null ? TextDecoration.underline : null,
+                  decorationColor: AppColors.themeColor.primaryColor,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
-            overflow: TextOverflow.ellipsis,
-          ),
+          ],
         ),
-      ],
+      ),
     );
   }
 

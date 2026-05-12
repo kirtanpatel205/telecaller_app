@@ -29,6 +29,7 @@ const FORM_FIELD_TYPES = {
   "LOCATION": "location",
   "LINK": "link",
   "EXCEL": "excel",
+  "PHONE":"phone"
 };
 
 const MIME_TO_EXT = {

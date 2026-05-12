@@ -245,7 +245,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
             ),
             SizedBox(height: 2.h),
             Text(
-              label.toUpperCase(),
+              label,
               style: TextStyle(
                 fontSize: 8.sp,
                 fontWeight: FontWeight.bold,
