@@ -31,6 +31,7 @@ import 'package:sim_card_code/sim_card_code.dart';
 @pragma('vm:entry-point')
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
+    BackgroundServiceManager.setIsBackgroundIsolate(true);
     WidgetsFlutterBinding.ensureInitialized();
     await GetStorage.init();
     print("🛠️ [Workmanager] Background task started: $task");
@@ -117,6 +118,12 @@ class BackgroundServiceManager {
     }
   }
 
+  static bool _isBackgroundIsolate = false;
+
+  static void setIsBackgroundIsolate(bool value) {
+    _isBackgroundIsolate = value;
+  }
+
   static const _channel = MethodChannel(
     'com.digibulkmarketing.telecaller_app/lockscreen',
   );
@@ -151,19 +158,27 @@ class BackgroundServiceManager {
 
   static Future<void> fetchAndSaveSimInfo() async {
     try {
+      // ✅ In background isolates, native plugins often fail due to lack of Activity context.
+      // We rely on the cache populated by the foreground isolate.
+      if (_isBackgroundIsolate) {
+        print("📱 [Background] Using cached SIM info to avoid native crash.");
+        final cachedSims = await Storage.getSimInfo();
+        if (cachedSims != null && cachedSims.isNotEmpty) {
+          print("✅ [Background] Loaded ${cachedSims.length} SIMs from cache.");
+        }
+        return;
+      }
 
       // =========================
       // PHONE PERMISSION CHECK
       // =========================
-
-      final phonePermission =
-      await Permission.phone.status;
+      final phonePermission = await Permission.phone.status;
 
       if (!phonePermission.isGranted) {
+        // Requesting permission from background is not possible/reliable
+        if (_isBackgroundIsolate) return;
 
-        final result =
-        await Permission.phone.request();
-
+        final result = await Permission.phone.request();
         if (!result.isGranted) {
           print("❌ [SIM] Phone permission denied");
           return;
@@ -173,57 +188,35 @@ class BackgroundServiceManager {
       // =========================
       // FETCH SIM INFO
       // =========================
-
-      final List<SimCardInfo> simCards =
-      await SimCardManager.allSimInfo;
+      print("📱 [SIM] Fetching fresh SIM metadata...");
+      
+      // Native call — wrapped defensively
+      final List<SimCardInfo> simCards = await SimCardManager.allSimInfo;
 
       if (simCards.isNotEmpty) {
-
         final List<Map<String, dynamic>> simInfoList =
-        simCards.map<Map<String, dynamic>>((sim) => {
+            simCards.map<Map<String, dynamic>>((sim) => {
+                  'slotIndex': sim.slotIndex,
+                  'displayName': sim.displayName,
+                  'carrierName': sim.carrierName,
+                  'number': Utils.normalizePhoneNumber(sim.phoneNumber ?? ""),
+                  'subscriptionId': sim.subscriptionId,
+                }).toList();
 
-          'slotIndex': sim.slotIndex,
-          'displayName': sim.displayName,
-          'carrierName': sim.carrierName,
-          'number': Utils.normalizePhoneNumber(sim.phoneNumber ?? ""),
-          'subscriptionId': sim.subscriptionId,
+        print("📱 [SIM] Fetched ${simInfoList.length} SIM slots");
 
-        }).toList();
-
-        print(
-            "📱 [SIM] Fetched ${simInfoList.length} SIM slots"
-        );
-
-        await GetStorage().write(
-          'sim_info_cache',
-          simInfoList,
-        );
-
+        // Sync to all available storage layers
+        await GetStorage().write('sim_info_cache', simInfoList);
         await Storage.saveSimInfo(simInfoList);
-
       } else {
-
-        print(
-            "ℹ️ [SIM] No SIM cards detected."
-        );
+        print("ℹ️ [SIM] No SIM cards detected.");
       }
-
     } catch (e) {
-
       final errorStr = e.toString();
-
-      if (errorStr.contains("MissingPluginException") ||
-          errorStr.contains("no_implementation")) {
-
-        print(
-            "ℹ️ [SIM] Native channel not available."
-        );
-
+      if (errorStr.contains("MissingPluginException") || errorStr.contains("no_implementation")) {
+        print("ℹ️ [SIM] Native channel not available.");
       } else {
-
-        print(
-            "⚠️ [SIM] Error fetching SIM info: $e"
-        );
+        print("! Background SIM fetch failed, falling back to cache: $e");
       }
     }
   }
@@ -289,6 +282,7 @@ Future<bool> onIosBackground(ServiceInstance service) async {
 
 @pragma('vm:entry-point')
 void onStart(ServiceInstance service) async {
+  BackgroundServiceManager.setIsBackgroundIsolate(true);
   WidgetsFlutterBinding.ensureInitialized();
   DartPluginRegistrant.ensureInitialized();
 
@@ -340,7 +334,7 @@ void onStart(ServiceInstance service) async {
 
     // Refresh SIM info inside the background isolate to ensure cache is current
     await BackgroundServiceManager.fetchAndSaveSimInfo();
-    print("📱 [Background] Native SIM info cached.");
+    print("📱 [Background] SIM info processed (cache-first).");
   }
 
   // Register this Master isolate's SendPort so Satellites can proxy emissions to us

@@ -86,6 +86,7 @@ class AutoDialerController extends GetxController {
 
   // For expandable list items
   final openedContactId = RxnString();
+  final openedContactIndex = RxnInt();
 
   // ─────────────────────────────────────────────
   // LIFECYCLE
@@ -214,9 +215,8 @@ class AutoDialerController extends GetxController {
         // Populate dropdown list
         leadsDropdownList.assignAll(leads);
 
-        // Auto-select if navigated here with an id argument
-        if (_pendingIncomingLeadId != null &&
-            selectedLeadDataset.value == null) {
+        // Auto-select ONLY if navigated here with a specific id argument
+        if (_pendingIncomingLeadId != null && selectedLeadDataset.value == null) {
           final match = leads.firstWhereOrNull(
             (d) => d.id == _pendingIncomingLeadId,
           );
@@ -307,24 +307,16 @@ class AutoDialerController extends GetxController {
                 totalContacts.value = response.total ?? 0;
                 final items = response.leadContacts ?? [];
 
-                  // Keep flat list in sync for startDialing()
-                  if (pageNumber == 0) {
-                    contactQueue.assignAll(items);
-                    
-                    // Populate initial current and next if we are idle
-                    if (status.value == 'idle' && items.isNotEmpty) {
-                      currentContact.value = items[0];
-                      if (items.length > 1) {
-                        nextContact.value = items[1];
-                      }
-                    }
-                  } else {
-                  // Avoid duplicates on refetch
+                // Keep flat list in sync for dialer
+                if (pageNumber == 0) {
+                  contactQueue.assignAll(items);
+                  // Automatic selection restoration removed for clean startup
+                } else {
+                  // Avoid duplicates on subsequent pages
                   final existing = contactQueue.map((e) => e.id).toSet();
-                  final newItems = items.where((i) => !existing.contains(i.id));
+                  final newItems = items.where((i) => !existing.contains(i.id)).toList();
                   contactQueue.addAll(newItems);
                 }
-
                 return items;
               }
               return [];
@@ -344,6 +336,7 @@ class AutoDialerController extends GetxController {
     
     // Reset selection/expansion state when switching filters
     openedContactId.value = null;
+    currentContact.value = null;
 
     final lead = selectedLeadDataset.value;
     if (lead != null && lead.id != null) {
@@ -356,6 +349,9 @@ class AutoDialerController extends GetxController {
   // ─────────────────────────────────────────────────────────────────
   void onLeadSelected(AllLeadLeads dataset) {
     selectedLeadDataset.value = dataset;
+    if (dataset.id != null) {
+      Storage.saveValue('last_dialer_lead_id', dataset.id);
+    }
     if (dataset.id != null && dataset.id!.isNotEmpty) {
       _initContactsPagewise(dataset.id!);
       fetchLeadStats();
@@ -377,6 +373,11 @@ class AutoDialerController extends GetxController {
   void clearLeadSelection() {
     selectedLeadDataset.value = null;
     contactQueue.clear();
+    currentContact.value = null;
+    openedContactId.value = null;
+    openedContactIndex.value = null;
+    Storage.removeValue('last_dialer_lead_id');
+    Storage.removeValue('last_dialer_contact_id');
     pagewiseContactsController?.dispose();
     pagewiseContactsController = null;
     totalContacts.value = 0;
@@ -601,7 +602,10 @@ class AutoDialerController extends GetxController {
     final cdValue = overlayCtrl.countdown.value;
 
     // Update status based on auto-mode, countdown, and pause state
-    if (!overlayCtrl.isAutoCallMode.value) {
+    final phoneService = Get.isRegistered<PhoneStatusService>() ? Get.find<PhoneStatusService>() : null;
+    final bool isCallActive = phoneService?.isCallActive.value ?? false;
+
+    if (!overlayCtrl.isAutoCallMode.value && !isCallActive) {
       status.value = 'idle';
     } else if (overlayCtrl.isPaused.value) {
       status.value = 'paused';
@@ -609,8 +613,8 @@ class AutoDialerController extends GetxController {
       // Use dynamic to bypass circular dependency errors if they persist
       final dynamic dynOverlay = overlayCtrl;
       status.value = dynOverlay.isPreCallMode.value ? 'counting_down' : 'settled';
-    } else {
-      // If auto-mode is active, not paused, and no countdown, we are actively dialing
+    } else if (isCallActive || overlayCtrl.isAutoCallMode.value) {
+      // If auto-mode is active or call is active, we are actively dialing
       status.value = 'dialing';
     }
 
@@ -667,14 +671,31 @@ class AutoDialerController extends GetxController {
             "🔄 Dialer Sync (Active): Lead=${ps.currentLeadId} | Contact=${ps.currentLeadContactId} | Form=${ps.currentFormId}",
           );
         }
+      } else {
+        currentContact.value = null;
+        nextContact.value = null;
       }
     }
 
-    // Auto-expand the card for the currently active/dialing contact
-    if (overlayCtrl.isAutoCallMode.value && currentContact.value != null) {
+    if (currentContact.value != null) {
+      // ✅ Requirement: Never show completed contacts in the active control bar
+      if (isContactCompleted(currentContact.value)) {
+        currentContact.value = null;
+        openedContactId.value = null;
+        openedContactIndex.value = null;
+        return;
+      }
+
       if (openedContactId.value != currentContact.value!.id) {
         openedContactId.value = currentContact.value!.id;
+        // Search contactQueue for the correct index to highlight
+        final qIdx = contactQueue.indexWhere((l) => l.id == currentContact.value!.id);
+        if (qIdx != -1) openedContactIndex.value = qIdx;
       }
+    } else {
+       // Clear highlights if no current contact
+       openedContactId.value = null;
+       openedContactIndex.value = null;
     }
   }
 
@@ -722,6 +743,9 @@ class AutoDialerController extends GetxController {
     status.value = 'idle';
     callTimer.value = '00:00';
     currentContact.value = null;
+    openedContactId.value = null;
+    openedContactIndex.value = null;
+    
     if (Get.isRegistered<OverlayController>()) {
       Get.find<OverlayController>().stopCountdown();
     }
@@ -730,21 +754,26 @@ class AutoDialerController extends GetxController {
   // ─────────────────────────────────────────────────────────────────
   // SELECTION LOGIC
   // ─────────────────────────────────────────────────────────────────
-  void onContactManualSelect(int index) {
-    if (index < 0 || index >= contactQueue.length) {
-      openedContactId.value = null;
-      return;
-    }
+  void onContactManualSelect(LeadContactIdLeadContacts contact, int index) {
+    final bool isClosing = openedContactIndex.value == index;
 
-    final contact = contactQueue[index];
-    final bool isClosing = openedContactId.value == contact.id;
+    // ⛔ BLOCKED: Cannot switch selection while a call is actively dialing
+    if (status.value == 'dialing' && !isClosing) return;
     
     // 1. Immediately update expansion state
-    openedContactId.value = isClosing ? null : contact.id;
-    
-    // 2. Immediately update active contact for real-time UI highlight
-    if (!isClosing) {
+    if (isClosing) {
+      openedContactId.value = null;
+      openedContactIndex.value = null;
+      Storage.removeValue('last_dialer_contact_id');
+      // If closing and idle, clear current contact to remove highlight
+      if (status.value == 'idle') {
+        currentContact.value = null;
+      }
+    } else {
+      openedContactId.value = contact.id;
+      openedContactIndex.value = index;
       currentContact.value = contact;
+      Storage.saveValue('last_dialer_contact_id', contact.id);
     }
 
     // 3. If dialer is running, jump to this contact immediately in the background
@@ -814,11 +843,17 @@ class AutoDialerController extends GetxController {
       final normalizedNewStatus = newStatus.toLowerCase().replaceAll(' ', '_');
       if (currentFilter == 'pending' && normalizedNewStatus != 'pending') {
         contactQueue.removeAt(index);
-      } else if (currentFilter == 'completed' && normalizedNewStatus == 'pending') {
+      } else if (currentFilter == 'completed' && (normalizedNewStatus == 'pending' || normalizedNewStatus == 'scheduled')) {
         contactQueue.removeAt(index);
       }
 
       contactQueue.refresh();
+      
+      // ✅ Force refresh current contact if it was the one updated
+      if (currentContact.value?.id == contactId) {
+        currentContact.refresh();
+      }
+
       refreshContacts();
 
       // Update counters locally
@@ -845,6 +880,12 @@ class AutoDialerController extends GetxController {
         }
       }
     }
+  }
+
+  bool isContactCompleted(LeadContactIdLeadContacts? contact) {
+    if (contact == null) return false;
+    final s = contact.status?.toLowerCase();
+    return s != null && s.isNotEmpty && s != 'pending' && s != 'scheduled';
   }
 
   // ─────────────────────────────────────────────────────────────────

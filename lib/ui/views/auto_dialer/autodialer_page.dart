@@ -69,7 +69,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                   ? SliverPersistentHeader(
                       pinned: true,
                       delegate: _SliverHeaderDelegate(
-                        height: 140.h,
+                        height: 105.h,
                         child: Container(
                           color: AppColors.themeColor.scaffoldBackgroundColor,
                           padding: EdgeInsets.symmetric(
@@ -553,8 +553,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
               ),
           itemBuilder: (context, LeadContactIdLeadContacts lead, int index) {
             return Obx(() {
-              final isCurrent = controller.currentContact.value?.id == lead.id;
-              final isOpen = controller.openedContactId.value == lead.id;
+              final isOpen = controller.openedContactIndex.value == index;
               final String name = controller.capitalizeEachWord(
                 lead.contact?.name ?? 'Unknown',
               );
@@ -576,7 +575,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                 padding: EdgeInsets.fromLTRB(hPad, 0, hPad, 12.h),
                 child: InkWell(
                   onTap: () {
-                    controller.onContactManualSelect(index);
+                    controller.onContactManualSelect(lead, index);
                   },
                   child: Card(
                     elevation: 0,
@@ -585,16 +584,16 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                       borderRadius: BorderRadius.circular(16.r),
                       side: BorderSide(
                         color:
-                            (isCurrent || isOpen)
+                            isOpen
                                 ? AppColors.themeColor.primaryColor
                                 : AppColors.themeColor.bordercolror.withOpacity(
                                   0.5,
                                 ),
-                        width: (isCurrent || isOpen) ? 1.5.w : 1.w,
+                        width: isOpen ? 1.5.w : 1.w,
                       ),
                     ),
                     color:
-                        (isCurrent || isOpen)
+                        isOpen
                             ? AppColors.themeColor.primaryColor.withOpacity(
                               0.05,
                             )
@@ -605,7 +604,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                         boxShadow: [
                           BoxShadow(
                             color:
-                                (isCurrent || isOpen)
+                                isOpen
                                     ? AppColors.themeColor.primaryColor
                                         .withOpacity(0.1)
                                     : Colors.black.withOpacity(0.03),
@@ -651,7 +650,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                                         color: AppColors.themeColor.cardColor,
                                         border: Border.all(
                                           color:
-                                              (isCurrent || isOpen)
+                                              isOpen
                                                   ? AppColors
                                                       .themeColor
                                                       .primaryColor
@@ -934,6 +933,16 @@ class AutoDialerPage extends GetView<AutoDialerController> {
       // ✅ Hide sticky bar when call ends and overlay is shown (settled state)
       if (status == 'settled') return const SizedBox.shrink();
 
+      // ✅ Requirement: Hide if completed and NOT actively dialing it
+      if (!isIdle) {
+        final current = controller.currentContact.value;
+        final isCompleted = controller.isContactCompleted(current);
+        final isCompletedTab = controller.selectedContactStatus.value == 'completed';
+
+        if (isCompleted && !isCompletedTab) return const SizedBox.shrink();
+        if (current == null && status != 'dialing') return const SizedBox.shrink();
+      }
+
       return Container(
         margin: EdgeInsets.all(isIdle ? 0 : 16.w),
         decoration: BoxDecoration(
@@ -1128,13 +1137,13 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                               ),
                               child: Text(
                                 isDialing
-                                    ? 'on_call'.tr.toUpperCase()
+                                    ? 'on_call'.tr
                                     : (isCountdown || (isPaused && controller.countdown.value == 0)
                                         ? (controller.countdown.value > 0
                                             ? '${'next_dial'.tr} ${controller.countdown.value}s'
                                             : 'ready_to_dial'.tr)
-                                            .toUpperCase()
-                                        : 'paused'.tr.toUpperCase()),
+
+                                        : 'paused'.tr),
                                 style: TextStyle(
                                   fontSize: AppDimens.fontSize9,
                                   color:
