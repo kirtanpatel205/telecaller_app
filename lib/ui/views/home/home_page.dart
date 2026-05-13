@@ -13,50 +13,54 @@ import '../dashboard/dashboard_page.dart';
 
 class HomePage extends GetView<HomeController> {
 
-  final List<Widget> screens = [
-    DashboardPage(),
-    LeadsPage(),
-    AutoDialerPage(),
-    SettingPage(),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return AppSafeArea(
       top: false,
-      child: Obx(
-            () => Scaffold(
-          backgroundColor: AppColors.themeColor.scaffoldBackgroundColor,
+      child: Obx(() {
+        final bool isWebMode = controller.autoDialerController.currentMode.value == 'web';
 
-          body: CustomScrollView(
-            physics: const BouncingScrollPhysics(),
-            slivers: [
-              SliverFillRemaining(
-                hasScrollBody: true,
-                child: screens[controller.currentTab.value],
-              ),
-            ],
-          ),
+        final List<Widget> screens = [
+          DashboardPage(),
+          LeadsPage(),
+          if (!isWebMode) AutoDialerPage(),
+          SettingPage(),
+        ];
+
+        final List<Widget> navItems = [
+          Icon(Icons.home, size: 24.sp, color: AppColors.themeColor.onPrimaryColor),
+          Icon(Icons.call, size: 24.sp, color: AppColors.themeColor.onPrimaryColor),
+          if (!isWebMode)
+            Icon(Icons.quick_contacts_dialer, size: 24.sp, color: AppColors.themeColor.onPrimaryColor),
+          Icon(Icons.settings, size: 24.sp, color: AppColors.themeColor.onPrimaryColor),
+        ];
+
+        // Guard against index out of bounds
+        int currentIndex = controller.currentTab.value;
+        if (currentIndex >= screens.length) {
+          currentIndex = 0; // Reset to home
+          Future.microtask(() => controller.currentTab.value = 0);
+        }
+
+        return Scaffold(
+          backgroundColor: AppColors.themeColor.scaffoldBackgroundColor,
+          body: screens[currentIndex],
           bottomNavigationBar: CurvedNavigationBar(
-            index: controller.currentTab.value,
+            key: ValueKey(isWebMode), // Ensure clean rebuild when mode switches
+            index: currentIndex,
             height: 60.0,
             color: AppColors.themeColor.primaryColor,
             buttonBackgroundColor: AppColors.themeColor.primaryColor,
-            backgroundColor: Colors.transparent,
-
-            items: [
-              Icon(Icons.home, size: 24.sp, color: AppColors.themeColor.onPrimaryColor),
-              Icon(Icons.call, size: 24.sp, color: AppColors.themeColor.onPrimaryColor),
-              Icon(Icons.quick_contacts_dialer, size: 24.sp, color: AppColors.themeColor.onPrimaryColor),
-              Icon(Icons.settings, size: 24.sp, color: AppColors.themeColor.onPrimaryColor),
-            ],
-
+            backgroundColor: AppColors.themeColor.scaffoldBackgroundColor, // Match page background
+            items: navItems,
             onTap: (index) {
               controller.onBottomTabChange(index);
             },
           ),
-        ),
-      ),
+        );
+
+      }),
     );
   }
+
 }

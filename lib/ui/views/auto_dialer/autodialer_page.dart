@@ -28,143 +28,121 @@ class AutoDialerPage extends GetView<AutoDialerController> {
   @override
   Widget build(BuildContext context) {
     final bool isTablet = MediaQuery.of(context).size.shortestSide > 600;
+    final bool isStandalone = Get.currentRoute == Routes.AUTO_DIAL || Get.currentRoute == Paths.AUTO_DIAL;
 
-    return Obx(
-      () => AppSafeArea(
+    Widget content = Obx(() => Stack(
+      children: [
+        RefreshIndicator(
+          onRefresh: () async => controller.refreshContacts(),
+          displacement: 40,
+          color: AppColors.themeColor.primaryColor,
+          child: CustomScrollView(
+            physics: controller.selectedLeadDataset.value == null
+                ? const NeverScrollableScrollPhysics()
+                : const AlwaysScrollableScrollPhysics(),
+            slivers: [
+              // 1. Pinned App Bar
+              SliverCustomAppBar(
+                leading: const SizedBox.shrink(),
+                titleText: 'auto_dialer'.tr,
+                showBackButton: false,
+                actions: [
+                  _buildModeSwitch(),
+                ],
+              ),
+
+              // 2. Lead Dropdown Section
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    isTablet ? 32.w : 16.w,
+                    16.h,
+                    isTablet ? 32.w : 16.w,
+                    8.h,
+                  ),
+                  child: _buildLeadDropdownCard(isTablet),
+                ),
+              ),
+
+              // 3. Campaign Performance (Pinned Header - Only show if lead selected)
+              Obx(() => controller.selectedLeadDataset.value != null
+                  ? SliverPersistentHeader(
+                      pinned: true,
+                      delegate: _SliverHeaderDelegate(
+                        height: 140.h,
+                        child: Container(
+                          color: AppColors.themeColor.scaffoldBackgroundColor,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: isTablet ? 32.w : 16.w,
+                            vertical: 12.h,
+                          ),
+                          child: _buildPremiumDashboardSection(isTablet),
+                        ),
+                      ),
+                    )
+                  : const SliverToBoxAdapter(child: SizedBox.shrink())),
+
+              // 4. Contact List Header & Content
+              Obx(() {
+                final lead = controller.selectedLeadDataset.value;
+                if (lead == null) return const SliverToBoxAdapter(child: SizedBox.shrink());
+
+                return SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: isTablet ? 32.w : 16.w,
+                      vertical: 16.h,
+                    ),
+                    child: _buildContactSectionHeader(isTablet, lead),
+                  ),
+                );
+              }),
+
+              // 5. The Paginated List
+              Obx(() => controller.selectedLeadDataset.value != null
+                  ? _buildContactsPaginatedSliver(isTablet)
+                  : const SliverToBoxAdapter(child: SizedBox.shrink())),
+
+              // 6. Initial Empty State (When no lead is selected)
+              Obx(() => controller.selectedLeadDataset.value == null
+                  ? SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: _buildInitialEmptyState(isTablet),
+                    )
+                  : const SliverToBoxAdapter(child: SizedBox.shrink())),
+
+              // Bottom padding for the sticky control center (only when lead is selected)
+              Obx(() => controller.selectedLeadDataset.value != null
+                  ? SliverToBoxAdapter(child: SizedBox(height: 120.h))
+                  : const SliverToBoxAdapter(child: SizedBox.shrink())),
+            ],
+          ),
+        ),
+
+        // ── STICKY CONTROL CENTER ──────────────────────
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: _buildStickyControlCenter(isTablet),
+        ),
+      ],
+    ));
+
+    if (isStandalone) {
+      return AppSafeArea(
         top: true,
         bottom: true,
         child: Scaffold(
           backgroundColor: AppColors.themeColor.scaffoldBackgroundColor,
-          body: Stack(
-            children: [
-              RefreshIndicator(
-                onRefresh: () async => controller.refreshContacts(),
-                displacement: 40,
-                color: AppColors.themeColor.primaryColor,
-                child: CustomScrollView(
-                  physics: controller.selectedLeadDataset.value == null
-                      ? const NeverScrollableScrollPhysics()
-                      : const AlwaysScrollableScrollPhysics(),
-                  slivers: [
-                    // 1. Pinned App Bar
-                    SliverCustomAppBar(
-                      leading: const SizedBox.shrink(),
-                      titleText: 'auto_dialer'.tr,
-                      showBackButton: false,
-                      actions: const [],
-                    ),
-
-                    // 2. Lead Dropdown Section
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: EdgeInsets.fromLTRB(
-                          isTablet ? 32.w : 16.w,
-                          16.h,
-                          isTablet ? 32.w : 16.w,
-                          8.h,
-                        ),
-                        child: _buildLeadDropdownCard(isTablet),
-                      ),
-                    ),
-
-                    // 3. Campaign Performance (Pinned Header - Only show if lead selected)
-                    Obx(
-                      () =>
-                          controller.selectedLeadDataset.value != null
-                              ? SliverPersistentHeader(
-                                pinned: true,
-                                delegate: _SliverHeaderDelegate(
-                                  height: 140.h,
-                                  child: Container(
-                                    color:
-                                        AppColors
-                                            .themeColor
-                                            .scaffoldBackgroundColor,
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: isTablet ? 32.w : 16.w,
-                                      vertical: 12.h,
-                                    ),
-                                    child: _buildPremiumDashboardSection(
-                                      isTablet,
-                                    ),
-                                  ),
-                                ),
-                              )
-                              : const SliverToBoxAdapter(
-                                child: SizedBox.shrink(),
-                              ),
-                    ),
-
-                    // 4. Contact List Header & Content
-                    Obx(() {
-                      final lead = controller.selectedLeadDataset.value;
-                      if (lead == null)
-                        return const SliverToBoxAdapter(
-                          child: SizedBox.shrink(),
-                        );
-
-                      return SliverToBoxAdapter(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: isTablet ? 32.w : 16.w,
-                            vertical: 16.h,
-                          ),
-                          child: _buildContactSectionHeader(isTablet, lead),
-                        ),
-                      );
-                    }),
-
-                    // 5. The Paginated List
-                    Obx(
-                      () =>
-                          controller.selectedLeadDataset.value != null
-                              ? _buildContactsPaginatedSliver(isTablet)
-                              : const SliverToBoxAdapter(
-                                child: SizedBox.shrink(),
-                              ),
-                    ),
-
-                    // 6. Initial Empty State (When no lead is selected)
-                    Obx(
-                      () =>
-                          controller.selectedLeadDataset.value == null
-                              ? SliverFillRemaining(
-                                hasScrollBody: false,
-                                child: _buildInitialEmptyState(isTablet),
-                              )
-                              : const SliverToBoxAdapter(
-                                child: SizedBox.shrink(),
-                              ),
-                    ),
-
-                    // Bottom padding for the sticky control center (only when lead is selected)
-                    Obx(
-                      () =>
-                          controller.selectedLeadDataset.value != null
-                              ? SliverToBoxAdapter(
-                                child: SizedBox(height: 120.h),
-                              )
-                              : const SliverToBoxAdapter(
-                                child: SizedBox.shrink(),
-                              ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // ── STICKY CONTROL CENTER ──────────────────────
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: _buildStickyControlCenter(isTablet),
-              ),
-            ],
-          ),
+          body: content,
         ),
-      ),
-    );
+      );
+    }
+
+    return content;
   }
+
 
   Widget _buildPremiumDashboardSection(bool isTablet) {
     return Column(
@@ -1599,7 +1577,100 @@ class AutoDialerPage extends GetView<AutoDialerController> {
       return dateStr;
     }
   }
+
+  Widget _buildModeSwitch() {
+    return Obx(() {
+      final isWeb = controller.currentMode.value == 'web';
+      final isSwitching = controller.isSwitchingMode.value;
+
+      return Opacity(
+        opacity: isSwitching ? 0.6 : 1.0,
+        child: IgnorePointer(
+          ignoring: isSwitching,
+          child: Container(
+            margin: EdgeInsets.symmetric(vertical: 10.h, horizontal: 12.w),
+            width: 120.w,
+            height: 34.h,
+            decoration: BoxDecoration(
+              color: AppColors.themeColor.primaryColor.withOpacity(0.08),
+              borderRadius: BorderRadius.circular(20.r),
+              border: Border.all(
+                color: AppColors.themeColor.primaryColor.withOpacity(0.1),
+                width: 1.w,
+              ),
+            ),
+            child: Stack(
+              children: [
+                // Animated Selector Background
+                AnimatedAlign(
+                  duration: const Duration(milliseconds: 400),
+                  curve: Curves.easeOutBack,
+                  alignment: isWeb ? Alignment.centerRight : Alignment.centerLeft,
+                  child: Container(
+                    width: 62.w,
+                    height: 34.h,
+                    decoration: BoxDecoration(
+                      color: AppColors.themeColor.primaryColor,
+                      borderRadius: BorderRadius.circular(20.r),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.themeColor.primaryColor.withOpacity(0.3),
+                          blurRadius: 10,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                // Mode Labels
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildModeItem('app', Icons.phone_android_rounded, !isWeb),
+                    ),
+                    Expanded(
+                      child: _buildModeItem('web', Icons.language_rounded, isWeb),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    });
+  }
+
+  Widget _buildModeItem(String mode, IconData icon, bool isActive) {
+    return GestureDetector(
+      onTap: () => controller.toggleUserMode(mode),
+      behavior: HitTestBehavior.opaque,
+      child: Center(
+        child: AnimatedDefaultTextStyle(
+          duration: const Duration(milliseconds: 300),
+          style: AppTextStyle.bold8.copyWith(
+            color: isActive ? Colors.white : AppColors.themeColor.primaryColor.withOpacity(0.5),
+            fontSize: 9.sp,
+            letterSpacing: 0.8,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                size: 14.sp,
+                color: isActive ? Colors.white : AppColors.themeColor.primaryColor.withOpacity(0.4),
+              ),
+              SizedBox(width: 4.w),
+              Text(mode.toUpperCase()),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
+
 
 class _SliverHeaderDelegate extends SliverPersistentHeaderDelegate {
   final Widget child;

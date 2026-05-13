@@ -20,42 +20,41 @@ class DashboardPage extends GetView<HomeController> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() => Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          DashboardAppBar(controller: controller),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.all(AppDimens.padding16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "dashboard_overview".tr,
-                    style: AppTextStyle.bold11.copyWith(
-                      fontSize: AppDimens.fontSize20,
-                      color: AppColors.themeColor.textPrimaryColor,
-                    ),
+    return CustomScrollView(
+      slivers: [
+        DashboardAppBar(controller: controller),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: EdgeInsets.all(AppDimens.padding16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "dashboard_overview".tr,
+                  style: AppTextStyle.bold11.copyWith(
+                    fontSize: AppDimens.fontSize20,
+                    color: AppColors.themeColor.textPrimaryColor,
                   ),
-                  SizedBox(height: 16.h),
-                  _buildSummaryCards(context),
-                  SizedBox(height: 24.h),
-                  _buildLeadContactSection(context),
-                  SizedBox(height: 24.h),
-                  _buildCallsSection(context),
-                  SizedBox(height: 24.h),
-                  _buildBottomAnalyticsChart1(context),
-                  SizedBox(height: 24.h),
-                  _buildBottomAnalyticsChart2(context),
-                  SizedBox(height: 24.h),
-                ],
-              ),
+                ),
+                SizedBox(height: 16.h),
+                _buildSummaryCards(context),
+                SizedBox(height: 24.h),
+                _buildLeadContactSection(context),
+                SizedBox(height: 24.h),
+                _buildCallsSection(context),
+                SizedBox(height: 24.h),
+                _buildBottomAnalyticsChart1(context),
+                SizedBox(height: 24.h),
+                _buildBottomAnalyticsChart2(context),
+                SizedBox(height: 24.h),
+              ],
             ),
           ),
-        ],
-      ),
-    ));
+        ),
+      ],
+    );
   }
+
 
   Widget _buildSummaryCard({
     required String title,

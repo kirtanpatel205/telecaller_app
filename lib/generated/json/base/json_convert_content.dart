@@ -14,6 +14,7 @@ import 'package:telecaller_app/core/models/language_entity.dart';
 import 'package:telecaller_app/core/models/lead_chart_entity.dart';
 import 'package:telecaller_app/core/models/lead_contact_id_entity.dart';
 import 'package:telecaller_app/core/models/login_response_entity.dart';
+import 'package:telecaller_app/core/models/user_setting_response_entity.dart';
 
 JsonConvert jsonConvert = JsonConvert();
 
@@ -303,6 +304,30 @@ class JsonConvert {
           Map<String, dynamic> e) =>
           LoginResponseProfileSubscription.fromJson(e)).toList() as M;
     }
+    if (<UserSettingResponseEntity>[] is M) {
+      return data.map<UserSettingResponseEntity>((Map<String, dynamic> e) =>
+          UserSettingResponseEntity.fromJson(e)).toList() as M;
+    }
+    if (<UserSettingResponseUserSetting>[] is M) {
+      return data
+          .map<UserSettingResponseUserSetting>((
+          Map<String, dynamic> e) => UserSettingResponseUserSetting.fromJson(e))
+          .toList() as M;
+    }
+    if (<UserSettingResponseUserSettingTelecallerSettings>[] is M) {
+      return data
+          .map<UserSettingResponseUserSettingTelecallerSettings>((
+          Map<String, dynamic> e) =>
+          UserSettingResponseUserSettingTelecallerSettings.fromJson(e))
+          .toList() as M;
+    }
+    if (<UserSettingResponseUserSettingTelecallerSettingsAllowCalls>[] is M) {
+      return data.map<
+          UserSettingResponseUserSettingTelecallerSettingsAllowCalls>((
+          Map<String, dynamic> e) =>
+          UserSettingResponseUserSettingTelecallerSettingsAllowCalls.fromJson(
+              e)).toList() as M;
+    }
 
     debugPrint("$M not found");
 
@@ -371,6 +396,14 @@ class JsonConvertClassCollection {
         .fromJson,
     (LoginResponseProfileSubscription)
         .toString(): LoginResponseProfileSubscription.fromJson,
+    (UserSettingResponseEntity).toString(): UserSettingResponseEntity.fromJson,
+    (UserSettingResponseUserSetting).toString(): UserSettingResponseUserSetting
+        .fromJson,
+    (UserSettingResponseUserSettingTelecallerSettings)
+        .toString(): UserSettingResponseUserSettingTelecallerSettings.fromJson,
+    (UserSettingResponseUserSettingTelecallerSettingsAllowCalls)
+        .toString(): UserSettingResponseUserSettingTelecallerSettingsAllowCalls
+        .fromJson,
   };
 
   bool containsKey(String type) {

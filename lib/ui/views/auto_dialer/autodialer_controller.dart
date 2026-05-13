@@ -2,7 +2,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_pagewise/flutter_pagewise.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:telecaller_app/constants/app_colors.dart';
+import 'package:telecaller_app/constants/app_routes.dart';
 import 'package:telecaller_app/core/helpers/utils.dart';
 import 'package:telecaller_app/core/helpers/storage.dart';
 import 'package:telecaller_app/core/controllers/overlay_controller.dart';
@@ -20,6 +23,8 @@ class AutoDialerController extends GetxController {
   // ─────────────────────────────────────────────
   final status = 'idle'.obs;
   final isLoading = false.obs;
+  final isSwitchingMode = false.obs;
+
 
   final totalAttempts = 0.obs;
   final connected = 0.obs;
@@ -105,6 +110,26 @@ class AutoDialerController extends GetxController {
     // (pageFuture only fires when consumed by a PagewiseSliverList/PagewiseListView,
     //  which no longer exists for leads — we use a dropdown instead.)
     _fetchFirstLeadsPage();
+    fetchUserMode(); // Fetch initial mode
+
+    // Redirect to home if in WEB mode (Auto Dialer is APP only)
+    ever(currentMode, (String mode) {
+      if (mode == 'web') {
+        if (Get.currentRoute == Routes.AUTO_DIAL || Get.currentRoute == Paths.AUTO_DIAL) {
+          Get.offAllNamed(Routes.HOME);
+          Future.delayed(const Duration(milliseconds: 500), () {
+            Get.snackbar(
+              'Access Restricted',
+              'Auto Dialer is only available in APP mode.',
+              snackPosition: SnackPosition.BOTTOM,
+              backgroundColor: Colors.orange.withOpacity(0.9),
+              colorText: Colors.white,
+            );
+          });
+        }
+      }
+    });
+
 
     // Listen to call status for active timer
     final phoneService = Get.find<PhoneStatusService>();
@@ -393,6 +418,56 @@ class AutoDialerController extends GetxController {
       print("❌ fetchLeadStats error: $e");
     }
   }
+
+  // ─────────────────────────────────────────────────────────────────
+  // USER MODE SWITCH
+  // ─────────────────────────────────────────────────────────────────
+  final currentMode = 'app'.obs;
+
+  Future<void> fetchUserMode() async {
+    try {
+      final response = await _apiService.getUserSetting();
+      if (response.status == true) {
+        currentMode.value = response.userSetting?.telecallerSettings?.allowCalls?.from ?? 'app';
+      }
+    } catch (e) {
+      print("❌ fetchUserMode error: $e");
+    }
+  }
+
+  Future<void> toggleUserMode(String mode) async {
+    if (currentMode.value == mode) return;
+    
+    isSwitchingMode.value = true;
+    try {
+      final response = await _apiService.switchUserMode(mode: mode);
+      if (response.status == true) {
+        currentMode.value = mode;
+        // The 'ever' listener above will handle the redirection if mode is 'web'
+        if (mode == 'app') {
+          Get.snackbar(
+            'Mode Switched',
+            'Successfully switched to ${mode.toUpperCase()} mode',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: AppColors.themeColor.primaryColor.withOpacity(0.9),
+            colorText: Colors.white,
+            margin: EdgeInsets.all(16.w),
+            borderRadius: 12.r,
+          );
+        }
+      } else {
+
+        Get.snackbar('Error', 'Failed to switch mode');
+      }
+    } catch (e) {
+      print("❌ toggleUserMode error: $e");
+      Get.snackbar('Error', 'An error occurred while switching mode');
+    } finally {
+      isSwitchingMode.value = false;
+    }
+  }
+
+
 
   // ─────────────────────────────────────────────────────────────────
   // CALL TIMER

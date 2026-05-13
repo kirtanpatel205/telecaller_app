@@ -38,6 +38,9 @@ class AppConstants {
   static const String UPLOAD_PROCESSED = 'upload_processed';
   static const String FCM_TOKEN = '';
 
+  static const String ALLOW_CALL_TYPE_APP = "app";
+  static const String ALLOW_CALL_TYPE_WEB = "web";
+
   // Directories
   static const String DIR_DRAFT = '/drafts';
   static const String DIR_VIDEOS = '/videos';
@@ -75,4 +78,6 @@ class AppConstants {
   static String API_LEAD_CHART = '$API_URL/telecaller/lead-contacts/analytics';
   static String API_CALL_LOG = '$API_URL/telecaller/sync-call-logs';
   static String API_SESSION = '$API_URL/auth/session/logout';
+  static String API_USER_SETTING = '$API_URL/telecaller/user-setting';
+  static String API_SWITCH_MODE = '$API_URL/telecaller/switch-mode';
 }

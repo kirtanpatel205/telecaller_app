@@ -15,6 +15,7 @@ import 'package:telecaller_app/core/models/lead_chart_entity.dart';
 import 'package:telecaller_app/core/models/lead_contact_id_entity.dart';
 import 'package:telecaller_app/core/models/login_response_entity.dart';
 import 'package:telecaller_app/core/models/call_chart_entity.dart';
+import 'package:telecaller_app/core/models/user_setting_response_entity.dart';
 
 import 'package:telecaller_app/core/network/dio_client.dart';
 
@@ -411,5 +412,25 @@ print("callChart request data $data");
     print("session logout $response");
     return ApiResponseEntity.fromJson(response);
   }
+
+  Future<ApiResponseEntity> switchUserMode({required String mode}) async {
+    Map<String, dynamic> response = await client.post(
+      AppConstants.API_SWITCH_MODE,
+      data: {"mode": mode},
+    );
+    print("user mode switch $response");
+    return ApiResponseEntity.fromJson(response);
+  }
+
+  Future<UserSettingResponseEntity> getUserSetting() async {
+    Map<String, dynamic> response = await client.get(
+      AppConstants.API_USER_SETTING,
+    );
+    print("user setting $response");
+    return UserSettingResponseEntity.fromJson(response);
+  }
+
+
+
 
 }

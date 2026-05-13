@@ -15,134 +15,152 @@ class SettingPage extends GetView<HomeController> {
   const SettingPage({super.key});
   @override
   Widget build(BuildContext context) {
-    return Obx(() => Scaffold(
-      backgroundColor: AppColors.themeColor.scaffoldBackgroundColor,
-      body: RefreshIndicator(
-        onRefresh: () async {
-          await controller.authController.refreshProfile();
-          log("profile refreshed");
-        },
-        child: CustomScrollView(
-          physics: const NeverScrollableScrollPhysics(),
-          slivers: [
-            // ─── Profile Header ─────────────────────────────────────────
-            SliverToBoxAdapter(
-              child: _ProfileHeader(controller: controller),
-            ),
+    final bool isStandalone = Get.currentRoute == Routes.SETTING || Get.currentRoute == Paths.SETTING;
 
-            // ─── Menu Items ─────────────────────────────────────────────
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: 24.h),
+    Widget body = RefreshIndicator(
+      onRefresh: () async {
+        await controller.authController.refreshProfile();
+        log("profile refreshed");
+      },
+      child: CustomScrollView(
+        physics: const BouncingScrollPhysics(),
+        slivers: [
+          // ─── Profile Header ─────────────────────────────────────────
+          SliverToBoxAdapter(
+            child: _ProfileHeader(controller: controller),
+          ),
 
-                    // ── Account Section ─────────────────────────────────
-                    _SectionLabel(label: "account".tr),
-                    SizedBox(height: 10.h),
-                    _MenuCard(
-                      children: [
-                        _MenuItem(
-                          icon: Icons.person_outline_rounded,
-                          label: "editProfile".tr,
-                          onTap: () => Get.toNamed(Routes.EDITPROFILE),
-                        ),
-                      ],
-                    ),
+          // ─── Menu Items ─────────────────────────────────────────────
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 24.h),
 
-                    SizedBox(height: 20.h),
+                  // ── Account Section ─────────────────────────────────
+                  _SectionLabel(label: "account".tr),
+                  SizedBox(height: 10.h),
+                  _MenuCard(
+                    children: [
+                      _MenuItem(
+                        icon: Icons.person_outline_rounded,
+                        label: "editProfile".tr,
+                        onTap: () => Get.toNamed(Routes.EDITPROFILE),
+                      ),
+                    ],
+                  ),
 
-                    // ── Appearance Section ───────────────────────────────
-                    _SectionLabel(label: "appearance".tr),
-                    SizedBox(height: 10.h),
-                    _MenuCard(
-                      children: [
-                        // Dark Mode Toggle
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 16.w, vertical: 4.h),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 40.w,
-                                height: 40.w,
-                                decoration: BoxDecoration(
-                                  color: AppColors.themeColor.primaryColor
-                                      .withOpacity(0.12),
-                                  borderRadius: BorderRadius.circular(10.r),
-                                ),
-                                child: Icon(
-                                  Icons.nightlight_round,
-                                  color: AppColors.themeColor.primaryColor,
-                                  size: 20.sp,
+                  SizedBox(height: 20.h),
+
+                  // ── Mode Section ─────────────────────────────────
+                  _SectionLabel(label: "mode".tr),
+                  SizedBox(height: 10.h),
+                  _MenuCard(
+                    children: [
+                      _ModeSwitchItem(controller: controller),
+                    ],
+                  ),
+
+                  SizedBox(height: 20.h),
+
+                  // ── Appearance Section ───────────────────────────────
+                  _SectionLabel(label: "appearance".tr),
+                  SizedBox(height: 10.h),
+                  _MenuCard(
+                    children: [
+                      // Dark Mode Toggle
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 16.w, vertical: 4.h),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 40.w,
+                              height: 40.w,
+                              decoration: BoxDecoration(
+                                color: AppColors.themeColor.primaryColor
+                                    .withOpacity(0.12),
+                                borderRadius: BorderRadius.circular(10.r),
+                              ),
+                              child: Icon(
+                                Icons.nightlight_round,
+                                color: AppColors.themeColor.primaryColor,
+                                size: 20.sp,
+                              ),
+                            ),
+                            SizedBox(width: 14.w),
+                            Expanded(
+                              child: Text(
+                                "dark_mode".tr,
+                                style: AppTextStyle.medium7.copyWith(
+                                  fontSize: AppDimens.fontSize14,
+                                  color:
+                                      AppColors.themeColor.textPrimaryColor,
                                 ),
                               ),
-                              SizedBox(width: 14.w),
-                              Expanded(
-                                child: Text(
-                                  "dark_mode".tr,
-                                  style: AppTextStyle.medium7.copyWith(
-                                    fontSize: AppDimens.fontSize14,
-                                    color:
-                                        AppColors.themeColor.textPrimaryColor,
-                                  ),
+                            ),
+                            SizedBox(
+                              height: 36.h,
+                              width: 46.w,
+                              child: ThemeSwitcher(
+                                builder: (ctx) => DayNightSwitcher(
+                                  isDarkModeEnabled:
+                                      controller.isDarkMode.value,
+                                  onStateChanged: (value) {
+                                    controller.toggleTheme(value, ctx);
+                                  },
                                 ),
                               ),
-                              SizedBox(
-                                height: 36.h,
-                                width: 46.w,
-                                child: ThemeSwitcher(
-                                  builder: (ctx) => DayNightSwitcher(
-                                    isDarkModeEnabled:
-                                        controller.isDarkMode.value,
-                                    onStateChanged: (value) {
-                                      controller.toggleTheme(value, ctx);
-                                    },
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        _Divider(),
-                        _MenuItem(
-                          icon: Icons.language_outlined,
-                          label: "language".tr,
-                          onTap: () => Get.toNamed(Routes.LANGUAGE),
-                        ),
-                      ],
-                    ),
-
-                    SizedBox(height: 28.h),
-
-                    // ── Logout ───────────────────────────────────────────
-                    _LogoutButton(),
-
-                    SizedBox(height: 32.h),
-
-                    // App version tag
-                    Center(
-                      child: Text(
-                        "v1.0.0",
-                        style: AppTextStyle.regular7.copyWith(
-                          fontSize: AppDimens.fontSize11,
-                          color: AppColors.themeColor.textSecondaryColor,
+                            ),
+                          ],
                         ),
                       ),
+                      _Divider(),
+                      _MenuItem(
+                        icon: Icons.language_outlined,
+                        label: "language".tr,
+                        onTap: () => Get.toNamed(Routes.LANGUAGE),
+                      ),
+                    ],
+                  ),
+
+                  SizedBox(height: 28.h),
+
+                  // ── Logout ───────────────────────────────────────────
+                  _LogoutButton(),
+
+                  SizedBox(height: 32.h),
+
+                  // App version tag
+                  Center(
+                    child: Text(
+                      "v1.0.0",
+                      style: AppTextStyle.regular7.copyWith(
+                        fontSize: AppDimens.fontSize11,
+                        color: AppColors.themeColor.textSecondaryColor,
+                      ),
                     ),
-                    SizedBox(height: 24.h),
-                  ],
-                ),
+                  ),
+                  SizedBox(height: 24.h),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-    ));
+    );
+
+    if (isStandalone) {
+      return Scaffold(
+        backgroundColor: AppColors.themeColor.scaffoldBackgroundColor,
+        body: body,
+      );
+    }
+    return body;
   }
-  }
+}
 
 
 // ─── Profile Header Widget ─────────────────────────────────────────────────
@@ -566,3 +584,128 @@ class _LogoutButton extends StatelessWidget {
     );
   }
 }
+
+// ─── Mode Switch Item ──────────────────────────────────────────────────────
+
+class _ModeSwitchItem extends StatelessWidget {
+  final HomeController controller;
+  const _ModeSwitchItem({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final isWeb = controller.autoDialerController.currentMode.value == 'web';
+      final isSwitching = controller.autoDialerController.isSwitchingMode.value;
+      final color = AppColors.themeColor.primaryColor;
+
+      return Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+        child: Row(
+          children: [
+            Container(
+              width: 40.w,
+              height: 40.w,
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(10.r),
+              ),
+              child: Icon(
+                isWeb ? Icons.language_rounded : Icons.phone_android_rounded,
+                color: color,
+                size: 20.sp,
+              ),
+            ),
+            SizedBox(width: 14.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "calling_mode".tr,
+                    style: AppTextStyle.medium7.copyWith(
+                      fontSize: AppDimens.fontSize14,
+                      color: AppColors.themeColor.textPrimaryColor,
+                    ),
+                  ),
+                  Text(
+                    isWeb ? "web_mode_active".tr : "app_mode_active".tr,
+                    style: AppTextStyle.regular3.copyWith(
+                      fontSize: AppDimens.fontSize10,
+                      color: AppColors.themeColor.textSecondaryColor,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Premium Sliding Toggle
+            Opacity(
+              opacity: isSwitching ? 0.6 : 1.0,
+              child: IgnorePointer(
+                ignoring: isSwitching,
+                child: Container(
+                  width: 100.w,
+                  height: 30.h,
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(15.r),
+                    border: Border.all(color: color.withOpacity(0.1), width: 1),
+                  ),
+                  child: Stack(
+                    children: [
+                      AnimatedAlign(
+                        duration: const Duration(milliseconds: 400),
+                        curve: Curves.easeOutBack,
+                        alignment: isWeb ? Alignment.centerRight : Alignment.centerLeft,
+                        child: Container(
+                          width: 50.w,
+                          height: 30.h,
+                          decoration: BoxDecoration(
+                            color: color,
+                            borderRadius: BorderRadius.circular(15.r),
+                            boxShadow: [
+                              BoxShadow(
+                                color: color.withOpacity(0.3),
+                                blurRadius: 6,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          _buildToggleItem('app', !isWeb),
+                          _buildToggleItem('web', isWeb),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget _buildToggleItem(String mode, bool isActive) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => controller.autoDialerController.toggleUserMode(mode),
+        behavior: HitTestBehavior.opaque,
+        child: Center(
+          child: Text(
+            mode.toUpperCase(),
+            style: AppTextStyle.bold7.copyWith(
+              fontSize: 8.sp,
+              color: isActive ? Colors.white : AppColors.themeColor.primaryColor.withOpacity(0.5),
+              letterSpacing: 0.5,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
