@@ -310,7 +310,14 @@ class AutoDialerController extends GetxController {
                 // Keep flat list in sync for dialer
                 if (pageNumber == 0) {
                   contactQueue.assignAll(items);
-                  // Automatic selection restoration removed for clean startup
+                  
+                  // ✅ Auto-select the first contact by default if idle
+                  if (items.isNotEmpty && openedContactId.value == null && status.value == 'idle') {
+                    final first = items.first;
+                    openedContactId.value = first.id;
+                    openedContactIndex.value = 0;
+                    currentContact.value = first;
+                  }
                 } else {
                   // Avoid duplicates on subsequent pages
                   final existing = contactQueue.map((e) => e.id).toSet();

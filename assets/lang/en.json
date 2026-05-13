@@ -249,5 +249,7 @@
   "sim_retry_message": "Please ensure your SIM cards are properly inserted and you have granted phone permissions.",
   "retry": "Retry",
   "next_dial": "Next Dial",
-  "ready_to_dial": "Ready To Dial"
+  "ready_to_dial": "Ready To Dial",
+  "on_call": "On Call"
+
 }

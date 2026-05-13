@@ -69,7 +69,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                   ? SliverPersistentHeader(
                       pinned: true,
                       delegate: _SliverHeaderDelegate(
-                        height: 105.h,
+                        height: 103.h,
                         child: Container(
                           color: AppColors.themeColor.scaffoldBackgroundColor,
                           padding: EdgeInsets.symmetric(
