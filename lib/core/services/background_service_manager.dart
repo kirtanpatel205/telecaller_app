@@ -122,6 +122,7 @@ class BackgroundServiceManager {
 
   static void setIsBackgroundIsolate(bool value) {
     _isBackgroundIsolate = value;
+    print("📱 [Background] _isBackgroundIsolate set to: $value (Isolate: ${Isolate.current.debugName})");
   }
 
   static const _channel = MethodChannel(
@@ -156,27 +157,40 @@ class BackgroundServiceManager {
     }
   }
 
-  static Future<void> fetchAndSaveSimInfo() async {
+  static Future<void> fetchAndSaveSimInfo({bool forceNative = false}) async {
     try {
+      // ✅ Robust background detection
+      final bool isBackground = _isBackgroundIsolate || 
+                                 Isolate.current.debugName == 'background_service' || 
+                                 Isolate.current.debugName == 'Workmanager';
+
       // ✅ In background isolates, native plugins often fail due to lack of Activity context.
-      // We rely on the cache populated by the foreground isolate.
-      if (_isBackgroundIsolate) {
-        print("📱 [Background] Using cached SIM info to avoid native crash.");
+      // We rely on the cache populated by the foreground isolate unless forced.
+      if (isBackground && !forceNative) {
+        print("📱 [Background] Using cached SIM info to avoid native crash (Isolate: ${Isolate.current.debugName})");
         final cachedSims = await Storage.getSimInfo();
         if (cachedSims != null && cachedSims.isNotEmpty) {
           print("✅ [Background] Loaded ${cachedSims.length} SIMs from cache.");
+        } else {
+          print("⚠️ [Background] SIM cache is empty. Waiting for foreground to populate.");
         }
         return;
       }
 
+      print("📱 [SIM] Fetching fresh SIM metadata (Isolate: ${Isolate.current.debugName})...");
+
       // =========================
       // PHONE PERMISSION CHECK
       // =========================
+      // Check permission before calling native SIM info to avoid crashes in plugins
       final phonePermission = await Permission.phone.status;
 
       if (!phonePermission.isGranted) {
         // Requesting permission from background is not possible/reliable
-        if (_isBackgroundIsolate) return;
+        if (isBackground) {
+          print("❌ [SIM] Background SIM fetch skipped: Phone permission not granted.");
+          return;
+        }
 
         final result = await Permission.phone.request();
         if (!result.isGranted) {
@@ -188,9 +202,9 @@ class BackgroundServiceManager {
       // =========================
       // FETCH SIM INFO
       // =========================
-      print("📱 [SIM] Fetching fresh SIM metadata...");
       
       // Native call — wrapped defensively
+      // The plugin 'sim_card_code' (or transitive 'sim_data') often crashes here in background
       final List<SimCardInfo> simCards = await SimCardManager.allSimInfo;
 
       if (simCards.isNotEmpty) {
@@ -203,20 +217,22 @@ class BackgroundServiceManager {
                   'subscriptionId': sim.subscriptionId,
                 }).toList();
 
-        print("📱 [SIM] Fetched ${simInfoList.length} SIM slots");
+        print("📱 [SIM] Successfully fetched ${simInfoList.length} SIM slots natively.");
 
         // Sync to all available storage layers
         await GetStorage().write('sim_info_cache', simInfoList);
         await Storage.saveSimInfo(simInfoList);
       } else {
-        print("ℹ️ [SIM] No SIM cards detected.");
+        print("ℹ️ [SIM] No SIM cards detected natively.");
       }
     } catch (e) {
       final errorStr = e.toString();
       if (errorStr.contains("MissingPluginException") || errorStr.contains("no_implementation")) {
-        print("ℹ️ [SIM] Native channel not available.");
+        print("ℹ️ [SIM] Native channel not available in this isolate.");
+      } else if (errorStr.contains("NullPointerException") || errorStr.contains("null object reference")) {
+        print("⚠️ [SIM] Plugin failed due to missing Context (expected in background): $e");
       } else {
-        print("! Background SIM fetch failed, falling back to cache: $e");
+        print("! [SIM] Unexpected error fetching SIM info: $e");
       }
     }
   }
