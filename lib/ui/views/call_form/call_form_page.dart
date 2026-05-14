@@ -14,15 +14,16 @@ class CallFormPage extends StatelessWidget {
   CallFormPage({super.key});
 
   IconData? _getIconForType(String type) {
-    if (type == FORM_FIELD_TYPES["LINK"]) return Icons.link_rounded;
-    if (type == FORM_FIELD_TYPES["LOCATION"]) return Icons.location_on_outlined;
-    if (type == FORM_FIELD_TYPES["NUMBER"]) return Icons.onetwothree_rounded;
-    if (type == FORM_FIELD_TYPES["EMAIL"]) return Icons.email_outlined;
-    if (type == FORM_FIELD_TYPES["IMAGE"]) return Icons.image_outlined;
-    if (type == FORM_FIELD_TYPES["VIDEO"]) return Icons.videocam_outlined;
-    if (type == FORM_FIELD_TYPES["EXCEL"]) return Icons.table_chart_outlined;
-    if (type == FORM_FIELD_TYPES["PHONE"]) return Icons.phone_android_rounded;
-    return null;
+    if (type == FORM_FIELD_TYPES["NUMBER"]) return Icons.numbers_rounded;
+    if (type == FORM_FIELD_TYPES["EMAIL"]) return Icons.email_rounded;
+    if (type == FORM_FIELD_TYPES["IMAGE"]) return Icons.image_rounded;
+    if (type == FORM_FIELD_TYPES["VIDEO"]) return Icons.videocam_rounded;
+    if (type == FORM_FIELD_TYPES["EXCEL"]) return Icons.table_chart_rounded;
+    if (type == FORM_FIELD_TYPES["PHONE"]) return Icons.phone_iphone_rounded;
+    if (type == FORM_FIELD_TYPES["LINK"]) return Icons.language_rounded;
+    if (type == FORM_FIELD_TYPES["DATE"]) return Icons.calendar_month_rounded;
+    if (type == FORM_FIELD_TYPES["TIME"]) return Icons.schedule_rounded;
+    return Icons.edit_note_rounded;
   }
 
 
@@ -30,13 +31,20 @@ class CallFormPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() => PopScope(
       canPop: controller.canClose.value,
+      onPopInvoked: (didPop) {
+        if (didPop) return;
+        // If it didn't pop, it means canPop was false.
+        // We stay silent or show a small hint if needed, but the main thing is 
+        // that it should NOT pop the form dialog.
+        debugPrint("🚫 Pop blocked: Form is locked. didPop=$didPop, canClose=${controller.canClose.value}");
+      },
       child: Dialog(
         insetPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 24.h),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
         elevation: 12,
         clipBehavior: Clip.antiAlias,
         child: Container(
-          color: AppColors.themeColor.cardBgColor,
+          color: AppColors.themeColor.cardColor,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -140,9 +148,9 @@ class CallFormPage extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
       decoration: BoxDecoration(
-        color: AppColors.themeColor.cardBgColor,
+        color: AppColors.themeColor.cardColor,
         border: Border(
-          bottom: BorderSide(color: Colors.grey.withOpacity(0.1), width: 1.5.w),
+          bottom: BorderSide(color: AppColors.themeColor.textPrimaryColor.withOpacity(0.05), width: 1.5.w),
         ),
       ),
       child: Row(
@@ -308,7 +316,7 @@ class CallFormPage extends StatelessWidget {
             hint: effectiveType == FORM_FIELD_TYPES["PHONE"] ? "phone".tr : hint,
             keyboardType: (effectiveType == FORM_FIELD_TYPES["PHONE"] || effectiveType == FORM_FIELD_TYPES["NUMBER"])
                 ? TextInputType.number 
-                : (effectiveType == FORM_FIELD_TYPES["EMAIL"] ? TextInputType.emailAddress : TextInputType.text),
+                : (effectiveType == FORM_FIELD_TYPES["EMAIL"] ? TextInputType.emailAddress : (effectiveType == FORM_FIELD_TYPES["LINK"] ? TextInputType.url : TextInputType.text)),
             maxLines: (effectiveType == FORM_FIELD_TYPES["TEXTAREA"]) ? 4 : 1,
             prefixIcon: effectiveType == FORM_FIELD_TYPES["PHONE"] ? null : _getIconForType(effectiveType),
             prefixText: effectiveType == FORM_FIELD_TYPES["PHONE"] ? "+91 " : null,
@@ -384,7 +392,7 @@ class CallFormPage extends StatelessWidget {
           _buildDropdown(
             selectedValue: controller.dynamicValues[fieldId],
             options: field.options ?? [],
-            hint: hint,
+            hint: (hint.isEmpty || hint.toLowerCase().contains("select")) ? "select_option".tr : hint,
           )
         else if (effectiveType == FORM_FIELD_TYPES["RADIO"])
           _buildRadioGroup(
@@ -445,21 +453,40 @@ class CallFormPage extends StatelessWidget {
       style: AppTextStyle.medium7.copyWith(fontSize: AppDimens.fontSize13, color: AppColors.themeColor.textPrimaryColor),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: AppTextStyle.regular7.copyWith(fontSize: AppDimens.fontSize12, color: Colors.grey.shade400),
+        hintStyle: AppTextStyle.regular7.copyWith(fontSize: AppDimens.fontSize12, color: AppColors.themeColor.textSecondaryColor.withOpacity(0.5)),
         filled: true,
-        fillColor: Colors.grey.withOpacity(0.03),
+        fillColor: AppColors.themeColor.scaffoldBackgroundColor.withOpacity(Get.isDarkMode ? 0.4 : 0.6),
         contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
-        prefixIcon: prefixIcon != null ? Icon(prefixIcon, size: 20.sp, color: Colors.grey) : null,
-        prefixText: prefixText,
-        prefixStyle: AppTextStyle.bold7.copyWith(fontSize: AppDimens.fontSize13, color: AppColors.themeColor.textPrimaryColor),
+        prefixIcon: prefixText != null 
+          ? Container(
+              margin: EdgeInsets.only(left: 16.w, right: 12.w),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    prefixText,
+                    style: AppTextStyle.bold7.copyWith(fontSize: AppDimens.fontSize15, color: AppColors.themeColor.primaryColor),
+                  ),
+                  SizedBox(width: 10.w),
+                  Container(width: 1.2.w, height: 22.h, color: AppColors.themeColor.textPrimaryColor.withOpacity(0.12)),
+                ],
+              ),
+            )
+          : (prefixIcon != null 
+              ? Container(
+                  margin: EdgeInsets.only(left: 16.w, right: 10.w),
+                  child: Icon(prefixIcon, size: 22.sp, color: AppColors.themeColor.primaryColor.withOpacity(0.8)),
+                ) 
+              : null),
+        prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
         suffixIcon: suffixIcon,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
-          borderSide: BorderSide(color: Colors.grey.shade200, width: 1.5.w),
+          borderSide: BorderSide(color: AppColors.themeColor.textPrimaryColor.withOpacity(0.08), width: 1.5.w),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
-          borderSide: BorderSide(color: Colors.grey.shade200, width: 1.5.w),
+          borderSide: BorderSide(color: AppColors.themeColor.textPrimaryColor.withOpacity(0.08), width: 1.5.w),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
@@ -485,9 +512,9 @@ class CallFormPage extends StatelessWidget {
     return Obx(() => Container(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
       decoration: BoxDecoration(
-        color: Colors.grey.withOpacity(0.03),
+        color: AppColors.themeColor.scaffoldBackgroundColor.withOpacity(Get.isDarkMode ? 0.4 : 0.6),
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: Colors.grey.shade200, width: 1.5.w),
+        border: Border.all(color: AppColors.themeColor.textPrimaryColor.withOpacity(0.08), width: 1.5.w),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
@@ -624,7 +651,7 @@ class CallFormPage extends StatelessWidget {
   Widget _buildDateField(BuildContext context, String fieldId, String hint) {
     return _buildTextField(
       controller: controller.dynamicControllers[fieldId],
-      hint: hint,
+      hint: (hint.isEmpty || hint.toLowerCase() == "date") ? "select_date".tr : hint,
       readOnly: true,
       onTap: () => controller.pickDate(context, fieldId),
       suffixIcon: Icon(Icons.calendar_today_rounded, size: 18.sp, color: AppColors.themeColor.primaryColor),
@@ -637,7 +664,7 @@ class CallFormPage extends StatelessWidget {
   Widget _buildTimeField(BuildContext context, String fieldId, String hint) {
     return _buildTextField(
       controller: controller.dynamicControllers[fieldId],
-      hint: hint,
+      hint: (hint.isEmpty || hint.toLowerCase() == "time") ? "select_time".tr : hint,
       readOnly: true,
       onTap: () => controller.pickTime(context, fieldId),
       suffixIcon: Icon(Icons.access_time_rounded, size: 18.sp, color: AppColors.themeColor.primaryColor),
@@ -748,10 +775,10 @@ class CallFormPage extends StatelessWidget {
           width: double.infinity,
           padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
           decoration: BoxDecoration(
-            color: isSelected ? accentColor.withOpacity(0.04) : Colors.grey.withOpacity(0.03),
+            color: isSelected ? accentColor.withOpacity(0.04) : AppColors.themeColor.scaffoldBackgroundColor.withOpacity(Get.isDarkMode ? 0.4 : 0.6),
             borderRadius: BorderRadius.circular(12.r),
             border: Border.all(
-              color: isSelected ? accentColor : Colors.grey.shade200,
+              color: isSelected ? accentColor : AppColors.themeColor.textPrimaryColor.withOpacity(0.08),
               width: 1.5.w,
             ),
           ),

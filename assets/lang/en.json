@@ -91,6 +91,8 @@
   "save_submit": "Save & Submit",
   "search_name_phone_email": "Search Name, Phone, Email...",
   "select_an_option": "Select an option",
+  "select_option": "Select Option",
+  "select_date": "Select Date",
   "select_country": "Select Country",
   "select_date_range": "Select Date Range",
   "sending_token_to_backgroundservice": "ðŸ“¤ Sending token to BackgroundService...",

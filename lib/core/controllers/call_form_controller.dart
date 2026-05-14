@@ -326,6 +326,31 @@ class CallFormController extends GetxController {
       initialDate: DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: Get.isDarkMode 
+              ? const ColorScheme.dark(
+                  primary: Color(0xff3298CC),
+                  onPrimary: Colors.white,
+                  surface: Color(0xFF1E1E1E),
+                  onSurface: Colors.white,
+                )
+              : ColorScheme.light(
+                  primary: AppColors.themeColor.primaryColor,
+                  onPrimary: Colors.white,
+                  surface: Colors.white,
+                  onSurface: Colors.black,
+                ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.themeColor.primaryColor,
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
     if (picked != null) {
       final formatted =
@@ -365,7 +390,7 @@ class CallFormController extends GetxController {
       Container(
         height: 350,
         decoration: BoxDecoration(
-          color: AppColors.themeColor.cardBgColor,
+          color: AppColors.themeColor.cardColor,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           boxShadow: [
             BoxShadow(
@@ -424,7 +449,7 @@ class CallFormController extends GetxController {
               child: CupertinoTheme(
                 data: CupertinoThemeData(
                   textTheme: CupertinoTextThemeData(
-                    tabLabelTextStyle: AppTextStyle.medium8.copyWith(
+                    pickerTextStyle: AppTextStyle.medium8.copyWith(
                       fontSize: 22,
                       color: AppColors.themeColor.textPrimaryColor,
                     ),
@@ -560,7 +585,7 @@ class CallFormController extends GetxController {
       Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.themeColor.cardColor,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           boxShadow: [
             BoxShadow(
