@@ -33,10 +33,15 @@ class CallFormPage extends StatelessWidget {
       canPop: controller.canClose.value,
       onPopInvoked: (didPop) {
         if (didPop) return;
-        // If it didn't pop, it means canPop was false.
-        // We stay silent or show a small hint if needed, but the main thing is 
-        // that it should NOT pop the form dialog.
-        debugPrint("🚫 Pop blocked: Form is locked. didPop=$didPop, canClose=${controller.canClose.value}");
+        Get.snackbar(
+          "Form Locked",
+          "Please use the Save or Cancel buttons at the bottom to exit.",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.black.withOpacity(0.7),
+          colorText: Colors.white,
+          margin: EdgeInsets.all(20.w),
+          duration: const Duration(seconds: 2),
+        );
       },
       child: Dialog(
         insetPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 24.h),
@@ -168,22 +173,6 @@ class CallFormPage extends StatelessWidget {
               fontWeight: FontWeight.w800,
               color: AppColors.themeColor.textSecondaryColor,
               letterSpacing: 1.2,
-            ),
-          ),
-          const Spacer(),
-          InkWell(
-            onTap: () {
-              controller.canClose.value = true;
-              Get.back();
-            },
-            borderRadius: BorderRadius.circular(20.r),
-            child: Container(
-              padding: EdgeInsets.all(4.w),
-              decoration: BoxDecoration(
-                color: Colors.grey.withOpacity(0.05),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(Icons.close, size: 20.sp, color: Colors.grey),
             ),
           ),
         ],
@@ -481,20 +470,20 @@ class CallFormPage extends StatelessWidget {
         prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
         suffixIcon: suffixIcon,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.r),
-          borderSide: BorderSide(color: AppColors.themeColor.textPrimaryColor.withOpacity(0.08), width: 1.5.w),
+          borderRadius: BorderRadius.circular(16.r),
+          borderSide: BorderSide(color: AppColors.themeColor.textPrimaryColor.withOpacity(0.06), width: 1.2.w),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.r),
-          borderSide: BorderSide(color: AppColors.themeColor.textPrimaryColor.withOpacity(0.08), width: 1.5.w),
+          borderRadius: BorderRadius.circular(16.r),
+          borderSide: BorderSide(color: AppColors.themeColor.textPrimaryColor.withOpacity(0.06), width: 1.2.w),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.r),
-          borderSide: BorderSide(color: AppColors.themeColor.primaryColor, width: 1.5.w),
+          borderRadius: BorderRadius.circular(16.r),
+          borderSide: BorderSide(color: AppColors.themeColor.primaryColor.withOpacity(0.5), width: 1.8.w),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.r),
-          borderSide: BorderSide(color: Colors.redAccent, width: 1.5.w),
+          borderRadius: BorderRadius.circular(16.r),
+          borderSide: BorderSide(color: Colors.redAccent.withOpacity(0.5), width: 1.2.w),
         ),
       ),
     );

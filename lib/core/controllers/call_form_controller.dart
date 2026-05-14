@@ -1,6 +1,7 @@
 import 'dart:io' as java_io;
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:telecaller_app/core/models/all_lead_entity.dart';
 import 'package:telecaller_app/core/services/api_service.dart';
@@ -402,12 +403,21 @@ class CallFormController extends GetxController {
         ),
         child: Column(
           children: [
+            // Drag Handle
+            Center(
+              child: Container(
+                margin: EdgeInsets.only(top: 12.h),
+                width: 40.w,
+                height: 4.h,
+                decoration: BoxDecoration(
+                  color: Colors.grey.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(10.r),
+                ),
+              ),
+            ),
             // Header with title and buttons
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              decoration: BoxDecoration(
-                border: Border(bottom: BorderSide(color: Colors.grey.withOpacity(0.1), width: 1)),
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -415,14 +425,15 @@ class CallFormController extends GetxController {
                     onPressed: () => Get.back(),
                     child: Text(
                       "cancel".tr,
-                      style: AppTextStyle.medium8.copyWith(color: Colors.grey, fontSize: 15),
+                      style: AppTextStyle.medium8.copyWith(color: Colors.redAccent, fontSize: 16),
                     ),
                   ),
                   Text(
                     "select_time".tr,
                     style: AppTextStyle.bold11.copyWith(
-                      fontSize: 17,
+                      fontSize: 19,
                       color: AppColors.themeColor.textPrimaryColor,
+                      letterSpacing: -0.5,
                     ),
                   ),
                   TextButton(
@@ -437,7 +448,7 @@ class CallFormController extends GetxController {
                       "done".tr,
                       style: AppTextStyle.bold11.copyWith(
                         color: AppColors.themeColor.primaryColor,
-                        fontSize: 15,
+                        fontSize: 16,
                       ),
                     ),
                   ),
