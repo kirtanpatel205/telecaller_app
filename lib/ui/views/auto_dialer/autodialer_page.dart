@@ -1671,7 +1671,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                 color: isActive ? Colors.white : AppColors.themeColor.primaryColor.withOpacity(0.4),
               ),
               SizedBox(width: 4.w),
-              Text(mode.toUpperCase()),
+              Text(mode.tr.toUpperCase()),
             ],
           ),
         ),

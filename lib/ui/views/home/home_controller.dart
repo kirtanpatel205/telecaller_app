@@ -54,5 +54,6 @@ class HomeController extends GetxController {
 
   void onBottomTabChange(int index) {
     currentTab.value = index;
+    autoDialerController.fetchUserMode();
   }
 }

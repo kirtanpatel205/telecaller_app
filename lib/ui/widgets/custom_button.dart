@@ -10,7 +10,7 @@ class CustomButton extends StatelessWidget {
   final bool enabled;
   final bool isLoading;
 
-  CustomButton({
+  const CustomButton({
     Key? key,
     required this.onClick,
     required this.title,
@@ -20,27 +20,58 @@ class CustomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
       width: double.infinity,
-      height: 50,
-      child: ElevatedButton(
-        onPressed: (enabled && !isLoading) ? onClick : null,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: enabled
-              ? AppColors.themeColor.primaryColor
-              : AppColors.themeColor.primaryColor.withOpacity(0.5),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
+      height: 56, // Increased height for premium feel
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        gradient: enabled && !isLoading
+            ? LinearGradient(
+                colors: [
+                  AppColors.themeColor.primaryColor,
+                  AppColors.themeColor.primaryColor.withOpacity(0.8),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              )
+            : null,
+        color: !enabled || isLoading 
+            ? AppColors.themeColor.primaryColor.withOpacity(0.4)
+            : null,
+        boxShadow: enabled && !isLoading
+            ? [
+                BoxShadow(
+                  color: AppColors.themeColor.primaryColor.withOpacity(0.3),
+                  blurRadius: 12,
+                  offset: const Offset(0, 6),
+                ),
+              ]
+            : null,
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: (enabled && !isLoading) ? onClick : null,
+          borderRadius: BorderRadius.circular(16),
+          child: Center(
+            child: isLoading
+                ? SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      color: AppColors.themeColor.onPrimaryColor,
+                      strokeWidth: 2.5,
+                    ),
+                  )
+                : Text(
+                    title,
+                    style: AppTextStyle.buttonTextStyle.copyWith(
+                      color: AppColors.themeColor.onPrimaryColor,
+                      letterSpacing: 0.5,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
           ),
-          disabledBackgroundColor: AppColors.themeColor.primaryColor.withOpacity(0.5),
-        ),
-        child: isLoading
-            ? CircularProgressIndicator(
-          color: AppColors.themeColor.onPrimaryColor,
-        )
-            : Text(
-          title,
-          style: AppTextStyle.buttonTextStyle,
         ),
       ),
     );

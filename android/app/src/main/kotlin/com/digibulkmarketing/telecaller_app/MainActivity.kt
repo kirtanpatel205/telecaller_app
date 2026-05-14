@@ -153,6 +153,16 @@ class MainActivity : FlutterActivity() {
                         result.error("AUTOSTART_FAILED", e.message, null)
                     }
                 }
+                "getSimInfo" -> {
+                    try {
+                        val simHelper = SimDetectionHelper(this)
+                        val simInfoList = simHelper.getSimInfo()
+                        result.success(simInfoList)
+                    } catch (e: Exception) {
+                        Log.e("MainActivity", "Failed to get SIM info: ${e.message}")
+                        result.error("SIM_INFO_FAILED", e.message, null)
+                    }
+                }
                 "makeDirectCall" -> {
                     val number = call.argument<String>("number")
                     val slotIndex = call.argument<Int>("slotIndex") // 0 or 1
@@ -199,7 +209,12 @@ class MainActivity : FlutterActivity() {
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
                     val subscriptionManager = getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager
-                    val activeSubscriptionInfoList = subscriptionManager.activeSubscriptionInfoList
+                    val activeSubscriptionInfoList = try {
+                        subscriptionManager.activeSubscriptionInfoList
+                    } catch (e: SecurityException) {
+                        null
+                    }
+                    
                     if (activeSubscriptionInfoList != null) {
                         for (subscriptionInfo in activeSubscriptionInfoList) {
                             if (subscriptionInfo.simSlotIndex == slotIndex) {
@@ -217,8 +232,6 @@ class MainActivity : FlutterActivity() {
                         }
                     }
                 }
-            } catch (e: SecurityException) {
-                Log.w("MainActivity", "SecurityException: Missing READ_PHONE_STATE to get subId")
             } catch (e: Exception) {
                 Log.w("MainActivity", "Error getting subscription ID: ${e.message}")
             }

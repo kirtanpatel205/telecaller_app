@@ -119,13 +119,13 @@ class AutoDialerController extends GetxController {
         if (Get.currentRoute == Routes.AUTO_DIAL || Get.currentRoute == Paths.AUTO_DIAL) {
           Get.offAllNamed(Routes.HOME);
           Future.delayed(const Duration(milliseconds: 500), () {
-            Get.snackbar(
-              'Access Restricted',
-              'Auto Dialer is only available in APP mode.',
-              snackPosition: SnackPosition.BOTTOM,
-              backgroundColor: Colors.orange.withOpacity(0.9),
-              colorText: Colors.white,
-            );
+          Get.snackbar(
+            'access_restricted'.tr,
+            'autodialer_pages_only_mode'.tr,
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.orange.withOpacity(0.9),
+            colorText: Colors.white,
+          );
           });
         }
       }

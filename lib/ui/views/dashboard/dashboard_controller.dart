@@ -17,8 +17,6 @@ class DashboardController extends GetxController{
     // TODO: implement onInit
     authController.refreshProfile();
     super.onInit();
-    apiService.getUserSetting();
-
     fetchChartData();
     fetchLeadChartData();
     static();

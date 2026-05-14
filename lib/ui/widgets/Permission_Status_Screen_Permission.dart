@@ -32,7 +32,9 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
   late AnimationController _animationController;
 
   final Map<String, List<Permission>> permissionGroups = {
-    'Phone & Call': [Permission.phone],
+    'Phone & Call': [
+      Permission.phone,
+    ],
     'Notifications': [Permission.notification],
     'Location & Media': [
       Permission.location,

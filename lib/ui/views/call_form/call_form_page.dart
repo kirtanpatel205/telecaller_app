@@ -21,6 +21,7 @@ class CallFormPage extends StatelessWidget {
     if (type == FORM_FIELD_TYPES["IMAGE"]) return Icons.image_outlined;
     if (type == FORM_FIELD_TYPES["VIDEO"]) return Icons.videocam_outlined;
     if (type == FORM_FIELD_TYPES["EXCEL"]) return Icons.table_chart_outlined;
+    if (type == FORM_FIELD_TYPES["PHONE"]) return Icons.phone_android_rounded;
     return null;
   }
 
@@ -300,22 +301,42 @@ class CallFormPage extends StatelessWidget {
             effectiveType == FORM_FIELD_TYPES["NUMBER"] ||
             effectiveType == FORM_FIELD_TYPES["EMAIL"] ||
             effectiveType == FORM_FIELD_TYPES["TEXTAREA"] ||
-            effectiveType == FORM_FIELD_TYPES["LINK"])
+            effectiveType == FORM_FIELD_TYPES["LINK"] ||
+            effectiveType == FORM_FIELD_TYPES["PHONE"])
           _buildTextField(
             controller: controller.dynamicControllers[fieldId],
             hint: hint,
-            keyboardType: effectiveType == FORM_FIELD_TYPES["NUMBER"] 
+            keyboardType: (effectiveType == FORM_FIELD_TYPES["PHONE"] || effectiveType == FORM_FIELD_TYPES["NUMBER"])
                 ? TextInputType.number 
                 : (effectiveType == FORM_FIELD_TYPES["EMAIL"] ? TextInputType.emailAddress : TextInputType.text),
             maxLines: (effectiveType == FORM_FIELD_TYPES["TEXTAREA"]) ? 4 : 1,
             prefixIcon: _getIconForType(effectiveType),
+            inputFormatters: effectiveType == FORM_FIELD_TYPES["PHONE"] 
+                ? [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(10)]
+                : (effectiveType == FORM_FIELD_TYPES["NUMBER"] ? [FilteringTextInputFormatter.digitsOnly] : null),
             validator: (val) {
-              if (isRequired && (val == null || val.trim().isEmpty)) {
+              final cleanVal = val?.trim() ?? "";
+              if (isRequired && cleanVal.isEmpty) {
                 return "$label is required";
               }
-              if (effectiveType == FORM_FIELD_TYPES["EMAIL"] && val != null && val.isNotEmpty) {
-                if (!GetUtils.isEmail(val)) {
-                  return "enter_a_valid_email".tr;
+              
+              if (cleanVal.isNotEmpty) {
+                if (effectiveType == FORM_FIELD_TYPES["EMAIL"]) {
+                  if (!GetUtils.isEmail(cleanVal)) {
+                    return "enter_valid_email".tr;
+                  }
+                } else if (effectiveType == FORM_FIELD_TYPES["PHONE"]) {
+                  if (cleanVal.length != 10 || !GetUtils.isPhoneNumber(cleanVal)) {
+                    return "enter_a_valid_10_digit_phone_number".tr;
+                  }
+                } else if (effectiveType == FORM_FIELD_TYPES["NUMBER"]) {
+                  if (!GetUtils.isNumericOnly(cleanVal)) {
+                    return "enter_a_valid_number".tr;
+                  }
+                } else if (effectiveType == FORM_FIELD_TYPES["LINK"]) {
+                  if (!GetUtils.isURL(cleanVal)) {
+                    return "enter_a_valid_url".tr;
+                  }
                 }
               }
               return null;
@@ -408,6 +429,7 @@ class CallFormPage extends StatelessWidget {
     Widget? suffixIcon,
     IconData? prefixIcon,
     int maxLines = 1,
+    List<TextInputFormatter>? inputFormatters,
   }) {
     return TextFormField(
       controller: controller ?? TextEditingController(),
@@ -416,6 +438,7 @@ class CallFormPage extends StatelessWidget {
       readOnly: readOnly,
       onTap: onTap,
       maxLines: maxLines,
+      inputFormatters: inputFormatters,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       style: AppTextStyle.medium7.copyWith(fontSize: AppDimens.fontSize13, color: AppColors.themeColor.textPrimaryColor),
       decoration: InputDecoration(

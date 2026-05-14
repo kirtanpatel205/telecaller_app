@@ -211,6 +211,9 @@
     "enter_email": "Enter Email",
     "email_required": "Email is required",
     "enter_valid_email": "Please enter a valid email",
+    "enter_a_valid_10_digit_phone_number": "Please enter a valid 10-digit phone number",
+    "enter_a_valid_number": "Please enter a valid numeric value",
+    "enter_a_valid_url": "Please enter a valid URL (e.g., https://...)",
     "enter_address_line_1": "Enter Address Line 1",
     "address_line_1_required": "Address Line 1 is required",
     "enter_address_line_2": "Enter Address Line 2",
@@ -230,7 +233,12 @@
     "no_contacts_found_for_this_lead": "No contacts found for this lead",
     "invalid": "Invalid",
     "next_dial": "Next_Dial",
-    "ready_to_dial": "Ready To Dial"
+    "ready_to_dial": "Ready To Dial",
+    "autodialer_pages_only_mode": "Auto Dialer pages only mode is used for web and app only",
+    "access_restricted": "Access Restricted",
+    "follower": "Follower",
+    "web": "Web",
+    "app": "App"
   },
   "pt": {
     "welcome": "Ação",
@@ -463,7 +471,12 @@
     "no_contacts_found_for_this_lead": "Nenhum contato encontrado para esta pista.",
     "invalid": "Inválido",
     "next_dial": "Próximo_Discagem",
-    "ready_to_dial": "Pronto para discar"
+    "ready_to_dial": "Pronto para discar",
+    "autodialer_pages_only_mode": "O modo apenas para páginas do discador automático é usado apenas para web e aplicativo",
+    "access_restricted": "Acesso restrito",
+    "follower": "Seguidor",
+    "web": "Web",
+    "app": "App"
   },
   "hi": {
     "welcome": "कार्रवाई",
@@ -696,7 +709,12 @@
     "no_contacts_found_for_this_lead": "इस लीड के लिए कोई संपर्क नहीं मिला",
     "invalid": "अमान्य",
     "next_dial": "अगला_डायल",
-    "ready_to_dial": "डायल करने के लिए तैयार"
+    "ready_to_dial": "डायल करने के लिए तैयार",
+    "autodialer_pages_only_mode": "ऑटो डायलर पेज केवल मोड वेब और ऐप के लिए उपयोग किया जाता है",
+    "access_restricted": "पहुंच प्रतिबंधित",
+    "follower": "अनुयायी",
+    "web": "वेब",
+    "app": "ऐप"
   },
   "ta": {
     "welcome": "செயல்",
@@ -929,7 +947,12 @@
     "no_contacts_found_for_this_lead": "இந்த முன்னணிக்கு எந்தத் தொடர்புகளும் காணப்படவில்லை",
     "invalid": "செல்லாதது",
     "next_dial": "அடுத்த டயல்",
-    "ready_to_dial": "அழைக்கத் தயார்"
+    "ready_to_dial": "அழைக்கத் தயார்",
+    "autodialer_pages_only_mode": "ஆட்டோ டயலர் பக்கங்கள் பயன்முறை வெப் மற்றும் ஆப்-க்கு மட்டுமே பயன்படுத்தப்படுகிறது",
+    "access_restricted": "அணுகல் கட்டுப்படுத்தப்பட்டது",
+    "follower": "பின்தொடர்பவர்",
+    "web": "இணையம்",
+    "app": "செயலி"
   },
   "te": {
     "welcome": "చర్య",
@@ -7686,7 +7709,12 @@
     "no_contacts_found_for_this_lead": "આ લીડ માટે કોઈ સંપર્કો મળ્યા નથી.",
     "invalid": "અમાન્ય",
     "next_dial": "આગળ_ડાયલ કરો",
-    "ready_to_dial": "ડાયલ કરવા માટે તૈયાર"
+    "ready_to_dial": "ડાયલ કરવા માટે તૈયાર",
+    "autodialer_pages_only_mode": "ઓટો ડાયલર પેજ ફક્ત મોડ વેબ અને એપ માટે ઉપયોગમાં લેવાય છે",
+    "access_restricted": "પ્રવેશ પ્રતિબંધિત",
+    "follower": "અનુયાયી",
+    "web": "વેબ",
+    "app": "એપ"
   },
   "kn": {
     "welcome": "ಕ್ರಿಯೆ",

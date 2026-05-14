@@ -67,11 +67,14 @@ class CallFormController extends GetxController {
 
     bool isExcelByLabel = lbl.contains("excel") || lbl.contains("sheet") || lbl.contains("csv") || lbl.contains("xls");
     bool isFileByLabel = lbl.contains("file") || lbl.contains("document") || lbl.contains("pdf") || lbl.contains("attachment");
+    bool isPhoneByLabel = lbl.contains("phone") || lbl.contains("mobile") || lbl.contains("contact") || lbl.contains("whatsapp");
 
     if (isExcelByLabel && (type != FORM_FIELD_TYPES["IMAGE"] && type != FORM_FIELD_TYPES["VIDEO"])) {
       return FORM_FIELD_TYPES["EXCEL"]!;
     } else if (isFileByLabel && (type != FORM_FIELD_TYPES["IMAGE"] && type != FORM_FIELD_TYPES["VIDEO"])) {
       return FORM_FIELD_TYPES["FILE"]!;
+    } else if (isPhoneByLabel && (type == FORM_FIELD_TYPES["TEXT"] || type == FORM_FIELD_TYPES["NUMBER"] || type == "")) {
+      return FORM_FIELD_TYPES["PHONE"]!;
     }
     return type;
   }
@@ -221,8 +224,8 @@ class CallFormController extends GetxController {
           value = dynamicValues[fieldId]!.value;
         }
 
-        // 🔢 NUMBER / RATING / SLIDER
-        if (field.type == FORM_FIELD_TYPES["NUMBER"] ||
+        // 🔢 NUMBER / RATING / SLIDER (Exclude PHONE detected fields)
+        if ((field.type == FORM_FIELD_TYPES["NUMBER"] && fType != FORM_FIELD_TYPES["PHONE"]) ||
             field.type == FORM_FIELD_TYPES["RATING"] ||
             field.type == FORM_FIELD_TYPES["SLIDER"]) {
           value = num.tryParse(value.toString()) ?? value;

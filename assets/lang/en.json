@@ -250,6 +250,10 @@
   "retry": "Retry",
   "next_dial": "Next Dial",
   "ready_to_dial": "Ready To Dial",
-  "on_call": "On Call"
-
+  "on_call": "On Call",
+  "autodialer_pages_only_mode": "Auto Dialer pages only mode is used for web and app only",
+  "access_restricted": "Access Restricted",
+  "follower": "Follower",
+  "web": "Web",
+  "app": "App"
 }
