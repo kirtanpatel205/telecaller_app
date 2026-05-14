@@ -305,12 +305,13 @@ class CallFormPage extends StatelessWidget {
             effectiveType == FORM_FIELD_TYPES["PHONE"])
           _buildTextField(
             controller: controller.dynamicControllers[fieldId],
-            hint: hint,
+            hint: effectiveType == FORM_FIELD_TYPES["PHONE"] ? "phone".tr : hint,
             keyboardType: (effectiveType == FORM_FIELD_TYPES["PHONE"] || effectiveType == FORM_FIELD_TYPES["NUMBER"])
                 ? TextInputType.number 
                 : (effectiveType == FORM_FIELD_TYPES["EMAIL"] ? TextInputType.emailAddress : TextInputType.text),
             maxLines: (effectiveType == FORM_FIELD_TYPES["TEXTAREA"]) ? 4 : 1,
-            prefixIcon: _getIconForType(effectiveType),
+            prefixIcon: effectiveType == FORM_FIELD_TYPES["PHONE"] ? null : _getIconForType(effectiveType),
+            prefixText: effectiveType == FORM_FIELD_TYPES["PHONE"] ? "+91 " : null,
             inputFormatters: effectiveType == FORM_FIELD_TYPES["PHONE"] 
                 ? [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(10)]
                 : (effectiveType == FORM_FIELD_TYPES["NUMBER"] ? [FilteringTextInputFormatter.digitsOnly] : null),
@@ -428,6 +429,7 @@ class CallFormPage extends StatelessWidget {
     VoidCallback? onTap,
     Widget? suffixIcon,
     IconData? prefixIcon,
+    String? prefixText,
     int maxLines = 1,
     List<TextInputFormatter>? inputFormatters,
   }) {
@@ -448,6 +450,8 @@ class CallFormPage extends StatelessWidget {
         fillColor: Colors.grey.withOpacity(0.03),
         contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
         prefixIcon: prefixIcon != null ? Icon(prefixIcon, size: 20.sp, color: Colors.grey) : null,
+        prefixText: prefixText,
+        prefixStyle: AppTextStyle.bold7.copyWith(fontSize: AppDimens.fontSize13, color: AppColors.themeColor.textPrimaryColor),
         suffixIcon: suffixIcon,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),

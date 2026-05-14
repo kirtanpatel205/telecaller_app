@@ -19,6 +19,7 @@ import 'package:telecaller_app/ui/views/home/overlay/overlay_pages.dart';
 import 'package:intl/intl.dart';
 import 'package:telecaller_app/constants/app_routes.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:sliver_tools/sliver_tools.dart';
 
 // Note: flutter_pagewise is still needed for the contacts PagewiseSliverList
 
@@ -66,18 +67,16 @@ class AutoDialerPage extends GetView<AutoDialerController> {
 
               // 3. Campaign Performance (Pinned Header - Only show if lead selected)
               Obx(() => controller.selectedLeadDataset.value != null
-                  ? SliverPersistentHeader(
-                      pinned: true,
-                      delegate: _SliverHeaderDelegate(
-                        height: 103.h,
-                        child: Container(
-                          color: AppColors.themeColor.scaffoldBackgroundColor,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: isTablet ? 32.w : 16.w,
-                            vertical: 12.h,
-                          ),
-                          child: _buildPremiumDashboardSection(isTablet),
+                  ? SliverPinnedHeader(
+                      child: Container(
+                        color: AppColors.themeColor.scaffoldBackgroundColor,
+                        padding: EdgeInsets.fromLTRB(
+                          isTablet ? 32.w : 16.w,
+                          0,
+                          isTablet ? 32.w : 16.w,
+                          8.h,
                         ),
+                        child: _buildPremiumDashboardSection(isTablet),
                       ),
                     )
                   : const SliverToBoxAdapter(child: SizedBox.shrink())),
@@ -146,6 +145,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
 
   Widget _buildPremiumDashboardSection(bool isTablet) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
@@ -203,7 +203,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
     return Expanded(
       child: Container(
         margin: EdgeInsets.symmetric(horizontal: 2.w),
-        padding: EdgeInsets.symmetric(vertical: 12.h),
+        padding: EdgeInsets.symmetric(vertical: 10.h),
         decoration: BoxDecoration(
           color: color.withOpacity(0.05),
           borderRadius: BorderRadius.circular(16.r),
@@ -1677,33 +1677,5 @@ class AutoDialerPage extends GetView<AutoDialerController> {
         ),
       ),
     );
-  }
-}
-
-
-class _SliverHeaderDelegate extends SliverPersistentHeaderDelegate {
-  final Widget child;
-  final double height;
-
-  _SliverHeaderDelegate({required this.child, required this.height});
-
-  @override
-  double get minExtent => height;
-
-  @override
-  double get maxExtent => height;
-
-  @override
-  Widget build(
-    BuildContext context,
-    double shrinkOffset,
-    bool overlapsContent,
-  ) {
-    return child;
-  }
-
-  @override
-  bool shouldRebuild(_SliverHeaderDelegate oldDelegate) {
-    return oldDelegate.height != height || oldDelegate.child != child;
   }
 }

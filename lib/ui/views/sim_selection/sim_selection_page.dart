@@ -235,11 +235,15 @@ class SimSelectionPage extends GetView<SimSelectionController> {
                     children: [
                       Row(
                         children: [
-                          Text(
-                            carrier,
-                            style: AppTextStyle.bold7.copyWith(fontSize: 18.sp),
+                          Expanded(
+                            child: Text(
+                              carrier,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style: AppTextStyle.bold7.copyWith(fontSize: 18.sp),
+                            ),
                           ),
-                          const Spacer(),
+                          SizedBox(width: 8.w),
                           Container(
                             padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
                             decoration: BoxDecoration(
@@ -259,6 +263,8 @@ class SimSelectionPage extends GetView<SimSelectionController> {
                       SizedBox(height: 4.h),
                       Text(
                         hasNumber ? number : "Active SIM Detected",
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
                         style: AppTextStyle.regular7.copyWith(
                           fontSize: 14.sp,
                           color: hasNumber 

@@ -33,12 +33,14 @@ class NetworkService extends GetxService {
   void _updateConnectionStatus(ConnectivityResult result) {
     if (result == ConnectivityResult.none) {
       _isOnline.value = false;
-      Get.snackbar(
-        "Internet",
-        "No connection. Please turn on your internet!",
-        backgroundColor: Get.theme.colorScheme.error,
-        colorText: Get.theme.colorScheme.onError,
-      );
+      if (Get.context != null) {
+        Get.snackbar(
+          "Internet",
+          "No connection. Please turn on your internet!",
+          backgroundColor: Get.theme.colorScheme.error,
+          colorText: Get.theme.colorScheme.onError,
+        );
+      }
     } else {
       _isOnline.value = true;
       // Get.snackbar("Internet", "Connected to internet",

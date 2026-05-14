@@ -404,10 +404,17 @@ class OverlayController extends GetxController {
       
       // Restore form metadata from AutoDialerController if available
       try {
-        final dynamic ad = Get.find(tag: 'AutoDialerController'); // if using tag
-        // If not using tag, we have to be careful. 
-        // The best way is for AutoDialerController to push this data to PhoneStatusService itself.
-      } catch (e) {}
+        if (Get.isRegistered<AutoDialerController>()) {
+          final ad = Get.find<AutoDialerController>();
+          final dataset = ad.selectedLeadDataset.value;
+          if (dataset != null) {
+            ps.currentFormId = dataset.formId?.id ?? "";
+            ps.currentFormFields = dataset.formId?.fields ?? [];
+          }
+        }
+      } catch (e) {
+        print("⚠️ Overlay Sync: Could not restore form metadata: $e");
+      }
       
       print("🔄 Overlay Sync: Lead=${ps.currentLeadId} | Contact=${ps.currentLeadContactId} | Form=${ps.currentFormId}");
     }

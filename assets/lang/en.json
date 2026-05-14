@@ -186,6 +186,7 @@
   "end_date": "End Date",
   "email": "Email",
   "phone": "Phone",
+  "enter_a_valid_10_digit_phone_number": "Please enter a valid 10-digit phone number",
   "select_time": "Select Time",
   "done": "Done",
   "refresh_profile": "Refresh Profile",

@@ -217,6 +217,11 @@ class CallFormController extends GetxController {
         // 📍 3. TEXT-BASED FIELDS (Controllers)
         else if (dynamicControllers.containsKey(fieldId)) {
           value = dynamicControllers[fieldId]!.text.trim();
+          if (fType == FORM_FIELD_TYPES["PHONE"] && value.isNotEmpty) {
+            if (!value.startsWith("+91")) {
+              value = "+91$value";
+            }
+          }
         }
 
         // 📍 4. OTHER STATE-BASED FIELDS (Values)
@@ -831,7 +836,8 @@ class CallFormController extends GetxController {
             effectiveType == FORM_FIELD_TYPES["TEXTAREA"] ||
             effectiveType == FORM_FIELD_TYPES["DATE"] ||
             effectiveType == FORM_FIELD_TYPES["TIME"] ||
-            effectiveType == FORM_FIELD_TYPES["LINK"]) {
+            effectiveType == FORM_FIELD_TYPES["LINK"] ||
+            effectiveType == FORM_FIELD_TYPES["PHONE"]) {
           controller.dynamicControllers[fieldId] = TextEditingController();
         }
 

@@ -115,6 +115,12 @@ class PhoneStatusService extends GetxService with WidgetsBindingObserver {
         );
       }
 
+      // 2. Handle active call form that was blocked by background
+      if (_uiState == _CallUIState.callActive && !_isFormShowing()) {
+        print("📞 [LIFECYCLE] App resumed with active call. Opening CallFormPage.");
+        _openCallForm();
+      }
+
       handleDialerClosed();
     }
   }
@@ -271,7 +277,7 @@ class PhoneStatusService extends GetxService with WidgetsBindingObserver {
 
       // Start debounce timer to filter out SIM selection cancels
       _debounceTimer?.cancel();
-      _debounceTimer = Timer(const Duration(seconds: 2), () async {
+      _debounceTimer = Timer(const Duration(seconds: 1), () async {
         _isCallConfirmed = true;
         isCallActive.value = true;
         callStatus.value = "Call Started";
@@ -474,13 +480,8 @@ class PhoneStatusService extends GetxService with WidgetsBindingObserver {
       return;
     }
 
-    // ✅ CRITICAL: Do NOT open UI if app is not in foreground (resumed)
-    if (WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed) {
-      print(
-        "⏭️ [UI] App is in background. Skipping automatic CallFormPage launch.",
-      );
-      return;
-    }
+    // Note: Removed the lifecycle check so that the dialog is registered even in background
+    // and becomes visible as soon as the user switches back to the app.
 
     // Brief delay so the native phone dialer surfaces first
     await Future.delayed(const Duration(milliseconds: 500));
