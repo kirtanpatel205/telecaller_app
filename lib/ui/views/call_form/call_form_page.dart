@@ -873,7 +873,7 @@ class CallFormPage extends StatelessWidget {
               ),
               child: controller.isLoading.value
                 ? SizedBox(width: 20.sp, height: 20.sp, child: CircularProgressIndicator(strokeWidth: 2.5, color: AppColors.themeColor.onPrimaryColor))
-                : Text("save_submit".tr, style: AppTextStyle.bold7.copyWith(fontSize: AppDimens.fontSize14, color: AppColors.themeColor.onPrimaryColor)),
+                : Text("save".tr, style: AppTextStyle.bold7.copyWith(fontSize: AppDimens.fontSize14, color: AppColors.themeColor.onPrimaryColor)),
             )),
           ),
         ],

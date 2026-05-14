@@ -258,5 +258,8 @@
   "access_restricted": "Access Restricted",
   "follower": "Follower",
   "web": "Web",
-  "app": "App"
+  "app": "App",
+  "sms": "Sms",
+  "whatsapp": "Whatsapp"
+
 }

@@ -273,7 +273,7 @@ class OverlayPages extends StatelessWidget {
                         label:
                             controller.isPaused.value
                                 ? "resume".tr
-                                : "pause".tr,
+                                : "paused".tr,
                         icon:
                             controller.isPaused.value
                                 ? Icons.play_arrow_rounded

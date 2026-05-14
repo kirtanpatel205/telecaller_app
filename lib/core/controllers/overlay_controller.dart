@@ -309,16 +309,12 @@ class OverlayController extends GetxController {
       return;
     }
 
-    // 3. Move to next index but stay PAUSED
-    currentQueueIndex.value++;
-    
-    isPreCallMode.value = true;
-    _isPreCallInternal = true;
-    countdown.value = 0; // Indicates ready to dial
-    isPaused.value = true; 
-    isAutoCallMode.value = true;
+    // 3. Stop the auto-dialer mode
+    isAutoCallMode.value = false;
+    isPaused.value = false;
+    stopCountdown();
 
-    print("⏸️ Close clicked: Moved to next lead and PAUSED for manual start.");
+    print("🛑 Close clicked: Auto-dialer mode stopped.");
 
     // 4. Close the overlay dialog safely
     if (Get.isDialogOpen == true) {

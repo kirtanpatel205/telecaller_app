@@ -28,105 +28,115 @@ class AutoDialerPage extends GetView<AutoDialerController> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isTablet = MediaQuery.of(context).size.shortestSide > 600;
-    final bool isStandalone = Get.currentRoute == Routes.AUTO_DIAL || Get.currentRoute == Paths.AUTO_DIAL;
+    final bool isTablet = MediaQuery
+        .of(context)
+        .size
+        .shortestSide > 600;
+    final bool isStandalone = Get.currentRoute == Routes.AUTO_DIAL ||
+        Get.currentRoute == Paths.AUTO_DIAL;
 
-    Widget content = Obx(() => Stack(
-      children: [
-        RefreshIndicator(
-          onRefresh: () async => controller.refreshContacts(),
-          displacement: 40,
-          color: AppColors.themeColor.primaryColor,
-          child: CustomScrollView(
-            physics: controller.selectedLeadDataset.value == null
-                ? const NeverScrollableScrollPhysics()
-                : const AlwaysScrollableScrollPhysics(),
-            slivers: [
-              // 1. Pinned App Bar
-              SliverCustomAppBar(
-                leading: const SizedBox.shrink(),
-                titleText: 'auto_dialer'.tr,
-                showBackButton: false,
-                actions: [
-                  _buildModeSwitch(),
+    Widget content = Obx(() =>
+        Stack(
+          children: [
+            RefreshIndicator(
+              onRefresh: () async => controller.refreshContacts(),
+              displacement: 40,
+              color: AppColors.themeColor.primaryColor,
+              child: CustomScrollView(
+                physics: controller.selectedLeadDataset.value == null
+                    ? const NeverScrollableScrollPhysics()
+                    : const AlwaysScrollableScrollPhysics(),
+                slivers: [
+                  // 1. Pinned App Bar
+                  SliverCustomAppBar(
+                    leading: const SizedBox.shrink(),
+                    titleText: 'auto_dialer'.tr,
+                    showBackButton: false,
+                    actions: [
+                      _buildModeSwitch(),
+                    ],
+                  ),
+
+                  // 2. Lead Dropdown Section
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(
+                        isTablet ? 32.w : 16.w,
+                        16.h,
+                        isTablet ? 32.w : 16.w,
+                        8.h,
+                      ),
+                      child: _buildLeadDropdownCard(isTablet),
+                    ),
+                  ),
+
+                  // 3. Campaign Performance (Pinned Header - Only show if lead selected)
+                  Obx(() =>
+                  controller.selectedLeadDataset.value != null
+                      ? SliverPinnedHeader(
+                    child: Container(
+                      color: AppColors.themeColor.scaffoldBackgroundColor,
+                      padding: EdgeInsets.fromLTRB(
+                        isTablet ? 32.w : 16.w,
+                        0,
+                        isTablet ? 32.w : 16.w,
+                        8.h,
+                      ),
+                      child: _buildPremiumDashboardSection(isTablet),
+                    ),
+                  )
+                      : const SliverToBoxAdapter(child: SizedBox.shrink())),
+
+                  // 4. Contact List Header & Content
+                  Obx(() {
+                    final lead = controller.selectedLeadDataset.value;
+                    if (lead == null)
+                      return const SliverToBoxAdapter(child: SizedBox.shrink());
+
+                    return SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: isTablet ? 32.w : 16.w,
+                          vertical: 16.h,
+                        ),
+                        child: _buildContactSectionHeader(isTablet, lead),
+                      ),
+                    );
+                  }),
+
+                  // 5. The Paginated List
+                  Obx(() =>
+                  controller.selectedLeadDataset.value != null
+                      ? _buildContactsPaginatedSliver(isTablet)
+                      : const SliverToBoxAdapter(child: SizedBox.shrink())),
+
+                  // 6. Initial Empty State (When no lead is selected)
+                  Obx(() =>
+                  controller.selectedLeadDataset.value == null
+                      ? SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: _buildInitialEmptyState(isTablet),
+                  )
+                      : const SliverToBoxAdapter(child: SizedBox.shrink())),
+
+                  // Bottom padding for the sticky control center (only when lead is selected)
+                  Obx(() =>
+                  controller.selectedLeadDataset.value != null
+                      ? SliverToBoxAdapter(child: SizedBox(height: 120.h))
+                      : const SliverToBoxAdapter(child: SizedBox.shrink())),
                 ],
               ),
+            ),
 
-              // 2. Lead Dropdown Section
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    isTablet ? 32.w : 16.w,
-                    16.h,
-                    isTablet ? 32.w : 16.w,
-                    8.h,
-                  ),
-                  child: _buildLeadDropdownCard(isTablet),
-                ),
-              ),
-
-              // 3. Campaign Performance (Pinned Header - Only show if lead selected)
-              Obx(() => controller.selectedLeadDataset.value != null
-                  ? SliverPinnedHeader(
-                      child: Container(
-                        color: AppColors.themeColor.scaffoldBackgroundColor,
-                        padding: EdgeInsets.fromLTRB(
-                          isTablet ? 32.w : 16.w,
-                          0,
-                          isTablet ? 32.w : 16.w,
-                          8.h,
-                        ),
-                        child: _buildPremiumDashboardSection(isTablet),
-                      ),
-                    )
-                  : const SliverToBoxAdapter(child: SizedBox.shrink())),
-
-              // 4. Contact List Header & Content
-              Obx(() {
-                final lead = controller.selectedLeadDataset.value;
-                if (lead == null) return const SliverToBoxAdapter(child: SizedBox.shrink());
-
-                return SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: isTablet ? 32.w : 16.w,
-                      vertical: 16.h,
-                    ),
-                    child: _buildContactSectionHeader(isTablet, lead),
-                  ),
-                );
-              }),
-
-              // 5. The Paginated List
-              Obx(() => controller.selectedLeadDataset.value != null
-                  ? _buildContactsPaginatedSliver(isTablet)
-                  : const SliverToBoxAdapter(child: SizedBox.shrink())),
-
-              // 6. Initial Empty State (When no lead is selected)
-              Obx(() => controller.selectedLeadDataset.value == null
-                  ? SliverFillRemaining(
-                      hasScrollBody: false,
-                      child: _buildInitialEmptyState(isTablet),
-                    )
-                  : const SliverToBoxAdapter(child: SizedBox.shrink())),
-
-              // Bottom padding for the sticky control center (only when lead is selected)
-              Obx(() => controller.selectedLeadDataset.value != null
-                  ? SliverToBoxAdapter(child: SizedBox(height: 120.h))
-                  : const SliverToBoxAdapter(child: SizedBox.shrink())),
-            ],
-          ),
-        ),
-
-        // ── STICKY CONTROL CENTER ──────────────────────
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom: 0,
-          child: _buildStickyControlCenter(isTablet),
-        ),
-      ],
-    ));
+            // ── STICKY CONTROL CENTER ──────────────────────
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: _buildStickyControlCenter(isTablet),
+            ),
+          ],
+        ));
 
     if (isStandalone) {
       return AppSafeArea(
@@ -212,14 +222,15 @@ class AutoDialerPage extends GetView<AutoDialerController> {
         child: Column(
           children: [
             Obx(
-              () => Text(
-                value.value.toString(),
-                style: TextStyle(
-                  fontSize: AppDimens.fontSize16,
-                  fontWeight: FontWeight.bold,
-                  color: color,
-                ),
-              ),
+                  () =>
+                  Text(
+                    value.value.toString(),
+                    style: TextStyle(
+                      fontSize: AppDimens.fontSize16,
+                      fontWeight: FontWeight.bold,
+                      color: color,
+                    ),
+                  ),
             ),
             SizedBox(height: 2.h),
             Text(
@@ -343,17 +354,18 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                   ),
                   items: [
                     ...leads.map(
-                      (lead) => DropdownMenuItem<String>(
-                        value: lead.id,
-                        child: Text(
-                          lead.name ?? 'Unnamed',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: AppDimens.fontSize14,
-                            color: AppColors.themeColor.textPrimaryColor,
+                          (lead) =>
+                          DropdownMenuItem<String>(
+                            value: lead.id,
+                            child: Text(
+                              lead.name ?? 'Unnamed',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: AppDimens.fontSize14,
+                                color: AppColors.themeColor.textPrimaryColor,
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
                     ),
                     if (hasMore)
                       DropdownMenuItem<String>(
@@ -377,7 +389,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                       return;
                     }
                     final match = leads.firstWhere(
-                      (l) => l.id == val,
+                          (l) => l.id == val,
                       orElse: () => leads.first,
                     );
                     if (selected?.id == match.id) {
@@ -492,12 +504,14 @@ class AutoDialerPage extends GetView<AutoDialerController> {
         return PagewiseSliverList<LeadContactIdLeadContacts>(
           pageLoadController: contactsCtrl,
           loadingBuilder:
-              (context) => Padding(
+              (context) =>
+              Padding(
                 padding: EdgeInsets.all(24.w),
                 child: const Center(child: CircularProgressIndicator()),
               ),
           noItemsFoundBuilder:
-              (context) => Padding(
+              (context) =>
+              Padding(
                 padding: EdgeInsets.symmetric(horizontal: hPad, vertical: 24.h),
                 child: Container(
                   padding: EdgeInsets.all(24.w),
@@ -525,7 +539,8 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                 ),
               ),
           retryBuilder:
-              (context, retryFn) => Column(
+              (context, retryFn) =>
+              Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   SizedBox(height: 24.h),
@@ -559,15 +574,17 @@ class AutoDialerPage extends GetView<AutoDialerController> {
               );
               final String phone = lead.contact?.phone ?? 'No Phone';
               final String? email = lead.contact?.email;
-              final bool hasEmail = email != null && email.trim().isNotEmpty;
+              final bool hasEmail = email != null && email
+                  .trim()
+                  .isNotEmpty;
               final String status = lead.status ?? 'pending';
               final isCompleted =
                   controller.selectedContactStatus.value == 'completed';
               final statusColor = controller.getStatusColor(
                 isCompleted
                     ? (lead.logs?.isNotEmpty == true
-                        ? lead.logs!.first.answer
-                        : 'completed')
+                    ? lead.logs!.first.answer
+                    : 'completed')
                     : status,
               );
 
@@ -584,30 +601,30 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                       borderRadius: BorderRadius.circular(16.r),
                       side: BorderSide(
                         color:
-                            isOpen
-                                ? AppColors.themeColor.primaryColor
-                                : AppColors.themeColor.bordercolror.withOpacity(
-                                  0.5,
-                                ),
+                        isOpen
+                            ? AppColors.themeColor.primaryColor
+                            : AppColors.themeColor.bordercolror.withOpacity(
+                          0.5,
+                        ),
                         width: isOpen ? 1.5.w : 1.w,
                       ),
                     ),
                     color:
-                        isOpen
-                            ? AppColors.themeColor.primaryColor.withOpacity(
-                              0.05,
-                            )
-                            : AppColors.themeColor.cardBgColor,
+                    isOpen
+                        ? AppColors.themeColor.primaryColor.withOpacity(
+                      0.05,
+                    )
+                        : AppColors.themeColor.cardBgColor,
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(16.r),
                         boxShadow: [
                           BoxShadow(
                             color:
-                                isOpen
-                                    ? AppColors.themeColor.primaryColor
-                                        .withOpacity(0.1)
-                                    : Colors.black.withOpacity(0.03),
+                            isOpen
+                                ? AppColors.themeColor.primaryColor
+                                .withOpacity(0.1)
+                                : Colors.black.withOpacity(0.03),
                             blurRadius: 15.r,
                             offset: Offset(0, 8.h),
                           ),
@@ -650,13 +667,13 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                                         color: AppColors.themeColor.cardColor,
                                         border: Border.all(
                                           color:
-                                              isOpen
-                                                  ? AppColors
-                                                      .themeColor
-                                                      .primaryColor
-                                                  : statusColor.withOpacity(
-                                                    0.5,
-                                                  ),
+                                          isOpen
+                                              ? AppColors
+                                              .themeColor
+                                              .primaryColor
+                                              : statusColor.withOpacity(
+                                            0.5,
+                                          ),
                                           width: 2,
                                         ),
                                         borderRadius: BorderRadius.circular(
@@ -670,9 +687,9 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                                               : 'N',
                                           style: AppTextStyle.semiBold18
                                               .copyWith(
-                                                color: statusColor,
-                                                fontSize: 16.sp,
-                                              ),
+                                            color: statusColor,
+                                            fontSize: 16.sp,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -681,7 +698,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                                     Expanded(
                                       child: Column(
                                         crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        CrossAxisAlignment.start,
                                         children: [
                                           Row(
                                             children: [
@@ -689,9 +706,9 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                                                 Icons.person,
                                                 size: 14.sp,
                                                 color:
-                                                    AppColors
-                                                        .themeColor
-                                                        .textSecondaryColor,
+                                                AppColors
+                                                    .themeColor
+                                                    .textSecondaryColor,
                                               ),
                                               SizedBox(width: 6.w),
                                               Expanded(
@@ -701,12 +718,12 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                                                     fontWeight: FontWeight.bold,
                                                     fontSize: 15.sp,
                                                     color:
-                                                        AppColors
-                                                            .themeColor
-                                                            .textPrimaryColor,
+                                                    AppColors
+                                                        .themeColor
+                                                        .textPrimaryColor,
                                                   ),
                                                   overflow:
-                                                      TextOverflow.ellipsis,
+                                                  TextOverflow.ellipsis,
                                                 ),
                                               ),
                                             ],
@@ -718,9 +735,9 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                                                 Icons.call,
                                                 size: 14.sp,
                                                 color:
-                                                    AppColors
-                                                        .themeColor
-                                                        .textSecondaryColor,
+                                                AppColors
+                                                    .themeColor
+                                                    .textSecondaryColor,
                                               ),
                                               SizedBox(width: 6.w),
                                               Text(
@@ -728,9 +745,9 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                                                 style: TextStyle(
                                                   fontSize: 13.sp,
                                                   color:
-                                                      AppColors
-                                                          .themeColor
-                                                          .textSecondaryColor,
+                                                  AppColors
+                                                      .themeColor
+                                                      .textSecondaryColor,
                                                 ),
                                               ),
                                             ],
@@ -743,9 +760,9 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                                                   Icons.email_outlined,
                                                   size: 12.sp,
                                                   color:
-                                                      AppColors
-                                                          .themeColor
-                                                          .textSecondaryColor,
+                                                  AppColors
+                                                      .themeColor
+                                                      .textSecondaryColor,
                                                 ),
                                                 SizedBox(width: 4.w),
                                                 Expanded(
@@ -754,12 +771,12 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                                                     style: TextStyle(
                                                       fontSize: 11.sp,
                                                       color:
-                                                          AppColors
-                                                              .themeColor
-                                                              .textSecondaryColor,
+                                                      AppColors
+                                                          .themeColor
+                                                          .textSecondaryColor,
                                                     ),
                                                     overflow:
-                                                        TextOverflow.ellipsis,
+                                                    TextOverflow.ellipsis,
                                                   ),
                                                 ),
                                               ],
@@ -780,86 +797,90 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                                 duration: const Duration(milliseconds: 250),
                                 curve: Curves.easeInOut,
                                 child:
-                                    isOpen
-                                        ? Column(
-                                          children: [
-                                            Divider(
-                                              height: 1,
-                                              color: statusColor.withOpacity(
-                                                0.2,
+                                isOpen
+                                    ? Column(
+                                  children: [
+                                    Divider(
+                                      height: 1,
+                                      color: statusColor.withOpacity(
+                                        0.2,
+                                      ),
+                                    ),
+                                    Container(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 16.w,
+                                        vertical: 8.h,
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                        MainAxisAlignment
+                                            .spaceBetween,
+                                        children: [
+                                          _buildActionButton(
+                                            icon: Icons.call_rounded,
+                                            label: "calls".tr,
+                                            onTap:
+                                                () =>
+                                                controller
+                                                    .makeManualCall(
+                                                  lead,
+                                                ),
+                                            color: const Color(
+                                              0xFF10B981,
+                                            ),
+                                          ),
+                                          _buildActionButton(
+                                            icon: null,
+                                            label: "whatsapp".tr,
+                                            onTap:
+                                                () =>
+                                                controller
+                                                    .launchWhatsApp(
+                                                  lead
+                                                      .contact
+                                                      ?.phone,
+                                                ),
+                                            color: const Color(
+                                              0xFF25D366,
+                                            ),
+                                            isSvg: true,
+                                            svgPath: 'assets/images/whatsapp-svgrepo-com.svg',
+                                          ),
+                                          _buildActionButton(
+                                            icon: Icons.message_rounded,
+                                            label: "sms".tr,
+                                            onTap:
+                                                () =>
+                                                controller
+                                                    .launchSms(
+                                                  lead
+                                                      .contact
+                                                      ?.phone,
+                                                ),
+                                            color: const Color(
+                                              0xFF3B82F6,
+                                            ),
+                                          ),
+                                          if (hasEmail)
+                                            _buildActionButton(
+                                              icon: Icons.email_rounded,
+                                              label: "email".tr,
+                                              onTap:
+                                                  () =>
+                                                  controller
+                                                      .launchEmail(
+                                                    email,
+                                                  ),
+                                              color: const Color(
+                                                0xFFF59E0B,
                                               ),
                                             ),
-                                            Container(
-                                              padding: EdgeInsets.symmetric(
-                                                horizontal: 16.w,
-                                                vertical: 8.h,
-                                              ),
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  _buildActionButton(
-                                                    icon: Icons.call_rounded,
-                                                    label: "call".tr,
-                                                    onTap:
-                                                        () => controller
-                                                            .makeManualCall(
-                                                              lead,
-                                                            ),
-                                                    color: const Color(
-                                                      0xFF10B981,
-                                                    ),
-                                                  ),
-                                                  _buildActionButton(
-                                                    icon: null,
-                                                    label: "WhatsApp",
-                                                    onTap:
-                                                        () => controller
-                                                            .launchWhatsApp(
-                                                              lead
-                                                                  .contact
-                                                                  ?.phone,
-                                                            ),
-                                                    color: const Color(
-                                                      0xFF25D366,
-                                                    ),
-                                                    isSvg: true,
-                                                    svgPath: 'assets/images/whatsapp-svgrepo-com.svg',
-                                                  ),
-                                                  _buildActionButton(
-                                                    icon: Icons.message_rounded,
-                                                    label: "sms".tr,
-                                                    onTap:
-                                                        () => controller
-                                                            .launchSms(
-                                                              lead
-                                                                  .contact
-                                                                  ?.phone,
-                                                            ),
-                                                    color: const Color(
-                                                      0xFF3B82F6,
-                                                    ),
-                                                  ),
-                                                  if (hasEmail)
-                                                    _buildActionButton(
-                                                      icon: Icons.email_rounded,
-                                                      label: "email".tr,
-                                                      onTap:
-                                                          () => controller
-                                                              .launchEmail(
-                                                                email,
-                                                              ),
-                                                      color: const Color(
-                                                        0xFFF59E0B,
-                                                      ),
-                                                    ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        )
-                                        : const SizedBox.shrink(),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                )
+                                    : const SizedBox.shrink(),
                               ),
 
                               // Bottom Row (Completed)
@@ -877,28 +898,28 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                                   ),
                                   child: Row(
                                     mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                                    MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
                                         _formatDate(lead.updatedAt),
                                         style: TextStyle(
                                           fontSize: 11.sp,
                                           color:
-                                              AppColors
-                                                  .themeColor
-                                                  .textSecondaryColor,
+                                          AppColors
+                                              .themeColor
+                                              .textSecondaryColor,
                                         ),
                                       ),
                                       Text(
                                         (lead.logs != null &&
-                                                lead.logs!.isNotEmpty &&
-                                                lead.logs![0].duration != 0)
+                                            lead.logs!.isNotEmpty &&
+                                            lead.logs![0].duration != 0)
                                             ? controller.formatDuration(
-                                              Duration(
-                                                seconds:
-                                                    lead.logs![0].duration!,
-                                              ),
-                                            )
+                                          Duration(
+                                            seconds:
+                                            lead.logs![0].duration!,
+                                          ),
+                                        )
                                             : '00:00',
                                         style: TextStyle(
                                           fontSize: 11.sp,
@@ -937,19 +958,21 @@ class AutoDialerPage extends GetView<AutoDialerController> {
       if (!isIdle) {
         final current = controller.currentContact.value;
         final isCompleted = controller.isContactCompleted(current);
-        final isCompletedTab = controller.selectedContactStatus.value == 'completed';
+        final isCompletedTab = controller.selectedContactStatus.value ==
+            'completed';
 
         if (isCompleted && !isCompletedTab) return const SizedBox.shrink();
-        if (current == null && status != 'dialing') return const SizedBox.shrink();
+        if (current == null && status != 'dialing')
+          return const SizedBox.shrink();
       }
 
       return Container(
         margin: EdgeInsets.all(isIdle ? 0 : 16.w),
         decoration: BoxDecoration(
           color:
-              isIdle
-                  ? Colors.transparent
-                  : AppColors.themeColor.cardColor.withOpacity(0.95),
+          isIdle
+              ? Colors.transparent
+              : AppColors.themeColor.cardColor.withOpacity(0.95),
           borderRadius: BorderRadius.circular(isIdle ? 0 : 32.r),
           boxShadow: [
             if (!isIdle)
@@ -960,11 +983,11 @@ class AutoDialerPage extends GetView<AutoDialerController> {
               ),
           ],
           border:
-              isIdle
-                  ? null
-                  : Border.all(
-                    color: AppColors.themeColor.bordercolror.withOpacity(0.2),
-                  ),
+          isIdle
+              ? null
+              : Border.all(
+            color: AppColors.themeColor.bordercolror.withOpacity(0.2),
+          ),
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(isIdle ? 0 : 32.r),
@@ -973,9 +996,9 @@ class AutoDialerPage extends GetView<AutoDialerController> {
             child: Padding(
               padding: EdgeInsets.all(isIdle ? 0 : 8.w),
               child:
-                  isIdle
-                      ? _buildIdleStartButton(isTablet)
-                      : _buildActiveControlBar(isTablet),
+              isIdle
+                  ? _buildIdleStartButton(isTablet)
+                  : _buildActiveControlBar(isTablet),
             ),
           ),
         ),
@@ -988,9 +1011,11 @@ class AutoDialerPage extends GetView<AutoDialerController> {
       final hasLead = controller.selectedLeadDataset.value != null;
       final totalContacts = controller.totalContacts.value;
 
-      final isCompletedView = controller.selectedContactStatus.value == 'completed';
+      final isCompletedView = controller.selectedContactStatus.value ==
+          'completed';
 
-      if (!hasLead || controller.overallTotal.value == 0 || isCompletedView || totalContacts == 0)
+      if (!hasLead || controller.overallTotal.value == 0 || isCompletedView ||
+          totalContacts == 0)
         return const SizedBox.shrink();
 
       return Padding(
@@ -1014,8 +1039,9 @@ class AutoDialerPage extends GetView<AutoDialerController> {
     final isDialing = status == 'dialing';
     final isCountdown = status == 'counting_down' || status == 'settled';
     final current = controller.currentContact.value;
-    final overlayCtrl = Get.isRegistered<OverlayController>() ? Get.find<OverlayController>() : null;
-    
+    final overlayCtrl = Get.isRegistered<OverlayController>() ? Get.find<
+        OverlayController>() : null;
+
     // Fallback data if currentContact is null (e.g. during list refresh)
     Map<String, String>? fallbackLead;
     if (current == null && overlayCtrl != null) {
@@ -1038,7 +1064,8 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                       if (overlayCtrl.isPaused.value) {
                         overlayCtrl.resumeCountdown();
                       } else if (overlayCtrl.countdown.value > 0) {
-                        overlayCtrl.countdown.value = 0; // Instantly make the call
+                        overlayCtrl.countdown.value =
+                        0; // Instantly make the call
                       }
                     }
                   },
@@ -1051,7 +1078,8 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        current?.contact?.name ?? (fallbackLead?['name'] ?? 'prepare_call'.tr),
+                        current?.contact?.name ??
+                            (fallbackLead?['name'] ?? 'prepare_call'.tr),
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: AppDimens.fontSize14,
@@ -1059,10 +1087,12 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
-                      if (current?.contact?.phone != null || fallbackLead?['number'] != null) ...[
+                      if (current?.contact?.phone != null ||
+                          fallbackLead?['number'] != null) ...[
                         SizedBox(height: 1.h),
                         Text(
-                          current?.contact?.phone ?? (fallbackLead?['number'] ?? ''),
+                          current?.contact?.phone ??
+                              (fallbackLead?['number'] ?? ''),
                           style: TextStyle(
                             fontSize: AppDimens.fontSize10,
                             color: AppColors.themeColor.textSecondaryColor,
@@ -1079,47 +1109,59 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                           GestureDetector(
                             onTap: () async {
                               // Toggle SIM 0 -> 1 -> 0
-                              final int? currentSlot = await Storage.getSelectedSimSlot();
+                              final int? currentSlot = await Storage
+                                  .getSelectedSimSlot();
                               final int newSlot = (currentSlot == 0) ? 1 : 0;
-                              await Storage.saveToSharedPrefs('selected_sim_slot_index', newSlot);
+                              await Storage.saveToSharedPrefs(
+                                  'selected_sim_slot_index', newSlot);
                               Utils.showToast("Switched to SIM ${newSlot + 1}");
                               controller.refreshCurrentContact(); // Refresh UI
                             },
                             child: FutureBuilder<int?>(
-                              future: Storage.getSelectedSimSlot(),
-                              builder: (context, snapshot) {
-                                final slot = snapshot.data ?? 0;
-                                return Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.themeColor.primaryColor.withOpacity(0.1),
-                                    borderRadius: BorderRadius.circular(4.r),
-                                    border: Border.all(color: AppColors.themeColor.primaryColor.withOpacity(0.3)),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(Icons.sim_card_rounded, size: 10.sp, color: AppColors.themeColor.primaryColor),
-                                      SizedBox(width: 3.w),
-                                      Text(
-                                        "SIM ${slot + 1}",
-                                        style: TextStyle(
-                                          fontSize: AppDimens.fontSize9,
-                                          color: AppColors.themeColor.primaryColor,
-                                          fontWeight: FontWeight.bold,
+                                future: Storage.getSelectedSimSlot(),
+                                builder: (context, snapshot) {
+                                  final slot = snapshot.data ?? 0;
+                                  return Container(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 6.w, vertical: 2.h),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.themeColor.primaryColor
+                                          .withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(4.r),
+                                      border: Border.all(
+                                          color: AppColors.themeColor
+                                              .primaryColor.withOpacity(0.3)),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                            Icons.sim_card_rounded, size: 10.sp,
+                                            color: AppColors.themeColor
+                                                .primaryColor),
+                                        SizedBox(width: 3.w),
+                                        Text(
+                                          "SIM ${slot + 1}",
+                                          style: TextStyle(
+                                            fontSize: AppDimens.fontSize9,
+                                            color: AppColors.themeColor
+                                                .primaryColor,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              }
+                                      ],
+                                    ),
+                                  );
+                                }
                             ),
                           ),
                           GestureDetector(
                             onTap: () {
                               if (isPaused && controller.countdown.value == 0) {
                                 if (Get.isRegistered<OverlayController>()) {
-                                  Get.find<OverlayController>().resumeCountdown();
+                                  Get
+                                      .find<OverlayController>()
+                                      .resumeCountdown();
                                 }
                               }
                             },
@@ -1130,30 +1172,35 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                               ),
                               decoration: BoxDecoration(
                                 color: (isDialing
-                                        ? Colors.green
-                                        : (isCountdown || (isPaused && controller.countdown.value == 0) ? Colors.orange : Colors.grey))
+                                    ? Colors.green
+                                    : (isCountdown || (isPaused &&
+                                    controller.countdown.value == 0) ? Colors
+                                    .orange : Colors.grey))
                                     .withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(4.r),
                               ),
                               child: Text(
                                 isDialing
                                     ? 'on_call'.tr
-                                    : (isCountdown || (isPaused && controller.countdown.value == 0)
-                                        ? (controller.countdown.value > 0
-                                            ? '${'next_dial'.tr} ${controller.countdown.value}s'
-                                            : 'ready_to_dial'.tr)
+                                    : (isCountdown || (isPaused &&
+                                    controller.countdown.value == 0)
+                                    ? (controller.countdown.value > 0
+                                    ? '${'next_dial'.tr} ${controller.countdown
+                                    .value}s'
+                                    : 'ready_to_dial'.tr)
 
-                                        : 'paused'.tr),
+                                    : 'paused'.tr),
                                 style: TextStyle(
                                   fontSize: AppDimens.fontSize9,
                                   color:
-                                      isDialing
-                                          ? Colors.green
-                                          : (isCountdown || (isPaused && controller.countdown.value == 0)
-                                              ? Colors.orange
-                                              : AppColors
-                                                  .themeColor
-                                                  .textSecondaryColor),
+                                  isDialing
+                                      ? Colors.green
+                                      : (isCountdown || (isPaused &&
+                                      controller.countdown.value == 0)
+                                      ? Colors.orange
+                                      : AppColors
+                                      .themeColor
+                                      .textSecondaryColor),
                                   fontWeight: FontWeight.w900,
                                   letterSpacing: 1,
                                 ),
@@ -1203,27 +1250,27 @@ class AutoDialerPage extends GetView<AutoDialerController> {
       height: 42.h,
       decoration: BoxDecoration(
         color:
-            isDialing
-                ? Colors.green.withOpacity(0.15)
-                : AppColors.themeColor.primaryColor.withOpacity(0.12),
+        isDialing
+            ? Colors.green.withOpacity(0.15)
+            : AppColors.themeColor.primaryColor.withOpacity(0.12),
         shape: BoxShape.circle,
         border: Border.all(
           color:
-              isDialing
-                  ? Colors.green.withOpacity(0.5)
-                  : AppColors.themeColor.primaryColor.withOpacity(0.3),
+          isDialing
+              ? Colors.green.withOpacity(0.5)
+              : AppColors.themeColor.primaryColor.withOpacity(0.3),
           width: 1.5.w,
         ),
         boxShadow:
-            isDialing
-                ? [
-                  BoxShadow(
-                    color: Colors.green.withOpacity(0.2),
-                    blurRadius: 10.r,
-                    spreadRadius: 2.r,
-                  ),
-                ]
-                : null,
+        isDialing
+            ? [
+          BoxShadow(
+            color: Colors.green.withOpacity(0.2),
+            blurRadius: 10.r,
+            spreadRadius: 2.r,
+          ),
+        ]
+            : null,
       ),
       child: Icon(
         isDialing ? Icons.phone_in_talk_rounded : Icons.phone_rounded,
@@ -1255,9 +1302,9 @@ class AutoDialerPage extends GetView<AutoDialerController> {
             ),
           ],
           border:
-              isPrimary
-                  ? null
-                  : Border.all(color: color.withOpacity(0.4), width: 1.5.w),
+          isPrimary
+              ? null
+              : Border.all(color: color.withOpacity(0.4), width: 1.5.w),
         ),
         child: Icon(icon, color: isPrimary ? Colors.white : color, size: 22.sp),
       ),
@@ -1431,10 +1478,11 @@ class AutoDialerPage extends GetView<AutoDialerController> {
         ),
       ),
       itemBuilder:
-          (context) => [
-            _buildPopupMenuItem('pending', Icons.hourglass_top_rounded),
-            _buildPopupMenuItem('completed', Icons.check_circle_rounded),
-          ],
+          (context) =>
+      [
+        _buildPopupMenuItem('pending', Icons.hourglass_top_rounded),
+        _buildPopupMenuItem('completed', Icons.check_circle_rounded),
+      ],
     );
   }
 
@@ -1448,9 +1496,9 @@ class AutoDialerPage extends GetView<AutoDialerController> {
             icon,
             size: 20.sp,
             color:
-                isSelected
-                    ? AppColors.themeColor.primaryColor
-                    : AppColors.themeColor.textSecondaryColor,
+            isSelected
+                ? AppColors.themeColor.primaryColor
+                : AppColors.themeColor.textSecondaryColor,
           ),
           SizedBox(width: 12.w),
           Text(
@@ -1459,9 +1507,9 @@ class AutoDialerPage extends GetView<AutoDialerController> {
               fontSize: AppDimens.fontSize13,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               color:
-                  isSelected
-                      ? AppColors.themeColor.primaryColor
-                      : AppColors.themeColor.textPrimaryColor,
+              isSelected
+                  ? AppColors.themeColor.primaryColor
+                  : AppColors.themeColor.textPrimaryColor,
             ),
           ),
           if (isSelected) ...[
@@ -1480,7 +1528,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
   Widget _buildStatusBadge(String status) {
     final bool isPending = status.toLowerCase() == 'pending';
     final Color color =
-        isPending ? const Color(0xFFF59E0B) : const Color(0xFF10B981);
+    isPending ? const Color(0xFFF59E0B) : const Color(0xFF10B981);
     final String label = isPending ? 'pending'.tr : 'completed'.tr;
 
     return Container(
@@ -1525,35 +1573,35 @@ class AutoDialerPage extends GetView<AutoDialerController> {
               padding: EdgeInsets.all(10.w),
               decoration: BoxDecoration(
                 color:
-                    isDisabled
-                        ? Colors.grey.withOpacity(0.1)
-                        : (color ?? AppColors.themeColor.primaryColor)
-                            .withOpacity(0.12),
+                isDisabled
+                    ? Colors.grey.withOpacity(0.1)
+                    : (color ?? AppColors.themeColor.primaryColor)
+                    .withOpacity(0.12),
                 shape: BoxShape.circle,
                 border: Border.all(
                   color:
-                      isDisabled
-                          ? Colors.grey.withOpacity(0.2)
-                          : (color ?? AppColors.themeColor.primaryColor)
-                              .withOpacity(0.3),
+                  isDisabled
+                      ? Colors.grey.withOpacity(0.2)
+                      : (color ?? AppColors.themeColor.primaryColor)
+                      .withOpacity(0.3),
                   width: 1.w,
                 ),
               ),
               child: isSvg && svgPath != null
                   ? SvgPicture.asset(
-                      svgPath,
-                      width: 18.sp,
-                      height: 18.sp,
-                      // Note: We don't use color here to keep the WhatsApp logo's original colors
-                    )
+                svgPath,
+                width: 18.sp,
+                height: 18.sp,
+                // Note: We don't use color here to keep the WhatsApp logo's original colors
+              )
                   : Icon(
-                      icon,
-                      color:
-                          isDisabled
-                              ? Colors.grey
-                              : (color ?? AppColors.themeColor.primaryColor),
-                      size: 18.sp,
-                    ),
+                icon,
+                color:
+                isDisabled
+                    ? Colors.grey
+                    : (color ?? AppColors.themeColor.primaryColor),
+                size: 18.sp,
+              ),
             ),
             SizedBox(height: 6.h),
             Text(
@@ -1562,9 +1610,9 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                 fontSize: 9.sp,
                 fontWeight: FontWeight.bold,
                 color:
-                    isDisabled
-                        ? Colors.grey
-                        : AppColors.themeColor.textPrimaryColor,
+                isDisabled
+                    ? Colors.grey
+                    : AppColors.themeColor.textPrimaryColor,
                 letterSpacing: 0.1,
               ),
               textAlign: TextAlign.center,
@@ -1614,7 +1662,8 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                 AnimatedAlign(
                   duration: const Duration(milliseconds: 400),
                   curve: Curves.easeOutBack,
-                  alignment: isWeb ? Alignment.centerRight : Alignment.centerLeft,
+                  alignment: isWeb ? Alignment.centerRight : Alignment
+                      .centerLeft,
                   child: Container(
                     width: 62.w,
                     height: 34.h,
@@ -1623,7 +1672,8 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                       borderRadius: BorderRadius.circular(20.r),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.themeColor.primaryColor.withOpacity(0.3),
+                          color: AppColors.themeColor.primaryColor.withOpacity(
+                              0.3),
                           blurRadius: 10,
                           offset: const Offset(0, 3),
                         ),
@@ -1635,10 +1685,12 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                 Row(
                   children: [
                     Expanded(
-                      child: _buildModeItem('app', Icons.phone_android_rounded, !isWeb),
+                      child: _buildModeItem(
+                          'app', Icons.phone_android_rounded, !isWeb),
                     ),
                     Expanded(
-                      child: _buildModeItem('web', Icons.language_rounded, isWeb),
+                      child: _buildModeItem(
+                          'web', Icons.language_rounded, isWeb),
                     ),
                   ],
                 ),
@@ -1658,7 +1710,8 @@ class AutoDialerPage extends GetView<AutoDialerController> {
         child: AnimatedDefaultTextStyle(
           duration: const Duration(milliseconds: 300),
           style: AppTextStyle.bold8.copyWith(
-            color: isActive ? Colors.white : AppColors.themeColor.primaryColor.withOpacity(0.5),
+            color: isActive ? Colors.white : AppColors.themeColor.primaryColor
+                .withOpacity(0.5),
             fontSize: 9.sp,
             letterSpacing: 0.8,
           ),
@@ -1668,10 +1721,17 @@ class AutoDialerPage extends GetView<AutoDialerController> {
               Icon(
                 icon,
                 size: 14.sp,
-                color: isActive ? Colors.white : AppColors.themeColor.primaryColor.withOpacity(0.4),
+                color: isActive ? Colors.white : AppColors.themeColor
+                    .primaryColor.withOpacity(0.4),
               ),
               SizedBox(width: 4.w),
-              Text(mode.tr.toUpperCase()),
+              Flexible(
+                child: Text(
+                  mode.tr.toUpperCase(),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
+              ),
             ],
           ),
         ),
