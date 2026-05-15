@@ -1,27 +1,27 @@
-[
-  {
-    "app_name": "dbm_emp",
-    "package_name": "com.digibulkmarketing.employee",
-    "app_icon": "assets/images/Frame.png"
-  },
-  {
-    "app_name": "sales tracker",
-    "package_name": "com.my.sales",
-    "app_icon": "assets/images/app_logo.png"
-  },
-  {
-    "app_name": "customer hub",
-    "package_name": "com.my.customer",
-    "app_icon": "assets/images/20546697_6306474.jpg"
-  },
-  {
-    "app_name": "marketing suite",
-    "package_name": "com.my.marketing",
-    "app_icon": "assets/images/invite others.png"
-  },
-  {
-    "app_name": "lead manager",
-    "package_name": "com.my.lead",
-    "app_icon": "assets/images/WHATS MAN (3).png"
-  }
-]
+//[
+//  {
+//    "app_name": "dbm_emp",
+//    "package_name": "com.digibulkmarketing.employee",
+//    "app_icon": "assets/images/Frame.png"
+//  },
+//  {
+//    "app_name": "sales tracker",
+//    "package_name": "com.my.sales",
+//    "app_icon": "assets/images/app_logo.png"
+//  },
+//  {
+//    "app_name": "customer hub",
+//    "package_name": "com.my.customer",
+//    "app_icon": "assets/images/20546697_6306474.jpg"
+//  },
+//  {
+//    "app_name": "marketing suite",
+//    "package_name": "com.my.marketing",
+//    "app_icon": "assets/images/invite others.png"
+//  },
+//  {
+//    "app_name": "lead manager",
+//    "package_name": "com.my.lead",
+//    "app_icon": "assets/images/WHATS MAN (3).png"
+//  }
+//]

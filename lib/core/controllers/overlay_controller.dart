@@ -486,6 +486,9 @@ class OverlayController extends GetxController {
   Future<void> makeDirectCall(String number) async {
     try {
       print("📞 [Overlay] Calling: $number");
+      if (Get.isRegistered<PhoneStatusService>()) {
+        Get.find<PhoneStatusService>().targetPhoneNumber.value = number;
+      }
       await Utils.makeDirectCall(number);
     } catch (e) {
       if (kDebugMode) print("Call error: $e");

@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 class AppStrings extends Translations {
   AppStrings._();
 
-  static const String appName = "Employee";
+  static const String appName = "Telecaller";
 
   static const unknownError = 'Unknow error! Please try again after some time.';
   static const connectionTimeout =

@@ -8,6 +8,7 @@ import 'package:intl_phone_field2/phone_number.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:telecaller_app/constants/app_constants.dart';
 import 'package:telecaller_app/constants/app_routes.dart';
+import 'package:telecaller_app/core/helpers/utils.dart';
 import 'package:telecaller_app/core/models/login_response_entity.dart';
 import 'package:telecaller_app/ui/widgets/Permission_Status_Screen_Permission.dart';
 
@@ -114,6 +115,7 @@ class AuthController extends GetxController {
         try {
           final apiResponse = await api.sessionLogout();
           if (apiResponse.status == true) {
+            Utils.showSnackbar(apiResponse.message);
             print("✅ Server logout successful");
           } else {
             print("⚠️ Server logout failed: ${apiResponse.message}");

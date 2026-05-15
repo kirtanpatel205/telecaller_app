@@ -122,7 +122,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                   // Bottom padding for the sticky control center (only when lead is selected)
                   Obx(() =>
                   controller.selectedLeadDataset.value != null
-                      ? SliverToBoxAdapter(child: SizedBox(height: 120.h))
+                      ? SliverToBoxAdapter(child: SizedBox(height: 10.h))
                       : const SliverToBoxAdapter(child: SizedBox.shrink())),
                 ],
               ),
@@ -1019,7 +1019,7 @@ class AutoDialerPage extends GetView<AutoDialerController> {
         return const SizedBox.shrink();
 
       return Padding(
-        padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 24.h),
+        padding: EdgeInsets.fromLTRB(16.w, 0.h, 16.w, 24.h),
         child: _buildPremiumButton(
           onTap: () => controller.startDialing(),
           label: 'start_dialer'.tr,

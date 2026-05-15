@@ -260,6 +260,10 @@ class PhoneStatusService extends GetxService with WidgetsBindingObserver {
 
       if (number != null && number.isNotEmpty) {
         phoneNumber.value = Utils.normalizePhoneNumber(number);
+      } else if (targetPhoneNumber.value.isNotEmpty) {
+        // Fallback for outgoing calls where the stream might not provide the number immediately
+        phoneNumber.value = targetPhoneNumber.value;
+        print("🎯 Fallback: Using targetPhoneNumber=${phoneNumber.value} for CALL_STARTED");
       }
 
       // 🚨 SESSION ID GENERATION:
@@ -492,10 +496,17 @@ class PhoneStatusService extends GetxService with WidgetsBindingObserver {
       return;
     }
 
-    // If a dialog is already open (e.g. from AutoDialerController), don't open another one
-    if (Get.isDialogOpen == true) {
-      print("ℹ️ Dialog already open, skipping redundant _openCallForm");
+    // If CallFormPage is already showing, don't open another one
+    if (_isFormShowing()) {
+      print("ℹ️ CallFormPage already showing, skipping redundant _openCallForm");
       return;
+    }
+
+    // If another non-critical dialog is open (like a loader), close it first
+    if (Get.isDialogOpen == true) {
+      print("⚠️ Non-form dialog detected, closing it to show CallFormPage.");
+      Get.back();
+      await Future.delayed(const Duration(milliseconds: 200));
     }
 
     print("✅ Opening CallFormPage via PhoneStatusService...");

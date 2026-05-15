@@ -28,18 +28,15 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
   bool isLoading = true;
   bool isContinuing = false;
   bool isXiaomi = false;
-  static const _channel = MethodChannel('com.digibulkmarketing.telecaller_app/lockscreen');
+  static const _channel = MethodChannel(
+    'com.digibulkmarketing.telecaller_app/lockscreen',
+  );
   late AnimationController _animationController;
 
   final Map<String, List<Permission>> permissionGroups = {
-    'Phone & Call': [
-      Permission.phone,
-    ],
+    'Phone & Call': [Permission.phone],
     'Notifications': [Permission.notification],
-    'Location & Media': [
-      Permission.location,
-      Permission.camera,
-    ],
+    'Location & Media': [Permission.location, Permission.camera],
     'System & Overlay': [
       Permission.systemAlertWindow,
       Permission.ignoreBatteryOptimizations,
@@ -61,11 +58,12 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
       if (Platform.isAndroid) {
         final bool result = await _channel.invokeMethod('isXiaomi');
         setState(() => isXiaomi = result);
-        
-        // Always show Manufacturer Optimization group on Android for critical background apps
-        setState(() {
-          permissionGroups['Manufacturer Optimization'] = []; 
-        });
+
+        if (isXiaomi) {
+          setState(() {
+            permissionGroups['Manufacturer Optimization'] = [];
+          });
+        }
       }
     } catch (e) {
       print("Error checking device type: $e");
@@ -420,13 +418,13 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
         builder:
             (context) => WillPopScope(
               onWillPop: () async => false,
-              child: Center(
-                child: Container(
-                  padding: EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
+              child: Dialog(
+                backgroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -435,13 +433,14 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
                           Colors.blue.shade700,
                         ),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       Text(
                         'Setting up...',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           color: Colors.grey.shade700,
+                          decoration: TextDecoration.none,
                         ),
                       ),
                     ],
@@ -493,7 +492,7 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
 
       try {
         await Get.put<FCMService>(FCMService()).init();
-        
+
         // ✅ ADDED: Initialize PhoneStatusService once permissions are granted
         if (!Get.isRegistered<PhoneStatusService>()) {
           await Get.putAsync<PhoneStatusService>(
@@ -548,6 +547,7 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
       child: AppSafeArea(
         top: false,
         child: Scaffold(
+          backgroundColor: Colors.white,
           appBar: CustomAppBar(
             titleText: 'Permissions',
             actions: [
@@ -584,278 +584,268 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
                       ],
                     ),
                   )
-                  : Column(
-                    children: [
-                      Container(
-                        margin: EdgeInsets.all(16),
-                        padding: EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [Colors.blue.shade50, Colors.blue.shade100],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
+                  : FadeTransition(
+                    opacity: _animationController,
+                    child: ListView(
+                      padding: EdgeInsets.fromLTRB(
+                        16,
+                        16,
+                        16,
+                        100,
+                      ), // Extra bottom padding for the floating button
+                      children: [
+                        // ── Setup Status Card ──────────────────────────
+                        Container(
+                          padding: EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                Colors.blue.shade50,
+                                Colors.blue.shade100,
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: Colors.blue.shade200),
                           ),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: Colors.blue.shade200),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Setup Status',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.grey.shade700,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Setup Status',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.grey.shade700,
+                                        ),
                                       ),
-                                    ),
-                                    SizedBox(height: 4),
-                                    Text(
-                                      '${_getGrantedCount()}/${permissionStatuses.length} Active',
-                                      style: TextStyle(
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.w700,
-                                        color: Colors.blue.shade700,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Container(
-                                  padding: EdgeInsets.all(16),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    shape: BoxShape.circle,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.blue.withOpacity(0.2),
-                                        blurRadius: 8,
-                                        offset: Offset(0, 2),
+                                      SizedBox(height: 4),
+                                      Text(
+                                        '${_getGrantedCount()}/${permissionStatuses.length} Active',
+                                        style: TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.w700,
+                                          color: Colors.blue.shade700,
+                                        ),
                                       ),
                                     ],
                                   ),
-                                  child: Text(
-                                    '${(((_getGrantedCount() / (permissionStatuses.isEmpty ? 1 : permissionStatuses.length)) * 100).toInt())}%',
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.green.shade600,
+                                  Container(
+                                    padding: EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      shape: BoxShape.circle,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.blue.withOpacity(0.2),
+                                          blurRadius: 8,
+                                          offset: Offset(0, 2),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Text(
+                                      '${(((_getGrantedCount() / (permissionStatuses.isEmpty ? 1 : permissionStatuses.length)) * 100).toInt())}%',
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.green.shade600,
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 16),
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
-                              child: LinearProgressIndicator(
-                                value:
-                                    permissionStatuses.isEmpty
-                                        ? 0
-                                        : _getGrantedCount() /
-                                            permissionStatuses.length,
-                                minHeight: 12,
-                                backgroundColor: Colors.white,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  Colors.green.shade500,
+                                ],
+                              ),
+                              SizedBox(height: 16),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: LinearProgressIndicator(
+                                  value:
+                                      permissionStatuses.isEmpty
+                                          ? 0
+                                          : _getGrantedCount() /
+                                              permissionStatuses.length,
+                                  minHeight: 12,
+                                  backgroundColor: Colors.white,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.green.shade500,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
 
-                      Expanded(
-                        child:
-                            permissionStatuses.isEmpty
-                                ? Center(child: Text('No permissions to check'))
-                                : FadeTransition(
-                                  opacity: _animationController,
-                                  child: ListView.builder(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 16,
+                        // ── Permission Groups ──────────────────────────
+                        ...permissionGroups.entries.map((entry) {
+                          final groupName = entry.key;
+                          final permissions = entry.value;
+
+                          if (groupName == 'Manufacturer Optimization' &&
+                              isXiaomi) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.fromLTRB(8, 24, 8, 12),
+                                  child: Text(
+                                    groupName,
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.orange.shade700,
+                                      letterSpacing: 0.5,
                                     ),
-                                    itemCount: permissionGroups.length,
-                                    itemBuilder: (context, groupIndex) {
-                                      final groupEntry =
-                                          permissionGroups.entries
-                                              .toList()[groupIndex];
-                                      final groupName = groupEntry.key;
-                                      final permissions = groupEntry.value;
-
-                                      if (groupName == 'Manufacturer Optimization' && Platform.isAndroid) {
-                                        return Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Padding(
-                                              padding: EdgeInsets.fromLTRB(8, 16, 8, 12),
-                                              child: Text(
-                                                groupName,
-                                                style: TextStyle(
-                                                  fontSize: 13,
-                                                  fontWeight: FontWeight.w700,
-                                                  color: Colors.orange.shade700,
-                                                  letterSpacing: 0.5,
-                                                ),
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding: EdgeInsets.only(bottom: 12),
-                                              child: PermissionCard(
-                                                title: 'Auto-start Settings',
-                                                description: 'Allow app to start automatically on reboot',
-                                                icon: Icons.tips_and_updates_rounded,
-                                                isGranted: Storage.getValue('manufacturer_optimization_shown') ?? false,
-                                                onTap: () async {
-                                                  await BackgroundServiceManager.openManufacturerSettings();
-                                                  await Storage.saveValue('manufacturer_optimization_shown', true);
-                                                  _checkAllPermissions();
-                                                },
-                                              ),
-                                            ),
-                                          ],
-                                        );
-                                      }
-
-                                      return Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Padding(
-                                            padding: EdgeInsets.fromLTRB(
-                                              8,
-                                              16,
-                                              8,
-                                              12,
-                                            ),
-                                            child: Text(
-                                              groupName,
-                                              style: TextStyle(
-                                                fontSize: 13,
-                                                fontWeight: FontWeight.w700,
-                                                color: Colors.grey.shade600,
-                                                letterSpacing: 0.5,
-                                              ),
-                                            ),
-                                          ),
-                                          ...permissions.map((permission) {
-                                            final permName =
-                                                permission
-                                                    .toString()
-                                                    .split('.')
-                                                    .last;
-                                            final status =
-                                                permissionStatuses[permName] ??
-                                                PermissionStatus.denied;
-
-                                            return Padding(
-                                              padding: EdgeInsets.only(
-                                                bottom: 12,
-                                              ),
-                                              child: PermissionCard(
-                                                title: _getPermissionTitle(
-                                                  permName,
-                                                ),
-                                                description:
-                                                    _getPermissionDescription(
-                                                      permName,
-                                                    ),
-                                                icon: _getLeadingIcon(permName),
-                                                isGranted: status.isGranted,
-                                                onTap:
-                                                    status.isDenied ||
-                                                            status
-                                                                .isPermanentlyDenied
-                                                        ? () {
-                                                          if (_isSensitivePermission(
-                                                            permName,
-                                                          )) {
-                                                            _showSensitivePermissionDialog(
-                                                              permission,
-                                                            );
-                                                          } else {
-                                                            _requestPermission(
-                                                              permission,
-                                                            );
-                                                          }
-                                                        }
-                                                        : null,
-                                              ),
-                                            );
-                                          }).toList(),
-                                        ],
-                                      );
-                                    },
                                   ),
                                 ),
-                      ),
-                    ],
-                  ),
-          bottomNavigationBar: Padding(
-            padding: EdgeInsets.all(16),
-            child: SizedBox(
-              height: 56,
-              child:
-                  _areAllPermissionsGranted()
-                      ? ElevatedButton.icon(
-                        onPressed: isContinuing ? null : _continueToWelcome,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green.shade600,
-                          disabledBackgroundColor: Colors.green.shade300,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          elevation: 4,
-                        ),
-                        icon:
-                            isContinuing
-                                ? SizedBox(
-                                  width: 24,
-                                  height: 24,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.white,
-                                    ),
+                                PermissionCard(
+                                  title: 'Auto-start Settings',
+                                  description:
+                                      'Allow app to start automatically on reboot',
+                                  icon: Icons.tips_and_updates_rounded,
+                                  isGranted:
+                                      Storage.getValue(
+                                        'manufacturer_optimization_shown',
+                                      ) ??
+                                      false,
+                                  onTap: () async {
+                                    await BackgroundServiceManager.openManufacturerSettings();
+                                    await Storage.saveValue(
+                                      'manufacturer_optimization_shown',
+                                      true,
+                                    );
+                                    _checkAllPermissions();
+                                  },
+                                ),
+                              ],
+                            );
+                          }
+
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.fromLTRB(8, 24, 8, 12),
+                                child: Text(
+                                  groupName,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.grey.shade600,
+                                    letterSpacing: 0.5,
                                   ),
-                                )
-                                : Icon(Icons.check_circle_rounded, size: 24),
-                        label: Text(
-                          isContinuing ? 'Setting up...' : 'Continue',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.5,
+                                ),
+                              ),
+                              ...permissions.map((permission) {
+                                final permName =
+                                    permission.toString().split('.').last;
+                                final status =
+                                    permissionStatuses[permName] ??
+                                    PermissionStatus.denied;
+
+                                return Padding(
+                                  padding: EdgeInsets.only(bottom: 12),
+                                  child: PermissionCard(
+                                    title: _getPermissionTitle(permName),
+                                    description: _getPermissionDescription(
+                                      permName,
+                                    ),
+                                    icon: _getLeadingIcon(permName),
+                                    isGranted: status.isGranted,
+                                    onTap:
+                                        status.isDenied ||
+                                                status.isPermanentlyDenied
+                                            ? () {
+                                              if (_isSensitivePermission(
+                                                permName,
+                                              )) {
+                                                _showSensitivePermissionDialog(
+                                                  permission,
+                                                );
+                                              } else {
+                                                _requestPermission(permission);
+                                              }
+                                            }
+                                            : null,
+                                  ),
+                                );
+                              }).toList(),
+                            ],
+                          );
+                        }).toList(),
+                      ],
+                    ),
+                  ),
+          bottomNavigationBar: SafeArea(
+            child: Padding(
+              padding: EdgeInsets.all(16),
+              child: SizedBox(
+                height: 56,
+                child:
+                    _areAllPermissionsGranted()
+                        ? ElevatedButton.icon(
+                          onPressed: isContinuing ? null : _continueToWelcome,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green.shade600,
+                            disabledBackgroundColor: Colors.green.shade300,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            elevation: 4,
+                          ),
+                          icon:
+                              isContinuing
+                                  ? SizedBox(
+                                    width: 24,
+                                    height: 24,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.white,
+                                      ),
+                                    ),
+                                  )
+                                  : Icon(Icons.check_circle_rounded, size: 24),
+                          label: Text(
+                            isContinuing ? 'Setting up...' : 'Continue',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.5,
+                              decoration: TextDecoration.none,
+                            ),
+                          ),
+                        )
+                        : ElevatedButton.icon(
+                          onPressed: isLoading ? null : _requestAllPermissions,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue.shade700,
+                            disabledBackgroundColor: Colors.blue.shade300,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            elevation: 4,
+                          ),
+                          icon: Icon(Icons.shield_rounded, size: 24),
+                          label: Text(
+                            'Enable All',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.5,
+                            ),
                           ),
                         ),
-                      )
-                      : ElevatedButton.icon(
-                        onPressed: isLoading ? null : _requestAllPermissions,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue.shade700,
-                          disabledBackgroundColor: Colors.blue.shade300,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          elevation: 4,
-                        ),
-                        icon: Icon(Icons.shield_rounded, size: 24),
-                        label: Text(
-                          'Enable All',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                      ),
+              ),
             ),
           ),
         ),
@@ -863,8 +853,6 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
     );
   }
 }
-
-class BackgroundService {}
 
 class PermissionCard extends StatefulWidget {
   final String title;
