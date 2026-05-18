@@ -11,6 +11,7 @@ import 'package:telecaller_app/constants/app_dimens.dart';
 import 'package:telecaller_app/constants/app_text_style.dart';
 import 'package:telecaller_app/core/controllers/auth_controller.dart';
 import 'package:telecaller_app/core/helpers/utils.dart';
+import 'package:telecaller_app/core/services/theme_service.dart';
 import 'package:telecaller_app/ui/widgets/app_safe_area.dart';
 import 'package:telecaller_app/ui/widgets/custom-appbar.dart';
 import 'package:telecaller_app/ui/widgets/custom_button.dart';
@@ -414,14 +415,16 @@ class EditProfilePage extends GetView<EditProfileController> {
                                       color: AppColors.themeColor.cardColor,
                                       borderRadius: BorderRadius.circular(8.r),
                                       border: formFieldState.hasError 
-                                        ? Border.all(color: Colors.red, width: 1) 
+                                        ? Border.all(color: AppColors.themeColor.otpWrongColor, width: 1) 
                                         : null,
                                       boxShadow: [
                                         BoxShadow(
-                                          color: Colors.grey.withOpacity(0.3),
+                                          color: Get.find<ThemeService>().isDarkMode.value
+                                              ? Colors.black.withOpacity(0.4)
+                                              : Colors.grey.withOpacity(0.3),
                                           spreadRadius: 1.0,
-                                          blurRadius: 2.0,
-                                          offset: Offset(1.0, 1.0),
+                                          blurRadius: 3.0,
+                                          offset: const Offset(1.0, 1.0),
                                         ),
                                       ],
                                     ),
@@ -430,13 +433,30 @@ class EditProfilePage extends GetView<EditProfileController> {
                                         padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
                                         value: selectedCode,
                                         isExpanded: true,
-                                        dropdownColor: AppColors.themeColor.cardBgColor,
-                                        hint: Text("select_country".tr, style: AppTextStyle.medium8.copyWith(color: Colors.grey.shade400, fontSize: 14)),
-                                        icon: Icon(Icons.expand_more_rounded, color: Colors.grey, size: 24.sp),
+                                        dropdownColor: AppColors.themeColor.cardColor,
+                                        borderRadius: BorderRadius.circular(8.r),
+                                        hint: Text(
+                                          "select_country".tr, 
+                                          style: AppTextStyle.medium8.copyWith(
+                                            color: AppColors.themeColor.textSecondaryColor, 
+                                            fontSize: AppDimens.fontSize14,
+                                          ),
+                                        ),
+                                        icon: Icon(
+                                          Icons.expand_more_rounded, 
+                                          color: AppColors.themeColor.textSecondaryColor, 
+                                          size: 24.sp,
+                                        ),
                                         items: countries.map((country) {
                                           return DropdownMenuItem<String>(
                                             value: country.countryCode,
-                                            child: Text(country.countryNameEn ?? "", style: AppTextStyle.medium7.copyWith(fontSize: 14, color: AppColors.themeColor.textPrimaryColor)),
+                                            child: Text(
+                                              country.countryNameEn ?? "", 
+                                              style: AppTextStyle.medium7.copyWith(
+                                                fontSize: AppDimens.fontSize14, 
+                                                color: AppColors.themeColor.textPrimaryColor,
+                                              ),
+                                            ),
                                           );
                                         }).toList(),
                                         onChanged: (String? newCode) {
@@ -453,7 +473,10 @@ class EditProfilePage extends GetView<EditProfileController> {
                                       padding: EdgeInsets.only(left: 12.w, top: 8.h),
                                       child: Text(
                                         formFieldState.errorText ?? "",
-                                        style: TextStyle(color: Colors.red, fontSize: 12.sp),
+                                        style: TextStyle(
+                                          color: AppColors.themeColor.otpWrongColor, 
+                                          fontSize: AppDimens.fontSize12,
+                                        ),
                                       ),
                                     ),
                                 ],

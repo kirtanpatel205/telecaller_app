@@ -300,6 +300,7 @@ class LeadsContactPage extends GetView<LeadsContactController> {
     final initials = name.isNotEmpty ? name[0].toUpperCase() : '?';
     final phone = lead.contact?.phone;
     final email = lead.contact?.email;
+    final statusColor = controller.getStatusColor(lead.status ?? 'Unknown');
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
@@ -325,27 +326,27 @@ class LeadsContactPage extends GetView<LeadsContactController> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Avatar Squircle
+                // Avatar Circle
                 Container(
-                  width: 52.w,
-                  height: 52.w,
+                  width: 44.w,
+                  height: 44.w,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        AppColors.themeColor.primaryColor.withOpacity(0.8),
-                        AppColors.themeColor.primaryColor,
+                        statusColor.withOpacity(0.15),
+                        statusColor.withOpacity(0.05),
                       ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
-                    borderRadius: BorderRadius.circular(14.r),
+                    shape: BoxShape.circle,
                   ),
                   child: Center(
                     child: Text(
                       initials,
-                      style: AppTextStyle.bold7.copyWith(
-                        fontSize: 20.sp,
-                        color: Colors.white,
+                      style: AppTextStyle.bold9.copyWith(
+                        fontSize: 18.sp,
+                        color: statusColor,
                       ),
                     ),
                   ),

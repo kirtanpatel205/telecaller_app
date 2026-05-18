@@ -31,12 +31,12 @@ class DashboardPage extends GetView<HomeController> {
               children: [
                 Text(
                   "dashboard_overview".tr,
-                  style: AppTextStyle.bold11.copyWith(
-                    fontSize: AppDimens.fontSize20,
+                  style: AppTextStyle.bold8.copyWith(
+                    fontSize: AppDimens.fontSize16,
                     color: AppColors.themeColor.textPrimaryColor,
                   ),
                 ),
-                SizedBox(height: 16.h),
+                // SizedBox(height:5.h),
                 _buildSummaryCards(context),
                 SizedBox(height: 24.h),
                 _buildLeadContactSection(context),
@@ -226,10 +226,17 @@ class DashboardPage extends GetView<HomeController> {
           ),
         ],
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: SizedBox(
+              width: constraints.maxWidth,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
           Row(
             children: [
               Expanded(
@@ -242,7 +249,7 @@ class DashboardPage extends GetView<HomeController> {
                   child: Text(
                     title,
                     style: AppTextStyle.bold8.copyWith(
-                      fontSize: 10.sp,
+                      fontSize: 9.sp,
                       color: color,
                       fontWeight: FontWeight.w700,
                     ),
@@ -268,7 +275,7 @@ class DashboardPage extends GetView<HomeController> {
                     Text(
                       todayVal,
                       style: AppTextStyle.bold11.copyWith(
-                        fontSize: 18.sp,
+                        fontSize: 14.sp,
                         color: AppColors.themeColor.textPrimaryColor,
                         fontWeight: FontWeight.w800,
                       ),
@@ -276,7 +283,7 @@ class DashboardPage extends GetView<HomeController> {
                     Text(
                       "today".tr,
                       style: AppTextStyle.regular6.copyWith(
-                        fontSize: 10.sp,
+                        fontSize: 9.sp,
                         color: AppColors.themeColor.textSecondaryColor,
                         fontWeight: FontWeight.w500,
                       ),
@@ -307,7 +314,7 @@ class DashboardPage extends GetView<HomeController> {
                     Text(
                       totalVal,
                       style: AppTextStyle.bold11.copyWith(
-                        fontSize: 18.sp,
+                        fontSize: 14.sp,
                         color: AppColors.themeColor.textPrimaryColor,
                         fontWeight: FontWeight.w800,
                       ),
@@ -315,7 +322,7 @@ class DashboardPage extends GetView<HomeController> {
                     Text(
                       "total".tr,
                       style: AppTextStyle.regular6.copyWith(
-                        fontSize: 10.sp,
+                        fontSize: 9.sp,
                         color: AppColors.themeColor.textSecondaryColor,
                         fontWeight: FontWeight.w500,
                       ),
@@ -325,7 +332,11 @@ class DashboardPage extends GetView<HomeController> {
               ),
             ],
           ),
-        ],
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -694,9 +705,8 @@ class DashboardPage extends GetView<HomeController> {
                                   space: 8,
                                   child: Text(
                                     formattedLabel,
-                                    style: TextStyle(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w500,
+                                    style: AppTextStyle.bold6.copyWith(
+                                      fontSize: AppDimens.fontSize10,
                                       color: AppColors.themeColor.textSecondaryColor,
                                     ),
                                   ),
@@ -715,7 +725,7 @@ class DashboardPage extends GetView<HomeController> {
                                   axisSide: meta.axisSide,
                                   child: Text(
                                     value.toInt().toString(),
-                                    style: TextStyle(fontSize: AppDimens.fontSize10),
+                                    style: AppTextStyle.regular6.copyWith(fontSize: AppDimens.fontSize10),
                                   ),
                                 );
                               },
@@ -771,9 +781,9 @@ class DashboardPage extends GetView<HomeController> {
 
                               return BarTooltipItem(
                                 title,
-                                TextStyle(
+                                AppTextStyle.medium7.copyWith(
                                     color: AppColors.themeColor.textPrimaryColor,
-                                    fontSize: 12),
+                                    fontSize: AppDimens.fontSize12),
                               );
                             },
                           ),
@@ -997,9 +1007,8 @@ class DashboardPage extends GetView<HomeController> {
                           ? (validData[i]["value"] as int).toString()  // ← show real value on touch
                           : '',
                       radius: isTouched ? 100 : 90,
-                      titleStyle: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                      titleStyle: AppTextStyle.bold11.copyWith(
+                        fontSize: AppDimens.fontSize16,
                         color: AppColors.themeColor.cardColor,
                       ),
                     ),
@@ -1075,7 +1084,7 @@ class DashboardPage extends GetView<HomeController> {
               Expanded(
                 child: Text(
                   "leads_over_time".tr,
-                  style: AppTextStyle.semiBold8.copyWith(fontSize: 16),
+                  style: AppTextStyle.bold8.copyWith(fontSize: AppDimens.fontSize16),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -1169,9 +1178,8 @@ class DashboardPage extends GetView<HomeController> {
                                   space: 8,
                                   child: Text(
                                     formattedLabel,
-                                    style: TextStyle(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w500,
+                                    style: AppTextStyle.bold6.copyWith(
+                                      fontSize: AppDimens.fontSize10,
                                       color: AppColors.themeColor.textSecondaryColor,
                                     ),
                                   ),
@@ -1189,7 +1197,7 @@ class DashboardPage extends GetView<HomeController> {
                                   axisSide: meta.axisSide,
                                   child: Text(
                                     value.toInt().toString(),
-                                    style: const TextStyle(fontSize: 10),
+                                    style: AppTextStyle.regular6.copyWith(fontSize: AppDimens.fontSize10),
                                   ),
                                 );
                               },
@@ -1221,7 +1229,7 @@ class DashboardPage extends GetView<HomeController> {
                               final dataItem = data[group.x.toInt()];
                               return BarTooltipItem(
                                 "Leads: ${dataItem.count}",
-                                TextStyle(color: AppColors.themeColor.textPrimaryColor, fontSize: 12),
+                                AppTextStyle.medium7.copyWith(color: AppColors.themeColor.textPrimaryColor, fontSize: AppDimens.fontSize12),
                               );
                             },
                           ),
@@ -1357,7 +1365,7 @@ class DashboardPage extends GetView<HomeController> {
         children: [
           Text(
             "lead_status_distribution".tr,
-            style: AppTextStyle.semiBold8.copyWith(fontSize: 16),
+            style: AppTextStyle.bold8.copyWith(fontSize: AppDimens.fontSize16),
           ),
           const Expanded(child: SizedBox()),
           Center(
@@ -1391,7 +1399,7 @@ class DashboardPage extends GetView<HomeController> {
                       value: validData[i]["value"].toDouble(),
                       title: isTouched ? validData[i]["value"].toString() : '',
                       radius: isTouched ? 100 : 90,
-                      titleStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                      titleStyle: AppTextStyle.bold11.copyWith(fontSize: AppDimens.fontSize16, color: Colors.white),
                     ),
                   );
                 }
@@ -1449,9 +1457,9 @@ class DashboardPage extends GetView<HomeController> {
         const SizedBox(width: 6),
         Text(
           text,
-          style: TextStyle(
+          style: AppTextStyle.medium7.copyWith(
             color: color,
-            fontSize: 12,
+            fontSize: AppDimens.fontSize12,
           ),
         ),
       ],

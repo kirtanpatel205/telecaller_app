@@ -660,35 +660,32 @@ class AutoDialerPage extends GetView<AutoDialerController> {
                                 child: Row(
                                   children: [
                                     // Avatar
+
                                     Container(
-                                      height: 40.h,
-                                      width: 40.w,
+                                      width: 44.w,
+                                      height: 44.w,
                                       decoration: BoxDecoration(
-                                        color: AppColors.themeColor.cardColor,
-                                        border: Border.all(
-                                          color:
-                                          isOpen
-                                              ? AppColors
-                                              .themeColor
-                                              .primaryColor
-                                              : statusColor.withOpacity(
-                                            0.5,
-                                          ),
-                                          width: 2,
+                                        gradient: LinearGradient(
+                                          colors: isOpen
+                                              ? [
+                                                  AppColors.themeColor.primaryColor,
+                                                  AppColors.themeColor.primaryColor.withOpacity(0.8)
+                                                ]
+                                              : [
+                                                  statusColor.withOpacity(0.15),
+                                                  statusColor.withOpacity(0.05)
+                                                ],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
                                         ),
-                                        borderRadius: BorderRadius.circular(
-                                          20.r,
-                                        ),
+                                        shape: BoxShape.circle,
                                       ),
                                       child: Center(
                                         child: Text(
-                                          name.isNotEmpty
-                                              ? name[0].toUpperCase()
-                                              : 'N',
-                                          style: AppTextStyle.semiBold18
-                                              .copyWith(
-                                            color: statusColor,
-                                            fontSize: 16.sp,
+                                          name.isNotEmpty ? name[0].toUpperCase() : 'N',
+                                          style: AppTextStyle.bold9.copyWith(
+                                            color: isOpen ? Colors.white : statusColor,
+                                            fontSize: 18.sp,
                                           ),
                                         ),
                                       ),

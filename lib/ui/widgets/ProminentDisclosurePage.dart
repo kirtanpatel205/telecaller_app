@@ -98,6 +98,8 @@ class _ProminentDisclosurePageState extends State<ProminentDisclosurePage> {
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: CustomAppBar(
+          leading: SizedBox(),
+
           titleText: "permission_disclosure".tr,
           showBackButton: false,
         ),
