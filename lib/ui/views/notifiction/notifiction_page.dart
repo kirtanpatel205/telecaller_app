@@ -5,7 +5,9 @@ import 'package:telecaller_app/constants/app_dimens.dart';
 import 'package:telecaller_app/constants/app_text_style.dart';
 import 'package:telecaller_app/constants/app_colors.dart';
 
-class NotifictionPage extends GetView<HomeController>{
+import 'notifiction_controller.dart';
+
+class NotifictionPage extends GetView<NotifictionController>{
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -10,6 +10,7 @@ import 'package:telecaller_app/constants/app_constants.dart';
 import 'package:telecaller_app/core/models/all_lead_entity.dart';
 import 'package:telecaller_app/core/models/api_response_entity.dart';
 import 'package:telecaller_app/core/models/call_lead_update_response_entity.dart';
+import 'package:telecaller_app/core/models/form_response_entity.dart';
 import 'package:telecaller_app/core/models/get_static_entity.dart';
 import 'package:telecaller_app/core/models/lead_chart_entity.dart';
 import 'package:telecaller_app/core/models/lead_contact_id_entity.dart';
@@ -30,7 +31,6 @@ class ApiService extends GetxService {
   late DioClient client;
 
   static ApiService to = Get.find();
-
 
   Future<void> init() async {
     //_dio.interceptors.add(LoggingInterceptor());
@@ -74,9 +74,7 @@ class ApiService extends GetxService {
   }
 
   Future<ApiResponseEntity> sessionLogout() async {
-    Map<String, dynamic> response = await client.post(
-      AppConstants.API_SESSION,
-    );
+    Map<String, dynamic> response = await client.post(AppConstants.API_SESSION);
     return ApiResponseEntity.fromJson(response);
   }
 
@@ -142,7 +140,7 @@ class ApiService extends GetxService {
       Map<String, dynamic> response = await client.post(
         AppConstants.API_UPDATE_PROFILE_IMAGE,
         data: {"type": "image", "file": multipartFile},
-         // isRaw: true,
+        // isRaw: true,
       );
 
       print("response : $multipartFile");
@@ -158,7 +156,6 @@ class ApiService extends GetxService {
     required File file,
     required String type,
   }) async {
-
     // 🔹 Normalize type
     String apiType = type.toLowerCase();
     print("📦 TYPE BEFORE: $apiType");
@@ -183,27 +180,19 @@ class ApiService extends GetxService {
 
       Map<String, dynamic> response = await client.post(
         AppConstants.API_UPLOAD_MEDIA,
-        data: {
-          "type": apiType,
-          "media": multipartFile,
-        },
+        data: {"type": apiType, "media": multipartFile},
       );
 
       print("📥 FULL RESPONSE: $response");
 
       // 🔥 MAIN FIX START
-      if (response["status"] == true &&
-          response["downloadUrl"] != null) {
-
+      if (response["status"] == true && response["downloadUrl"] != null) {
         String url = response["downloadUrl"];
 
         // 👉 file name extract
         String name = file.path.split('/').last;
 
-        Map<String, dynamic> finalData = {
-          "url": url,
-          "name": name,
-        };
+        Map<String, dynamic> finalData = {"url": url, "name": name};
 
         print("✅ FINAL RETURN: $finalData");
 
@@ -213,33 +202,26 @@ class ApiService extends GetxService {
 
       return {
         "status": false,
-        "message": response["message"] ?? "Upload failed"
+        "message": response["message"] ?? "Upload failed",
       };
-
     } on dio.DioException catch (e) {
       print("❌ Dio Error: ${e.response?.statusCode}");
 
       if (e.response?.statusCode == 413) {
         return {
           "status": false,
-          "message": "File too large (Max 1-2MB allowed)"
+          "message": "File too large (Max 1-2MB allowed)",
         };
       }
 
-      return {
-        "status": false,
-        "message": e.message
-      };
-
+      return {"status": false, "message": e.message};
     } catch (e) {
       print("❌ Upload Error: $e");
 
-      return {
-        "status": false,
-        "message": "Upload failed"
-      };
+      return {"status": false, "message": "Upload failed"};
     }
   }
+
   Future<AllLeadEntity> allLead({
     int? page = 0,
     int? limit = 10,
@@ -306,7 +288,9 @@ class ApiService extends GetxService {
     String schedule_at = "",
     int duration = 180,
   }) async {
-    print("callUpdateLeadById ${lead_id} $duration $type $answertype $answer $schedule_at");
+    print(
+      "callUpdateLeadById ${lead_id} $duration $type $answertype $answer $schedule_at",
+    );
     Map<String, dynamic> data = {
       "id": lead_id,
       "type": type,
@@ -342,19 +326,20 @@ class ApiService extends GetxService {
     String endDate = "",
     String simNumbers = "",
   }) async {
-    Map<String, dynamic> data ={
-      "filter_by":{
-        "type":filter,
-        if(startDate != null && startDate.isNotEmpty)
-        "start_date":startDate,
-        if(endDate != null && endDate.isNotEmpty)
-        "end_date":endDate,
+    Map<String, dynamic> data = {
+      "filter_by": {
+        "type": filter,
+        if (startDate != null && startDate.isNotEmpty) "start_date": startDate,
+        if (endDate != null && endDate.isNotEmpty) "end_date": endDate,
         // if(simNumbers != null && simNumbers.isNotEmpty)
-        "simNumbers": []
-      }
+        "simNumbers": [],
+      },
     };
-print("callChart request data $data");
-    Map<String, dynamic> response = await client.post(AppConstants.API_CALL_CHART,isRaw: true, data: data
+    print("callChart request data $data");
+    Map<String, dynamic> response = await client.post(
+      AppConstants.API_CALL_CHART,
+      isRaw: true,
+      data: data,
     );
     print("callChart response details $response");
     return CallChartEntity.fromJson(response);
@@ -365,17 +350,18 @@ print("callChart request data $data");
     String startDate = "",
     String endDate = "",
   }) async {
-    Map<String, dynamic> data ={
-      "filter_by":{
-        "type":filter,
-        if(startDate != null && startDate.isNotEmpty)
-        "start_date":startDate,
-        if(endDate != null && endDate.isNotEmpty)
-        "end_date":endDate,
-      }
+    Map<String, dynamic> data = {
+      "filter_by": {
+        "type": filter,
+        if (startDate != null && startDate.isNotEmpty) "start_date": startDate,
+        if (endDate != null && endDate.isNotEmpty) "end_date": endDate,
+      },
     };
     print("callChart request data $data");
-    Map<String, dynamic> response = await client.post(AppConstants.API_LEAD_CHART,isRaw: true, data: data
+    Map<String, dynamic> response = await client.post(
+      AppConstants.API_LEAD_CHART,
+      isRaw: true,
+      data: data,
     );
     print("callChart response details $response");
     return LeadChartEntity.fromJson(response);
@@ -391,6 +377,17 @@ print("callChart request data $data");
     print("✅ Form submission response: $response");
     return ApiResponseEntity.fromJson(response);
   }
+  Future<ApiResponseEntity> updateCallForm(Map<String, dynamic> data) async {
+    print("📡 Submitting call form data: $data");
+    Map<String, dynamic> response = await client.post(
+      AppConstants.API_LEAD_FORM_UPDATE,
+      isRaw: true,
+      data: data,
+    );
+    print("✅ Form submission response: $response");
+    return ApiResponseEntity.fromJson(response);
+  }
+
 
   Future<ApiResponseEntity> syncCallLogs(Map<String, dynamic> logs) async {
     print("📡 Syncing call logs: ${logs['logs']?.length ?? 0} entries");
@@ -404,11 +401,8 @@ print("callChart request data $data");
     return ApiResponseEntity.fromJson(response);
   }
 
-
   Future<ApiResponseEntity> seessionLogout() async {
-    Map<String, dynamic> response = await client.post(
-      AppConstants.API_SESSION,
-    );
+    Map<String, dynamic> response = await client.post(AppConstants.API_SESSION);
     print("session logout $response");
     return ApiResponseEntity.fromJson(response);
   }
@@ -430,7 +424,13 @@ print("callChart request data $data");
     return UserSettingResponseEntity.fromJson(response);
   }
 
-
-
-
+  Future<FormResponseEntity> formResponse({
+    required String leadContactId,
+  }) async {
+    Map<String, dynamic> response = await client.get(
+      "${AppConstants.API_FORM_RESPONSE}/$leadContactId",
+    );
+    print("form response $response");
+    return FormResponseEntity.fromJson(response);
+  }
 }

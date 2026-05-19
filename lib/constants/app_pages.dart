@@ -13,6 +13,8 @@ import 'package:telecaller_app/ui/views/leadsContact/leadscontact_binding.dart';
 import 'package:telecaller_app/ui/views/leadsContact/leadscontact_page.dart';
 import 'package:telecaller_app/ui/views/login/login_binding.dart';
 import 'package:telecaller_app/ui/views/login/login_page.dart';
+import 'package:telecaller_app/ui/views/notifiction/notifiction_binding.dart';
+import 'package:telecaller_app/ui/views/notifiction/notifiction_page.dart';
 import 'package:telecaller_app/ui/views/otp/otp_binding.dart';
 import 'package:telecaller_app/ui/views/otp/otp_page.dart';
 import 'package:telecaller_app/ui/views/setting/setting_binding.dart';
@@ -93,6 +95,11 @@ class AppPages {
     GetPage(
       name: Paths.TERMS_CONDITIONS,
       page: () => const TermsConditionsPage(),
+    ),
+    GetPage(
+      name: Paths.NOTIFICATION,
+      page: () => NotifictionPage(),
+      binding: NotifictionBinding(),
     ),
 
     // GetPage(

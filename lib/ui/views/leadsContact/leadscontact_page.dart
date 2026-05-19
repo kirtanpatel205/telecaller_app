@@ -85,9 +85,12 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                           Padding(
                             padding: EdgeInsets.symmetric(horizontal: 16.w),
                             child: Obx(() {
-                              final hasActiveFilters = controller.isApplyFilter.value;
-                              final hasActiveSort = controller.sortBy.value != "create";
-                              final showReset = hasActiveFilters || hasActiveSort;
+                              final hasActiveFilters = controller.isApplyFilter
+                                  .value;
+                              final hasActiveSort = controller.sortBy.value !=
+                                  "create";
+                              final showReset = hasActiveFilters ||
+                                  hasActiveSort;
 
                               return Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
@@ -132,7 +135,7 @@ class LeadsContactPage extends GetView<LeadsContactController> {
 
                 // 3. Leads List
                 _buildLeadsTableSliver(context),
-                
+
                 // Bottom padding
                 SliverToBoxAdapter(child: SizedBox(height: 20.h)),
               ],
@@ -154,21 +157,37 @@ class LeadsContactPage extends GetView<LeadsContactController> {
           childAspectRatio: 1.4,
         ),
         children: [
-          _buildGridCard('total'.tr, controller.totalLeadsId.value.toString(), const Color(0xFF6366F1), Icons.people_outline),
-          _buildGridCard('completed'.tr, controller.completedCount.value.toString(), const Color(0xFF10B981), Icons.check_circle_outline),
-          _buildGridCard('pending'.tr, controller.pendingCount.value.toString(), const Color(0xFFF59E0B), Icons.pending_actions),
-          _buildGridCard('scheduled'.tr, controller.scheduledCount.value.toString(), const Color(0xFF3B82F6), Icons.calendar_today),
-          _buildGridCard('interested'.tr, controller.interestedCount.value.toString(), const Color(0xFF8B5CF6), Icons.thumb_up_outlined),
-          _buildGridCard('not_interested'.tr, controller.notInterestedCount.value.toString(), const Color(0xFFEF4444), Icons.thumb_down_outlined),
-          _buildGridCard('follow_up'.tr, controller.followUpCount.value.toString(), const Color(0xFFEC4899), Icons.phone_callback_outlined),
-          _buildGridCard('invalid'.tr, controller.invalidCount.value.toString(), const Color(0xFF6B7280), Icons.block),
-          _buildGridCard('no_response'.tr, controller.noResponseCount.value.toString(), const Color(0xFF14B8A6), Icons.phone_missed),
+          _buildGridCard('total'.tr, controller.totalLeadsId.value.toString(),
+              const Color(0xFF6366F1), Icons.people_outline),
+          _buildGridCard(
+              'completed'.tr, controller.completedCount.value.toString(),
+              const Color(0xFF10B981), Icons.check_circle_outline),
+          _buildGridCard('pending'.tr, controller.pendingCount.value.toString(),
+              const Color(0xFFF59E0B), Icons.pending_actions),
+          _buildGridCard(
+              'scheduled'.tr, controller.scheduledCount.value.toString(),
+              const Color(0xFF3B82F6), Icons.calendar_today),
+          _buildGridCard(
+              'interested'.tr, controller.interestedCount.value.toString(),
+              const Color(0xFF8B5CF6), Icons.thumb_up_outlined),
+          _buildGridCard('not_interested'.tr,
+              controller.notInterestedCount.value.toString(),
+              const Color(0xFFEF4444), Icons.thumb_down_outlined),
+          _buildGridCard(
+              'follow_up'.tr, controller.followUpCount.value.toString(),
+              const Color(0xFFEC4899), Icons.phone_callback_outlined),
+          _buildGridCard('invalid'.tr, controller.invalidCount.value.toString(),
+              const Color(0xFF6B7280), Icons.block),
+          _buildGridCard(
+              'no_response'.tr, controller.noResponseCount.value.toString(),
+              const Color(0xFF14B8A6), Icons.phone_missed),
         ],
       ),
     );
   }
 
-  Widget _buildGridCard(String title, String value, Color color, IconData icon) {
+  Widget _buildGridCard(String title, String value, Color color,
+      IconData icon) {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.themeColor.cardBgColor,
@@ -222,7 +241,8 @@ class LeadsContactPage extends GetView<LeadsContactController> {
 
   Widget _buildLeadsTableSliver(BuildContext context) {
     if (controller.pagewiseLoadLeadIdController == null) {
-      return const SliverToBoxAdapter(child: Center(child: CircularProgressIndicator()));
+      return const SliverToBoxAdapter(
+          child: Center(child: CircularProgressIndicator()));
     }
     return PagewiseSliverList<LeadContactIdLeadContacts>(
       pageLoadController: controller.pagewiseLoadLeadIdController,
@@ -237,7 +257,8 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                 Icon(
                   Icons.inbox_outlined,
                   size: 48.sp,
-                  color: AppColors.themeColor.textSecondaryColor.withOpacity(0.5),
+                  color: AppColors.themeColor.textSecondaryColor.withOpacity(
+                      0.5),
                 ),
                 SizedBox(height: 16.h),
                 Text(
@@ -260,7 +281,8 @@ class LeadsContactPage extends GetView<LeadsContactController> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.error_outline, size: 48.sp, color: Colors.red.shade400),
+                Icon(Icons.error_outline, size: 48.sp,
+                    color: Colors.red.shade400),
                 SizedBox(height: 16.h),
                 Text(
                   'Failed to load leads',
@@ -275,8 +297,10 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                   onPressed: retryFn,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.themeColor.primaryColor,
-                    padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 24.w, vertical: 12.h),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.r)),
                   ),
                   child: const Text('Retry'),
                 ),
@@ -285,7 +309,8 @@ class LeadsContactPage extends GetView<LeadsContactController> {
           ),
         );
       },
-      loadingBuilder: (context) => const Center(
+      loadingBuilder: (context) =>
+      const Center(
         child: Padding(
           padding: EdgeInsets.all(20.0),
           child: CircularProgressIndicator(),
@@ -378,7 +403,7 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                       SizedBox(height: 8.h),
                       _buildContactLink(Icons.phone_outlined, phone ?? 'N/A',
                           onTap: (phone != null && phone != 'N/A')
-                              ? () => controller.makeCall(phone)
+                              ? () => controller.makeCall(lead.contact?.phone)
                               : null),
                       if (email != null && email.isNotEmpty) ...[
                         SizedBox(height: 4.h),
@@ -391,14 +416,16 @@ class LeadsContactPage extends GetView<LeadsContactController> {
               ],
             ),
           ),
-          
-          Divider(height: 1, color: AppColors.themeColor.bordercolror.withOpacity(0.15)),
-          
+
+          Divider(height: 1,
+              color: AppColors.themeColor.bordercolror.withOpacity(0.15)),
+
           // Stats Row: Telecaller, Logs, Duration
           Container(
             padding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 16.w),
             decoration: BoxDecoration(
-              color: AppColors.themeColor.scaffoldBackgroundColor.withOpacity(0.3),
+              color: AppColors.themeColor.scaffoldBackgroundColor.withOpacity(
+                  0.3),
               borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(16.r),
                 bottomRight: Radius.circular(16.r),
@@ -406,11 +433,18 @@ class LeadsContactPage extends GetView<LeadsContactController> {
             ),
             child: Row(
               children: [
-                Expanded(child: _buildInfoBlock('telecaller'.tr, lead.assignedTo?.name ?? 'N/A', Icons.person_pin_rounded)),
+                Expanded(child: _buildInfoBlock(
+                    'telecaller'.tr, lead.assignedTo?.name ?? 'N/A',
+                    Icons.person_pin_rounded)),
                 _buildVerticalSeparator(),
-                Expanded(child: _buildInfoBlock('logs'.tr, '${lead.logs?.length ?? 0}', Icons.history_edu_rounded)),
+                Expanded(child: _buildInfoBlock(
+                    'logs'.tr, '${lead.logs?.length ?? 0}',
+                    Icons.history_edu_rounded)),
                 _buildVerticalSeparator(),
-                Expanded(child: _buildInfoBlock('duration'.tr, controller.formatDuration(controller.getTotalDuration(lead.logs)), Icons.timer_rounded)),
+                Expanded(child: _buildInfoBlock('duration'.tr,
+                    controller.formatDuration(
+                        controller.getTotalDuration(lead.logs)),
+                    Icons.timer_rounded)),
               ],
             ),
           ),
@@ -438,7 +472,8 @@ class LeadsContactPage extends GetView<LeadsContactController> {
           children: [
             Icon(icon,
                 size: 14.sp,
-                color: AppColors.themeColor.textSecondaryColor.withOpacity(0.7)),
+                color: AppColors.themeColor.textSecondaryColor.withOpacity(
+                    0.7)),
             SizedBox(width: 6.w),
             Expanded(
               child: Text(
@@ -467,7 +502,8 @@ class LeadsContactPage extends GetView<LeadsContactController> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 12.sp, color: AppColors.themeColor.primaryColor.withOpacity(0.7)),
+            Icon(icon, size: 12.sp,
+                color: AppColors.themeColor.primaryColor.withOpacity(0.7)),
             SizedBox(width: 4.w),
             Flexible(
               child: Text(
@@ -573,29 +609,35 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                 ],
               ),
               SizedBox(height: 10.h),
-              Obx(() => Row(
-                children: [
-                  Radio<String>(
-                    value: "all_time",
-                    groupValue: controller.filterType.value,
-                    activeColor: AppColors.themeColor.primaryColor,
-                    onChanged: (value) {
-                      controller.filterType.value = value!;
-                    },
-                  ),
-                  Text("all_time".tr, style: AppTextStyle.regular7.copyWith(fontSize: AppDimens.fontSize14, color: AppColors.themeColor.textPrimaryColor)),
-                  SizedBox(width: 20.w),
-                  Radio<String>(
-                    value: "specific_time",
-                    groupValue: controller.filterType.value,
-                    activeColor: AppColors.themeColor.primaryColor,
-                    onChanged: (value) {
-                      controller.filterType.value = value!;
-                    },
-                  ),
-                  Text("specific_time".tr, style: AppTextStyle.regular7.copyWith(fontSize: AppDimens.fontSize14, color: AppColors.themeColor.textPrimaryColor)),
-                ],
-              )),
+              Obx(() =>
+                  Row(
+                    children: [
+                      Radio<String>(
+                        value: "all_time",
+                        groupValue: controller.filterType.value,
+                        activeColor: AppColors.themeColor.primaryColor,
+                        onChanged: (value) {
+                          controller.filterType.value = value!;
+                        },
+                      ),
+                      Text("all_time".tr, style: AppTextStyle.regular7.copyWith(
+                          fontSize: AppDimens.fontSize14,
+                          color: AppColors.themeColor.textPrimaryColor)),
+                      SizedBox(width: 20.w),
+                      Radio<String>(
+                        value: "specific_time",
+                        groupValue: controller.filterType.value,
+                        activeColor: AppColors.themeColor.primaryColor,
+                        onChanged: (value) {
+                          controller.filterType.value = value!;
+                        },
+                      ),
+                      Text("specific_time".tr,
+                          style: AppTextStyle.regular7.copyWith(
+                              fontSize: AppDimens.fontSize14,
+                              color: AppColors.themeColor.textPrimaryColor)),
+                    ],
+                  )),
               SizedBox(height: 20.h),
               Text(
                 "filter_by_status".tr,
@@ -606,36 +648,42 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                 ),
               ),
               SizedBox(height: 10.h),
-              Obx(() => Container(
-                padding: EdgeInsets.symmetric(horizontal: 12.w),
-                decoration: BoxDecoration(
-                  border: Border.all(
-                      color: AppColors.themeColor.bordercolror, width: 1.w),
-                  borderRadius: BorderRadius.circular(25.r),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    isExpanded: true,
-                    value: controller.status.value,
-                    icon: Icon(Icons.arrow_drop_down, color: AppColors.themeColor.primaryColor),
-                    dropdownColor: AppColors.themeColor.cardColor,
-                    items: [
-                      {"key": "all", "label": "all"},
-                      {"key": "completed", "label": "completed"},
-                      {"key": "scheduled", "label": "scheduled"},
-                      {"key": "pending", "label": "pending"},
-                    ].map((status) {
-                      return DropdownMenuItem<String>(
-                        value: status["key"],
-                        child: Text(status["label"]!.tr, style: AppTextStyle.regular7.copyWith(fontSize: AppDimens.fontSize14, color: AppColors.themeColor.textPrimaryColor)),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      controller.status.value = value!;
-                    },
-                  ),
-                ),
-              )),
+              Obx(() =>
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 12.w),
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                          color: AppColors.themeColor.bordercolror, width: 1.w),
+                      borderRadius: BorderRadius.circular(25.r),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        isExpanded: true,
+                        value: controller.status.value,
+                        icon: Icon(Icons.arrow_drop_down,
+                            color: AppColors.themeColor.primaryColor),
+                        dropdownColor: AppColors.themeColor.cardColor,
+                        items: [
+                          {"key": "all", "label": "all"},
+                          {"key": "completed", "label": "completed"},
+                          {"key": "scheduled", "label": "scheduled"},
+                          {"key": "pending", "label": "pending"},
+                        ].map((status) {
+                          return DropdownMenuItem<String>(
+                            value: status["key"],
+                            child: Text(status["label"]!.tr,
+                                style: AppTextStyle.regular7.copyWith(
+                                    fontSize: AppDimens.fontSize14,
+                                    color: AppColors.themeColor
+                                        .textPrimaryColor)),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          controller.status.value = value!;
+                        },
+                      ),
+                    ),
+                  )),
               Obx(() {
                 if (controller.filterType.value == "specific_time") {
                   return Column(
@@ -647,7 +695,8 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                         style: AppTextStyle.medium7.copyWith(
                           fontSize: AppDimens.fontSize14,
                           fontWeight: FontWeight.w500,
-                          color: AppColors.themeColor.textPrimaryColor.withOpacity(0.8),
+                          color: AppColors.themeColor.textPrimaryColor
+                              .withOpacity(0.8),
                         ),
                       ),
                       SizedBox(height: 10.h),
@@ -657,11 +706,12 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                             context: context,
                             firstDate: DateTime(2000),
                             lastDate: DateTime(2100),
-                            initialDateRange: controller.startDate.value != null && controller.endDate.value != null
+                            initialDateRange: controller.startDate.value !=
+                                null && controller.endDate.value != null
                                 ? DateTimeRange(
-                                    start: controller.startDate.value!,
-                                    end: controller.endDate.value!,
-                                  )
+                              start: controller.startDate.value!,
+                              end: controller.endDate.value!,
+                            )
                                 : null,
                           );
                           if (picked != null) {
@@ -670,27 +720,37 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                           }
                         },
                         child: Container(
-                          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 12.w, vertical: 12.h),
                           decoration: BoxDecoration(
-                            border: Border.all(color: AppColors.themeColor.bordercolror),
+                            border: Border.all(
+                                color: AppColors.themeColor.bordercolror),
                             borderRadius: BorderRadius.circular(25.r),
                           ),
                           child: Row(
                             children: [
                               Expanded(
                                 child: Text(
-                                  controller.startDate.value != null && controller.endDate.value != null
-                                      ? "${DateFormat('yyyy-MM-dd').format(controller.startDate.value!)}   →   ${DateFormat('yyyy-MM-dd').format(controller.endDate.value!)}"
+                                  controller.startDate.value != null &&
+                                      controller.endDate.value != null
+                                      ? "${DateFormat('yyyy-MM-dd').format(
+                                      controller.startDate
+                                          .value!)}   →   ${DateFormat(
+                                      'yyyy-MM-dd').format(
+                                      controller.endDate.value!)}"
                                       : "start_date_end_date".tr,
                                   style: AppTextStyle.regular7.copyWith(
                                     fontSize: AppDimens.fontSize13,
                                     color: controller.startDate.value != null
                                         ? AppColors.themeColor.textPrimaryColor
-                                        : AppColors.themeColor.textSecondaryColor,
+                                        : AppColors.themeColor
+                                        .textSecondaryColor,
                                   ),
                                 ),
                               ),
-                              Icon(Icons.calendar_today_outlined, size: 18.sp, color: AppColors.themeColor.textSecondaryColor),
+                              Icon(Icons.calendar_today_outlined, size: 18.sp,
+                                  color: AppColors.themeColor
+                                      .textSecondaryColor),
                             ],
                           ),
                         ),
@@ -708,8 +768,10 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                     child: OutlinedButton(
                       onPressed: () => Get.back(),
                       style: OutlinedButton.styleFrom(
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.r)),
-                        side: BorderSide(color: AppColors.themeColor.bordercolror),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25.r)),
+                        side: BorderSide(
+                            color: AppColors.themeColor.bordercolror),
                         padding: EdgeInsets.symmetric(vertical: 15.h),
                       ),
                       child: Text(
@@ -729,7 +791,8 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.themeColor.primaryColor,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.r)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25.r)),
                         padding: EdgeInsets.symmetric(vertical: 15.h),
                       ),
                       child: Text(
@@ -786,8 +849,12 @@ class LeadsContactPage extends GetView<LeadsContactController> {
             ),
             SizedBox(height: 10.h),
             ...controller.sortOptions.entries.map((entry) {
-              return Obx(() => RadioListTile<String>(
-                    title: Text(entry.value.tr, style: AppTextStyle.regular7.copyWith(fontSize: AppDimens.fontSize14, color: AppColors.themeColor.textPrimaryColor)),
+              return Obx(() =>
+                  RadioListTile<String>(
+                    title: Text(entry.value.tr,
+                        style: AppTextStyle.regular7.copyWith(
+                            fontSize: AppDimens.fontSize14,
+                            color: AppColors.themeColor.textPrimaryColor)),
                     value: entry.key,
                     groupValue: controller.sortBy.value,
                     activeColor: AppColors.themeColor.primaryColor,
@@ -824,11 +891,9 @@ class _SliverHeaderDelegate extends SliverPersistentHeaderDelegate {
   double get maxExtent => maxHeight;
 
   @override
-  Widget build(
-    BuildContext context,
-    double shrinkOffset,
-    bool overlapsContent,
-  ) {
+  Widget build(BuildContext context,
+      double shrinkOffset,
+      bool overlapsContent,) {
     return SizedBox.expand(child: child);
   }
 

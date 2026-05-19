@@ -332,7 +332,9 @@ class CallFormPage extends StatelessWidget {
                     return "enter_a_valid_number".tr;
                   }
                 } else if (effectiveType == FORM_FIELD_TYPES["LINK"]) {
-                  if (!GetUtils.isURL(cleanVal)) {
+                  final uri = Uri.tryParse(cleanVal);
+                  final isValidWebUrl = uri != null && uri.hasScheme && (uri.scheme == 'http' || uri.scheme == 'https');
+                  if (!isValidWebUrl && !GetUtils.isURL(cleanVal)) {
                     return "enter_a_valid_url".tr;
                   }
                 }

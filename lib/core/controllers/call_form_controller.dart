@@ -1,4 +1,5 @@
 import 'dart:io' as java_io;
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -69,6 +70,11 @@ class CallFormController extends GetxController {
     bool isExcelByLabel = lbl.contains("excel") || lbl.contains("sheet") || lbl.contains("csv") || lbl.contains("xls");
     bool isFileByLabel = lbl.contains("file") || lbl.contains("document") || lbl.contains("pdf") || lbl.contains("attachment");
     bool isPhoneByLabel = lbl.contains("phone") || lbl.contains("mobile") || lbl.contains("contact") || lbl.contains("whatsapp");
+    bool isLinkByLabel = lbl.contains("link") || lbl.contains("url") || lbl.contains("website") || lbl.contains("social") || lbl.contains("linkedin") || lbl.contains("instagram") || lbl.contains("facebook") || lbl.contains("twitter") || lbl.contains("youtube");
+    bool isEmailByLabel = lbl.contains("email") || lbl.contains("mail");
+    bool isDateByLabel = lbl.contains("date") || lbl.contains("birth");
+    bool isTimeByLabel = lbl.contains("time");
+    bool isLocationByLabel = lbl.contains("location") || lbl.contains("gps") || lbl.contains("coordinate") || lbl.contains("latitude") || lbl.contains("longitude");
 
     if (isExcelByLabel && (type != FORM_FIELD_TYPES["IMAGE"] && type != FORM_FIELD_TYPES["VIDEO"])) {
       return FORM_FIELD_TYPES["EXCEL"]!;
@@ -76,6 +82,16 @@ class CallFormController extends GetxController {
       return FORM_FIELD_TYPES["FILE"]!;
     } else if (isPhoneByLabel && (type == FORM_FIELD_TYPES["TEXT"] || type == FORM_FIELD_TYPES["NUMBER"] || type == "")) {
       return FORM_FIELD_TYPES["PHONE"]!;
+    } else if (isLinkByLabel && (type == FORM_FIELD_TYPES["TEXT"] || type == "")) {
+      return FORM_FIELD_TYPES["LINK"]!;
+    } else if (isEmailByLabel && (type == FORM_FIELD_TYPES["TEXT"] || type == "")) {
+      return FORM_FIELD_TYPES["EMAIL"]!;
+    } else if (isDateByLabel && (type == FORM_FIELD_TYPES["TEXT"] || type == "")) {
+      return FORM_FIELD_TYPES["DATE"]!;
+    } else if (isTimeByLabel && (type == FORM_FIELD_TYPES["TEXT"] || type == "")) {
+      return FORM_FIELD_TYPES["TIME"]!;
+    } else if (isLocationByLabel && (type == FORM_FIELD_TYPES["TEXT"] || type == "")) {
+      return FORM_FIELD_TYPES["LOCATION"]!;
     }
     return type;
   }
@@ -92,6 +108,7 @@ class CallFormController extends GetxController {
   final RxString formId = "".obs;
   final RxString leadId = "".obs;
   final RxString leadContactId = "".obs;
+  final RxString formResponseId = "".obs;
 
   // ─────────────────────────────────────────────
   // LOADING
@@ -146,6 +163,10 @@ class CallFormController extends GetxController {
         "leadContactId": leadContactId.value,
         "answers": [],
       };
+
+      if (formResponseId.value.isNotEmpty) {
+        formData["formResponseId"] = formResponseId.value;
+      }
 
       for (var field in formFields) {
         final fieldId = field.id ?? "";
@@ -222,6 +243,11 @@ class CallFormController extends GetxController {
             if (!value.startsWith("+91")) {
               value = "+91$value";
             }
+          } else if (fType == FORM_FIELD_TYPES["LINK"] && value.isNotEmpty) {
+            value = {
+              "url": value,
+              "name": field.label ?? "Link"
+            };
           }
         }
 
@@ -258,7 +284,9 @@ class CallFormController extends GetxController {
       print("📤 FINAL SUBMIT DATA: $formData");
 
       final apiService = Get.find<ApiService>();
-      final response = await apiService.submitCallForm(formData);
+      final response = formResponseId.value.isNotEmpty
+          ? await apiService.updateCallForm(formData)
+          : await apiService.submitCallForm(formData);
 
       if (response.status ?? false) {
 
@@ -315,7 +343,166 @@ class CallFormController extends GetxController {
     formId.value = "";
     leadId.value = "";
     leadContactId.value = "";
+    formResponseId.value = "";
     canClose.value = true;
+  }
+
+  // ─────────────────────────────────────────────
+  // FETCH EXISTING FORM RESPONSE
+  // ─────────────────────────────────────────────
+  Future<void> fetchExistingResponse(String leadContactId) async {
+    if (leadContactId.isEmpty) return;
+
+    isLoading.value = true;
+    try {
+      final apiService = Get.find<ApiService>();
+      final response = await apiService.formResponse(leadContactId: leadContactId);
+
+      if (response.status == true && response.formResponse != null) {
+        formResponseId.value = response.formResponse!.id ?? "";
+        final answers = response.formResponse!.answers ?? [];
+        print("📥 Pre-populating form with ${answers.length} existing answers for contact: $leadContactId");
+
+        for (var answer in answers) {
+          final fieldId = answer.fieldId ?? "";
+          if (fieldId.isEmpty) continue;
+
+          dynamic rawVal = answer.value;
+          if (rawVal == null) continue;
+          final type = answer.type ?? "";
+
+          // Try to locate the matching field from our formFields to get the exact effective type
+          final fieldObj = formFields.firstWhereOrNull((f) => f.id == fieldId);
+          final effectiveType = fieldObj != null 
+              ? getEffectiveType(fieldObj.type, fieldObj.label) 
+              : type.toLowerCase();
+
+          print("✍️ Restoring field $fieldId ($effectiveType) with raw value: $rawVal");
+
+          // 1. Text-based fields (using controllers)
+          if (dynamicControllers.containsKey(fieldId)) {
+            if (effectiveType == FORM_FIELD_TYPES["PHONE"]) {
+              String valStr = rawVal.toString().trim();
+              if (valStr.startsWith("+91")) {
+                dynamicControllers[fieldId]!.text = valStr.replaceFirst("+91", "");
+              } else {
+                dynamicControllers[fieldId]!.text = valStr;
+              }
+            } else if (effectiveType == FORM_FIELD_TYPES["LINK"]) {
+              if (rawVal is Map) {
+                dynamicControllers[fieldId]!.text = rawVal["url"]?.toString() ?? "";
+              } else {
+                String valStr = rawVal.toString().trim();
+                if (valStr.contains("url")) {
+                  final urlReg = RegExp(r'url[:\s=]+([^\s,}]+)');
+                  final urlMatch = urlReg.firstMatch(valStr);
+                  if (urlMatch != null) {
+                    dynamicControllers[fieldId]!.text = urlMatch.group(1)?.replaceAll(RegExp(r'[{}"]'), "").trim() ?? valStr;
+                  } else {
+                    dynamicControllers[fieldId]!.text = valStr;
+                  }
+                } else {
+                  dynamicControllers[fieldId]!.text = valStr;
+                }
+              }
+            } else {
+              dynamicControllers[fieldId]!.text = rawVal.toString().trim();
+            }
+          }
+
+          // 2. Location fields
+          if (effectiveType == FORM_FIELD_TYPES["LOCATION"]) {
+            if (rawVal is Map) {
+              dynamicControllers["${fieldId}_lat"]?.text = (rawVal["latitude"] ?? rawVal["lat"] ?? "").toString().trim();
+              dynamicControllers["${fieldId}_lng"]?.text = (rawVal["longitude"] ?? rawVal["lng"] ?? "").toString().trim();
+            } else {
+              String valStr = rawVal.toString().trim();
+              try {
+                if (valStr.isNotEmpty) {
+                  // If it looks like a Map representation: "{latitude: ..., longitude: ...}" or similar
+                  if (valStr.contains("latitude") || valStr.contains("lat")) {
+                    final latReg = RegExp(r'(?:latitude|lat)[:\s=]+([-\d.]+)');
+                    final lngReg = RegExp(r'(?:longitude|lng)[:\s=]+([-\d.]+)');
+                    final latMatch = latReg.firstMatch(valStr);
+                    final lngMatch = lngReg.firstMatch(valStr);
+                    
+                    if (latMatch != null && lngMatch != null) {
+                      dynamicControllers["${fieldId}_lat"]?.text = latMatch.group(1) ?? "";
+                      dynamicControllers["${fieldId}_lng"]?.text = lngMatch.group(1) ?? "";
+                    }
+                  } else if (valStr.contains(",")) {
+                    final parts = valStr.split(",");
+                    if (parts.length >= 2) {
+                      dynamicControllers["${fieldId}_lat"]?.text = parts[0].replaceAll(RegExp(r'[^\d.-]'), "").trim();
+                      dynamicControllers["${fieldId}_lng"]?.text = parts[1].replaceAll(RegExp(r'[^\d.-]'), "").trim();
+                    }
+                  }
+                }
+              } catch (e) {
+                print("Error parsing location value: $e");
+              }
+            }
+          }
+
+          // 3. State-based fields (RxString values)
+          if (dynamicValues.containsKey(fieldId)) {
+            if (effectiveType == FORM_FIELD_TYPES["CHECKBOX"]) {
+              if (rawVal is List) {
+                dynamicValues[fieldId]!.value = rawVal.map((e) => e.toString()).join(",");
+              } else {
+                String valStr = rawVal.toString().trim();
+                // Convert List representations like "[Option A, Option B]" to comma-separated
+                if (valStr.startsWith("[") && valStr.endsWith("]")) {
+                  valStr = valStr.substring(1, valStr.length - 1);
+                  final options = valStr.split(",").map((s) => s.trim()).toList();
+                  dynamicValues[fieldId]!.value = options.join(",");
+                } else {
+                  dynamicValues[fieldId]!.value = valStr;
+                }
+              }
+            } else if (effectiveType == FORM_FIELD_TYPES["FILE"] ||
+                       effectiveType == FORM_FIELD_TYPES["IMAGE"] ||
+                       effectiveType == FORM_FIELD_TYPES["VIDEO"] ||
+                       effectiveType == FORM_FIELD_TYPES["EXCEL"] ||
+                       effectiveType.contains("excel") ||
+                       effectiveType.contains("file")) {
+              
+              if (rawVal is Map) {
+                final url = rawVal["url"]?.toString() ?? "";
+                final name = rawVal["name"]?.toString() ?? url.split('/').last;
+                dynamicValues[fieldId]!.value = "$url|$name";
+              } else {
+                String valStr = rawVal.toString().trim();
+                // If backend returned a map representation: "{url: http://..., name: file.png}"
+                if (valStr.contains("url")) {
+                  final urlReg = RegExp(r'url[:\s=]+([^\s,}]+)');
+                  final nameReg = RegExp(r'name[:\s=]+([^\s,}]+)');
+                  
+                  final urlMatch = urlReg.firstMatch(valStr);
+                  final nameMatch = nameReg.firstMatch(valStr);
+                  
+                  if (urlMatch != null) {
+                    final url = urlMatch.group(1)?.replaceAll(RegExp(r'[{}"]'), "").trim() ?? "";
+                    final name = nameMatch?.group(1)?.replaceAll(RegExp(r'[{}"]'), "").trim() ?? url.split('/').last;
+                    dynamicValues[fieldId]!.value = "$url|$name";
+                  } else {
+                    dynamicValues[fieldId]!.value = valStr;
+                  }
+                } else {
+                  dynamicValues[fieldId]!.value = valStr;
+                }
+              }
+            } else {
+              dynamicValues[fieldId]!.value = rawVal.toString().trim();
+            }
+          }
+        }
+      }
+    } catch (e) {
+      print("❌ Error fetching existing form response: $e");
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   // ─────────────────────────────────────────────
@@ -869,6 +1056,7 @@ class CallFormController extends GetxController {
           controller.dynamicControllers["${fieldId}_lng"] = TextEditingController();
         } else if (effectiveType == FORM_FIELD_TYPES["TEXT"] ||
             effectiveType == FORM_FIELD_TYPES["NUMBER"] ||
+            effectiveType == FORM_FIELD_TYPES["EMAIL"] ||
             effectiveType == FORM_FIELD_TYPES["TEXTAREA"] ||
             effectiveType == FORM_FIELD_TYPES["DATE"] ||
             effectiveType == FORM_FIELD_TYPES["TIME"] ||
@@ -891,6 +1079,11 @@ class CallFormController extends GetxController {
             effectiveType == FORM_FIELD_TYPES["EXCEL"]) {
           controller.dynamicValues[fieldId] = "".obs;
         }
+      }
+
+      // Load existing form response if leadContactId is not empty
+      if (leadContactId.isNotEmpty) {
+        controller.fetchExistingResponse(leadContactId);
       }
     } else {
       print("🔄 Using already primed form: ${controller.formId.value}");

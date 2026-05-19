@@ -9,6 +9,7 @@ import 'package:telecaller_app/core/models/api_response_entity.dart';
 import 'package:telecaller_app/core/models/call_chart_entity.dart';
 import 'package:telecaller_app/core/models/call_lead_update_response_entity.dart';
 import 'package:telecaller_app/core/models/country_drop_response_entity.dart';
+import 'package:telecaller_app/core/models/form_response_entity.dart';
 import 'package:telecaller_app/core/models/get_static_entity.dart';
 import 'package:telecaller_app/core/models/language_entity.dart';
 import 'package:telecaller_app/core/models/lead_chart_entity.dart';
@@ -228,6 +229,35 @@ class JsonConvert {
       return data.map<CountryDropResponseEntity>((Map<String, dynamic> e) =>
           CountryDropResponseEntity.fromJson(e)).toList() as M;
     }
+    if (<FormResponseEntity>[] is M) {
+      return data.map<FormResponseEntity>((Map<String, dynamic> e) =>
+          FormResponseEntity.fromJson(e)).toList() as M;
+    }
+    if (<FormResponseFormResponse>[] is M) {
+      return data.map<FormResponseFormResponse>((Map<String, dynamic> e) =>
+          FormResponseFormResponse.fromJson(e)).toList() as M;
+    }
+    if (<FormResponseFormResponseFormId>[] is M) {
+      return data
+          .map<FormResponseFormResponseFormId>((
+          Map<String, dynamic> e) => FormResponseFormResponseFormId.fromJson(e))
+          .toList() as M;
+    }
+    if (<FormResponseFormResponseFormIdFields>[] is M) {
+      return data.map<FormResponseFormResponseFormIdFields>((
+          Map<String, dynamic> e) =>
+          FormResponseFormResponseFormIdFields.fromJson(e)).toList() as M;
+    }
+    if (<FormResponseFormResponseAssignedTo>[] is M) {
+      return data.map<FormResponseFormResponseAssignedTo>((
+          Map<String, dynamic> e) =>
+          FormResponseFormResponseAssignedTo.fromJson(e)).toList() as M;
+    }
+    if (<FormResponseFormResponseAnswers>[] is M) {
+      return data.map<FormResponseFormResponseAnswers>((
+          Map<String, dynamic> e) =>
+          FormResponseFormResponseAnswers.fromJson(e)).toList() as M;
+    }
     if (<GetStaticEntity>[] is M) {
       return data.map<GetStaticEntity>((Map<String, dynamic> e) =>
           GetStaticEntity.fromJson(e)).toList() as M;
@@ -371,6 +401,16 @@ class JsonConvertClassCollection {
     (CallLeadUpdateResponseDataLogs).toString(): CallLeadUpdateResponseDataLogs
         .fromJson,
     (CountryDropResponseEntity).toString(): CountryDropResponseEntity.fromJson,
+    (FormResponseEntity).toString(): FormResponseEntity.fromJson,
+    (FormResponseFormResponse).toString(): FormResponseFormResponse.fromJson,
+    (FormResponseFormResponseFormId).toString(): FormResponseFormResponseFormId
+        .fromJson,
+    (FormResponseFormResponseFormIdFields)
+        .toString(): FormResponseFormResponseFormIdFields.fromJson,
+    (FormResponseFormResponseAssignedTo)
+        .toString(): FormResponseFormResponseAssignedTo.fromJson,
+    (FormResponseFormResponseAnswers)
+        .toString(): FormResponseFormResponseAnswers.fromJson,
     (GetStaticEntity).toString(): GetStaticEntity.fromJson,
     (GetStaticStatistics).toString(): GetStaticStatistics.fromJson,
     (LanguageEntity).toString(): LanguageEntity.fromJson,
