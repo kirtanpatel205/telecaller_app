@@ -260,6 +260,14 @@
   "web": "Web",
   "app": "App",
   "sms": "Sms",
-  "whatsapp": "Whatsapp"
-
+  "whatsapp": "Whatsapp",
+  "enter_a_valid_number": "Please enter a valid number",
+  "enter_a_valid_url": "Please enter a valid URL",
+  "is_required": "is required",
+  "latitude_is_required": "Latitude is required",
+  "longitude_is_required": "Longitude is required",
+  "validation_error": "Validation Error",
+  "please_select_a_value_for": "Please select a value for",
+  "form_locked": "Form Locked",
+  "please_use_save_or_cancel": "Please use the Save or Cancel buttons at the bottom to exit."
 }

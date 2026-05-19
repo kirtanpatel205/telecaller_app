@@ -142,8 +142,8 @@ class CallFormController extends GetxController {
 
           if (val == null || val.toString().isEmpty) {
             Get.snackbar(
-              "Validation Error",
-              "Please select a value for ${field.label}",
+              "validation_error".tr,
+              "${"please_select_a_value_for".tr} ${field.label ?? ''}",
               snackPosition: SnackPosition.BOTTOM,
               backgroundColor: Colors.red,
               colorText: Colors.white,

@@ -34,8 +34,8 @@ class CallFormPage extends StatelessWidget {
       onPopInvoked: (didPop) {
         if (didPop) return;
         Get.snackbar(
-          "Form Locked",
-          "Please use the Save or Cancel buttons at the bottom to exit.",
+          "form_locked".tr,
+          "please_use_save_or_cancel".tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.black.withOpacity(0.7),
           colorText: Colors.white,
@@ -280,7 +280,6 @@ class CallFormPage extends StatelessWidget {
     BuildContext context,
     AllLeadLeadsFormIdFields field,
   ) {
-    final String type = (field.type ?? "").toLowerCase();
     final String label = (field.label ?? "untitled_field".tr).toLowerCase();
     final String hint = field.placeholder ?? "Enter ${field.label ?? ''}";
     final bool isRequired = field.required ?? false;
@@ -315,7 +314,7 @@ class CallFormPage extends StatelessWidget {
             validator: (val) {
               final cleanVal = val?.trim() ?? "";
               if (isRequired && cleanVal.isEmpty) {
-                return "$label is required";
+                return "${field.label ?? 'field'} ${'is_required'.tr}";
               }
               
               if (cleanVal.isNotEmpty) {
@@ -351,7 +350,7 @@ class CallFormPage extends StatelessWidget {
                   hint: "Latitude",
                   keyboardType: TextInputType.number,
                   validator: isRequired
-                      ? (val) => (val == null || val.trim().isEmpty) ? "Latitude is required" : null
+                      ? (val) => (val == null || val.trim().isEmpty) ? "latitude_is_required".tr : null
                       : null,
                 ),
               ),
@@ -362,7 +361,7 @@ class CallFormPage extends StatelessWidget {
                   hint: "Longitude",
                   keyboardType: TextInputType.number,
                   validator: isRequired
-                      ? (val) => (val == null || val.trim().isEmpty) ? "Longitude is required" : null
+                      ? (val) => (val == null || val.trim().isEmpty) ? "longitude_is_required".tr : null
                       : null,
                 ),
               ),
