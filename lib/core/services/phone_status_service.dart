@@ -102,7 +102,7 @@ class PhoneStatusService extends GetxService with WidgetsBindingObserver {
       );
 
       // 1. Handle pending overlay from background call
-      if (_isOverlayPending) {
+      if (_isOverlayPending && !_isFormShowing()) {
         print("🔔 [LIFECYCLE] App resumed with PENDING overlay. Opening now.");
         final number = _pendingOverlayNumber;
         final duration = _pendingOverlayDuration;

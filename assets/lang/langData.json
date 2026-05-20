@@ -249,7 +249,12 @@
     "validation_error": "Validation Error",
     "please_select_a_value_for": "Please select a value for",
     "form_locked": "Form Locked",
-    "please_use_save_or_cancel": "Please use the Save or Cancel buttons at the bottom to exit."
+    "please_use_save_or_cancel": "Please use the Save or Cancel buttons at the bottom to exit.",
+    "select_image": "Select Image",
+    "files": "Files",
+    "select": "Select",
+    "source": "Source",
+    "submit": "Submit"
   },
   "pt": {
     "welcome": "Ação",
@@ -501,7 +506,12 @@
     "validation_error": "Erro de validação",
     "please_select_a_value_for": "Por favor, selecione um valor para",
     "form_locked": "Formulário bloqueado",
-    "please_use_save_or_cancel": "Utilize os botões Salvar ou Cancelar na parte inferior para sair."
+    "please_use_save_or_cancel": "Utilize os botões Salvar ou Cancelar na parte inferior para sair.",
+    "select_image": "Selecionar imagem",
+    "files": "Arquivos",
+    "select": "Selecione",
+    "source": "Fonte",
+    "submit": "Enviar"
   },
   "hi": {
     "welcome": "कार्रवाई",
@@ -753,7 +763,12 @@
     "validation_error": "सत्यापन त्रुटि",
     "please_select_a_value_for": "कृपया एक मान चुनें",
     "form_locked": "फॉर्म लॉक हो गया है",
-    "please_use_save_or_cancel": "बाहर निकलने के लिए कृपया नीचे दिए गए सेव या कैंसिल बटन का उपयोग करें।"
+    "please_use_save_or_cancel": "बाहर निकलने के लिए कृपया नीचे दिए गए सेव या कैंसिल बटन का उपयोग करें।",
+    "select_image": "छवि का चयन करें",
+    "files": "फ़ाइलें",
+    "select": "चुनना",
+    "source": "स्रोत",
+    "submit": "जमा करना"
   },
   "ta": {
     "welcome": "செயல்",
@@ -1005,7 +1020,12 @@
     "validation_error": "சரிபார்ப்புப் பிழை",
     "please_select_a_value_for": "தயவுசெய்து ஒரு மதிப்பைத் தேர்ந்தெடுக்கவும்",
     "form_locked": "படிவம் பூட்டப்பட்டது",
-    "please_use_save_or_cancel": "வெளியேறுவதற்கு, கீழே உள்ள சேமி அல்லது ரத்துசெய் பொத்தான்களைப் பயன்படுத்தவும்."
+    "please_use_save_or_cancel": "வெளியேறுவதற்கு, கீழே உள்ள சேமி அல்லது ரத்துசெய் பொத்தான்களைப் பயன்படுத்தவும்.",
+    "select_image": "படத்தைத் தேர்ந்தெடுக்கவும்",
+    "files": "கோப்புகள்",
+    "select": "தேர்ந்தெடுக்கவும்",
+    "source": "ஆதாரம்",
+    "submit": "சமர்ப்பிக்கவும்"
   },
   "te": {
     "welcome": "చర్య",
@@ -1257,7 +1277,12 @@
     "validation_error": "ధృవీకరణ లోపం",
     "please_select_a_value_for": "దయచేసి దీని కోసం ఒక విలువను ఎంచుకోండి",
     "form_locked": "ఫారం లాక్ చేయబడింది",
-    "please_use_save_or_cancel": "నిష్క్రమించడానికి దయచేసి దిగువన ఉన్న సేవ్ లేదా క్యాన్సల్ బటన్‌లను ఉపయోగించండి."
+    "please_use_save_or_cancel": "నిష్క్రమించడానికి దయచేసి దిగువన ఉన్న సేవ్ లేదా క్యాన్సల్ బటన్‌లను ఉపయోగించండి.",
+    "select_image": "చిత్రాన్ని ఎంచుకోండి",
+    "files": "ఫైల్స్",
+    "select": "ఎంచుకోండి",
+    "source": "మూలం",
+    "submit": "సమర్పించండి"
   },
   "es": {
     "welcome": "Acción",
@@ -1509,7 +1534,12 @@
     "validation_error": "Error de validación",
     "please_select_a_value_for": "Seleccione un valor para",
     "form_locked": "Formulario bloqueado",
-    "please_use_save_or_cancel": "Utilice los botones Guardar o Cancelar que se encuentran en la parte inferior para salir."
+    "please_use_save_or_cancel": "Utilice los botones Guardar o Cancelar que se encuentran en la parte inferior para salir.",
+    "select_image": "Seleccionar imagen",
+    "files": "Archivos",
+    "select": "Seleccionar",
+    "source": "Fuente",
+    "submit": "Entregar"
   },
   "fr": {
     "welcome": "Action",
@@ -1761,7 +1791,12 @@
     "validation_error": "Erreur de validation",
     "please_select_a_value_for": "Veuillez sélectionner une valeur pour",
     "form_locked": "Formulaire verrouillé",
-    "please_use_save_or_cancel": "Veuillez utiliser les boutons Enregistrer ou Annuler en bas de page pour quitter."
+    "please_use_save_or_cancel": "Veuillez utiliser les boutons Enregistrer ou Annuler en bas de page pour quitter.",
+    "select_image": "Sélectionner une image",
+    "files": "Fichiers",
+    "select": "Sélectionner",
+    "source": "Source",
+    "submit": "Soumettre"
   },
   "ar": {
     "welcome": "الاجراء",
@@ -2013,7 +2048,12 @@
     "validation_error": "بين",
     "please_select_a_value_for": "بين",
     "form_locked": "بين",
-    "please_use_save_or_cancel": "بين"
+    "please_use_save_or_cancel": "بين",
+    "select_image": "بين",
+    "files": "بين",
+    "select": "بين",
+    "source": "بين",
+    "submit": "بين"
   },
   "th": {
     "welcome": "การกระทำ",
@@ -2265,7 +2305,12 @@
     "validation_error": "ข้อผิดพลาดในการตรวจสอบความถูกต้อง",
     "please_select_a_value_for": "โปรดเลือกค่าสำหรับ",
     "form_locked": "แบบฟอร์มถูกล็อก",
-    "please_use_save_or_cancel": "โปรดใช้ปุ่มบันทึกหรือยกเลิกที่ด้านล่างเพื่อออกจากหน้าต่างนี้"
+    "please_use_save_or_cancel": "โปรดใช้ปุ่มบันทึกหรือยกเลิกที่ด้านล่างเพื่อออกจากหน้าต่างนี้",
+    "select_image": "เลือกรูปภาพ",
+    "files": "ไฟล์",
+    "select": "เลือก",
+    "source": "แหล่งที่มา",
+    "submit": "ส่ง"
   },
   "ms": {
     "welcome": "Tindakan",
@@ -2517,7 +2562,12 @@
     "validation_error": "Ralat Pengesahan",
     "please_select_a_value_for": "Sila pilih nilai untuk",
     "form_locked": "Borang Dikunci",
-    "please_use_save_or_cancel": "Sila gunakan butang Simpan atau Batal di bahagian bawah untuk keluar."
+    "please_use_save_or_cancel": "Sila gunakan butang Simpan atau Batal di bahagian bawah untuk keluar.",
+    "select_image": "Pilih Imej",
+    "files": "Fail",
+    "select": "Pilih",
+    "source": "Sumber",
+    "submit": "Hantar"
   },
   "de": {
     "welcome": "Aktion",
@@ -2769,7 +2819,12 @@
     "validation_error": "Validierungsfehler",
     "please_select_a_value_for": "Bitte wählen Sie einen Wert aus für",
     "form_locked": "Formular gesperrt",
-    "please_use_save_or_cancel": "Bitte verwenden Sie die Schaltflächen „Speichern“ oder „Abbrechen“ unten, um das Fenster zu verlassen."
+    "please_use_save_or_cancel": "Bitte verwenden Sie die Schaltflächen „Speichern“ oder „Abbrechen“ unten, um das Fenster zu verlassen.",
+    "select_image": "Bild auswählen",
+    "files": "Dateien",
+    "select": "Wählen",
+    "source": "Quelle",
+    "submit": "Einreichen"
   },
   "id": {
     "welcome": "Tindakan",
@@ -3021,7 +3076,12 @@
     "validation_error": "Kesalahan Validasi",
     "please_select_a_value_for": "Silakan pilih nilai untuk",
     "form_locked": "Formulir Terkunci",
-    "please_use_save_or_cancel": "Silakan gunakan tombol Simpan atau Batal di bagian bawah untuk keluar."
+    "please_use_save_or_cancel": "Silakan gunakan tombol Simpan atau Batal di bagian bawah untuk keluar.",
+    "select_image": "Pilih Gambar",
+    "files": "Berkas",
+    "select": "Memilih",
+    "source": "Sumber",
+    "submit": "Kirim"
   },
   "tr": {
     "welcome": "Aksiyon",
@@ -3273,7 +3333,12 @@
     "validation_error": "Doğrulama Hatası",
     "please_select_a_value_for": "Lütfen bir değer seçin.",
     "form_locked": "Form Kilitli",
-    "please_use_save_or_cancel": "Lütfen çıkmak için alttaki Kaydet veya İptal düğmelerini kullanın."
+    "please_use_save_or_cancel": "Lütfen çıkmak için alttaki Kaydet veya İptal düğmelerini kullanın.",
+    "select_image": "Görüntü Seç",
+    "files": "Dosyalar",
+    "select": "Seçme",
+    "source": "Kaynak",
+    "submit": "Göndermek"
   },
   "ru": {
     "welcome": "Действие",
@@ -3525,7 +3590,12 @@
     "validation_error": "Ошибка проверки",
     "please_select_a_value_for": "Пожалуйста, выберите значение для",
     "form_locked": "Форма заблокирована",
-    "please_use_save_or_cancel": "Для выхода воспользуйтесь кнопками «Сохранить» или «Отмена» внизу страницы."
+    "please_use_save_or_cancel": "Для выхода воспользуйтесь кнопками «Сохранить» или «Отмена» внизу страницы.",
+    "select_image": "Выберите изображение",
+    "files": "Файлы",
+    "select": "Выбирать",
+    "source": "Источник",
+    "submit": "Представлять на рассмотрение"
   },
   "bn": {
     "welcome": "অ্যাকশন",
@@ -3777,7 +3847,12 @@
     "validation_error": "বৈধতা ত্রুটি",
     "please_select_a_value_for": "অনুগ্রহ করে একটি মান নির্বাচন করুন",
     "form_locked": "ফর্মটি লক করা হয়েছে",
-    "please_use_save_or_cancel": "প্রস্থান করার জন্য অনুগ্রহ করে নিচের সেভ অথবা ক্যানসেল বাটনগুলো ব্যবহার করুন।"
+    "please_use_save_or_cancel": "প্রস্থান করার জন্য অনুগ্রহ করে নিচের সেভ অথবা ক্যানসেল বাটনগুলো ব্যবহার করুন।",
+    "select_image": "ছবি নির্বাচন করুন",
+    "files": "ফাইল",
+    "select": "নির্বাচন করুন",
+    "source": "উৎস",
+    "submit": "জমা দিন"
   },
   "km": {
     "welcome": "សកម្មភាព",
@@ -4029,7 +4104,12 @@
     "validation_error": "កំហុសក្នុងការផ្ទៀងផ្ទាត់",
     "please_select_a_value_for": "សូមជ្រើសរើសតម្លៃសម្រាប់",
     "form_locked": "ទម្រង់​ត្រូវ​បាន​ចាក់សោ",
-    "please_use_save_or_cancel": "សូមប្រើប៊ូតុង រក្សាទុក ឬ បោះបង់ នៅខាងក្រោម ដើម្បីចេញ។"
+    "please_use_save_or_cancel": "សូមប្រើប៊ូតុង រក្សាទុក ឬ បោះបង់ នៅខាងក្រោម ដើម្បីចេញ។",
+    "select_image": "ជ្រើសរើសរូបភាព",
+    "files": "ឯកសារ",
+    "select": "ជ្រើសរើស",
+    "source": "ប្រភព",
+    "submit": "ដាក់ស្នើ"
   },
   "he": {
     "welcome": "פְּעוּלָה",
@@ -4281,7 +4361,12 @@
     "validation_error": "שגיאת אימות",
     "please_select_a_value_for": "אנא בחר ערך עבור",
     "form_locked": "טופס נעול",
-    "please_use_save_or_cancel": "אנא השתמש בכפתורי שמירה או ביטול בתחתית כדי לצאת."
+    "please_use_save_or_cancel": "אנא השתמש בכפתורי שמירה או ביטול בתחתית כדי לצאת.",
+    "select_image": "בחר תמונה",
+    "files": "קבצים",
+    "select": "לִבחוֹר",
+    "source": "מָקוֹר",
+    "submit": "לְהַגִישׁ"
   },
   "ur": {
     "welcome": "ایکشن",
@@ -4348,7 +4433,7 @@
     "maintaining_business_interaction_history": "کاروباری تعامل کی تاریخ کو برقرار رکھنا",
     "maintaining_call_history_backup_across_authorized_devices": "مجاز آلات پر کال ہسٹری کا بیک اپ برقرار رکھنا",
     "no_chart_data_available": "کوئی چارٹ ڈیٹا دستیاب نہیں ہے۔",
-    "no_dates": "تاریخیں نہیں۔",
+    "no_dates": "کوئی تاریخیں نہیں۔",
     "no_name": "کوئی نام نہیں۔",
     "no_valid_token_found_to_send": "⚠️ بھیجنے کے لیے کوئی درست ٹوکن نہیں ملا!",
     "not_answered": "جواب نہیں دیا گیا۔",
@@ -4356,7 +4441,7 @@
     "notification_page": "اطلاع کا صفحہ",
     "notification_permission_is_used_to": "اطلاع کی اجازت استعمال کی جاتی ہے:",
     "open_manufacturer_settings_auto_start": "مینوفیکچرر کی ترتیبات کھولیں (آٹو اسٹارٹ)",
-    "otp_verification": "OTP کی تصدیق",
+    "otp_verification": "OTP کی توثیق",
     "permission_disclosure": "اجازت کا انکشاف",
     "permissions_are_requested_only_after_your_explicit_consent": "آپ کی واضح رضامندی کے بعد ہی اجازت کی درخواست کی جاتی ہے۔",
     "permissions_saved_to_storage": "✅ اجازتیں اسٹوریج میں محفوظ ہوگئیں۔",
@@ -4533,7 +4618,12 @@
     "validation_error": "توثیق کی خرابی۔",
     "please_select_a_value_for": "برائے مہربانی اس کے لیے ایک قدر منتخب کریں۔",
     "form_locked": "فارم مقفل",
-    "please_use_save_or_cancel": "براہ کرم باہر نکلنے کے لیے نیچے محفوظ یا منسوخ بٹن استعمال کریں۔"
+    "please_use_save_or_cancel": "براہ کرم باہر نکلنے کے لیے نیچے محفوظ یا منسوخ بٹن استعمال کریں۔",
+    "select_image": "تصویر منتخب کریں۔",
+    "files": "فائلیں",
+    "select": "منتخب کریں۔",
+    "source": "ماخذ",
+    "submit": "جمع کروائیں۔"
   },
   "el": {
     "welcome": "Δράση",
@@ -4785,7 +4875,12 @@
     "validation_error": "Σφάλμα επικύρωσης",
     "please_select_a_value_for": "Επιλέξτε μια τιμή για",
     "form_locked": "Φόρμα κλειδωμένη",
-    "please_use_save_or_cancel": "Χρησιμοποιήστε τα κουμπιά Αποθήκευση ή Ακύρωση στο κάτω μέρος για έξοδο."
+    "please_use_save_or_cancel": "Χρησιμοποιήστε τα κουμπιά Αποθήκευση ή Ακύρωση στο κάτω μέρος για έξοδο.",
+    "select_image": "Επιλογή εικόνας",
+    "files": "Αρχεία",
+    "select": "Επιλέγω",
+    "source": "Πηγή",
+    "submit": "Υποτάσσομαι"
   },
   "pl": {
     "welcome": "Działanie",
@@ -5037,7 +5132,12 @@
     "validation_error": "Błąd walidacji",
     "please_select_a_value_for": "Proszę wybrać wartość dla",
     "form_locked": "Formularz zablokowany",
-    "please_use_save_or_cancel": "Aby wyjść, użyj przycisków Zapisz lub Anuluj znajdujących się na dole."
+    "please_use_save_or_cancel": "Aby wyjść, użyj przycisków Zapisz lub Anuluj znajdujących się na dole.",
+    "select_image": "Wybierz obraz",
+    "files": "Akta",
+    "select": "Wybierać",
+    "source": "Źródło",
+    "submit": "Składać"
   },
   "nl": {
     "welcome": "Actie",
@@ -5289,7 +5389,12 @@
     "validation_error": "Validatiefout",
     "please_select_a_value_for": "Selecteer een waarde voor",
     "form_locked": "Formulier vergrendeld",
-    "please_use_save_or_cancel": "Gebruik de knoppen 'Opslaan' of 'Annuleren' onderaan om af te sluiten."
+    "please_use_save_or_cancel": "Gebruik de knoppen 'Opslaan' of 'Annuleren' onderaan om af te sluiten.",
+    "select_image": "Selecteer afbeelding",
+    "files": "Bestanden",
+    "select": "Select",
+    "source": "Bron",
+    "submit": "Indienen"
   },
   "uk": {
     "welcome": "Дія",
@@ -5541,7 +5646,12 @@
     "validation_error": "Помилка перевірки",
     "please_select_a_value_for": "Будь ласка, виберіть значення для",
     "form_locked": "Форма заблокована",
-    "please_use_save_or_cancel": "Будь ласка, скористайтеся кнопками «Зберегти» або «Скасувати» внизу, щоб вийти."
+    "please_use_save_or_cancel": "Будь ласка, скористайтеся кнопками «Зберегти» або «Скасувати» внизу, щоб вийти.",
+    "select_image": "Вибрати зображення",
+    "files": "Файли",
+    "select": "Виберіть",
+    "source": "Джерело",
+    "submit": "Надіслати"
   },
   "vi": {
     "welcome": "Hoạt động",
@@ -5793,7 +5903,12 @@
     "validation_error": "Lỗi xác thực",
     "please_select_a_value_for": "Vui lòng chọn một giá trị cho",
     "form_locked": "Biểu mẫu đã bị khóa",
-    "please_use_save_or_cancel": "Vui lòng sử dụng các nút Lưu hoặc Hủy ở phía dưới để thoát."
+    "please_use_save_or_cancel": "Vui lòng sử dụng các nút Lưu hoặc Hủy ở phía dưới để thoát.",
+    "select_image": "Chọn hình ảnh",
+    "files": "Tệp",
+    "select": "Lựa chọn",
+    "source": "Nguồn",
+    "submit": "Nộp"
   },
   "pt_br": {
     "welcome": "Ação",
@@ -6045,7 +6160,12 @@
     "validation_error": "Erro de validação",
     "please_select_a_value_for": "Por favor, selecione um valor para",
     "form_locked": "Formulário bloqueado",
-    "please_use_save_or_cancel": "Utilize os botões Salvar ou Cancelar na parte inferior para sair."
+    "please_use_save_or_cancel": "Utilize os botões Salvar ou Cancelar na parte inferior para sair.",
+    "select_image": "Selecionar imagem",
+    "files": "Arquivos",
+    "select": "Selecione",
+    "source": "Fonte",
+    "submit": "Enviar"
   },
   "zh_cn": {
     "welcome": "行动",
@@ -6297,7 +6417,12 @@
     "validation_error": "验证错误",
     "please_select_a_value_for": "请选择一个值",
     "form_locked": "表单已锁定",
-    "please_use_save_or_cancel": "请使用底部的“保存”或“取消”按钮退出。"
+    "please_use_save_or_cancel": "请使用底部的“保存”或“取消”按钮退出。",
+    "select_image": "选择图像",
+    "files": "文件",
+    "select": "选择",
+    "source": "来源",
+    "submit": "提交"
   },
   "it": {
     "welcome": "Azione",
@@ -6549,7 +6674,12 @@
     "validation_error": "Errore di convalida",
     "please_select_a_value_for": "Seleziona un valore per",
     "form_locked": "Modulo bloccato",
-    "please_use_save_or_cancel": "Per uscire, utilizza i pulsanti Salva o Annulla in basso."
+    "please_use_save_or_cancel": "Per uscire, utilizza i pulsanti Salva o Annulla in basso.",
+    "select_image": "Seleziona l'immagine",
+    "files": "File",
+    "select": "Selezionare",
+    "source": "Fonte",
+    "submit": "Invia"
   },
   "af": {
     "welcome": "Aksie",
@@ -6801,7 +6931,12 @@
     "validation_error": "Valideringsfout",
     "please_select_a_value_for": "Kies asseblief 'n waarde vir",
     "form_locked": "Vorm Gesluit",
-    "please_use_save_or_cancel": "Gebruik asseblief die Stoor- of Kanselleer-knoppies onderaan om te sluit."
+    "please_use_save_or_cancel": "Gebruik asseblief die Stoor- of Kanselleer-knoppies onderaan om te sluit.",
+    "select_image": "Kies Beeld",
+    "files": "Lêers",
+    "select": "Kies",
+    "source": "Bron",
+    "submit": "Dien in"
   },
   "am": {
     "welcome": "ድርጊት",
@@ -7053,7 +7188,12 @@
     "validation_error": "የማረጋገጫ ስህተት",
     "please_select_a_value_for": "እባክዎ የሚከተለውን እሴት ይምረጡ",
     "form_locked": "ቅጽ ተቆልፏል",
-    "please_use_save_or_cancel": "ለመውጣት እባክዎ ከታች ያሉትን አስቀምጥ ወይም ሰርዝ አዝራሮችን ይጠቀሙ።"
+    "please_use_save_or_cancel": "ለመውጣት እባክዎ ከታች ያሉትን አስቀምጥ ወይም ሰርዝ አዝራሮችን ይጠቀሙ።",
+    "select_image": "ምስል ይምረጡ",
+    "files": "ፋይሎች",
+    "select": "ምረጥ",
+    "source": "ምንጭ",
+    "submit": "አስገባ"
   },
   "az": {
     "welcome": "Fəaliyyət",
@@ -7305,7 +7445,12 @@
     "validation_error": "Doğrulama Xətası",
     "please_select_a_value_for": "Zəhmət olmasa, bir dəyər seçin",
     "form_locked": "Forma Kilidləndi",
-    "please_use_save_or_cancel": "Çıxmaq üçün aşağıdakı Yadda saxla və ya Ləğv et düymələrindən istifadə edin."
+    "please_use_save_or_cancel": "Çıxmaq üçün aşağıdakı Yadda saxla və ya Ləğv et düymələrindən istifadə edin.",
+    "select_image": "Şəkil Seçin",
+    "files": "Fayllar",
+    "select": "Seçin",
+    "source": "Mənbə",
+    "submit": "Göndər"
   },
   "bg": {
     "welcome": "Действие",
@@ -7557,7 +7702,12 @@
     "validation_error": "Грешка при валидиране",
     "please_select_a_value_for": "Моля, изберете стойност за",
     "form_locked": "Формулярът е заключен",
-    "please_use_save_or_cancel": "Моля, използвайте бутоните „Запазване“ или „Отказ“ в долната част, за да излезете."
+    "please_use_save_or_cancel": "Моля, използвайте бутоните „Запазване“ или „Отказ“ в долната част, за да излезете.",
+    "select_image": "Изберете изображение",
+    "files": "Файлове",
+    "select": "Изберете",
+    "source": "Източник",
+    "submit": "Изпращане"
   },
   "ca": {
     "welcome": "Acció",
@@ -7809,7 +7959,12 @@
     "validation_error": "Error de validació",
     "please_select_a_value_for": "Si us plau, seleccioneu un valor per a",
     "form_locked": "Formulari bloquejat",
-    "please_use_save_or_cancel": "Si us plau, utilitzeu els botons Desa o Cancel·la a la part inferior per sortir."
+    "please_use_save_or_cancel": "Si us plau, utilitzeu els botons Desa o Cancel·la a la part inferior per sortir.",
+    "select_image": "Selecciona la imatge",
+    "files": "Fitxers",
+    "select": "Selecciona",
+    "source": "Font",
+    "submit": "Enviar"
   },
   "es_es": {
     "welcome": "Acción",
@@ -8061,7 +8216,12 @@
     "validation_error": "Error de validación",
     "please_select_a_value_for": "Seleccione un valor para",
     "form_locked": "Formulario bloqueado",
-    "please_use_save_or_cancel": "Utilice los botones Guardar o Cancelar que se encuentran en la parte inferior para salir."
+    "please_use_save_or_cancel": "Utilice los botones Guardar o Cancelar que se encuentran en la parte inferior para salir.",
+    "select_image": "Seleccionar imagen",
+    "files": "Archivos",
+    "select": "Seleccionar",
+    "source": "Fuente",
+    "submit": "Entregar"
   },
   "gu": {
     "welcome": "ક્રિયા",
@@ -8313,7 +8473,12 @@
     "validation_error": "માન્યતા ભૂલ",
     "please_select_a_value_for": "કૃપા કરીને આ માટે મૂલ્ય પસંદ કરો",
     "form_locked": "ફોર્મ લૉક કર્યું",
-    "please_use_save_or_cancel": "બહાર નીકળવા માટે કૃપા કરીને તળિયે સેવ અથવા કેન્સલ બટનોનો ઉપયોગ કરો."
+    "please_use_save_or_cancel": "બહાર નીકળવા માટે કૃપા કરીને તળિયે સેવ અથવા કેન્સલ બટનોનો ઉપયોગ કરો.",
+    "select_image": "છબી પસંદ કરો",
+    "files": "ફાઇલો",
+    "select": "પસંદ કરો",
+    "source": "સ્ત્રોત",
+    "submit": "સબમિટ કરો"
   },
   "kn": {
     "welcome": "ಕ್ರಿಯೆ",
@@ -8565,7 +8730,12 @@
     "validation_error": "ಮೌಲ್ಯೀಕರಣ ದೋಷ",
     "please_select_a_value_for": "ದಯವಿಟ್ಟು ಇದಕ್ಕಾಗಿ ಮೌಲ್ಯವನ್ನು ಆಯ್ಕೆಮಾಡಿ",
     "form_locked": "ಫಾರ್ಮ್ ಲಾಕ್ ಮಾಡಲಾಗಿದೆ",
-    "please_use_save_or_cancel": "ನಿರ್ಗಮಿಸಲು ದಯವಿಟ್ಟು ಕೆಳಭಾಗದಲ್ಲಿರುವ ಉಳಿಸು ಅಥವಾ ರದ್ದುಮಾಡು ಬಟನ್‌ಗಳನ್ನು ಬಳಸಿ."
+    "please_use_save_or_cancel": "ನಿರ್ಗಮಿಸಲು ದಯವಿಟ್ಟು ಕೆಳಭಾಗದಲ್ಲಿರುವ ಉಳಿಸು ಅಥವಾ ರದ್ದುಮಾಡು ಬಟನ್‌ಗಳನ್ನು ಬಳಸಿ.",
+    "select_image": "ಚಿತ್ರವನ್ನು ಆಯ್ಕೆಮಾಡಿ",
+    "files": "ಫೈಲ್‌ಗಳು",
+    "select": "ಆಯ್ಕೆ ಮಾಡಿ",
+    "source": "ಮೂಲ",
+    "submit": "ಸಲ್ಲಿಸಿ"
   },
   "ml": {
     "welcome": "ആക്ഷൻ",
@@ -8817,7 +8987,12 @@
     "validation_error": "മൂല്യനിർണ്ണയ പിശക്",
     "please_select_a_value_for": "ദയവായി ഒരു മൂല്യം തിരഞ്ഞെടുക്കുക",
     "form_locked": "ഫോം ലോക്ക് ചെയ്തു",
-    "please_use_save_or_cancel": "പുറത്തുകടക്കാൻ താഴെയുള്ള സേവ് അല്ലെങ്കിൽ റദ്ദാക്കുക ബട്ടണുകൾ ഉപയോഗിക്കുക."
+    "please_use_save_or_cancel": "പുറത്തുകടക്കാൻ താഴെയുള്ള സേവ് അല്ലെങ്കിൽ റദ്ദാക്കുക ബട്ടണുകൾ ഉപയോഗിക്കുക.",
+    "select_image": "ചിത്രം തിരഞ്ഞെടുക്കുക",
+    "files": "ഫയലുകൾ",
+    "select": "തിരഞ്ഞെടുക്കുക",
+    "source": "ഉറവിടം",
+    "submit": "സമർപ്പിക്കുക"
   },
   "pa": {
     "welcome": "ਕਾਰਵਾਈ",
@@ -9069,7 +9244,12 @@
     "validation_error": "ਪ੍ਰਮਾਣਿਕਤਾ ਗਲਤੀ",
     "please_select_a_value_for": "ਕਿਰਪਾ ਕਰਕੇ ਇਸ ਲਈ ਇੱਕ ਮੁੱਲ ਚੁਣੋ",
     "form_locked": "ਫਾਰਮ ਲਾਕ ਕੀਤਾ ਗਿਆ",
-    "please_use_save_or_cancel": "ਬਾਹਰ ਨਿਕਲਣ ਲਈ ਕਿਰਪਾ ਕਰਕੇ ਹੇਠਾਂ ਸੇਵ ਜਾਂ ਰੱਦ ਕਰੋ ਬਟਨਾਂ ਦੀ ਵਰਤੋਂ ਕਰੋ।"
+    "please_use_save_or_cancel": "ਬਾਹਰ ਨਿਕਲਣ ਲਈ ਕਿਰਪਾ ਕਰਕੇ ਹੇਠਾਂ ਸੇਵ ਜਾਂ ਰੱਦ ਕਰੋ ਬਟਨਾਂ ਦੀ ਵਰਤੋਂ ਕਰੋ।",
+    "select_image": "ਚਿੱਤਰ ਚੁਣੋ",
+    "files": "ਫਾਈਲਾਂ",
+    "select": "ਚੁਣੋ",
+    "source": "ਸਰੋਤ",
+    "submit": "ਜਮ੍ਹਾਂ ਕਰੋ"
   },
   "sq": {
     "welcome": "Veprimi",
@@ -9321,7 +9501,12 @@
     "validation_error": "Gabim Validimi",
     "please_select_a_value_for": "Ju lutem zgjidhni një vlerë për",
     "form_locked": "Formulari i bllokuar",
-    "please_use_save_or_cancel": "Ju lutemi përdorni butonat Ruaj ose Anulo në fund për të dalë."
+    "please_use_save_or_cancel": "Ju lutemi përdorni butonat Ruaj ose Anulo në fund për të dalë.",
+    "select_image": "Zgjidh imazhin",
+    "files": "Skedarët",
+    "select": "Zgjidh",
+    "source": "Burimi",
+    "submit": "Dërgo"
   },
   "uz": {
     "welcome": "Harakat",
@@ -9573,7 +9758,12 @@
     "validation_error": "Tasdiqlashda xatolik",
     "please_select_a_value_for": "Iltimos, qiymatni tanlang",
     "form_locked": "Forma qulflangan",
-    "please_use_save_or_cancel": "Chiqish uchun pastki qismidagi Saqlash yoki Bekor qilish tugmalaridan foydalaning."
+    "please_use_save_or_cancel": "Chiqish uchun pastki qismidagi Saqlash yoki Bekor qilish tugmalaridan foydalaning.",
+    "select_image": "Rasmni tanlang",
+    "files": "Fayllar",
+    "select": "Tanlang",
+    "source": "Manba",
+    "submit": "Yuborish"
   },
   "fil": {
     "welcome": "Aksyon",
@@ -9825,7 +10015,12 @@
     "validation_error": "Error sa Pagpapatunay",
     "please_select_a_value_for": "Mangyaring pumili ng halaga para sa",
     "form_locked": "Naka-lock ang Form",
-    "please_use_save_or_cancel": "Pakigamit ang mga buton na I-save o Ikansela sa ibaba para lumabas."
+    "please_use_save_or_cancel": "Pakigamit ang mga buton na I-save o Ikansela sa ibaba para lumabas.",
+    "select_image": "Pumili ng Larawan",
+    "files": "Mga File",
+    "select": "Piliin",
+    "source": "Pinagmulan",
+    "submit": "Isumite"
   },
   "zh_hk": {
     "welcome": "行動",
@@ -10077,7 +10272,12 @@
     "validation_error": "驗證錯誤",
     "please_select_a_value_for": "請選擇一個值",
     "form_locked": "表單已鎖定",
-    "please_use_save_or_cancel": "請使用底部的「儲存」或「取消」按鈕退出。"
+    "please_use_save_or_cancel": "請使用底部的「儲存」或「取消」按鈕退出。",
+    "select_image": "選擇影像",
+    "files": "文件",
+    "select": "選擇",
+    "source": "來源",
+    "submit": "提交"
   },
   "zh_tw": {
     "welcome": "行動",
@@ -10329,7 +10529,12 @@
     "validation_error": "驗證錯誤",
     "please_select_a_value_for": "請選擇一個值",
     "form_locked": "表單已鎖定",
-    "please_use_save_or_cancel": "請使用底部的「儲存」或「取消」按鈕退出。"
+    "please_use_save_or_cancel": "請使用底部的「儲存」或「取消」按鈕退出。",
+    "select_image": "選擇影像",
+    "files": "文件",
+    "select": "選擇",
+    "source": "來源",
+    "submit": "提交"
   },
   "es_mx": {
     "welcome": "Acción",
@@ -10581,7 +10786,12 @@
     "validation_error": "Error de validación",
     "please_select_a_value_for": "Seleccione un valor para",
     "form_locked": "Formulario bloqueado",
-    "please_use_save_or_cancel": "Utilice los botones Guardar o Cancelar que se encuentran en la parte inferior para salir."
+    "please_use_save_or_cancel": "Utilice los botones Guardar o Cancelar que se encuentran en la parte inferior para salir.",
+    "select_image": "Seleccionar imagen",
+    "files": "Archivos",
+    "select": "Seleccionar",
+    "source": "Fuente",
+    "submit": "Entregar"
   },
   "fi": {
     "welcome": "Toiminta",
@@ -10833,6 +11043,11 @@
     "validation_error": "Vahvistusvirhe",
     "please_select_a_value_for": "Valitse arvo kohteelle",
     "form_locked": "Lomake lukittu",
-    "please_use_save_or_cancel": "Poistu käyttämällä alareunassa olevia Tallenna- tai Peruuta-painikkeita."
+    "please_use_save_or_cancel": "Poistu käyttämällä alareunassa olevia Tallenna- tai Peruuta-painikkeita.",
+    "select_image": "Valitse kuva",
+    "files": "Tiedostot",
+    "select": "Valitse",
+    "source": "Lähde",
+    "submit": "Lähetä"
   }
 }

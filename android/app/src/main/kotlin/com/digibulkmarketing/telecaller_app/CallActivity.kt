@@ -180,13 +180,77 @@ class CallActivity : Activity() {
                                     callIntent.putExtra("com.android.phone.extra.SUBSCRIPTION_ID", subId)
                                     callIntent.putExtra("phone_id", subId)
                                     Log.d("CallActivity", "Added subId $subId for slot $slotIndex")
+
+                                    // Set modern Telecom PhoneAccountHandle to completely bypass system Dual SIM selection dialog
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                        val telecomManager = getSystemService(Context.TELECOM_SERVICE) as android.telecom.TelecomManager
+                                        val accounts = try {
+                                            telecomManager.callCapablePhoneAccounts
+                                        } catch (e: SecurityException) {
+                                            Log.w("CallActivity", "Permission denied for callCapablePhoneAccounts: ${e.message}")
+                                            null
+                                        }
+                                        
+                                        if (accounts != null) {
+                                            var matchedAccount: android.telecom.PhoneAccountHandle? = null
+                                            val telephonyManager = getSystemService(Context.TELEPHONY_SERVICE) as android.telephony.TelephonyManager
+                                            
+                                            for (account in accounts) {
+                                                // Method A: API 30+ official way
+                                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                                                    try {
+                                                        val accountSubId = telephonyManager.getSubscriptionId(account)
+                                                        if (accountSubId == subId) {
+                                                            matchedAccount = account
+                                                            Log.d("CallActivity", "Matched PhoneAccountHandle via getSubscriptionId: $account")
+                                                            break
+                                                        }
+                                                    } catch (e: Exception) {
+                                                        Log.w("CallActivity", "Failed getSubscriptionId check: ${e.message}")
+                                                    }
+                                                }
+                                                
+                                                // Method B: Fallback - Match by comparing account.id with subId string
+                                                val accountId = account.id
+                                                if (accountId != null) {
+                                                    if (accountId == subId.toString()) {
+                                                        matchedAccount = account
+                                                        Log.d("CallActivity", "Matched PhoneAccountHandle via subId string comparison: $account")
+                                                        break
+                                                    }
+                                                    
+                                                    // Method C: Fallback - Match by comparing account.id with ICCID
+                                                    val iccId = info.iccId
+                                                    if (iccId != null && iccId.isNotEmpty() && (accountId.contains(iccId) || iccId.contains(accountId))) {
+                                                        matchedAccount = account
+                                                        Log.d("CallActivity", "Matched PhoneAccountHandle via ICCID: $account")
+                                                        break
+                                                    }
+                                                    
+                                                    // Method D: Fallback - Match by slotIndex in id (some ROMs use slotIndex e.g. "0" or "1")
+                                                    if (accountId == slotIndex.toString()) {
+                                                        matchedAccount = account
+                                                        Log.d("CallActivity", "Matched PhoneAccountHandle via slotIndex string: $account")
+                                                        break
+                                                    }
+                                                }
+                                            }
+                                            
+                                            if (matchedAccount != null) {
+                                                callIntent.putExtra("android.telecom.extra.PHONE_ACCOUNT_HANDLE", matchedAccount)
+                                                Log.d("CallActivity", "Successfully set android.telecom.extra.PHONE_ACCOUNT_HANDLE: $matchedAccount")
+                                            } else {
+                                                Log.w("CallActivity", "Could not find a matching PhoneAccountHandle for subId $subId / slotIndex $slotIndex")
+                                            }
+                                        }
+                                    }
                                     break
                                 }
                             }
                         }
                     }
                 } catch (e: Exception) {
-                    Log.w("CallActivity", "Error setting subId: ${e.message}")
+                    Log.w("CallActivity", "Error setting subId or PhoneAccountHandle: ${e.message}")
                 }
             }
 

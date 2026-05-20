@@ -227,13 +227,77 @@ class MainActivity : FlutterActivity() {
                                 
                                 // Samsung extras for subId
                                 intent.putExtra("phone_id", subId)
+
+                                // Set modern Telecom PhoneAccountHandle to completely bypass system Dual SIM selection dialog
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                    val telecomManager = getSystemService(Context.TELECOM_SERVICE) as android.telecom.TelecomManager
+                                    val accounts = try {
+                                        telecomManager.callCapablePhoneAccounts
+                                    } catch (e: SecurityException) {
+                                        Log.w("MainActivity", "Permission denied for callCapablePhoneAccounts: ${e.message}")
+                                        null
+                                    }
+                                    
+                                    if (accounts != null) {
+                                        var matchedAccount: android.telecom.PhoneAccountHandle? = null
+                                        val telephonyManager = getSystemService(Context.TELEPHONY_SERVICE) as android.telephony.TelephonyManager
+                                        
+                                        for (account in accounts) {
+                                            // Method A: API 30+ official way
+                                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                                                try {
+                                                    val accountSubId = telephonyManager.getSubscriptionId(account)
+                                                    if (accountSubId == subId) {
+                                                        matchedAccount = account
+                                                        Log.d("MainActivity", "Matched PhoneAccountHandle via getSubscriptionId: $account")
+                                                        break
+                                                    }
+                                                } catch (e: Exception) {
+                                                    Log.w("MainActivity", "Failed getSubscriptionId check: ${e.message}")
+                                                }
+                                            }
+                                            
+                                            // Method B: Fallback - Match by comparing account.id with subId string
+                                            val accountId = account.id
+                                            if (accountId != null) {
+                                                if (accountId == subId.toString()) {
+                                                    matchedAccount = account
+                                                    Log.d("MainActivity", "Matched PhoneAccountHandle via subId string comparison: $account")
+                                                    break
+                                                }
+                                                
+                                                // Method C: Fallback - Match by comparing account.id with ICCID
+                                                val iccId = subscriptionInfo.iccId
+                                                if (iccId != null && iccId.isNotEmpty() && (accountId.contains(iccId) || iccId.contains(accountId))) {
+                                                    matchedAccount = account
+                                                    Log.d("MainActivity", "Matched PhoneAccountHandle via ICCID: $account")
+                                                    break
+                                                }
+                                                
+                                                // Method D: Fallback - Match by slotIndex in id (some ROMs use slotIndex e.g. "0" or "1")
+                                                if (accountId == slotIndex.toString()) {
+                                                    matchedAccount = account
+                                                    Log.d("MainActivity", "Matched PhoneAccountHandle via slotIndex string: $account")
+                                                    break
+                                                }
+                                            }
+                                        }
+                                        
+                                        if (matchedAccount != null) {
+                                            intent.putExtra("android.telecom.extra.PHONE_ACCOUNT_HANDLE", matchedAccount)
+                                            Log.d("MainActivity", "Successfully set android.telecom.extra.PHONE_ACCOUNT_HANDLE: $matchedAccount")
+                                        } else {
+                                            Log.w("MainActivity", "Could not find a matching PhoneAccountHandle for subId $subId / slotIndex $slotIndex")
+                                        }
+                                    }
+                                }
                                 break
                             }
                         }
                     }
                 }
             } catch (e: Exception) {
-                Log.w("MainActivity", "Error getting subscription ID: ${e.message}")
+                Log.w("MainActivity", "Error getting subscription ID or PhoneAccountHandle: ${e.message}")
             }
         } else {
             Log.d("MainActivity", "Making call to $number using default SIM")

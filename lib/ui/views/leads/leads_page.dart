@@ -380,7 +380,7 @@ class LeadsPage extends GetView<LeadsController> {
                               _buildVerticalSeparator(),
                               Expanded(
                                 child: _buildStatItem(
-                                  'created'.tr,
+                                  'create-at'.tr,
                                   lead.createdAt.toString(),
                                   Icons.history_rounded,
                                   isDate: true,

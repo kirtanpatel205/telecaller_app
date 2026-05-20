@@ -23,13 +23,13 @@ class SettingPage extends GetView<HomeController> {
         log("profile refreshed");
       },
       child: CustomScrollView(
-        physics: const NeverScrollableScrollPhysics(),
+        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
         slivers: [
           // ─── Profile Header ─────────────────────────────────────────
           SliverToBoxAdapter(
             child: _ProfileHeader(controller: controller),
           ),
-
+ 
           // ─── Menu Items ─────────────────────────────────────────────
           SliverToBoxAdapter(
             child: Padding(
@@ -38,7 +38,7 @@ class SettingPage extends GetView<HomeController> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(height: 24.h),
-
+ 
                   // ── Account Section ─────────────────────────────────
                   _SectionLabel(label: "account".tr),
                   SizedBox(height: 10.h),
@@ -51,11 +51,9 @@ class SettingPage extends GetView<HomeController> {
                       ),
                     ],
                   ),
-
+ 
                   SizedBox(height: 20.h),
-
-                  SizedBox(height: 20.h),
-
+ 
                   // ── Appearance Section ───────────────────────────────
                   _SectionLabel(label: "appearance".tr),
                   SizedBox(height: 10.h),
@@ -116,14 +114,35 @@ class SettingPage extends GetView<HomeController> {
                       ),
                     ],
                   ),
-
+ 
+                  SizedBox(height: 20.h),
+ 
+                  // ── Legal Section ───────────────────────────────────
+                  _SectionLabel(label: "legal".tr),
+                  SizedBox(height: 10.h),
+                  _MenuCard(
+                    children: [
+                      _MenuItem(
+                        icon: Icons.privacy_tip_outlined,
+                        label: "privacy_policy".tr,
+                        onTap: () => Get.toNamed(Routes.PRIVACY_POLICY),
+                      ),
+                      _Divider(),
+                      _MenuItem(
+                        icon: Icons.description_outlined,
+                        label: "terms_conditions".tr,
+                        onTap: () => Get.toNamed(Routes.TERMS_CONDITIONS),
+                      ),
+                    ],
+                  ),
+ 
                   SizedBox(height: 28.h),
-
+ 
                   // ── Logout ───────────────────────────────────────────
                   _LogoutButton(),
-
+ 
                   SizedBox(height: 32.h),
-
+ 
                   // App version tag
                   Center(
                     child: Text(
@@ -134,7 +153,7 @@ class SettingPage extends GetView<HomeController> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 24.h),
+                  SizedBox(height: 80.h),
                 ],
               ),
             ),

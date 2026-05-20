@@ -798,7 +798,7 @@ class CallFormController extends GetxController {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Select ${type.toUpperCase()} Source",
+              "${"select".tr} ${type.toUpperCase()} ${"source".tr}",
               style: AppTextStyle.bold11.copyWith(
                 fontSize: 18,
                 color: AppColors.themeColor.textPrimaryColor,
@@ -812,10 +812,12 @@ class CallFormController extends GetxController {
                     type == FORM_FIELD_TYPES["VIDEO"]) ...[
                   _buildOptionTile(
                     icon: Icons.camera_alt_rounded,
-                    label: "Camera",
+                    label: "openCamera".tr,
                     color: Colors.blue,
                     onTap: () async {
-                      Get.back();
+                      if (Get.isBottomSheetOpen ?? false) {
+                        Get.back();
+                      }
                       final XFile? file =
                           type == FORM_FIELD_TYPES["VIDEO"]
                               ? await picker.pickVideo(
@@ -842,10 +844,12 @@ class CallFormController extends GetxController {
                   ),
                   _buildOptionTile(
                     icon: Icons.photo_library_rounded,
-                    label: "Gallery",
+                    label: "openGallery".tr,
                     color: Colors.purple,
                     onTap: () async {
-                      Get.back();
+                      if (Get.isBottomSheetOpen ?? false) {
+                        Get.back();
+                      }
                       final XFile? file =
                           type == FORM_FIELD_TYPES["VIDEO"]
                               ? await picker.pickVideo(
@@ -873,10 +877,12 @@ class CallFormController extends GetxController {
                 ],
                 _buildOptionTile(
                   icon: Icons.folder_rounded,
-                  label: "Files",
+                  label: "files".tr,
                   color: Colors.orange,
                   onTap: () async {
-                    Get.back();
+                    if (Get.isBottomSheetOpen ?? false) {
+                      Get.back();
+                    }
                     FileType fileType = FileType.any;
                     List<String>? allowedExtensions;
 

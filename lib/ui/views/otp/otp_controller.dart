@@ -93,7 +93,7 @@ class OtpController extends GetxController {
     isLoading.value = true;
     try {
       ApiResponseEntity response = await apiService.sendOtp(
-        phone: authController.phoneNumber.value.number,
+        phone: authController.phoneNumber.value.completeNumber,
       );
       if (response.status == true) {
         Utils.showToast(response.message!);

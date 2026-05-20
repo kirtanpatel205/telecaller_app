@@ -105,59 +105,98 @@ class EditProfilePage extends GetView<EditProfileController> {
                                     right: 0,
                                     child: InkWell(
                                         onTap: () {
-                                          Get.bottomSheet(Container(
-                                            decoration: BoxDecoration(
+                                          Get.bottomSheet(
+                                            Container(
+                                              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 24.h),
+                                              decoration: BoxDecoration(
                                                 color: AppColors.themeColor.cardColor,
-                                                borderRadius: BorderRadius.only(
-                                                    topLeft:
-                                                        Radius.circular(20.r),
-                                                    topRight:
-                                                        Radius.circular(20.r))),
-                                            padding: EdgeInsets.symmetric(vertical: 20.h),
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Container(
-                                                  width: 40.w,
-                                                  height: 4.h,
-                                                  margin: EdgeInsets.only(bottom: 20.h),
-
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.grey.withOpacity(0.3),
-                                                    borderRadius: BorderRadius.circular(10.r),
+                                                borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Colors.black.withOpacity(0.1),
+                                                    blurRadius: 10,
+                                                    offset: const Offset(0, -2),
                                                   ),
-                                                ),
-                                                ListTile(
-                                                  title: Text("openCamera".tr, style: AppTextStyle.medium7.copyWith(color: AppColors.themeColor.textPrimaryColor)),
-                                                  leading: Container(
-                                                    padding: EdgeInsets.all(8.w),
-                                                    decoration: BoxDecoration(
-                                                      color: AppColors.themeColor.primaryColor.withOpacity(0.1),
-                                                      shape: BoxShape.circle,
+                                                ],
+                                              ),
+                                              child: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    "select_image".tr,
+                                                    style: AppTextStyle.bold11.copyWith(
+                                                      fontSize: 18.sp,
+                                                      color: AppColors.themeColor.textPrimaryColor,
                                                     ),
-                                                    child: Icon(Icons.camera_alt_outlined, color: AppColors.themeColor.primaryColor),
                                                   ),
-                                                  onTap: () {
-                                                    controller.getImage1();
-                                                  },
-                                                ),
-                                                ListTile(
-                                                  title: Text('openGallery'.tr, style: AppTextStyle.medium7.copyWith(color: AppColors.themeColor.textPrimaryColor)),
-                                                  leading: Container(
-                                                    padding: EdgeInsets.all(8.w),
-                                                    decoration: BoxDecoration(
-                                                      color: AppColors.themeColor.primaryColor.withOpacity(0.1),
-                                                      shape: BoxShape.circle,
-                                                    ),
-                                                    child: Icon(Icons.image_outlined, color: AppColors.themeColor.primaryColor),
+                                                  SizedBox(height: 20.h),
+                                                  Row(
+                                                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                                    children: [
+                                                      InkWell(
+                                                        onTap: () {
+                                                          if (Get.isBottomSheetOpen ?? false) Get.back();
+                                                          controller.getImage1();
+                                                        },
+                                                        borderRadius: BorderRadius.circular(16.r),
+                                                        child: Column(
+                                                          children: [
+                                                            Container(
+                                                              padding: EdgeInsets.all(16.w),
+                                                              decoration: BoxDecoration(
+                                                                color: Colors.blue.withOpacity(0.1),
+                                                                shape: BoxShape.circle,
+                                                              ),
+                                                              child: Icon(Icons.camera_alt_rounded, color: Colors.blue, size: 28.sp),
+                                                            ),
+                                                            SizedBox(height: 8.h),
+                                                            Text(
+                                                              "openCamera".tr,
+                                                              style: AppTextStyle.medium7.copyWith(
+                                                                fontSize: 14.sp,
+                                                                color: AppColors.themeColor.textPrimaryColor,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                      InkWell(
+                                                        onTap: () {
+                                                          if (Get.isBottomSheetOpen ?? false) Get.back();
+                                                          controller.getImage();
+                                                        },
+                                                        borderRadius: BorderRadius.circular(16.r),
+                                                        child: Column(
+                                                          children: [
+                                                            Container(
+                                                              padding: EdgeInsets.all(16.w),
+                                                              decoration: BoxDecoration(
+                                                                color: Colors.purple.withOpacity(0.1),
+                                                                shape: BoxShape.circle,
+                                                              ),
+                                                              child: Icon(Icons.photo_library_rounded, color: Colors.purple, size: 28.sp),
+                                                            ),
+                                                            SizedBox(height: 8.h),
+                                                            Text(
+                                                              "openGallery".tr,
+                                                              style: AppTextStyle.medium7.copyWith(
+                                                                fontSize: 14.sp,
+                                                                color: AppColors.themeColor.textPrimaryColor,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ],
                                                   ),
-                                                  onTap: () {
-                                                    controller.getImage();
-                                                  },
-                                                )
-                                              ],
+                                                  SizedBox(height: 12.h),
+                                                ],
+                                              ),
                                             ),
-                                          ));
+                                            isScrollControlled: true,
+                                            backgroundColor: Colors.transparent,
+                                          );
                                         },
 
                                         child: Container(

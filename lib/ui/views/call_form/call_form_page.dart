@@ -33,15 +33,10 @@ class CallFormPage extends StatelessWidget {
       canPop: controller.canClose.value,
       onPopInvoked: (didPop) {
         if (didPop) return;
-        Get.snackbar(
-          "form_locked".tr,
-          "please_use_save_or_cancel".tr,
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.black.withOpacity(0.7),
-          colorText: Colors.white,
-          margin: EdgeInsets.all(20.w),
-          duration: const Duration(seconds: 2),
-        );
+        controller.canClose.value = true;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Get.back();
+        });
       },
       child: Dialog(
         insetPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 24.h),
@@ -87,7 +82,7 @@ class CallFormPage extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Obx(() => Text(
-                                    controller.leadId.value.isNotEmpty ? "${"call_feedback:".tr} ${controller.leadId.value}" : "call_survey_form".tr,
+                                    controller.leadId.value.isNotEmpty ? "${"call_feedback".tr}: ${controller.leadId.value}" : "call_survey_form".tr,
                                     style: AppTextStyle.bold7.copyWith(
                                       fontSize: AppDimens.fontSize18,
                                       color: AppColors.themeColor.textPrimaryColor,
@@ -310,7 +305,7 @@ class CallFormPage extends StatelessWidget {
             prefixText: effectiveType == FORM_FIELD_TYPES["PHONE"] ? "+91 " : null,
             inputFormatters: effectiveType == FORM_FIELD_TYPES["PHONE"] 
                 ? [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(10)]
-                : (effectiveType == FORM_FIELD_TYPES["NUMBER"] ? [FilteringTextInputFormatter.digitsOnly] : null),
+                : (effectiveType == FORM_FIELD_TYPES["NUMBER"] ? [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(12)] : null),
             validator: (val) {
               final cleanVal = val?.trim() ?? "";
               if (isRequired && cleanVal.isEmpty) {

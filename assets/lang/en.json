@@ -269,5 +269,10 @@
   "validation_error": "Validation Error",
   "please_select_a_value_for": "Please select a value for",
   "form_locked": "Form Locked",
-  "please_use_save_or_cancel": "Please use the Save or Cancel buttons at the bottom to exit."
+  "please_use_save_or_cancel": "Please use the Save or Cancel buttons at the bottom to exit.",
+  "select_image": "Select Image",
+  "files": "Files",
+  "select": "Select",
+  "source": "Source",
+  "submit": "Submit"
 }

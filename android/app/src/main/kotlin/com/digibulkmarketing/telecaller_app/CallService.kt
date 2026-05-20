@@ -21,16 +21,30 @@ class CallService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val phoneNumber = intent?.getStringExtra("phoneNumber")
+        val phoneNumber = intent?.getStringExtra("phoneNumber") ?: "Unknown Contact"
         val slotIndex = intent?.getIntExtra("slotIndex", -1) ?: -1
 
-        if (phoneNumber.isNullOrEmpty()) {
+        // ✅ CRITICAL: Call startForeground IMMEDIATELY to avoid FGS startup crashes
+        val notification = createNotification(phoneNumber)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            try {
+                // On API 34+ we must specify FOREGROUND_SERVICE_TYPE_SPECIAL_USE (0x40000000)
+                val type = if (Build.VERSION.SDK_INT >= 34) 0x40000000 else 0
+                startForeground(NOTIFICATION_ID, notification, type)
+                Log.d("CallService", "Started foreground service with type: $type")
+            } catch (e: Exception) {
+                Log.w("CallService", "Failed to start foreground with type: ${e.message}. Falling back to default.")
+                startForeground(NOTIFICATION_ID, notification)
+            }
+        } else {
+            startForeground(NOTIFICATION_ID, notification)
+        }
+
+        if (phoneNumber == "Unknown Contact") {
+            Log.w("CallService", "Received empty or null phone number, stopping service gracefully.")
             stopSelf()
             return START_NOT_STICKY
         }
-
-        val notification = createNotification(phoneNumber)
-        startForeground(NOTIFICATION_ID, notification)
 
         Log.d("CallService", "Starting 10-second delay for call to $phoneNumber")
 
@@ -70,13 +84,77 @@ class CallService : Service() {
                                     callIntent.putExtra("subscription", subId)
                                     callIntent.putExtra("com.android.phone.extra.SUBSCRIPTION_ID", subId)
                                     callIntent.putExtra("phone_id", subId)
+
+                                    // Set modern Telecom PhoneAccountHandle to completely bypass system Dual SIM selection dialog
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                        val telecomManager = getSystemService(Context.TELECOM_SERVICE) as android.telecom.TelecomManager
+                                        val accounts = try {
+                                            telecomManager.callCapablePhoneAccounts
+                                        } catch (e: SecurityException) {
+                                            Log.w("CallService", "Permission denied for callCapablePhoneAccounts: ${e.message}")
+                                            null
+                                        }
+                                        
+                                        if (accounts != null) {
+                                            var matchedAccount: android.telecom.PhoneAccountHandle? = null
+                                            val telephonyManager = getSystemService(Context.TELEPHONY_SERVICE) as android.telephony.TelephonyManager
+                                            
+                                            for (account in accounts) {
+                                                // Method A: API 30+ official way
+                                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                                                    try {
+                                                        val accountSubId = telephonyManager.getSubscriptionId(account)
+                                                        if (accountSubId == subId) {
+                                                            matchedAccount = account
+                                                            Log.d("CallService", "Matched PhoneAccountHandle via getSubscriptionId: $account")
+                                                            break
+                                                        }
+                                                    } catch (e: Exception) {
+                                                        Log.w("CallService", "Failed getSubscriptionId check: ${e.message}")
+                                                    }
+                                                }
+                                                
+                                                // Method B: Fallback - Match by comparing account.id with subId string
+                                                val accountId = account.id
+                                                if (accountId != null) {
+                                                    if (accountId == subId.toString()) {
+                                                        matchedAccount = account
+                                                        Log.d("CallService", "Matched PhoneAccountHandle via subId string comparison: $account")
+                                                        break
+                                                    }
+                                                    
+                                                    // Method C: Fallback - Match by comparing account.id with ICCID
+                                                    val iccId = info.iccId
+                                                    if (iccId != null && iccId.isNotEmpty() && (accountId.contains(iccId) || iccId.contains(accountId))) {
+                                                        matchedAccount = account
+                                                        Log.d("CallService", "Matched PhoneAccountHandle via ICCID: $account")
+                                                        break
+                                                    }
+                                                    
+                                                    // Method D: Fallback - Match by slotIndex in id (some ROMs use slotIndex e.g. "0" or "1")
+                                                    if (accountId == slotIndex.toString()) {
+                                                        matchedAccount = account
+                                                        Log.d("CallService", "Matched PhoneAccountHandle via slotIndex string: $account")
+                                                        break
+                                                    }
+                                                }
+                                            }
+                                            
+                                            if (matchedAccount != null) {
+                                                callIntent.putExtra("android.telecom.extra.PHONE_ACCOUNT_HANDLE", matchedAccount)
+                                                Log.d("CallService", "Successfully set android.telecom.extra.PHONE_ACCOUNT_HANDLE: $matchedAccount")
+                                            } else {
+                                                Log.w("CallService", "Could not find a matching PhoneAccountHandle for subId $subId / slotIndex $slotIndex")
+                                            }
+                                        }
+                                    }
                                     break
                                 }
                             }
                         }
                     }
                 } catch (e: Exception) {
-                    Log.w("CallService", "Error setting subId: ${e.message}")
+                    Log.w("CallService", "Error setting subId or PhoneAccountHandle: ${e.message}")
                 }
             }
 
@@ -96,10 +174,12 @@ class CallService : Service() {
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("Auto Call Task")
             .setContentText("Calling $phoneNumber in 10 seconds...")
-            .setSmallIcon(android.R.drawable.ic_menu_call)
+            .setSmallIcon(R.mipmap.ic_launcher) // ✅ Use app's actual launcher icon
             .setContentIntent(pendingIntent)
             .setOngoing(true)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setPriority(NotificationCompat.PRIORITY_MAX) // ✅ Set to Max priority for maximum visibility
+            .setCategory(NotificationCompat.CATEGORY_CALL)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .build()
     }
 
@@ -108,8 +188,11 @@ class CallService : Service() {
             val serviceChannel = NotificationChannel(
                 CHANNEL_ID,
                 "Call Service Channel",
-                NotificationManager.IMPORTANCE_DEFAULT
-            )
+                NotificationManager.IMPORTANCE_HIGH // ✅ Change to High importance to pop up on screen
+            ).apply {
+                description = "Automated call tasks in progress"
+                enableVibration(true)
+            }
             val manager = getSystemService(NotificationManager::class.java)
             manager.createNotificationChannel(serviceChannel)
         }
