@@ -281,7 +281,7 @@ class PhoneStatusService extends GetxService with WidgetsBindingObserver {
 
       // Start debounce timer to filter out SIM selection cancels
       _debounceTimer?.cancel();
-      _debounceTimer = Timer(const Duration(seconds: 1), () async {
+      _debounceTimer = Timer(const Duration(seconds: 2), () async {
         _isCallConfirmed = true;
         isCallActive.value = true;
         callStatus.value = "Call Started";
@@ -396,6 +396,7 @@ class PhoneStatusService extends GetxService with WidgetsBindingObserver {
                 : ((number != null && number.isNotEmpty)
                     ? number
                     : phoneNumber.value);
+
 
         await _emitCallFailed(
           sessionId: sessionId,

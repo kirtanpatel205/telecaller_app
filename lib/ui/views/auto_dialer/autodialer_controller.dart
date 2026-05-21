@@ -267,17 +267,34 @@ class AutoDialerController extends GetxController {
     _fetchFirstLeadsPage(); // re-fetch first page after reset
   }
 
-  /// Refresh only the contacts for the currently selected lead.
+  /// Refresh both the leads list (dropdown) and the selected lead's contacts/stats.
   Future<void> refreshContacts() async {
+    // 1. Refresh the leads dropdown list first
+    await _fetchFirstLeadsPage();
+
+    // 2. If a lead is currently selected, refresh its contacts and stats
     final lead = selectedLeadDataset.value;
     if (lead != null && lead.id != null) {
+      // Keep the selected lead dataset updated if it exists in the freshly fetched leads list
+      final freshLead = leadsDropdownList.firstWhereOrNull((l) => l.id == lead.id);
+      if (freshLead != null) {
+        selectedLeadDataset.value = freshLead;
+      }
+      
       _initContactsPagewise(lead.id!);
-      fetchLeadStats();
-      // We can wait a bit or return immediately as Pagewise handles its own loading state.
-      // But for RefreshIndicator, we might want to wait for the first page.
+      await fetchLeadStats();
       await Future.delayed(const Duration(milliseconds: 500)); 
     } else {
-      resetLeads();
+      // If no lead is selected, reset and clear lists as appropriate
+      leadsDropdownList.clear();
+      pagewiseLeadsController.reset();
+      selectedLeadDataset.value = null;
+      contactQueue.clear();
+      pagewiseContactsController?.dispose();
+      pagewiseContactsController = null;
+      totalContacts.value = 0;
+      update();
+      await _fetchFirstLeadsPage();
     }
   }
 
