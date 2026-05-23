@@ -12,6 +12,10 @@ import 'package:telecaller_app/ui/widgets/app_safe_area.dart';
 import '../dashboard/dashboard_page.dart';
 
 class HomePage extends GetView<HomeController> {
+  final DashboardPage _dashboardPage = const DashboardPage();
+  final LeadsPage _leadsPage = LeadsPage();
+  final AutoDialerPage _autoDialerPage = const AutoDialerPage();
+  final SettingPage _settingPage = const SettingPage();
 
   @override
   Widget build(BuildContext context) {
@@ -21,10 +25,10 @@ class HomePage extends GetView<HomeController> {
         final bool isWebMode = controller.autoDialerController.currentMode.value == 'web';
 
         final List<Widget> screens = [
-          DashboardPage(),
-          LeadsPage(),
-          if (!isWebMode) AutoDialerPage(),
-          SettingPage(),
+          _dashboardPage,
+          _leadsPage,
+          if (!isWebMode) _autoDialerPage,
+          _settingPage,
         ];
 
         final List<Widget> navItems = [

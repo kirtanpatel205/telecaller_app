@@ -51,6 +51,7 @@ dependencies:
   get: ^4.6.6
   get_storage: ^2.1.1
 
+
   # background_service
   flutter_background_service: ^5.0.10
 

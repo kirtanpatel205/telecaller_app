@@ -36,6 +36,18 @@ void callbackDispatcher() {
     print("🛠️ [Workmanager] Background task started: $task");
     
     try {
+      // ✅ Check if logged in first (token is valid)
+      final String? token = await Storage.getToken();
+      if (token == null || token.isEmpty) {
+        print("🛠️ [Workmanager] User is not logged in. Skipping background tasks and canceling work.");
+        try {
+          await Workmanager().cancelAll();
+        } catch (e) {
+          print("⚠️ [Workmanager] Error canceling all tasks: $e");
+        }
+        return Future.value(true);
+      }
+
       // 1. Restart Service if needed
       final service = FlutterBackgroundService();
       bool isRunning = await service.isRunning();
@@ -75,6 +87,15 @@ void onStart(ServiceInstance service) async {
 
   // Initialize storage
   await GetStorage.init();
+
+  // ✅ Check if logged in first!
+  final String? token = await Storage.getToken();
+  if (token == null || token.isEmpty) {
+    print("🛑 [Background] User is not logged in. Stopping service immediately.");
+    service.stopSelf();
+    return;
+  }
+
   // For firebase messaging in background service
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
@@ -169,15 +190,27 @@ void onStart(ServiceInstance service) async {
     }
   });
 
-  service.on('stopService').listen((_) => service.stopSelf());
+  Timer? syncLogsTimer;
+  Timer? pendingEventsTimer;
+
+  service.on('stopService').listen((_) {
+    syncLogsTimer?.cancel();
+    pendingEventsTimer?.cancel();
+    service.stopSelf();
+  });
+  service.on('stop').listen((_) {
+    syncLogsTimer?.cancel();
+    pendingEventsTimer?.cancel();
+    service.stopSelf();
+  });
 
   if (service is AndroidServiceInstance) {
     service.setForegroundNotificationInfo(title: "Telecaller Service", content: "Service is active");
   }
 
   // Periodic tasks
-  Timer.periodic(const Duration(minutes: 15), (timer) async => await _syncCallLogs());
-  Timer.periodic(const Duration(milliseconds: 500), (timer) async {
+  syncLogsTimer = Timer.periodic(const Duration(minutes: 15), (timer) async => await _syncCallLogs());
+  pendingEventsTimer = Timer.periodic(const Duration(milliseconds: 500), (timer) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.reload();
@@ -446,6 +479,13 @@ class BackgroundServiceManager {
 Future<void> _syncCallLogs() async {
   try {
     print("📋 [Sync] ══════════════ START ══════════════");
+
+    // ── Check if logged in first ─────────────────────────────────────────────
+    final String? token = await Storage.getToken();
+    if (token == null || token.isEmpty) {
+      print("🚫 [Sync] User is not logged in (no token). Aborting.");
+      return;
+    }
 
     final now     = DateTime.now();
     final storage = GetStorage();

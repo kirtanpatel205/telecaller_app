@@ -48,8 +48,8 @@ class _ProminentDisclosurePageState extends State<ProminentDisclosurePage> {
   Future<void> _agree() async {
     if (!acceptCallLog || !acceptTermsPrivacy) {
       Get.snackbar(
-        "consent_required".tr,
-        "please_accept_all_permissions_to_continue".tr,
+        "Consent Required",
+        "Please accept all permissions to continue",
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red.shade100,
         colorText: Colors.red.shade900,
@@ -76,7 +76,7 @@ class _ProminentDisclosurePageState extends State<ProminentDisclosurePage> {
       if (mounted) {
         Get.snackbar(
           "Error",
-          "failed_to_save_consent_please_try_again".tr,
+          "Failed to save consent. Please try again.",
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red.shade100,
           colorText: Colors.red.shade900,
@@ -91,430 +91,495 @@ class _ProminentDisclosurePageState extends State<ProminentDisclosurePage> {
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
-
     return AppSafeArea(
       top: false,
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFFF8FAFC),
         appBar: CustomAppBar(
-          leading: SizedBox(),
-
-          titleText: "permission_disclosure".tr,
+          leading: const SizedBox(),
+          titleText: "Permission Disclosure",
           showBackButton: false,
         ),
         body: WillPopScope(
           onWillPop: () async {
             return false;
           },
-          child: Column(
+          child: Stack(
             children: [
-              // SCROLLABLE CONTENT AREA
-              Expanded(
-                child: SingleChildScrollView(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Main Title
-                       Text(
-                        "important_permission_disclosure_user_consent".tr,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.black87,
-                          height: 1.3,
-                        ),
-                      ),
-                      const SizedBox(height: 18),
-
-                      // Description Text
-                      Text(
-                        "digi_bulk_marketing_employee_is_a_company_crm_and_customer_m".tr,
-                        style: TextStyle(
-                          fontSize: 13,
-                          height: 1.6,
-                          color: Colors.grey.shade700,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-
-                      // CALL LOG SECTION
-                      _buildSection(
-                        title: "call_log_phone_information_access".tr,
-                        content:
-                            "this_app_collects_and_processes_call_information_such_as".tr,
-                        items:  [
-                          "phone_numbers".tr,
-                          "call_duration".tr,
-                          "call_type_incoming_outgoing_missed".tr,
-                          "call_timestamp".tr,
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-
-                      Text(
-                        "this_information_is_used_only_for_business_crm_functionality".tr,
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.grey.shade700,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      _buildBulletList( [
-                        "identifying_customers_during_incoming_and_outgoing_calls".tr,
-                        "displaying_customer_details_and_interaction_history_during_c".tr,
-                        "automatically_linking_calls_with_customer_records".tr,
-                        "tracking_employee_call_activity_and_performance_analytics".tr,
-                        "maintaining_call_history_backup_across_authorized_devices".tr,
-                        "supporting_order_creation_and_customer_follow_ups".tr,
-                      ]),
-                      const SizedBox(height: 12),
-
-                      Text(
-                        "the_app_does_not_record_call_audio_or_call_content".tr,
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.green.shade700,
-                          backgroundColor: Colors.green.shade50,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // WRITE CALL LOG SECTION
-                      _buildSection(
-                        title: "write_call_log_access".tr,
-                        content:
-                            "the_app_may_create_or_update_call_interaction_entries_only_f".tr,
-                        items:  [
-                          "tagging_customer_calls".tr,
-                          "linking_calls_to_customer_orders".tr,
-                          "maintaining_business_interaction_history".tr,
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-
-                      Text(
-                        "the_app_does_not_delete_or_modify_personal_call_records_unre".tr,
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.green.shade700,
-                          backgroundColor: Colors.green.shade50,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // CALL SCREENING SECTION
-                      _buildSection(
-                        title: "call_screening_overlay_display".tr,
-                        content:
-                            "the_app_uses_call_screening_and_overlay_permissions_to".tr,
-                        items:  [
-                          "detect_incoming_and_outgoing_calls".tr,
-                          "show_customer_information_on_screen_during_calls".tr,
-                          "allow_employees_to_quickly_create_orders_notes_or_crm_update".tr,
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-
-                      // BACKGROUND SERVICE SECTION
-                      _buildSection(
-                        title: "background_service_device_restart".tr,
-                        content:
-                            "the_app_may_run_background_services_and_restart_after_device".tr,
-                        items:  [
-                          "continuous_call_detection".tr,
-                          "crm_data_synchronization".tr,
-                          "reliable_employee_productivity_tools".tr,
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-
-                      // NOTIFICATIONS SECTION
-                      _buildSection(
-                        title: "NOTIFICATIONS",
-                        content: "notification_permission_is_used_to".tr,
-                        items:  [
-                          "alert_employees_about_customer_calls".tr,
-                          "provide_crm_reminders_and_business_updates".tr,
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-
-                      // BATTERY OPTIMIZATION SECTION
-                      _buildSection(
-                        title: "battery_optimization_foreground_services".tr,
-                        content:
-                            "the_app_may_request_battery_optimization_exemption_and_foreg".tr,
-                        items: const [],
-                      ),
-                      const SizedBox(height: 16),
-
-                      // DATA USAGE & SECURITY SECTION
-                      _buildSection(
-                        title: "data_usage_security".tr,
-                        content: "",
-                        items:  [
-                          "all_collected_information_is_used_only_for_employee_crm_and_".tr,
-                          "data_is_securely_transmitted_to_company_servers".tr,
-                          "data_is_not_sold_shared_with_third_parties_or_used_for_adver".tr,
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.blue.shade50,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: Colors.blue.shade200,
-                          ),
-                        ),
-                        child: Text(
-                          "customer_interaction_data_is_securely_transmitted_to_nhttps_".tr,
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.blue.shade900,
-                            height: 1.5,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // USER CONTROL SECTION
-                      _buildSection(
-                        title: "user_control".tr,
-                        content: "",
-                        items:  [
-                          "permissions_are_requested_only_after_your_explicit_consent".tr,
-                          "you_may_deny_or_revoke_permissions_anytime_from_device_setti".tr,
-                          "if_permissions_are_denied_call_related_crm_features_and_call".tr,
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                    ],
+              // Top Right Decorative Ambient Light Circle
+              Positioned(
+                top: -60,
+                right: -60,
+                child: Container(
+                  width: 200,
+                  height: 200,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.blue.shade50.withOpacity(0.5),
+                  ),
+                ),
+              ),
+              // Bottom Left Decorative Ambient Light Circle
+              Positioned(
+                bottom: 120,
+                left: -100,
+                child: Container(
+                  width: 280,
+                  height: 280,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.teal.shade50.withOpacity(0.4),
                   ),
                 ),
               ),
 
-              // FIXED BOTTOM SECTION WITH PROPER SPACING
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
-                      blurRadius: 8,
-                      offset: const Offset(0, -2),
-                    ),
-                  ],
-                ),
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // CALL LOG CHECKBOX - PROPER ALIGNMENT
-                    InkWell(
-                      onTap: () {
-                        setState(() {
-                          acceptCallLog = !acceptCallLog;
-                        });
-                      },
-                      borderRadius: BorderRadius.circular(8),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 8, horizontal: 4),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // CHECKBOX
-                            Padding(
-                              padding: const EdgeInsets.only(top: 2, right: 12),
-                              child: SizedBox(
-                                height: 24,
-                                width: 24,
-                                child: Checkbox(
-                                  value: acceptCallLog,
-                                  onChanged: (v) {
-                                    setState(() {
-                                      acceptCallLog = v ?? false;
-                                    });
-                                  },
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(4),
+              Column(
+                children: [
+                  // SCROLLABLE CONTENT AREA
+                  Expanded(
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // SECURITY SHIELD HEADER GRAPHIC
+                          Center(
+                            child: Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.blue.shade50,
+                              ),
+                              child: Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  gradient: LinearGradient(
+                                    colors: [Colors.blue.shade600, Colors.indigo.shade700],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
                                   ),
-                                ),
-                              ),
-                            ),
-                            // CHECKBOX TEXT
-                            Expanded(
-                              child: Text(
-                                "i_allow_digi_bulk_marketing_employee_to_access_call_log_and_".tr,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.grey.shade800,
-                                  height: 1.4,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-
-                    // TERMS & PRIVACY CHECKBOX - PROPER ALIGNMENT
-                    InkWell(
-                      onTap: () {
-                        setState(() {
-                          acceptTermsPrivacy = !acceptTermsPrivacy;
-                        });
-                      },
-                      borderRadius: BorderRadius.circular(8),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 8, horizontal: 4),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // CHECKBOX
-                            Padding(
-                              padding: const EdgeInsets.only(top: 2, right: 12),
-                              child: SizedBox(
-                                height: 24,
-                                width: 24,
-                                child: Checkbox(
-                                    value: acceptTermsPrivacy,
-                                    onChanged: (v) {
-                                      setState(() {
-                                        acceptTermsPrivacy = v ?? false;
-                                      });
-                                    },
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(4),
-                                    )),
-                              ),
-                            ),
-                            // RICH TEXT FOR LINKS
-                            Expanded(
-                              child: RichText(
-                                text: TextSpan(
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: Colors.grey.shade800,
-                                    height: 1.4,
-                                  ),
-                                  children: [
-                                     TextSpan(text: "i_agree_to_the".tr),
-                                    TextSpan(
-                                      text: "terms_conditions".tr,
-                                      style: const TextStyle(
-                                        color: Colors.blue,
-                                        fontWeight: FontWeight.w600,
-                                        decoration: TextDecoration.underline,
-                                      ),
-                                      recognizer: TapGestureRecognizer()
-                                        ..onTap = () {
-                                          _launchUrl(
-                                            'https://master.digibulkmarketing.com/terms-and-conditions',
-                                          );
-                                        },
-                                    ),
-                                     TextSpan(text: "and".tr),
-                                    TextSpan(
-                                      text: "privacy_policy".tr,
-                                      style: const TextStyle(
-                                        color: Colors.blue,
-                                        fontWeight: FontWeight.w600,
-                                        decoration: TextDecoration.underline,
-                                      ),
-                                      recognizer: TapGestureRecognizer()
-                                        ..onTap = () {
-                                          _launchUrl(
-                                            'https://master.digibulkmarketing.com/privacy-policy',
-                                          );
-                                        },
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.indigo.shade400.withOpacity(0.3),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4),
                                     ),
                                   ],
                                 ),
+                                child: const Icon(
+                                  Icons.shield_rounded,
+                                  size: 38,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+
+                          // MAIN TITLE
+                          const Center(
+                            child: Text(
+                              "Important Permission Disclosure & User Consent",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 19,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFF0F172A),
+                                height: 1.3,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+
+                          // APP INTRO / CRM DESCRIPTION
+                          const Text(
+                            "Digi Bulk Marketing – Telecaller is a company CRM and customer management application designed for registered telecallers. To provide its core business features, this app requires access to certain phone and system permissions.",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 13,
+                              height: 1.55,
+                              color: Color(0xFF475569),
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+
+                          // CALL LOG SECTION CARD
+                          _buildSectionCard(
+                            icon: Icons.phone_android_rounded,
+                            iconColor: Colors.blue,
+                            title: "Call Log & Phone Information Access",
+                            content: "This app collects and processes call information such as:",
+                            items: const [
+                              "Phone numbers",
+                              "Call Duration",
+                              "Call type (incoming, outgoing, missed)",
+                              "Call timestamp",
+                            ],
+                            extraContent: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 12),
+                                const Text(
+                                  "This information is used only for business CRM functionality, including:",
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                    color: Color(0xFF334155),
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                _buildBulletList(const [
+                                  "Identifying customers during incoming and outgoing calls",
+                                  "Displaying customer details and interaction history during calls",
+                                  "Automatically linking calls with customer records",
+                                  "Tracking telecaller call activity and performance analytics",
+                                  "Maintaining call history backup across authorized devices",
+                                  "Supporting order creation and customer follow-ups",
+                                ]),
+                                const SizedBox(height: 12),
+                                _buildSafeBadge(
+                                  "The app does NOT record call audio or call content.",
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // WRITE CALL LOG SECTION CARD
+                          _buildSectionCard(
+                            icon: Icons.rate_review_rounded,
+                            iconColor: Colors.indigo,
+                            title: "Write Call Log Access",
+                            content: "The app may create or update call interaction entries only for CRM tracking purposes such as:",
+                            items: const [
+                              "Tagging customer calls",
+                              "Linking calls to customer orders",
+                              "Maintaining business interaction history",
+                            ],
+                            extraContent: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 12),
+                                _buildSafeBadge(
+                                  "The app does NOT delete or modify personal call records unrelated to company CRM usage.",
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // CALL SCREENING SECTION CARD
+                          _buildSectionCard(
+                            icon: Icons.picture_in_picture_alt_rounded,
+                            iconColor: Colors.purple,
+                            title: "Call Screening & Overlay Display",
+                            content: "The app uses call screening and overlay permissions to:",
+                            items: const [
+                              "Detect incoming and outgoing calls",
+                              "Show customer information on screen during calls",
+                              "Allow telecallers to quickly create orders, notes, or CRM updates without interrupting calls",
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+
+                          // BACKGROUND SERVICE SECTION CARD
+                          _buildSectionCard(
+                            icon: Icons.sync_rounded,
+                            iconColor: Colors.teal,
+                            title: "Background Service & Device Restart",
+                            content: "The app may run background services and restart after device reboot to ensure:",
+                            items: const [
+                              "Continuous call detection",
+                              "CRM data synchronization",
+                              "Reliable telecaller productivity tools",
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+
+                          // NOTIFICATIONS SECTION CARD
+                          _buildSectionCard(
+                            icon: Icons.notifications_active_rounded,
+                            iconColor: Colors.pink,
+                            title: "NOTIFICATIONS",
+                            content: "Notification permission is used to:",
+                            items: const [
+                              "Alert telecallers about customer calls",
+                              "Provide CRM reminders and business updates",
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+
+                          // BATTERY OPTIMIZATION SECTION CARD
+                          _buildSectionCard(
+                            icon: Icons.battery_charging_full_rounded,
+                            iconColor: Colors.orange,
+                            title: "Battery Optimization & Foreground Services",
+                            content: "The app may request battery optimization exemption and foreground service permissions to maintain reliable real-time call detection and CRM syncing.",
+                            items: const [],
+                          ),
+                          const SizedBox(height: 16),
+
+                          // DATA USAGE & SECURITY SECTION CARD
+                          _buildSectionCard(
+                            icon: Icons.lock_outline_rounded,
+                            iconColor: Colors.green,
+                            title: "Data Usage & Security",
+                            content: "",
+                            items: const [
+                              "All collected information is used only for telecaller CRM and business communication features",
+                              "Data is securely transmitted to company servers",
+                              "Data is NOT sold, shared with third parties, or used for advertising",
+                            ],
+                            extraContent: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 12),
+                                Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue.shade50.withOpacity(0.7),
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(
+                                      color: Colors.blue.shade100,
+                                      width: 1,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Icon(
+                                        Icons.vpn_key_rounded,
+                                        size: 16,
+                                        color: Colors.blue.shade800,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      const Expanded(
+                                        child: Text(
+                                          "Customer interaction data is securely transmitted to:\nhttps://master.digibulkmarketing.com",
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Color(0xFF1E3A8A),
+                                            height: 1.4,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // USER CONTROL SECTION CARD
+                          _buildSectionCard(
+                            icon: Icons.touch_app_rounded,
+                            iconColor: Colors.cyan,
+                            title: "User Control",
+                            content: "",
+                            items: const [
+                              "Permissions are requested only after your explicit consent",
+                              "You may deny or revoke permissions anytime from device settings",
+                              "If permissions are denied, call-related CRM features and caller identification may not function",
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // FIXED BOTTOM SECTION WITH TACTILE INTERACTIVE CONTROLS
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        topRight: Radius.circular(20),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF0F172A).withOpacity(0.06),
+                          blurRadius: 10,
+                          offset: const Offset(0, -4),
+                        ),
+                      ],
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // CALL LOG CHECKBOX CARD
+                        _buildCheckboxCard(
+                          value: acceptCallLog,
+                          onChanged: (v) {
+                            setState(() {
+                              acceptCallLog = v ?? false;
+                            });
+                          },
+                          titleWidget: const Text(
+                            "I allow Digi Bulk Marketing – Telecaller to access Call Log and Phone information for CRM and call management features.",
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF1E293B),
+                              height: 1.45,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+
+                        // TERMS & PRIVACY CHECKBOX CARD
+                        _buildCheckboxCard(
+                          value: acceptTermsPrivacy,
+                          onChanged: (v) {
+                            setState(() {
+                              acceptTermsPrivacy = v ?? false;
+                            });
+                          },
+                          titleWidget: RichText(
+                            text: TextSpan(
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Color(0xFF1E293B),
+                                height: 1.45,
+                              ),
+                              children: [
+                                const TextSpan(text: "I agree to the "),
+                                TextSpan(
+                                  text: "Terms & Conditions",
+                                  style: TextStyle(
+                                    color: Colors.blue.shade700,
+                                    fontWeight: FontWeight.w700,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () {
+                                      _launchUrl(
+                                        'https://master.digibulkmarketing.com/terms-and-conditions',
+                                      );
+                                    },
+                                ),
+                                const TextSpan(text: " and "),
+                                TextSpan(
+                                  text: "Privacy Policy",
+                                  style: TextStyle(
+                                    color: Colors.blue.shade700,
+                                    fontWeight: FontWeight.w700,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () {
+                                      _launchUrl(
+                                        'https://master.digibulkmarketing.com/privacy-policy',
+                                      );
+                                    },
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // ACTION BUTTONS
+                        Row(
+                          children: [
+                            // Decline Button
+                            Expanded(
+                              child: SizedBox(
+                                height: 48,
+                                child: OutlinedButton(
+                                  onPressed: isProcessing ? null : _decline,
+                                  style: OutlinedButton.styleFrom(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(24),
+                                    ),
+                                    side: BorderSide(
+                                      color: isProcessing
+                                          ? Colors.grey.shade200
+                                          : Colors.red.shade300,
+                                      width: 1.5,
+                                    ),
+                                    foregroundColor: Colors.red.shade600,
+                                  ),
+                                  child: const Text(
+                                    "Decline",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            // Agree & Continue Button (with beautiful custom gradients)
+                            Expanded(
+                              child: Container(
+                                height: 48,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(24),
+                                  gradient: (acceptCallLog && acceptTermsPrivacy && !isProcessing)
+                                      ? LinearGradient(
+                                          colors: [Colors.green.shade600, const Color(0xFF047857)],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        )
+                                      : null,
+                                  color: (acceptCallLog && acceptTermsPrivacy && !isProcessing)
+                                      ? null
+                                      : Colors.grey.shade200,
+                                  boxShadow: (acceptCallLog && acceptTermsPrivacy && !isProcessing)
+                                      ? [
+                                          BoxShadow(
+                                            color: Colors.green.shade400.withOpacity(0.3),
+                                            blurRadius: 8,
+                                            offset: const Offset(0, 4),
+                                          ),
+                                        ]
+                                      : [],
+                                ),
+                                child: ElevatedButton(
+                                  onPressed: (acceptCallLog && acceptTermsPrivacy && !isProcessing)
+                                      ? _agree
+                                      : null,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.transparent,
+                                    shadowColor: Colors.transparent,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(24),
+                                    ),
+                                  ),
+                                  child: isProcessing
+                                      ? const SizedBox(
+                                          height: 20,
+                                          width: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2.5,
+                                            valueColor: AlwaysStoppedAnimation<Color>(
+                                              Colors.white,
+                                            ),
+                                          ),
+                                        )
+                                      : const Text(
+                                          "I Agree",
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w700,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                ),
                               ),
                             ),
                           ],
                         ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // ACTION BUTTONS
-                    Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedButton(
-                            onPressed: isProcessing ? null : _decline,
-                            style: OutlinedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              side: BorderSide(
-                                color: isProcessing
-                                    ? Colors.grey.shade300
-                                    : Colors.red.shade400,
-                              ),
-                            ),
-                            child: Text(
-                              "decline".tr,
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: isProcessing
-                                    ? Colors.grey.shade400
-                                    : Colors.red.shade400,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: (acceptCallLog &&
-                                    acceptTermsPrivacy &&
-                                    !isProcessing)
-                                ? _agree
-                                : null,
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              backgroundColor: Colors.green.shade600,
-                              disabledBackgroundColor: Colors.grey.shade300,
-                            ),
-                            child: isProcessing
-                                ? SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2.5,
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.white,
-                                      ),
-                                    ),
-                                  )
-                                : Text(
-                                    "i_agree".tr,
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                          ),
-                        ),
                       ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -523,41 +588,82 @@ class _ProminentDisclosurePageState extends State<ProminentDisclosurePage> {
     );
   }
 
-// HELPER WIDGET FOR SECTIONS
-  Widget _buildSection({
+  // DISCLOSURE CARD BUILDER
+  Widget _buildSectionCard({
+    required IconData icon,
+    required Color iconColor,
     required String title,
     required String content,
     required List<String> items,
+    Widget? extraContent,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-            color: Colors.black87,
-            letterSpacing: 0.3,
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: const Color(0xFFE2E8F0),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0F172A).withOpacity(0.02),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Theme(
+          data: ThemeData().copyWith(dividerColor: Colors.transparent),
+          child: ExpansionTile(
+            leading: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: iconColor.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                color: iconColor,
+                size: 20,
+              ),
+            ),
+            title: Text(
+              title,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF1E293B),
+              ),
+            ),
+            initiallyExpanded: true,
+            childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            expandedAlignment: Alignment.topLeft,
+            expandedCrossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (content.isNotEmpty)
+                Text(
+                  content,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF64748B),
+                    height: 1.5,
+                  ),
+                ),
+              if (content.isNotEmpty && items.isNotEmpty) const SizedBox(height: 8),
+              if (items.isNotEmpty) _buildBulletList(items),
+              if (extraContent != null) extraContent,
+            ],
           ),
         ),
-        if (content.isNotEmpty) const SizedBox(height: 8),
-        if (content.isNotEmpty)
-          Text(
-            content,
-            style: TextStyle(
-              fontSize: 13,
-              color: Colors.grey.shade700,
-              height: 1.5,
-            ),
-          ),
-        if (items.isNotEmpty) const SizedBox(height: 8),
-        if (items.isNotEmpty) _buildBulletList(items),
-      ],
+      ),
     );
   }
 
-// HELPER WIDGET FOR BULLET LISTS
+  // BULLET LIST BUILDER
   Widget _buildBulletList(List<String> items) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -569,12 +675,12 @@ class _ProminentDisclosurePageState extends State<ProminentDisclosurePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(top: 5, right: 8),
+                    padding: const EdgeInsets.only(top: 6, right: 8),
                     child: Container(
-                      width: 4,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade600,
+                      width: 5,
+                      height: 5,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF94A3B8),
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -582,10 +688,10 @@ class _ProminentDisclosurePageState extends State<ProminentDisclosurePage> {
                   Expanded(
                     child: Text(
                       item,
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey.shade700,
-                        height: 1.5,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF475569),
+                        height: 1.45,
                       ),
                     ),
                   ),
@@ -594,6 +700,96 @@ class _ProminentDisclosurePageState extends State<ProminentDisclosurePage> {
             ),
           )
           .toList(),
+    );
+  }
+
+  // SAFETY BADGE BUILDER
+  Widget _buildSafeBadge(String text) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.green.shade50.withOpacity(0.8),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: Colors.green.shade100,
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.verified_user_rounded,
+            size: 15,
+            color: Colors.green.shade700,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: Colors.green.shade800,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // TACTILE CUSTOM CHECKBOX CARD
+  Widget _buildCheckboxCard({
+    required bool value,
+    required ValueChanged<bool?> onChanged,
+    required Widget titleWidget,
+  }) {
+    return InkWell(
+      onTap: () => onChanged(!value),
+      borderRadius: BorderRadius.circular(12),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: value ? Colors.blue.shade50.withOpacity(0.35) : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: value ? Colors.blue.shade500 : const Color(0xFFE2E8F0),
+            width: value ? 1.5 : 1,
+          ),
+          boxShadow: value
+              ? [
+                  BoxShadow(
+                    color: Colors.blue.shade100.withOpacity(0.2),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  )
+                ]
+              : [],
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 2, right: 10),
+              child: SizedBox(
+                height: 18,
+                width: 18,
+                child: Checkbox(
+                  value: value,
+                  onChanged: onChanged,
+                  activeColor: Colors.blue.shade600,
+                  checkColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ),
+            ),
+            Expanded(child: titleWidget),
+          ],
+        ),
+      ),
     );
   }
 }

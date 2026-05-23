@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:telecaller_app/constants/app_constants.dart';
@@ -11,7 +12,9 @@ import 'package:flutter/services.dart';
 import 'package:telecaller_app/core/services/background_service_manager.dart';
 
 class SplashController extends GetxController {
-  static const _channel = MethodChannel('com.digibulkmarketing.telecaller_app/lockscreen');
+  static const _channel = MethodChannel(
+    'com.digibulkmarketing.telecaller_app/lockscreen',
+  );
   final AuthController authController = AuthController.to;
 
   @override
@@ -32,8 +35,6 @@ class SplashController extends GetxController {
     startTime();
   }
 
-
-
   startTime() async {
     var _duration = Duration(milliseconds: 2000);
     return Timer(_duration, timeOut);
@@ -45,6 +46,8 @@ class SplashController extends GetxController {
       final requiredPermissions = [
         Permission.phone,
         Permission.notification,
+        Permission.location,
+        Permission.camera,
         Permission.systemAlertWindow,
         Permission.ignoreBatteryOptimizations,
       ];
@@ -52,14 +55,14 @@ class SplashController extends GetxController {
       for (var permission in requiredPermissions) {
         final status = await permission.status;
         if (!status.isGranted) {
-          print("❌ Permission denied: ${permission.toString()}");
+          print("❌ Splash: Permission denied: ${permission.toString()}");
           return false;
         }
       }
-      print("✅ All permissions are granted");
+      print("✅ Splash: All 6 permissions are granted");
       return true;
     } catch (e) {
-      print("⚠️ Error checking permissions: $e");
+      print("⚠️ Splash: Error checking permissions: $e");
       return false;
     }
   }
@@ -72,28 +75,42 @@ class SplashController extends GetxController {
 
     await Future.delayed(const Duration(milliseconds: 500));
 
-    // Read setup flags
-    final bool permissionsShown =
-        Storage.getValue('permissions_shown') ?? false;
-
-    // ✅ Check actual permissions
+    // ✅ Check actual OS permissions
     final bool allPermissionsGranted = await _areAllPermissionsGranted();
 
-    print(
-      "permissionsShown: $permissionsShown, allPermissionsGranted: $allPermissionsGranted",
-    );
-
-    // ✅ Case 1: Fully logged in + all permissions → HOME
+    // ✅ Case 1: Fully logged in + all permissions → Setup and HOME
     if (authController.isSignedIn &&
         Storage.hasData(AppConstants.USER_ID) &&
-        permissionsShown &&
         allPermissionsGranted) {
-      print("✅ Case 1: Checking for Xiaomi Optimizations then HOME");
-      
+      print(
+        "✅ Case 1: Permissions fully granted. Setting up background service & HOME",
+      );
+
+      // Auto-save setup flags to bypass setup screen next time
+      await Storage.saveValue('permissions_shown', true);
+      await Storage.saveValue('notification_setup', true);
+      await Storage.saveValue('backgroundService_setup', true);
+
+      // Pre-fetch SIM info and startup service
+      if (await Permission.phone.isGranted) {
+        await BackgroundServiceManager.fetchAndSaveSimInfo();
+      }
+      try {
+        await BackgroundServiceManager.initializeService();
+        final service = FlutterBackgroundService();
+        if (await service.isRunning()) {
+          service.invoke("syncNow");
+        }
+      } catch (e) {
+        print("❌ Splash: Background service startup error: $e");
+      }
+
+      // Xiaomi optimizations check
       try {
         final bool isXiaomi = await _channel.invokeMethod('isXiaomi');
         if (isXiaomi) {
-          final bool optimizationShown = Storage.getValue('xiaomi_optimization_shown') ?? false;
+          final bool optimizationShown =
+              Storage.getValue('xiaomi_optimization_shown') ?? false;
           if (!optimizationShown) {
             await Get.dialog(
               const OptimizationGuideDialog(isXiaomi: true),
@@ -110,15 +127,15 @@ class SplashController extends GetxController {
       return;
     }
 
-    // ✅ Case 2: Logged in but permission revoked → Back to permission screen
+    // ✅ Case 2: Logged in but missing some permissions → Permission Screen
     if (authController.isSignedIn &&
         Storage.hasData(AppConstants.USER_ID) &&
-        permissionsShown &&
         !allPermissionsGranted) {
-      print("⚠️ Case 2: Permissions revoked, going to Permission Screen");
+      print(
+        "⚠️ Case 2: Permissions missing or revoked, going to Permission Screen",
+      );
       await Storage.saveValue('permissions_shown', false);
 
-      // ✅ Extra delay before navigating to permission screen
       await Future.delayed(const Duration(milliseconds: 300));
       Get.offAll(
         () => PermissionStatusScreen(),
@@ -128,32 +145,16 @@ class SplashController extends GetxController {
       return;
     }
 
-    // ✅ Case 3: Logged in but setup not complete → Permission screen
-    if (authController.isSignedIn &&
-        Storage.hasData(AppConstants.USER_ID) &&
-        !permissionsShown) {
-      print("⚠️ Case 3: Setup not done, going to Permission Screen");
-
-      // ✅ Extra delay before showing permission screen
-      await Future.delayed(const Duration(milliseconds: 300));
-      Get.offAll(
-        () => PermissionStatusScreen(),
-        transition: Transition.fadeIn,
-        duration: Duration(milliseconds: 500),
-      );
-      return;
-    }
-
-    // ✅ Case 4: Logged in but USER_ID missing → Logout
+    // ✅ Case 3: Logged in but USER_ID missing → Force Logout
     if (authController.isSignedIn && !Storage.hasData(AppConstants.USER_ID)) {
-      print("❌ Case 4: USER_ID missing, logging out");
+      print("❌ Case 3: USER_ID missing, logging out");
       await authController.signOut();
       Get.offAllNamed(Routes.WELCOME);
       return;
     }
 
-    // ✅ Case 5: Not logged in → Welcome
-    print("⚠️ Case 5: Not signed in, going to WELCOME");
+    // ✅ Case 4: Not logged in → Welcome
+    print("⚠️ Case 4: Not signed in, going to WELCOME");
     Get.offAllNamed(Routes.WELCOME);
   }
 }

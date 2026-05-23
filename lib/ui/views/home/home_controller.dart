@@ -16,11 +16,11 @@ class HomeController extends GetxController {
   FCMService fcmService = Get.find();
 
 
-  LeadsController leadsController = Get.put(LeadsController());
-  AutoDialerController autoDialerController = Get.put(AutoDialerController());
-  SettingController settingController = Get.put(SettingController());
-  DashboardController dashboardController = Get.put(DashboardController());
-  CallFormController callFormController = Get.put(CallFormController());
+  LeadsController get leadsController => Get.find<LeadsController>();
+  AutoDialerController get autoDialerController => Get.find<AutoDialerController>();
+  SettingController get settingController => Get.find<SettingController>();
+  DashboardController get dashboardController => Get.find<DashboardController>();
+  CallFormController get callFormController => Get.find<CallFormController>();
 
   // Theme support
   final ThemeService themeService = Get.find();
