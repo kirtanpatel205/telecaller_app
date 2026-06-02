@@ -35,12 +35,11 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   # Firebse #
-  firebase_core: ^2.32.0
-  firebase_messaging: ^14.7.10
-  flutter_local_notifications: ^17.1.2
-  firebase_core_platform_interface: ^5.0.0
-  firebase_crashlytics: ^3.5.0
-  firebase_analytics: ^10.8.0
+  firebase_core: ^4.0.0
+  firebase_messaging: ^16.0.0
+  flutter_local_notifications: ^17.2.4
+  firebase_crashlytics: ^5.2.3
+  firebase_analytics: ^12.4.2
 
   # Network #
   dio: ^5.4.3+1
@@ -65,7 +64,7 @@ dependencies:
   lazy_load_scrollview: ^1.3.0
   pin_code_text_field: ^1.8.0
   flutter_slidable: ^3.1.2
-  flex_color_scheme:
+  flex_color_scheme: ^8.4.0
   flutter_screenutil: ^5.9.3
   animated_theme_switcher: ^2.0.10
   intl_phone_field2: ^3.3.4
