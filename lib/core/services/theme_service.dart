@@ -11,11 +11,17 @@ import 'package:telecaller_app/core/helpers/storage.dart';
 class ThemeService extends GetxService {
   RxBool isDarkMode = false.obs;
   RxBool inProgress = false.obs;
+  RxString primaryColorUpdateTrigger = ''.obs;
 
 
   void init() async {
     isDarkMode.value =
         Storage.getValue<bool>(AppConstants.IS_DARK_MODE) ?? false;
+    primaryColorUpdateTrigger.value = Storage.getValue('theme_primary_color') ?? '';
+  }
+
+  void notifyPrimaryColorChange(String colorStr) {
+    primaryColorUpdateTrigger.value = colorStr;
   }
 
   Future<bool> toggleTheme(BuildContext context, {bool? isDark}) async {

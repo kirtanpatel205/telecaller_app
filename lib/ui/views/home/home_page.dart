@@ -23,6 +23,7 @@ class HomePage extends GetView<HomeController> {
       top: false,
       child: Obx(() {
         final bool isWebMode = controller.autoDialerController.currentMode.value == 'web';
+        final String themeTrigger = controller.themeService.primaryColorUpdateTrigger.value; // Listen for primary color updates
 
         final List<Widget> screens = [
           _dashboardPage,
@@ -50,7 +51,7 @@ class HomePage extends GetView<HomeController> {
           backgroundColor: AppColors.themeColor.scaffoldBackgroundColor,
           body: screens[currentIndex],
           bottomNavigationBar: CurvedNavigationBar(
-            key: ValueKey(isWebMode), // Ensure clean rebuild when mode switches
+            key: ValueKey('${isWebMode}_$themeTrigger'), // Ensure clean rebuild when mode or theme switches
             index: currentIndex,
             height: 60.0,
             color: AppColors.themeColor.primaryColor,

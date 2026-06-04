@@ -6,6 +6,7 @@ import 'package:telecaller_app/constants/app_constants.dart';
 import 'package:telecaller_app/constants/app_routes.dart';
 import 'package:telecaller_app/core/controllers/auth_controller.dart';
 import 'package:telecaller_app/core/helpers/storage.dart';
+import 'package:telecaller_app/core/services/theme_service.dart';
 import 'package:telecaller_app/ui/widgets/Permission_Status_Screen_Permission.dart';
 import 'package:telecaller_app/ui/widgets/optimization_guide_dialog.dart';
 import 'package:flutter/services.dart';
@@ -81,6 +82,7 @@ class SplashController extends GetxController {
           panelResponse.panel?.telecaller?.theme?.token?.colorPrimary != null) {
         final String colorStr = panelResponse.panel!.telecaller!.theme!.token!.colorPrimary!;
         await Storage.saveValue('theme_primary_color', colorStr);
+        Get.find<ThemeService>().notifyPrimaryColorChange(colorStr);
         Get.changeTheme(Get.isDarkMode ? AppTheme.darkTheme : AppTheme.theme);
       }
     } catch (e) {

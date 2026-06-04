@@ -505,12 +505,12 @@ class _LogoutButton extends StatelessWidget {
               Container(
                 padding: EdgeInsets.all(16.w),
                 decoration: BoxDecoration(
-                  color: Colors.red.withOpacity(0.1),
+                  color: AppColors.themeColor.primaryColor.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.logout_rounded,
-                  color: Colors.red,
+                  color: AppColors.themeColor.primaryColor,
                   size: 32.sp,
                 ),
               ),
@@ -566,8 +566,8 @@ class _LogoutButton extends StatelessWidget {
                         controller.authController.signOut();
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        foregroundColor: Colors.white,
+                        backgroundColor: AppColors.themeColor.primaryColor,
+                        foregroundColor: AppColors.themeColor.onPrimaryColor,
                         elevation: 0,
                         padding: EdgeInsets.symmetric(vertical: 12.h),
                         shape: RoundedRectangleBorder(
@@ -577,7 +577,7 @@ class _LogoutButton extends StatelessWidget {
                       child: Text(
                         "yes_logout".tr,
                         style: AppTextStyle.bold7.copyWith(
-                          color: Colors.white,
+                          color: AppColors.themeColor.onPrimaryColor,
                           fontSize: AppDimens.fontSize14,
                         ),
                       ),

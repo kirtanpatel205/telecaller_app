@@ -253,9 +253,14 @@ class AuthController extends GetxController {
       }
 
       // 4. Clear Local Storage (GetStorage & SharedPreferences)
+      final primaryColor = Storage.getValue('theme_primary_color');
       await Storage.clearStorage();
       final prefs = await SharedPreferences.getInstance();
       await prefs.clear();
+      
+      if (primaryColor != null) {
+        await Storage.saveValue('theme_primary_color', primaryColor);
+      }
       
       print("✅ Local session cleared");
 

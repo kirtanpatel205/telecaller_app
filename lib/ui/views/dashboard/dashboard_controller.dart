@@ -8,6 +8,9 @@ import 'package:telecaller_app/core/models/call_chart_entity.dart';
 import 'package:telecaller_app/core/models/lead_chart_entity.dart';
 import 'package:telecaller_app/core/models/get_static_entity.dart';
 import 'package:telecaller_app/core/services/api_service.dart';
+import 'package:telecaller_app/core/helpers/storage.dart';
+import 'package:telecaller_app/constants/app_theme.dart';
+import 'package:telecaller_app/core/services/theme_service.dart';
 
 class DashboardController extends GetxController{
 
@@ -108,7 +111,7 @@ class DashboardController extends GetxController{
     }
   }
 
-  void fetchChartData() async {
+  Future<void> fetchChartData() async {
     isChartLoading.value = true;
     barChartData.clear();
 
@@ -165,7 +168,7 @@ class DashboardController extends GetxController{
     }
   }
 
-  void fetchLeadChartData() async {
+  Future<void> fetchLeadChartData() async {
     isLeadChartLoading.value = true;
     leadBarChartData.clear();
 
@@ -209,7 +212,7 @@ class DashboardController extends GetxController{
   }
 
 
-  void static() async {
+  Future<void> static() async {
     isLoading.value = true;
     GetStaticEntity statisticEntity = await apiService.DashboardStastics();
     if (statisticEntity.status == true) {
@@ -241,5 +244,27 @@ class DashboardController extends GetxController{
     isLoading.value = false;
     log("statisticEntity Api ${statisticEntity}");
     // log("${staticData.value.length}");
+  }
+
+  Future<void> refreshDashboard() async {
+    // 1. Fetch panel response for dynamic theme updates
+    try {
+      final panelResponse = await apiService.panelResponse();
+      if (panelResponse.status == true && 
+          panelResponse.panel?.telecaller?.theme?.token?.colorPrimary != null) {
+        final String colorStr = panelResponse.panel!.telecaller!.theme!.token!.colorPrimary!;
+        await Storage.saveValue('theme_primary_color', colorStr);
+        Get.find<ThemeService>().notifyPrimaryColorChange(colorStr);
+        Get.changeTheme(Get.isDarkMode ? AppTheme.darkTheme : AppTheme.theme);
+      }
+    } catch (e) {
+      log("Panel response error during refresh: $e");
+    }
+
+    // 2. Refresh profile & data
+    await authController.refreshProfile();
+    await fetchChartData();
+    await fetchLeadChartData();
+    await static();
   }
 }

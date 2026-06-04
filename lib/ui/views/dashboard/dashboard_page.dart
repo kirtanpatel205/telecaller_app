@@ -20,46 +20,52 @@ class DashboardPage extends GetView<HomeController> {
 
   @override
   Widget build(BuildContext context) {
-    return CustomScrollView(
-      slivers: [
-        DashboardAppBar(controller: controller),
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: EdgeInsets.all(AppDimens.padding16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "dashboard_overview".tr,
-                  style: AppTextStyle.bold8.copyWith(
-                    fontSize: AppDimens.fontSize16,
-                    color: AppColors.themeColor.textPrimaryColor,
+    return RefreshIndicator(
+      onRefresh: () async {
+        await controller.dashboardController.refreshDashboard();
+      },
+      child: CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: [
+          DashboardAppBar(controller: controller),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.all(AppDimens.padding16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "dashboard_overview".tr,
+                    style: AppTextStyle.bold8.copyWith(
+                      fontSize: AppDimens.fontSize16,
+                      color: AppColors.themeColor.textPrimaryColor,
+                    ),
                   ),
-                ),
-                // SizedBox(height:5.h),
-                _buildSummaryCards(context),
-                SizedBox(height: 24.h),
-                _buildLeadContactSection(context),
-                SizedBox(height: 24.h),
-                _buildCallsSection(context),
-                SizedBox(height: 24.h),
-                _buildBottomAnalyticsChart1(context),
-                SizedBox(height: 24.h),
-                _buildBottomAnalyticsChart2(context),
-                SizedBox(height: 24.h),
-              ],
+                  // SizedBox(height:5.h),
+                  _buildSummaryCards(context),
+                  SizedBox(height: 24.h),
+                  _buildLeadContactSection(context),
+                  SizedBox(height: 24.h),
+                  _buildCallsSection(context),
+                  SizedBox(height: 24.h),
+                  _buildBottomAnalyticsChart1(context),
+                  SizedBox(height: 24.h),
+                  _buildBottomAnalyticsChart2(context),
+                  SizedBox(height: 24.h),
+                ],
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
-
 
   Widget _buildSummaryCard({
     required String title,
     required String value,
     required String subtitle,
+
     required Color bgColor,
     required IconData icon,
     required Color iconColor,
@@ -68,10 +74,7 @@ class DashboardPage extends GetView<HomeController> {
       decoration: BoxDecoration(
         color: AppColors.themeColor.cardBgColor,
         borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(
-          color: iconColor.withOpacity(0.15),
-          width: 1.w,
-        ),
+        border: Border.all(color: iconColor.withOpacity(0.15), width: 1.w),
         boxShadow: [
           BoxShadow(
             color: iconColor.withOpacity(0.06),
@@ -85,11 +88,7 @@ class DashboardPage extends GetView<HomeController> {
         child: Stack(
           children: [
             // Subtle Background Tint
-            Positioned.fill(
-              child: Container(
-                color: bgColor.withOpacity(0.3),
-              ),
-            ),
+            Positioned.fill(child: Container(color: bgColor.withOpacity(0.3))),
             Positioned(
               right: -10.w,
               bottom: -10.h,
@@ -110,11 +109,7 @@ class DashboardPage extends GetView<HomeController> {
                       color: iconColor.withOpacity(0.12),
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(
-                      icon,
-                      color: iconColor,
-                      size: 20.sp,
-                    ),
+                    child: Icon(icon, color: iconColor, size: 20.sp),
                   ),
                   const Spacer(),
                   FittedBox(
@@ -164,38 +159,47 @@ class DashboardPage extends GetView<HomeController> {
             mainAxisExtent: 130.h,
           ),
           children: [
-            Obx(() => _buildSummaryCard(
-              title: "active_telecallers".tr,
-              value: "${controller.dashboardController.activeTelecallers.value}",
-              subtitle: "handling_customer_calls".tr,
-              bgColor: AppColors.themeColor.totalkeyColor,
-              icon: Icons.notifications_active_outlined,
-              iconColor: AppColors.themeColor.totalkeyiconColor,
-            )),
-            Obx(() => _buildSummaryCard(
-              title: "leads".tr,
-              value: "${controller.dashboardController.leadsCount.value}",
-              subtitle: "awaiting_contact".tr,
-              bgColor: AppColors.themeColor.avilablekeyColor,
-              icon: Icons.person_add_outlined,
-              iconColor: AppColors.themeColor.availablekeyiconColor,
-            )),
-            Obx(() => _buildSummaryCard(
-              title: "orders".tr,
-              value: "${controller.dashboardController.ordersCount.value}",
-              subtitle: "processed_purchases".tr,
-              bgColor: AppColors.themeColor.activekeyColor,
-              icon: Icons.headset_mic_outlined,
-              iconColor: AppColors.themeColor.activekeyiconColor,
-            )),
-            Obx(() => _buildSummaryCard(
-              title: "forms_submitted".tr,
-              value: "${controller.dashboardController.formsSubmitted.value}",
-              subtitle: "customer_inquiries_received".tr,
-              bgColor: AppColors.themeColor.expairekeyColor,
-              icon: Icons.edit_document,
-              iconColor: AppColors.themeColor.expairekeyiconColor,
-            )),
+            Obx(
+              () => _buildSummaryCard(
+                title: "active_telecallers".tr,
+                value:
+                    "${controller.dashboardController.activeTelecallers.value}",
+                subtitle: "handling_customer_calls".tr,
+                bgColor: AppColors.themeColor.totalkeyColor,
+                icon: Icons.notifications_active_outlined,
+                iconColor: AppColors.themeColor.totalkeyiconColor,
+              ),
+            ),
+            Obx(
+              () => _buildSummaryCard(
+                title: "leads".tr,
+                value: "${controller.dashboardController.leadsCount.value}",
+                subtitle: "awaiting_contact".tr,
+                bgColor: AppColors.themeColor.avilablekeyColor,
+                icon: Icons.person_add_outlined,
+                iconColor: AppColors.themeColor.availablekeyiconColor,
+              ),
+            ),
+            Obx(
+              () => _buildSummaryCard(
+                title: "orders".tr,
+                value: "${controller.dashboardController.ordersCount.value}",
+                subtitle: "processed_purchases".tr,
+                bgColor: AppColors.themeColor.activekeyColor,
+                icon: Icons.headset_mic_outlined,
+                iconColor: AppColors.themeColor.activekeyiconColor,
+              ),
+            ),
+            Obx(
+              () => _buildSummaryCard(
+                title: "forms_submitted".tr,
+                value: "${controller.dashboardController.formsSubmitted.value}",
+                subtitle: "customer_inquiries_received".tr,
+                bgColor: AppColors.themeColor.expairekeyColor,
+                icon: Icons.edit_document,
+                iconColor: AppColors.themeColor.expairekeyiconColor,
+              ),
+            ),
           ],
         );
       },
@@ -214,10 +218,7 @@ class DashboardPage extends GetView<HomeController> {
       decoration: BoxDecoration(
         color: AppColors.themeColor.cardBgColor,
         borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(
-          color: color.withOpacity(0.12),
-          width: 1.w,
-        ),
+        border: Border.all(color: color.withOpacity(0.12), width: 1.w),
         boxShadow: [
           BoxShadow(
             color: color.withOpacity(0.04),
@@ -237,101 +238,102 @@ class DashboardPage extends GetView<HomeController> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-          Row(
-            children: [
-              Expanded(
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                  decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                  child: Text(
-                    title,
-                    style: AppTextStyle.bold8.copyWith(
-                      fontSize: 9.sp,
-                      color: color,
-                      fontWeight: FontWeight.w700,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ),
-              Icon(
-                icon,
-                size: 16.sp,
-                color: color.withOpacity(0.5),
-              ),
-            ],
-          ),
-          SizedBox(height: 14.h),
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      todayVal,
-                      style: AppTextStyle.bold11.copyWith(
-                        fontSize: 14.sp,
-                        color: AppColors.themeColor.textPrimaryColor,
-                        fontWeight: FontWeight.w800,
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 8.w,
+                            vertical: 4.h,
+                          ),
+                          decoration: BoxDecoration(
+                            color: color.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8.r),
+                          ),
+                          child: Text(
+                            title,
+                            style: AppTextStyle.bold8.copyWith(
+                              fontSize: 9.sp,
+                              color: color,
+                              fontWeight: FontWeight.w700,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
                       ),
-                    ),
-                    Text(
-                      "today".tr,
-                      style: AppTextStyle.regular6.copyWith(
-                        fontSize: 9.sp,
-                        color: AppColors.themeColor.textSecondaryColor,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                width: 1.w,
-                height: 24.h,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      AppColors.themeColor.bordercolror.withOpacity(0),
-                      AppColors.themeColor.bordercolror.withOpacity(0.5),
-                      AppColors.themeColor.bordercolror.withOpacity(0),
+                      Icon(icon, size: 16.sp, color: color.withOpacity(0.5)),
                     ],
                   ),
-                ),
-              ),
-              SizedBox(width: 10.w),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      totalVal,
-                      style: AppTextStyle.bold11.copyWith(
-                        fontSize: 14.sp,
-                        color: AppColors.themeColor.textPrimaryColor,
-                        fontWeight: FontWeight.w800,
+                  SizedBox(height: 14.h),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              todayVal,
+                              style: AppTextStyle.bold11.copyWith(
+                                fontSize: 14.sp,
+                                color: AppColors.themeColor.textPrimaryColor,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                            Text(
+                              "today".tr,
+                              style: AppTextStyle.regular6.copyWith(
+                                fontSize: 9.sp,
+                                color: AppColors.themeColor.textSecondaryColor,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    Text(
-                      "total".tr,
-                      style: AppTextStyle.regular6.copyWith(
-                        fontSize: 9.sp,
-                        color: AppColors.themeColor.textSecondaryColor,
-                        fontWeight: FontWeight.w500,
+                      Container(
+                        width: 1.w,
+                        height: 24.h,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              AppColors.themeColor.bordercolror.withOpacity(0),
+                              AppColors.themeColor.bordercolror.withOpacity(
+                                0.5,
+                              ),
+                              AppColors.themeColor.bordercolror.withOpacity(0),
+                            ],
+                          ),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+                      SizedBox(width: 10.w),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              totalVal,
+                              style: AppTextStyle.bold11.copyWith(
+                                fontSize: 14.sp,
+                                color: AppColors.themeColor.textPrimaryColor,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                            Text(
+                              "total".tr,
+                              style: AppTextStyle.regular6.copyWith(
+                                fontSize: 9.sp,
+                                color: AppColors.themeColor.textSecondaryColor,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -346,7 +348,10 @@ class DashboardPage extends GetView<HomeController> {
       decoration: BoxDecoration(
         color: AppColors.themeColor.cardBgColor,
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: AppColors.themeColor.bordercolror.withOpacity(0.5), width: 1.w),
+        border: Border.all(
+          color: AppColors.themeColor.bordercolror.withOpacity(0.5),
+          width: 1.w,
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.04),
@@ -390,34 +395,50 @@ class DashboardPage extends GetView<HomeController> {
                     mainAxisExtent: 120.h,
                   ),
                   children: [
-                    Obx(() => _buildMetricBox(
-                      title: "all".tr,
-                      todayVal: "${controller.dashboardController.leadContactAllToday.value}",
-                      totalVal: "${controller.dashboardController.leadContactAllTotal.value}",
-                      color: AppColors.themeColor.primaryColor,
-                      icon: Icons.list_alt_rounded,
-                    )),
-                    Obx(() => _buildMetricBox(
-                      title: "completed".tr,
-                      todayVal: "${controller.dashboardController.leadContactCompletedToday.value}",
-                      totalVal: "${controller.dashboardController.leadContactCompletedTotal.value}",
-                      color: AppColors.themeColor.completedColor,
-                      icon: Icons.check_circle_outline_rounded,
-                    )),
-                    Obx(() => _buildMetricBox(
-                      title: "scheduled".tr,
-                      todayVal: "${controller.dashboardController.leadContactScheduledToday.value}",
-                      totalVal: "${controller.dashboardController.leadContactScheduledTotal.value}",
-                      color: AppColors.themeColor.availablekeyiconColor,
-                      icon: Icons.calendar_today_rounded,
-                    )),
-                    Obx(() => _buildMetricBox(
-                      title: "pending".tr,
-                      todayVal: "${controller.dashboardController.leadContactPendingToday.value}",
-                      totalVal: "${controller.dashboardController.leadContactPendingTotal.value}",
-                      color: AppColors.themeColor.expairekeyiconColor,
-                      icon: Icons.pending_actions_rounded,
-                    )),
+                    Obx(
+                      () => _buildMetricBox(
+                        title: "all".tr,
+                        todayVal:
+                            "${controller.dashboardController.leadContactAllToday.value}",
+                        totalVal:
+                            "${controller.dashboardController.leadContactAllTotal.value}",
+                        color: AppColors.themeColor.primaryColor,
+                        icon: Icons.list_alt_rounded,
+                      ),
+                    ),
+                    Obx(
+                      () => _buildMetricBox(
+                        title: "completed".tr,
+                        todayVal:
+                            "${controller.dashboardController.leadContactCompletedToday.value}",
+                        totalVal:
+                            "${controller.dashboardController.leadContactCompletedTotal.value}",
+                        color: AppColors.themeColor.completedColor,
+                        icon: Icons.check_circle_outline_rounded,
+                      ),
+                    ),
+                    Obx(
+                      () => _buildMetricBox(
+                        title: "scheduled".tr,
+                        todayVal:
+                            "${controller.dashboardController.leadContactScheduledToday.value}",
+                        totalVal:
+                            "${controller.dashboardController.leadContactScheduledTotal.value}",
+                        color: AppColors.themeColor.availablekeyiconColor,
+                        icon: Icons.calendar_today_rounded,
+                      ),
+                    ),
+                    Obx(
+                      () => _buildMetricBox(
+                        title: "pending".tr,
+                        todayVal:
+                            "${controller.dashboardController.leadContactPendingToday.value}",
+                        totalVal:
+                            "${controller.dashboardController.leadContactPendingTotal.value}",
+                        color: AppColors.themeColor.expairekeyiconColor,
+                        icon: Icons.pending_actions_rounded,
+                      ),
+                    ),
                   ],
                 );
               },
@@ -433,7 +454,10 @@ class DashboardPage extends GetView<HomeController> {
       decoration: BoxDecoration(
         color: AppColors.themeColor.cardBgColor,
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: AppColors.themeColor.bordercolror.withOpacity(0.5), width: 1.w),
+        border: Border.all(
+          color: AppColors.themeColor.bordercolror.withOpacity(0.5),
+          width: 1.w,
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.04),
@@ -477,34 +501,50 @@ class DashboardPage extends GetView<HomeController> {
                     mainAxisExtent: 120.h,
                   ),
                   children: [
-                    Obx(() => _buildMetricBox(
-                      title: "incoming".tr,
-                      todayVal: "${controller.dashboardController.callsIncomingToday.value}",
-                      totalVal: "${controller.dashboardController.callsIncomingTotal.value}",
-                      color: AppColors.themeColor.completedColor,
-                      icon: Icons.call_received_rounded,
-                    )),
-                    Obx(() => _buildMetricBox(
-                      title: "missed".tr,
-                      todayVal: "${controller.dashboardController.callsMissedToday.value}",
-                      totalVal: "${controller.dashboardController.callsMissedTotal.value}",
-                      color: AppColors.themeColor.failColor,
-                      icon: Icons.call_missed_rounded,
-                    )),
-                    Obx(() => _buildMetricBox(
-                      title: "not_answered".tr,
-                      todayVal: "${controller.dashboardController.callsNotAnsweredToday.value}",
-                      totalVal: "${controller.dashboardController.callsNotAnsweredTotal.value}",
-                      color: AppColors.themeColor.activekeyiconColor,
-                      icon: Icons.phone_callback_rounded,
-                    )),
-                    Obx(() => _buildMetricBox(
-                      title: "outgoing".tr,
-                      todayVal: "${controller.dashboardController.callsOutgoingToday.value}",
-                      totalVal: "${controller.dashboardController.callsOutgoingTotal.value}",
-                      color: AppColors.themeColor.primaryColor,
-                      icon: Icons.call_made_rounded,
-                    )),
+                    Obx(
+                      () => _buildMetricBox(
+                        title: "incoming".tr,
+                        todayVal:
+                            "${controller.dashboardController.callsIncomingToday.value}",
+                        totalVal:
+                            "${controller.dashboardController.callsIncomingTotal.value}",
+                        color: AppColors.themeColor.completedColor,
+                        icon: Icons.call_received_rounded,
+                      ),
+                    ),
+                    Obx(
+                      () => _buildMetricBox(
+                        title: "missed".tr,
+                        todayVal:
+                            "${controller.dashboardController.callsMissedToday.value}",
+                        totalVal:
+                            "${controller.dashboardController.callsMissedTotal.value}",
+                        color: AppColors.themeColor.failColor,
+                        icon: Icons.call_missed_rounded,
+                      ),
+                    ),
+                    Obx(
+                      () => _buildMetricBox(
+                        title: "not_answered".tr,
+                        todayVal:
+                            "${controller.dashboardController.callsNotAnsweredToday.value}",
+                        totalVal:
+                            "${controller.dashboardController.callsNotAnsweredTotal.value}",
+                        color: AppColors.themeColor.activekeyiconColor,
+                        icon: Icons.phone_callback_rounded,
+                      ),
+                    ),
+                    Obx(
+                      () => _buildMetricBox(
+                        title: "outgoing".tr,
+                        todayVal:
+                            "${controller.dashboardController.callsOutgoingToday.value}",
+                        totalVal:
+                            "${controller.dashboardController.callsOutgoingTotal.value}",
+                        color: AppColors.themeColor.primaryColor,
+                        icon: Icons.call_made_rounded,
+                      ),
+                    ),
                   ],
                 );
               },
@@ -571,7 +611,10 @@ class DashboardPage extends GetView<HomeController> {
       decoration: BoxDecoration(
         color: AppColors.themeColor.cardBgColor,
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: AppColors.themeColor.bordercolror.withOpacity(0.5), width: 1.w),
+        border: Border.all(
+          color: AppColors.themeColor.bordercolror.withOpacity(0.5),
+          width: 1.w,
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.04),
@@ -583,7 +626,6 @@ class DashboardPage extends GetView<HomeController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
           /// ================= HEADER =================
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -591,7 +633,9 @@ class DashboardPage extends GetView<HomeController> {
               Expanded(
                 child: Text(
                   "calls_over_time".tr,
-                  style: AppTextStyle.bold8.copyWith(fontSize: AppDimens.fontSize16),
+                  style: AppTextStyle.bold8.copyWith(
+                    fontSize: AppDimens.fontSize16,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -607,23 +651,17 @@ class DashboardPage extends GetView<HomeController> {
             child: Obx(() {
               if (controller.dashboardController.isChartLoading.value) {
                 return Container(
-                  margin: EdgeInsets.symmetric(
-                      vertical: Get.height * 0.08),
-                  child: const Center(
-                    child: CircularProgressIndicator(),
-                  ),
+                  margin: EdgeInsets.symmetric(vertical: Get.height * 0.08),
+                  child: const Center(child: CircularProgressIndicator()),
                 );
               }
 
-              final data =
-                  controller.dashboardController.barChartData;
+              final data = controller.dashboardController.barChartData;
 
               if (data.isEmpty) {
                 return SizedBox(
                   height: 200,
-                  child:  Center(
-                    child: Text("no_chart_data_available".tr),
-                  ),
+                  child: Center(child: Text("no_chart_data_available".tr)),
                 );
               }
 
@@ -672,9 +710,11 @@ class DashboardPage extends GetView<HomeController> {
                         /// ===== TITLES =====
                         titlesData: FlTitlesData(
                           topTitles: const AxisTitles(
-                              sideTitles: SideTitles(showTitles: false)),
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
                           rightTitles: const AxisTitles(
-                              sideTitles: SideTitles(showTitles: false)),
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
 
                           bottomTitles: AxisTitles(
                             sideTitles: SideTitles(
@@ -689,12 +729,15 @@ class DashboardPage extends GetView<HomeController> {
 
                                 String label = data[index].label;
                                 String formattedLabel = label;
-                                
+
                                 // Simple date formatting if it's a date string
                                 try {
-                                  if (label.contains('-') || label.contains('/')) {
+                                  if (label.contains('-') ||
+                                      label.contains('/')) {
                                     DateTime dt = DateTime.parse(label);
-                                    formattedLabel = DateFormat('dd MMM').format(dt);
+                                    formattedLabel = DateFormat(
+                                      'dd MMM',
+                                    ).format(dt);
                                   }
                                 } catch (_) {
                                   // Fallback to original label if parsing fails
@@ -707,7 +750,10 @@ class DashboardPage extends GetView<HomeController> {
                                     formattedLabel,
                                     style: AppTextStyle.bold6.copyWith(
                                       fontSize: AppDimens.fontSize10,
-                                      color: AppColors.themeColor.textSecondaryColor,
+                                      color:
+                                          AppColors
+                                              .themeColor
+                                              .textSecondaryColor,
                                     ),
                                   ),
                                 );
@@ -725,7 +771,9 @@ class DashboardPage extends GetView<HomeController> {
                                   axisSide: meta.axisSide,
                                   child: Text(
                                     value.toInt().toString(),
-                                    style: AppTextStyle.regular6.copyWith(fontSize: AppDimens.fontSize10),
+                                    style: AppTextStyle.regular6.copyWith(
+                                      fontSize: AppDimens.fontSize10,
+                                    ),
                                   ),
                                 );
                               },
@@ -734,56 +782,55 @@ class DashboardPage extends GetView<HomeController> {
                         ),
 
                         /// ===== BARS =====
-                        barGroups: data.asMap().entries.map((entry) {
-                          int index = entry.key;
-                          var spot = entry.value;
+                        barGroups:
+                            data.asMap().entries.map((entry) {
+                              int index = entry.key;
+                              var spot = entry.value;
 
-                          return BarChartGroupData(
-                            x: index,
-                            barsSpace: 10, // spacing between 2 bars
-                            barRods: [
-                              BarChartRodData(
-                                toY: spot.incoming.count.toDouble(),
-                                color: AppColors.themeColor.completedColor,
-                                width: 14,
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              BarChartRodData(
-                                toY: spot.outgoing.count.toDouble(),
-                                color: AppColors.themeColor.primaryColor,
-                                width: 14,
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                            ],
-                          );
-                        }).toList(),
+                              return BarChartGroupData(
+                                x: index,
+                                barsSpace: 10, // spacing between 2 bars
+                                barRods: [
+                                  BarChartRodData(
+                                    toY: spot.incoming.count.toDouble(),
+                                    color: AppColors.themeColor.completedColor,
+                                    width: 14,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  BarChartRodData(
+                                    toY: spot.outgoing.count.toDouble(),
+                                    color: AppColors.themeColor.primaryColor,
+                                    width: 14,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                ],
+                              );
+                            }).toList(),
 
                         /// ===== TOUCH TOOLTIP =====
                         barTouchData: BarTouchData(
                           enabled: true,
                           touchTooltipData: BarTouchTooltipData(
                             tooltipBgColor: AppColors.themeColor.cardColor,
-                            getTooltipItem:
-                                (group, groupIndex, rod, rodIndex) {
-
-                              final dataItem =
-                              data[group.x.toInt()];
+                            getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                              final dataItem = data[group.x.toInt()];
 
                               String title;
 
                               if (rodIndex == 0) {
                                 title =
-                                "Incoming: ${dataItem.incoming.count}\nDuration: ${dataItem.incoming.totalDuration}";
+                                    "Incoming: ${dataItem.incoming.count}\nDuration: ${dataItem.incoming.totalDuration}";
                               } else {
                                 title =
-                                "Outgoing: ${dataItem.outgoing.count}\nDuration: ${dataItem.outgoing.totalDuration}";
+                                    "Outgoing: ${dataItem.outgoing.count}\nDuration: ${dataItem.outgoing.totalDuration}";
                               }
 
                               return BarTooltipItem(
                                 title,
                                 AppTextStyle.medium7.copyWith(
-                                    color: AppColors.themeColor.textPrimaryColor,
-                                    fontSize: AppDimens.fontSize12),
+                                  color: AppColors.themeColor.textPrimaryColor,
+                                  fontSize: AppDimens.fontSize12,
+                                ),
                               );
                             },
                           ),
@@ -805,9 +852,13 @@ class DashboardPage extends GetView<HomeController> {
               spacing: 20,
               children: [
                 _buildLegendItem(
-                    AppColors.themeColor.completedColor, "incoming".tr),
+                  AppColors.themeColor.completedColor,
+                  "incoming".tr,
+                ),
                 _buildLegendItem(
-                    AppColors.themeColor.primaryColor, "outgoing".tr),
+                  AppColors.themeColor.primaryColor,
+                  "outgoing".tr,
+                ),
               ],
             ),
           ),
@@ -819,17 +870,20 @@ class DashboardPage extends GetView<HomeController> {
   Widget _buildTimeFilter(BuildContext context) {
     return Row(
       children: [
-
         /// ===== Specific Date Range Button =====
         Obx(() {
-          if (controller.dashboardController.selectedTimeFilter.value == 'Specific') {
+          if (controller.dashboardController.selectedTimeFilter.value ==
+              'Specific') {
             String dateText = "select_date_range".tr;
 
-            if (controller.dashboardController.selectedDateRange.value != null) {
+            if (controller.dashboardController.selectedDateRange.value !=
+                null) {
               final start = DateFormat('yyyy-MM-dd').format(
-                  controller.dashboardController.selectedDateRange.value!.start);
+                controller.dashboardController.selectedDateRange.value!.start,
+              );
               final end = DateFormat('yyyy-MM-dd').format(
-                  controller.dashboardController.selectedDateRange.value!.end);
+                controller.dashboardController.selectedDateRange.value!.end,
+              );
               dateText = "$start → $end";
             }
 
@@ -842,7 +896,7 @@ class DashboardPage extends GetView<HomeController> {
                     firstDate: DateTime(2020),
                     lastDate: DateTime(2100),
                     initialDateRange:
-                    controller.dashboardController.selectedDateRange.value,
+                        controller.dashboardController.selectedDateRange.value,
                   );
 
                   if (range != null) {
@@ -850,22 +904,33 @@ class DashboardPage extends GetView<HomeController> {
                   }
                 },
                 child: Container(
-                  padding:
-                  EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 12.w,
+                    vertical: 6.h,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.themeColor.primaryColor.withOpacity(0.05),
-                    border: Border.all(color: AppColors.themeColor.primaryColor.withOpacity(0.5), width: 1.w),
+                    border: Border.all(
+                      color: AppColors.themeColor.primaryColor.withOpacity(0.5),
+                      width: 1.w,
+                    ),
                     borderRadius: BorderRadius.circular(8.r),
                   ),
                   child: Row(
                     children: [
                       Text(
                         dateText,
-                        style: AppTextStyle.medium7.copyWith(fontSize: AppDimens.fontSize12, color: AppColors.themeColor.primaryColor),
+                        style: AppTextStyle.medium7.copyWith(
+                          fontSize: AppDimens.fontSize12,
+                          color: AppColors.themeColor.primaryColor,
+                        ),
                       ),
                       SizedBox(width: 8.w),
-                      Icon(Icons.calendar_today_rounded,
-                          size: 14.sp, color: AppColors.themeColor.primaryColor),
+                      Icon(
+                        Icons.calendar_today_rounded,
+                        size: 14.sp,
+                        color: AppColors.themeColor.primaryColor,
+                      ),
                     ],
                   ),
                 ),
@@ -881,50 +946,63 @@ class DashboardPage extends GetView<HomeController> {
           padding: EdgeInsets.symmetric(horizontal: 12.w),
           decoration: BoxDecoration(
             color: AppColors.themeColor.cardBgColor,
-            border: Border.all(color: AppColors.themeColor.bordercolror.withOpacity(0.5), width: 1.w),
+            border: Border.all(
+              color: AppColors.themeColor.bordercolror.withOpacity(0.5),
+              width: 1.w,
+            ),
             borderRadius: BorderRadius.circular(8.r),
           ),
-          child: Obx(() => DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: controller
-                  .dashboardController.selectedTimeFilter.value,
-              icon:
-              Icon(Icons.keyboard_arrow_down_rounded, size: 18.sp, color: AppColors.themeColor.primaryColor),
-              style: AppTextStyle.medium7.copyWith(
-                  fontSize: AppDimens.fontSize12, color: AppColors.themeColor.textPrimaryColor),
-              onChanged: (String? newValue) {
-                if (newValue != null) {
-                  controller.dashboardController
-                      .updateTimeFilter(newValue);
+          child: Obx(
+            () => DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                value: controller.dashboardController.selectedTimeFilter.value,
+                icon: Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  size: 18.sp,
+                  color: AppColors.themeColor.primaryColor,
+                ),
+                style: AppTextStyle.medium7.copyWith(
+                  fontSize: AppDimens.fontSize12,
+                  color: AppColors.themeColor.textPrimaryColor,
+                ),
+                onChanged: (String? newValue) {
+                  if (newValue != null) {
+                    controller.dashboardController.updateTimeFilter(newValue);
 
-                  if (newValue == 'Specific' &&
-                      controller.dashboardController
-                          .selectedDateRange.value ==
-                          null) {
-                    showDateRangePicker(
-                      context: context,
-                      firstDate: DateTime(2020),
-                      lastDate: DateTime(2100),
-                    ).then((range) {
-                      if (range != null) {
-                        controller.dashboardController
-                            .updateDateRange(range);
-                      } else {
-                        controller.dashboardController
-                            .updateTimeFilter('Today');
-                      }
-                    });
+                    if (newValue == 'Specific' &&
+                        controller
+                                .dashboardController
+                                .selectedDateRange
+                                .value ==
+                            null) {
+                      showDateRangePicker(
+                        context: context,
+                        firstDate: DateTime(2020),
+                        lastDate: DateTime(2100),
+                      ).then((range) {
+                        if (range != null) {
+                          controller.dashboardController.updateDateRange(range);
+                        } else {
+                          controller.dashboardController.updateTimeFilter(
+                            'Today',
+                          );
+                        }
+                      });
+                    }
                   }
-                }
-              },
-              items: ['Today', 'Week', 'Month', 'Year', 'Specific']
-                  .map((value) => DropdownMenuItem(
-                value: value,
-                child: Text(value.toLowerCase().tr),
-              ))
-                  .toList(),
+                },
+                items:
+                    ['Today', 'Week', 'Month', 'Year', 'Specific']
+                        .map(
+                          (value) => DropdownMenuItem(
+                            value: value,
+                            child: Text(value.toLowerCase().tr),
+                          ),
+                        )
+                        .toList(),
+              ),
             ),
-          )),
+          ),
         ),
       ],
     );
@@ -938,7 +1016,10 @@ class DashboardPage extends GetView<HomeController> {
       decoration: BoxDecoration(
         color: AppColors.themeColor.cardBgColor,
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: AppColors.themeColor.bordercolror.withOpacity(0.5), width: 1.w),
+        border: Border.all(
+          color: AppColors.themeColor.bordercolror.withOpacity(0.5),
+          width: 1.w,
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.04),
@@ -963,49 +1044,81 @@ class DashboardPage extends GetView<HomeController> {
                   return const Center(child: CircularProgressIndicator());
                 }
 
-                int incoming    = controller.dashboardController.incomingPieCount.value;
-                int missed      = controller.dashboardController.missedPieCount.value;
-                int notAnswered = controller.dashboardController.notAnsweredPieCount.value;
-                int outgoing    = controller.dashboardController.outgoingPieCount.value;
+                int incoming =
+                    controller.dashboardController.incomingPieCount.value;
+                int missed =
+                    controller.dashboardController.missedPieCount.value;
+                int notAnswered =
+                    controller.dashboardController.notAnsweredPieCount.value;
+                int outgoing =
+                    controller.dashboardController.outgoingPieCount.value;
 
-                if (incoming == 0 && missed == 0 && notAnswered == 0 && outgoing == 0) {
-                  return  Center(child: Text("no_chart_data_available".tr));
+                if (incoming == 0 &&
+                    missed == 0 &&
+                    notAnswered == 0 &&
+                    outgoing == 0) {
+                  return Center(child: Text("no_chart_data_available".tr));
                 }
 
                 // ── Build valid data list ──────────────────────────────────
                 List<Map<String, dynamic>> validData = [];
-                if (incoming > 0)    validData.add({"value": incoming,    "color": AppColors.themeColor.completedColor});
-                if (missed > 0)      validData.add({"value": missed,      "color": AppColors.themeColor.activekeyiconColor});
-                if (notAnswered > 0) validData.add({"value": notAnswered, "color": AppColors.themeColor.failColor});
-                if (outgoing > 0)    validData.add({"value": outgoing,    "color": AppColors.themeColor.primaryColor});
+                if (incoming > 0)
+                  validData.add({
+                    "value": incoming,
+                    "color": AppColors.themeColor.completedColor,
+                  });
+                if (missed > 0)
+                  validData.add({
+                    "value": missed,
+                    "color": AppColors.themeColor.activekeyiconColor,
+                  });
+                if (notAnswered > 0)
+                  validData.add({
+                    "value": notAnswered,
+                    "color": AppColors.themeColor.failColor,
+                  });
+                if (outgoing > 0)
+                  validData.add({
+                    "value": outgoing,
+                    "color": AppColors.themeColor.primaryColor,
+                  });
 
                 // ── FIX: enforce minimum 2.5% so tiny slices stay visible ─
                 // Without this, "not_answered_12".tr out of 3235 total = 0.37%
                 // which renders as an invisible sliver on the pie chart.
                 const double minPercent = 2.5;
-                final double rawTotal = validData.fold(0.0, (sum, e) => sum + (e["value"] as int).toDouble());
+                final double rawTotal = validData.fold(
+                  0.0,
+                  (sum, e) => sum + (e["value"] as int).toDouble(),
+                );
 
-                List<double> adjustedValues = validData.map((e) {
-                  double pct = (e["value"] as int) / rawTotal * 100;
-                  return pct.clamp(minPercent, 100.0);
-                }).toList();
+                List<double> adjustedValues =
+                    validData.map((e) {
+                      double pct = (e["value"] as int) / rawTotal * 100;
+                      return pct.clamp(minPercent, 100.0);
+                    }).toList();
 
                 // Re-normalise so adjusted values still sum to rawTotal
                 final double adjSum = adjustedValues.fold(0.0, (s, v) => s + v);
-                adjustedValues = adjustedValues.map((v) => v / adjSum * rawTotal).toList();
+                adjustedValues =
+                    adjustedValues.map((v) => v / adjSum * rawTotal).toList();
                 // ─────────────────────────────────────────────────────────
 
                 List<PieChartSectionData> pieChartSections = [];
 
                 for (int i = 0; i < validData.length; i++) {
-                  bool isTouched = controller.dashboardController.touchedPieIndex.value == i;
+                  bool isTouched =
+                      controller.dashboardController.touchedPieIndex.value == i;
                   pieChartSections.add(
                     PieChartSectionData(
                       color: validData[i]["color"],
-                      value: adjustedValues[i],          // ← adjusted value (visual only)
-                      title: isTouched
-                          ? (validData[i]["value"] as int).toString()  // ← show real value on touch
-                          : '',
+                      value: adjustedValues[i],
+                      // ← adjusted value (visual only)
+                      title:
+                          isTouched
+                              ? (validData[i]["value"] as int)
+                                  .toString() // ← show real value on touch
+                              : '',
                       radius: isTouched ? 100 : 90,
                       titleStyle: AppTextStyle.bold11.copyWith(
                         fontSize: AppDimens.fontSize16,
@@ -1022,11 +1135,14 @@ class DashboardPage extends GetView<HomeController> {
                         if (!event.isInterestedForInteractions ||
                             pieTouchResponse == null ||
                             pieTouchResponse.touchedSection == null) {
-                          controller.dashboardController.touchedPieIndex.value = -1;
+                          controller.dashboardController.touchedPieIndex.value =
+                              -1;
                           return;
                         }
                         controller.dashboardController.touchedPieIndex.value =
-                            pieTouchResponse.touchedSection!.touchedSectionIndex;
+                            pieTouchResponse
+                                .touchedSection!
+                                .touchedSectionIndex;
                       },
                     ),
                     sectionsSpace: 1,
@@ -1045,10 +1161,22 @@ class DashboardPage extends GetView<HomeController> {
             spacing: 12.w,
             runSpacing: 8.h,
             children: [
-              _buildLegendItem(AppColors.themeColor.completedColor, "incoming".tr),
-              _buildLegendItem(AppColors.themeColor.activekeyiconColor, "missed".tr),
-              _buildLegendItem(AppColors.themeColor.failColor, "not_answered".tr),
-              _buildLegendItem(AppColors.themeColor.primaryColor, "outgoing".tr),
+              _buildLegendItem(
+                AppColors.themeColor.completedColor,
+                "incoming".tr,
+              ),
+              _buildLegendItem(
+                AppColors.themeColor.activekeyiconColor,
+                "missed".tr,
+              ),
+              _buildLegendItem(
+                AppColors.themeColor.failColor,
+                "not_answered".tr,
+              ),
+              _buildLegendItem(
+                AppColors.themeColor.primaryColor,
+                "outgoing".tr,
+              ),
             ],
           ),
         ],
@@ -1066,7 +1194,10 @@ class DashboardPage extends GetView<HomeController> {
       decoration: BoxDecoration(
         color: AppColors.themeColor.cardBgColor,
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: AppColors.themeColor.bordercolror.withOpacity(0.5), width: 1.w),
+        border: Border.all(
+          color: AppColors.themeColor.bordercolror.withOpacity(0.5),
+          width: 1.w,
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.04),
@@ -1084,7 +1215,9 @@ class DashboardPage extends GetView<HomeController> {
               Expanded(
                 child: Text(
                   "leads_over_time".tr,
-                  style: AppTextStyle.bold8.copyWith(fontSize: AppDimens.fontSize16),
+                  style: AppTextStyle.bold8.copyWith(
+                    fontSize: AppDimens.fontSize16,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -1107,7 +1240,7 @@ class DashboardPage extends GetView<HomeController> {
               if (data.isEmpty) {
                 return SizedBox(
                   height: 200,
-                  child:  Center(child: Text("no_chart_data_available".tr)),
+                  child: Center(child: Text("no_chart_data_available".tr)),
                 );
               }
 
@@ -1147,8 +1280,12 @@ class DashboardPage extends GetView<HomeController> {
                         ),
                         borderData: FlBorderData(show: false),
                         titlesData: FlTitlesData(
-                          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                          topTitles: const AxisTitles(
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
+                          rightTitles: const AxisTitles(
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
                           bottomTitles: AxisTitles(
                             sideTitles: SideTitles(
                               showTitles: true,
@@ -1162,12 +1299,15 @@ class DashboardPage extends GetView<HomeController> {
 
                                 String label = data[index].label;
                                 String formattedLabel = label;
-                                
+
                                 // Simple date formatting if it's a date string
                                 try {
-                                  if (label.contains('-') || label.contains('/')) {
+                                  if (label.contains('-') ||
+                                      label.contains('/')) {
                                     DateTime dt = DateTime.parse(label);
-                                    formattedLabel = DateFormat('dd MMM').format(dt);
+                                    formattedLabel = DateFormat(
+                                      'dd MMM',
+                                    ).format(dt);
                                   }
                                 } catch (_) {
                                   // Fallback to original label if parsing fails
@@ -1180,7 +1320,10 @@ class DashboardPage extends GetView<HomeController> {
                                     formattedLabel,
                                     style: AppTextStyle.bold6.copyWith(
                                       fontSize: AppDimens.fontSize10,
-                                      color: AppColors.themeColor.textSecondaryColor,
+                                      color:
+                                          AppColors
+                                              .themeColor
+                                              .textSecondaryColor,
                                     ),
                                   ),
                                 );
@@ -1197,30 +1340,33 @@ class DashboardPage extends GetView<HomeController> {
                                   axisSide: meta.axisSide,
                                   child: Text(
                                     value.toInt().toString(),
-                                    style: AppTextStyle.regular6.copyWith(fontSize: AppDimens.fontSize10),
+                                    style: AppTextStyle.regular6.copyWith(
+                                      fontSize: AppDimens.fontSize10,
+                                    ),
                                   ),
                                 );
                               },
                             ),
                           ),
                         ),
-                        barGroups: data.asMap().entries.map((entry) {
-                          int index = entry.key;
-                          var spot = entry.value;
+                        barGroups:
+                            data.asMap().entries.map((entry) {
+                              int index = entry.key;
+                              var spot = entry.value;
 
-                          return BarChartGroupData(
-                            x: index,
-                            barsSpace: 10,
-                            barRods: [
-                              BarChartRodData(
-                                toY: spot.count.toDouble(),
-                                color: AppColors.themeColor.primaryColor,
-                                width: 14,
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                            ],
-                          );
-                        }).toList(),
+                              return BarChartGroupData(
+                                x: index,
+                                barsSpace: 10,
+                                barRods: [
+                                  BarChartRodData(
+                                    toY: spot.count.toDouble(),
+                                    color: AppColors.themeColor.primaryColor,
+                                    width: 14,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                ],
+                              );
+                            }).toList(),
                         barTouchData: BarTouchData(
                           enabled: true,
                           touchTooltipData: BarTouchTooltipData(
@@ -1229,7 +1375,10 @@ class DashboardPage extends GetView<HomeController> {
                               final dataItem = data[group.x.toInt()];
                               return BarTooltipItem(
                                 "Leads: ${dataItem.count}",
-                                AppTextStyle.medium7.copyWith(color: AppColors.themeColor.textPrimaryColor, fontSize: AppDimens.fontSize12),
+                                AppTextStyle.medium7.copyWith(
+                                  color: AppColors.themeColor.textPrimaryColor,
+                                  fontSize: AppDimens.fontSize12,
+                                ),
                               );
                             },
                           ),
@@ -1248,7 +1397,9 @@ class DashboardPage extends GetView<HomeController> {
               spacing: 20,
               children: [
                 _buildLegendItem(
-                    AppColors.themeColor.primaryColor, "total_leads".tr),
+                  AppColors.themeColor.primaryColor,
+                  "total_leads".tr,
+                ),
               ],
             ),
           ),
@@ -1261,11 +1412,21 @@ class DashboardPage extends GetView<HomeController> {
     return Row(
       children: [
         Obx(() {
-          if (controller.dashboardController.selectedLeadTimeFilter.value == 'Specific') {
+          if (controller.dashboardController.selectedLeadTimeFilter.value ==
+              'Specific') {
             String dateText = "select_date_range".tr;
-            if (controller.dashboardController.selectedLeadDateRange.value != null) {
-              final start = DateFormat('yyyy-MM-dd').format(controller.dashboardController.selectedLeadDateRange.value!.start);
-              final end = DateFormat('yyyy-MM-dd').format(controller.dashboardController.selectedLeadDateRange.value!.end);
+            if (controller.dashboardController.selectedLeadDateRange.value !=
+                null) {
+              final start = DateFormat('yyyy-MM-dd').format(
+                controller
+                    .dashboardController
+                    .selectedLeadDateRange
+                    .value!
+                    .start,
+              );
+              final end = DateFormat('yyyy-MM-dd').format(
+                controller.dashboardController.selectedLeadDateRange.value!.end,
+              );
               dateText = "$start → $end";
             }
             return Padding(
@@ -1276,24 +1437,44 @@ class DashboardPage extends GetView<HomeController> {
                     context: context,
                     firstDate: DateTime(2020),
                     lastDate: DateTime(2100),
-                    initialDateRange: controller.dashboardController.selectedLeadDateRange.value,
+                    initialDateRange:
+                        controller
+                            .dashboardController
+                            .selectedLeadDateRange
+                            .value,
                   );
                   if (range != null) {
                     controller.dashboardController.updateLeadDateRange(range);
                   }
                 },
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 12.w,
+                    vertical: 6.h,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.themeColor.primaryColor.withOpacity(0.05),
-                    border: Border.all(color: AppColors.themeColor.primaryColor.withOpacity(0.5), width: 1.w),
+                    border: Border.all(
+                      color: AppColors.themeColor.primaryColor.withOpacity(0.5),
+                      width: 1.w,
+                    ),
                     borderRadius: BorderRadius.circular(8.r),
                   ),
                   child: Row(
                     children: [
-                      Text(dateText, style: AppTextStyle.medium7.copyWith(fontSize: AppDimens.fontSize12, color: AppColors.themeColor.primaryColor)),
+                      Text(
+                        dateText,
+                        style: AppTextStyle.medium7.copyWith(
+                          fontSize: AppDimens.fontSize12,
+                          color: AppColors.themeColor.primaryColor,
+                        ),
+                      ),
                       SizedBox(width: 8.w),
-                      Icon(Icons.calendar_today_rounded, size: 14.sp, color: AppColors.themeColor.primaryColor),
+                      Icon(
+                        Icons.calendar_today_rounded,
+                        size: 14.sp,
+                        color: AppColors.themeColor.primaryColor,
+                      ),
                     ],
                   ),
                 ),
@@ -1307,37 +1488,67 @@ class DashboardPage extends GetView<HomeController> {
           padding: EdgeInsets.symmetric(horizontal: 12.w),
           decoration: BoxDecoration(
             color: AppColors.themeColor.cardBgColor,
-            border: Border.all(color: AppColors.themeColor.bordercolror.withOpacity(0.5), width: 1.w),
+            border: Border.all(
+              color: AppColors.themeColor.bordercolror.withOpacity(0.5),
+              width: 1.w,
+            ),
             borderRadius: BorderRadius.circular(8.r),
           ),
-          child: Obx(() => DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: controller.dashboardController.selectedLeadTimeFilter.value,
-              icon: Icon(Icons.keyboard_arrow_down_rounded, size: 18.sp, color: AppColors.themeColor.primaryColor),
-              style: AppTextStyle.medium7.copyWith(fontSize: AppDimens.fontSize12, color: AppColors.themeColor.textPrimaryColor),
-              onChanged: (String? newValue) {
-                if (newValue != null) {
-                  controller.dashboardController.updateLeadTimeFilter(newValue);
-                  if (newValue == 'Specific' && controller.dashboardController.selectedLeadDateRange.value == null) {
-                    showDateRangePicker(
-                      context: context,
-                      firstDate: DateTime(2020),
-                      lastDate: DateTime(2100),
-                    ).then((range) {
-                      if (range != null) {
-                        controller.dashboardController.updateLeadDateRange(range);
-                      } else {
-                        controller.dashboardController.updateLeadTimeFilter('Today');
-                      }
-                    });
+          child: Obx(
+            () => DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                value:
+                    controller.dashboardController.selectedLeadTimeFilter.value,
+                icon: Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  size: 18.sp,
+                  color: AppColors.themeColor.primaryColor,
+                ),
+                style: AppTextStyle.medium7.copyWith(
+                  fontSize: AppDimens.fontSize12,
+                  color: AppColors.themeColor.textPrimaryColor,
+                ),
+                onChanged: (String? newValue) {
+                  if (newValue != null) {
+                    controller.dashboardController.updateLeadTimeFilter(
+                      newValue,
+                    );
+                    if (newValue == 'Specific' &&
+                        controller
+                                .dashboardController
+                                .selectedLeadDateRange
+                                .value ==
+                            null) {
+                      showDateRangePicker(
+                        context: context,
+                        firstDate: DateTime(2020),
+                        lastDate: DateTime(2100),
+                      ).then((range) {
+                        if (range != null) {
+                          controller.dashboardController.updateLeadDateRange(
+                            range,
+                          );
+                        } else {
+                          controller.dashboardController.updateLeadTimeFilter(
+                            'Today',
+                          );
+                        }
+                      });
+                    }
                   }
-                }
-              },
-              items: ['Today', 'Week', 'Month', 'Year', 'Specific']
-                  .map((value) => DropdownMenuItem(value: value, child: Text(value.toLowerCase().tr)))
-                  .toList(),
+                },
+                items:
+                    ['Today', 'Week', 'Month', 'Year', 'Specific']
+                        .map(
+                          (value) => DropdownMenuItem(
+                            value: value,
+                            child: Text(value.toLowerCase().tr),
+                          ),
+                        )
+                        .toList(),
+              ),
             ),
-          )),
+          ),
         ),
       ],
     );
@@ -1351,7 +1562,10 @@ class DashboardPage extends GetView<HomeController> {
       decoration: BoxDecoration(
         color: AppColors.themeColor.cardBgColor,
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: AppColors.themeColor.bordercolror.withOpacity(0.5), width: 1.w),
+        border: Border.all(
+          color: AppColors.themeColor.bordercolror.withOpacity(0.5),
+          width: 1.w,
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.04),
@@ -1375,31 +1589,54 @@ class DashboardPage extends GetView<HomeController> {
                 if (controller.dashboardController.isLeadChartLoading.value) {
                   return const Center(child: CircularProgressIndicator());
                 }
-                
-                int completed = controller.dashboardController.leadCompletedPieCount.value;
-                int scheduled = controller.dashboardController.leadScheduledPieCount.value;
-                int pending = controller.dashboardController.leadPendingPieCount.value;
-                
+
+                int completed =
+                    controller.dashboardController.leadCompletedPieCount.value;
+                int scheduled =
+                    controller.dashboardController.leadScheduledPieCount.value;
+                int pending =
+                    controller.dashboardController.leadPendingPieCount.value;
+
                 if (completed == 0 && scheduled == 0 && pending == 0) {
-                  return  Center(child: Text("no_chart_data_available".tr));
+                  return Center(child: Text("no_chart_data_available".tr));
                 }
 
                 List<PieChartSectionData> pieChartSections = [];
                 List<Map<String, dynamic>> validData = [];
-                
-                if (completed > 0) validData.add({"value": completed, "color": AppColors.themeColor.completedColor});
-                if (scheduled > 0) validData.add({"value": scheduled, "color": AppColors.themeColor.activekeyiconColor});
-                if (pending > 0) validData.add({"value": pending, "color": AppColors.themeColor.failColor});
+
+                if (completed > 0)
+                  validData.add({
+                    "value": completed,
+                    "color": AppColors.themeColor.completedColor,
+                  });
+                if (scheduled > 0)
+                  validData.add({
+                    "value": scheduled,
+                    "color": AppColors.themeColor.activekeyiconColor,
+                  });
+                if (pending > 0)
+                  validData.add({
+                    "value": pending,
+                    "color": AppColors.themeColor.failColor,
+                  });
 
                 for (int i = 0; i < validData.length; i++) {
-                  bool isTouched = controller.dashboardController.touchedLeadPieIndex.value == i;
+                  bool isTouched =
+                      controller
+                          .dashboardController
+                          .touchedLeadPieIndex
+                          .value ==
+                      i;
                   pieChartSections.add(
                     PieChartSectionData(
                       color: validData[i]["color"],
                       value: validData[i]["value"].toDouble(),
                       title: isTouched ? validData[i]["value"].toString() : '',
                       radius: isTouched ? 100 : 90,
-                      titleStyle: AppTextStyle.bold11.copyWith(fontSize: AppDimens.fontSize16, color: Colors.white),
+                      titleStyle: AppTextStyle.bold11.copyWith(
+                        fontSize: AppDimens.fontSize16,
+                        color: Colors.white,
+                      ),
                     ),
                   );
                 }
@@ -1411,11 +1648,18 @@ class DashboardPage extends GetView<HomeController> {
                         if (!event.isInterestedForInteractions ||
                             pieTouchResponse == null ||
                             pieTouchResponse.touchedSection == null) {
-                          controller.dashboardController.touchedLeadPieIndex.value = -1;
+                          controller
+                              .dashboardController
+                              .touchedLeadPieIndex
+                              .value = -1;
                           return;
                         }
-                        controller.dashboardController.touchedLeadPieIndex.value =
-                            pieTouchResponse.touchedSection!.touchedSectionIndex;
+                        controller
+                            .dashboardController
+                            .touchedLeadPieIndex
+                            .value = pieTouchResponse
+                                .touchedSection!
+                                .touchedSectionIndex;
                       },
                     ),
                     sectionsSpace: 1,
@@ -1433,14 +1677,13 @@ class DashboardPage extends GetView<HomeController> {
             spacing: 12.w,
             runSpacing: 8.h,
             children: [
-               _buildLegendItem(AppColors.themeColor.failColor, "pending".tr),
+              _buildLegendItem(AppColors.themeColor.failColor, "pending".tr),
             ],
           ),
         ],
-      )
+      ),
     );
   }
-
 
   Widget _buildLegendItem(Color color, String text) {
     return Row(
@@ -1465,5 +1708,4 @@ class DashboardPage extends GetView<HomeController> {
       ],
     );
   }
-
 }

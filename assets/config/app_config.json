@@ -1,27 +1,44 @@
-//[
-//  {
-//    "app_name": "dbm_emp",
-//    "package_name": "com.digibulkmarketing.employee",
-//    "app_icon": "assets/images/Frame.png"
-//  },
-//  {
-//    "app_name": "sales tracker",
-//    "package_name": "com.my.sales",
-//    "app_icon": "assets/images/app_logo.png"
-//  },
-//  {
-//    "app_name": "customer hub",
-//    "package_name": "com.my.customer",
-//    "app_icon": "assets/images/20546697_6306474.jpg"
-//  },
-//  {
-//    "app_name": "marketing suite",
-//    "package_name": "com.my.marketing",
-//    "app_icon": "assets/images/invite others.png"
-//  },
-//  {
-//    "app_name": "lead manager",
-//    "package_name": "com.my.lead",
-//    "app_icon": "assets/images/WHATS MAN (3).png"
-//  }
-//]
+[
+  {
+    "app_name": "dialing_history",
+    "package_name": "com.example.dialing_history",
+    "app_icon": "assets/images/WHATS MAN (3).png",
+    "firebase_project_id": "apidemlo",
+    "app_id": "1:1036394779270:android:1ca2e4d524917529947707"
+  },
+  {
+    "app_name": "sales_tracker",
+    "package_name": "com.my.sales",
+    "app_icon": "assets/images/app_logo.png",
+    "firebase_project_id": "apidemlo",
+    "app_id": "1:1036394779270:android:735dcca084d123f0947707"
+  },
+  {
+    "app_name": "customer_hub",
+    "package_name": "com.my.customer",
+    "app_icon": "assets/images/20546697_6306474.jpg",
+    "firebase_project_id": "apidemlo",
+    "app_id": "1:1036394779270:android:01ec66eb4404f4ba947707"
+  },
+  {
+    "app_icon": "assets/images/app_logo.png",
+    "app_name": "marketing_suite",
+    "package_name": "com.my.marketing",
+    "firebase_project_id": "apidemlo",
+    "app_id": "1:1036394779270:android:1ad51962422cc04a947707"
+  },
+  {
+    "app_name": "Digi Bulk Marketing CRM",
+    "package_name": "com.digibulkmarketing.crm",
+    "app_icon": "assets/images/Whats man App Logo.png",
+    "firebase_project_id": "apidemlo",
+    "app_id": "1:1036394779270:android:9cadb881a7d6c1ea947707"
+  },
+  {
+    "app_name": "lead_manager",
+    "package_name": "com.my.lead",
+    "app_icon": "assets/images/app_logo.png",
+    "firebase_project_id": "apidemlo",
+    "app_id": "1:1036394779270:android:6b2fe209633255c6947707"
+  }
+]
