@@ -5,14 +5,21 @@ class AppConstants {
 
   static const String BASE_URL = 'https://api-test.digibulkmarketing.com';
 
-  // static const String _baseUrlRelease = 'https://api.digibulkmarketing.com';
-  static const String BASE_SOCKET_URL =
+  static const String _baseUrlRelease =
+      'https://app.digibulkmarketing.com/api/';
+
+  static const String _baseSocketUrlDebug =
       'https://api-test.digibulkmarketing.com';
+  static const String _baseSocketUrlRelease =
+      'https://api.digibulkmarketing.com';
+
+  static String get SOCKET_URL =>
+      kDebugMode ? _baseSocketUrlDebug : _baseSocketUrlRelease;
 
   // Dynamic API URL based on build mode
-  // static String get API_URL => kDebugMode ? BASE_URL : _baseUrlRelease;
+  static String get API_URL => kDebugMode ? BASE_URL : _baseUrlRelease;
 
-  static String get API_URL => kDebugMode ? BASE_URL : BASE_URL;
+  // static String get API_URL => kDebugMode ? BASE_URL : BASE_URL;
 
   static const Duration timeout = Duration(seconds: 30);
 
@@ -81,5 +88,6 @@ class AppConstants {
   static String API_SESSION = '$API_URL/auth/session/logout';
   static String API_USER_SETTING = '$API_URL/telecaller/user-setting';
   static String API_SWITCH_MODE = '$API_URL/telecaller/switch-mode';
-   static String API_FORM_RESPONSE = '$API_URL/telecaller/form-response/lead-contact';
+  static String API_FORM_RESPONSE =
+      '$API_URL/telecaller/form-response/lead-contact';
 }

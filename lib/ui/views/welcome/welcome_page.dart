@@ -64,8 +64,7 @@ class WelcomePage extends GetView<WelcomeController> {
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: 40.w),
                           child: Text(
-                            "${controller.onBoardingData[index]['description']}"
-                                .tr.trParams({"nl": "n".tr}),
+                            "${controller.onBoardingData[index]['description']}",
                             textAlign: TextAlign.center,
                             style: AppTextStyle.regular7.copyWith(
                               fontSize: AppDimens.fontSize12,
@@ -122,7 +121,7 @@ class WelcomePage extends GetView<WelcomeController> {
                             onPressed: () {
                               Get.to(ProminentDisclosurePage());
                             },
-                            child: Text('Skip'.tr,
+                            child: Text('Skip',
                                 style: AppTextStyle.medium7.copyWith(
                                     fontSize: AppDimens.fontSize14,
                                     color: AppColors.themeColor.textSecondaryColor,
@@ -143,7 +142,7 @@ class WelcomePage extends GetView<WelcomeController> {
                                 Get.to(ProminentDisclosurePage());
                               }
                             },
-                            child: Text('Next'.tr,
+                            child: Text('Next',
                                 style: AppTextStyle.bold7.copyWith(
                                     fontSize: AppDimens.fontSize14,
                                     color: AppColors.themeColor.primaryColor,

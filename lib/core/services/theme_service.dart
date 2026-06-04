@@ -1,4 +1,4 @@
-import 'package:animated_theme_switcher/animated_theme_switcher.dart';
+
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -29,16 +29,6 @@ class ThemeService extends GetxService {
       }
 
       await Storage.saveValue(AppConstants.IS_DARK_MODE, isDarkMode.value);
-      final theme = isDarkMode.value ? AppTheme.darkTheme : AppTheme.theme;
-      
-      try {
-        ThemeSwitcher.of(context).changeTheme(
-          theme: theme,
-        );
-      } catch (e) {
-        // Fallback if ThemeSwitcher is not found in the context tree
-        Get.changeTheme(theme);
-      }
       Get.changeThemeMode(isDarkMode.value ? ThemeMode.dark : ThemeMode.light);
       getCurrentStatusNavigationBarColor();
 

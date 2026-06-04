@@ -254,7 +254,8 @@
     "files": "Files",
     "select": "Select",
     "source": "Source",
-    "submit": "Submit"
+    "submit": "Submit",
+    "addressLine2": "Address Line 2"
   },
   "pt": {
     "welcome": "Ação",
@@ -303,7 +304,7 @@
     "fields_marked_with_are_mandatory_for_submission": "Os campos marcados com * são obrigatórios para o envio.",
     "filter_by_date": "Filtrar por data",
     "filter_by_status": "Filtrar por status",
-    "filter_leads": "Filtros de chumbo",
+    "filter_leads": "Filtros de cabos",
     "form_preview": "Pré-visualização do formulário",
     "forms_submitted": "Formulários enviados",
     "handling_customer_calls": "Atendimento telefônico ao cliente",
@@ -511,13 +512,14 @@
     "files": "Arquivos",
     "select": "Selecione",
     "source": "Fonte",
-    "submit": "Enviar"
+    "submit": "Enviar",
+    "addressLine2": "Linha de endereço 2"
   },
   "hi": {
     "welcome": "कार्रवाई",
     "active_telecallers": "सक्रिय टेलीकॉलर",
     "alert_employees_about_customer_calls": "कर्मचारियों को ग्राहक कॉल के बारे में सूचित करें",
-    "all_collected_information_is_used_only_for_employee_crm_and_": "इकट्ठी की गई सभी जानकारी का उपयोग केवल कर्मचारी सीआरएम और व्यावसायिक संचार सुविधाओं के लिए किया जाता है।",
+    "all_collected_information_is_used_only_for_employee_crm_and_": "सभी एकत्रित जानकारी का उपयोग केवल कर्मचारी सीआरएम और व्यावसायिक संचार सुविधाओं के लिए किया जाता है।",
     "all_time": "पूरे समय",
     "allow_employees_to_quickly_create_orders_notes_or_crm_update": "कर्मचारियों को कॉल में बाधा डाले बिना तुरंत ऑर्डर, नोट्स या सीआरएम अपडेट बनाने की सुविधा दें।",
     "and": "और",
@@ -547,7 +549,7 @@
     "customer_interaction_data_is_securely_transmitted_to_nhttps_": "ग्राहक संपर्क डेटा सुरक्षित रूप से https://master.digibulkmarketing.com पर भेजा जाता है।",
     "dark_mode": "डार्क मोड",
     "dashboard_overview": "डैशबोर्ड का अवलोकन",
-    "data_is_not_sold_shared_with_third_parties_or_used_for_adver": "डेटा बेचा नहीं जाता, तीसरे पक्षों के साथ साझा नहीं किया जाता और विज्ञापन के लिए उपयोग नहीं किया जाता।",
+    "data_is_not_sold_shared_with_third_parties_or_used_for_adver": "डेटा बेचा नहीं जाता, तीसरे पक्षों के साथ साझा नहीं किया जाता और न ही विज्ञापन के लिए उपयोग किया जाता है।",
     "data_is_securely_transmitted_to_company_servers": "डेटा को कंपनी के सर्वरों तक सुरक्षित रूप से पहुंचाया जाता है।",
     "data_usage_security": "डेटा उपयोग और सुरक्षा",
     "detect_incoming_and_outgoing_calls": "आने वाली और जाने वाली कॉलों का पता लगाएं",
@@ -621,7 +623,7 @@
     "the_app_does_not_delete_or_modify_personal_call_records_unre": "यह ऐप कंपनी के सीआरएम उपयोग से असंबंधित व्यक्तिगत कॉल रिकॉर्ड को हटाता या संशोधित नहीं करता है।",
     "the_app_does_not_record_call_audio_or_call_content": "यह ऐप कॉल की ऑडियो या कॉल की सामग्री को रिकॉर्ड नहीं करता है।",
     "the_app_may_create_or_update_call_interaction_entries_only_f": "यह ऐप कॉल इंटरैक्शन प्रविष्टियों को केवल सीआरएम ट्रैकिंग उद्देश्यों के लिए बना या अपडेट कर सकता है, जैसे कि:",
-    "the_app_may_request_battery_optimization_exemption_and_foreg": "विश्वसनीय रीयल-टाइम कॉल डिटेक्शन और सीआरएम सिंकिंग को बनाए रखने के लिए ऐप बैटरी ऑप्टिमाइजेशन छूट और फोरग्राउंड सेवा अनुमतियों का अनुरोध कर सकता है।",
+    "the_app_may_request_battery_optimization_exemption_and_foreg": "विश्वसनीय रीयल-टाइम कॉल डिटेक्शन और सीआरएम सिंकिंग को बनाए रखने के लिए ऐप बैटरी ऑप्टिमाइज़ेशन छूट और फोरग्राउंड सेवा अनुमतियों का अनुरोध कर सकता है।",
     "the_app_may_run_background_services_and_restart_after_device": "ऐप बैकग्राउंड में सेवाएं चला सकता है और डिवाइस रीबूट होने के बाद पुनः आरंभ हो सकता है ताकि यह सुनिश्चित हो सके:",
     "the_app_uses_call_screening_and_overlay_permissions_to": "यह ऐप कॉल स्क्रीनिंग और ओवरले अनुमतियों का उपयोग निम्न उद्देश्यों के लिए करता है:",
     "this_app_collects_and_processes_call_information_such_as": "यह ऐप कॉल संबंधी जानकारी जैसे कि:",
@@ -768,7 +770,8 @@
     "files": "फ़ाइलें",
     "select": "चुनना",
     "source": "स्रोत",
-    "submit": "जमा करना"
+    "submit": "जमा करना",
+    "addressLine2": "पता पंक्ति नं। 2"
   },
   "ta": {
     "welcome": "செயல்",
@@ -878,7 +881,7 @@
     "the_app_does_not_delete_or_modify_personal_call_records_unre": "நிறுவனத்தின் CRM பயன்பாட்டுடன் தொடர்பில்லாத தனிப்பட்ட அழைப்புப் பதிவுகளை இந்தச் செயலி நீக்கவோ அல்லது மாற்றியமைக்கவோ செய்யாது.",
     "the_app_does_not_record_call_audio_or_call_content": "இந்தச் செயலி அழைப்பு ஆடியோவையோ அல்லது அழைப்பு உள்ளடக்கத்தையோ பதிவு செய்வதில்லை.",
     "the_app_may_create_or_update_call_interaction_entries_only_f": "இந்தச் செயலி, CRM கண்காணிப்பு நோக்கங்களுக்காக மட்டுமே அழைப்புத் தொடர்புப் பதிவுகளை உருவாக்கலாம் அல்லது புதுப்பிக்கலாம், அவையாவன:",
-    "the_app_may_request_battery_optimization_exemption_and_foreg": "நம்பகமான நிகழ்நேர அழைப்பு கண்டறிதல் மற்றும் CRM ஒத்திசைவைப் பராமரிப்பதற்காக, இந்தச் செயலி பேட்டரி உகப்பாக்க விலக்கு மற்றும் முன்புற சேவை அனுமதிகளைக் கோரக்கூடும்.",
+    "the_app_may_request_battery_optimization_exemption_and_foreg": "நம்பகமான நிகழ்நேர அழைப்புக் கண்டறிதல் மற்றும் CRM ஒத்திசைவைப் பராமரிப்பதற்காக, இந்தச் செயலி பேட்டரி உகப்பாக்க விலக்கு மற்றும் முன்புறச் சேவை அனுமதிகளைக் கோரக்கூடும்.",
     "the_app_may_run_background_services_and_restart_after_device": "பின்வருவனவற்றை உறுதி செய்வதற்காக, செயலி பின்னணி சேவைகளை இயக்கக்கூடும் மற்றும் சாதனம் மறுதொடக்கம் செய்யப்பட்ட பிறகு மீண்டும் தொடங்கப்படலாம்:",
     "the_app_uses_call_screening_and_overlay_permissions_to": "இந்தச் செயலி, அழைப்புத் திரையிடல் மற்றும் மேலடுக்கு அனுமதிகளைப் பின்வருவனவற்றுக்காகப் பயன்படுத்துகிறது:",
     "this_app_collects_and_processes_call_information_such_as": "இந்தச் செயலி பின்வரும் அழைப்புத் தகவல்களைச் சேகரித்துச் செயலாக்குகிறது:",
@@ -1025,7 +1028,8 @@
     "files": "கோப்புகள்",
     "select": "தேர்ந்தெடுக்கவும்",
     "source": "ஆதாரம்",
-    "submit": "சமர்ப்பிக்கவும்"
+    "submit": "சமர்ப்பிக்கவும்",
+    "addressLine2": "முகவரி வரி 2"
   },
   "te": {
     "welcome": "చర్య",
@@ -1282,7 +1286,8 @@
     "files": "ఫైల్స్",
     "select": "ఎంచుకోండి",
     "source": "మూలం",
-    "submit": "సమర్పించండి"
+    "submit": "సమర్పించండి",
+    "addressLine2": "చిరునామా లైన్ 2"
   },
   "es": {
     "welcome": "Acción",
@@ -1322,7 +1327,7 @@
     "data_is_securely_transmitted_to_company_servers": "Los datos se transmiten de forma segura a los servidores de la empresa.",
     "data_usage_security": "Uso y seguridad de los datos",
     "detect_incoming_and_outgoing_calls": "Detectar llamadas entrantes y salientes",
-    "digi_bulk_marketing_employee_is_a_company_crm_and_customer_m": "Digi Bulk Marketing – Employee es una aplicación de CRM y gestión de clientes para empresas, diseñada para empleados registrados. Para ofrecer sus funciones principales, esta aplicación requiere acceso a ciertos permisos del teléfono y del sistema.",
+    "digi_bulk_marketing_employee_is_a_company_crm_and_customer_m": "Digi Bulk Marketing – Employee es una aplicación de CRM y gestión de clientes diseñada para empleados registrados. Para ofrecer sus funciones principales, esta aplicación requiere acceso a ciertos permisos del teléfono y del sistema.",
     "disable_battery_optimization": "Desactivar la optimización de la batería",
     "displaying_customer_details_and_interaction_history_during_c": "Mostrar los detalles del cliente y el historial de interacciones durante las llamadas.",
     "don_t_recieve_verification_code": "¿No recibes el código de verificación?",
@@ -1331,7 +1336,7 @@
     "fields_marked_with_are_mandatory_for_submission": "Los campos marcados con * son obligatorios para la presentación.",
     "filter_by_date": "Filtrar por fecha",
     "filter_by_status": "Filtrar por estado",
-    "filter_leads": "Cables de filtro",
+    "filter_leads": "Filtrar cables",
     "form_preview": "Vista previa del formulario",
     "forms_submitted": "Formularios enviados",
     "handling_customer_calls": "Gestión de llamadas de clientes",
@@ -1504,8 +1509,8 @@
     "city_required": "Se requiere la ciudad",
     "enter_valid_city": "Por favor, introduzca una ciudad válida.",
     "enter_state": "Ingrese el estado",
-    "state_required": "Se requiere estado",
-    "enter_valid_state": "Por favor, ingrese un estado válido",
+    "state_required": "Se requiere el estado",
+    "enter_valid_state": "Por favor, ingrese un estado válido.",
     "select_country_required": "Seleccione un país",
     "enter_zip_code": "Ingrese el código postal",
     "zip_code_required": "Se requiere el código postal.",
@@ -1539,7 +1544,8 @@
     "files": "Archivos",
     "select": "Seleccionar",
     "source": "Fuente",
-    "submit": "Entregar"
+    "submit": "Entregar",
+    "addressLine2": "Línea de dirección 2"
   },
   "fr": {
     "welcome": "Action",
@@ -1796,7 +1802,8 @@
     "files": "Fichiers",
     "select": "Sélectionner",
     "source": "Source",
-    "submit": "Soumettre"
+    "submit": "Soumettre",
+    "addressLine2": "Ligne d'adresse 2"
   },
   "ar": {
     "welcome": "الاجراء",
@@ -2053,7 +2060,8 @@
     "files": "بين",
     "select": "بين",
     "source": "بين",
-    "submit": "بين"
+    "submit": "بين",
+    "addressLine2": "بين"
   },
   "th": {
     "welcome": "การกระทำ",
@@ -2310,12 +2318,13 @@
     "files": "ไฟล์",
     "select": "เลือก",
     "source": "แหล่งที่มา",
-    "submit": "ส่ง"
+    "submit": "ส่ง",
+    "addressLine2": "ที่อยู่บรรทัดที่ 2"
   },
   "ms": {
     "welcome": "Tindakan",
     "active_telecallers": "Pemanggil Tele Aktif",
-    "alert_employees_about_customer_calls": "Maklumkan kepada pekerja tentang panggilan pelanggan",
+    "alert_employees_about_customer_calls": "Maklumkan pekerja tentang panggilan pelanggan",
     "all_collected_information_is_used_only_for_employee_crm_and_": "Semua maklumat yang dikumpul hanya digunakan untuk CRM pekerja dan ciri komunikasi perniagaan",
     "all_time": "Sepanjang Masa",
     "allow_employees_to_quickly_create_orders_notes_or_crm_update": "Benarkan pekerja membuat pesanan, nota atau kemas kini CRM dengan cepat tanpa mengganggu panggilan",
@@ -2365,7 +2374,7 @@
     "handling_customer_calls": "Mengendalikan panggilan pelanggan",
     "i_agree": "Saya Setuju",
     "i_agree_to_the": "Saya bersetuju dengan",
-    "i_allow_digi_bulk_marketing_employee_to_access_call_log_and_": "Saya membenarkan Digi Bulk Marketing – Pekerja untuk mengakses maklumat Log Panggilan dan Telefon untuk ciri CRM dan pengurusan panggilan.",
+    "i_allow_digi_bulk_marketing_employee_to_access_call_log_and_": "Saya membenarkan Digi Bulk Marketing – Pekerja mengakses maklumat Log Panggilan dan Telefon untuk ciri CRM dan pengurusan panggilan.",
     "identifying_customers_during_incoming_and_outgoing_calls": "Mengenal pasti pelanggan semasa panggilan masuk dan keluar",
     "if_permissions_are_denied_call_related_crm_features_and_call": "Jika kebenaran ditolak, ciri CRM berkaitan panggilan dan pengenalpastian pemanggil mungkin tidak berfungsi",
     "important_permission_disclosure_user_consent": "Pendedahan Kebenaran Penting & Persetujuan Pengguna",
@@ -2567,7 +2576,8 @@
     "files": "Fail",
     "select": "Pilih",
     "source": "Sumber",
-    "submit": "Hantar"
+    "submit": "Hantar",
+    "addressLine2": "Alamat Baris 2"
   },
   "de": {
     "welcome": "Aktion",
@@ -2609,7 +2619,7 @@
     "detect_incoming_and_outgoing_calls": "Eingehende und ausgehende Anrufe erkennen",
     "digi_bulk_marketing_employee_is_a_company_crm_and_customer_m": "Digi Bulk Marketing – Employee ist eine CRM- und Kundenverwaltungsanwendung für registrierte Mitarbeiter. Um die wichtigsten Geschäftsfunktionen bereitzustellen, benötigt diese App Zugriff auf bestimmte Telefon- und Systemberechtigungen.",
     "disable_battery_optimization": "Batterieoptimierung deaktivieren",
-    "displaying_customer_details_and_interaction_history_during_c": "Anzeige von Kundendaten und Interaktionsverlauf während Anrufen",
+    "displaying_customer_details_and_interaction_history_during_c": "Anzeige von Kundendetails und Interaktionsverlauf während Anrufen",
     "don_t_recieve_verification_code": "Sie erhalten keinen Bestätigungscode?",
     "enter_phone_number_to_send_one_nltime_password": "Geben Sie die Telefonnummer ein, um ein @nlTime-Passwort zu senden.",
     "failed_to_save_consent_please_try_again": "Die Einwilligung konnte nicht gespeichert werden. Bitte versuchen Sie es erneut.",
@@ -2679,7 +2689,7 @@
     "the_app_may_create_or_update_call_interaction_entries_only_f": "Die App erstellt oder aktualisiert Anrufinteraktionseinträge ausschließlich zu CRM-Tracking-Zwecken, wie zum Beispiel:",
     "the_app_may_request_battery_optimization_exemption_and_foreg": "Die App kann Ausnahmen von der Akkuoptimierung und Berechtigungen für Vordergrunddienste anfordern, um eine zuverlässige Echtzeit-Anruferkennung und CRM-Synchronisierung zu gewährleisten.",
     "the_app_may_run_background_services_and_restart_after_device": "Die App kann Hintergrunddienste ausführen und nach einem Neustart des Geräts neu starten, um Folgendes zu gewährleisten:",
-    "the_app_uses_call_screening_and_overlay_permissions_to": "Die App nutzt Anruferkennungs- und Overlay-Berechtigungen, um:",
+    "the_app_uses_call_screening_and_overlay_permissions_to": "Die App nutzt Anruferkennungs- und Overlay-Berechtigungen für folgende Zwecke:",
     "this_app_collects_and_processes_call_information_such_as": "Diese App sammelt und verarbeitet Anrufinformationen wie zum Beispiel:",
     "this_information_is_used_only_for_business_crm_functionality": "Diese Informationen werden ausschließlich für die CRM-Funktionalität des Unternehmens verwendet, einschließlich:",
     "to_ensure_24_7_auto_calling_works_correctly_please_disable_b": "Um sicherzustellen, dass die automatische Anruffunktion rund um die Uhr ordnungsgemäß funktioniert, deaktivieren Sie bitte die Akkuoptimierung und aktivieren Sie die Option „Automatischer Start“ für diese App.",
@@ -2733,7 +2743,7 @@
     "resume": "Wieder aufnehmen",
     "stop": "Stoppen",
     "start_dialer": "Wählprogramm starten",
-    "success_rate": "Erfolgsquote",
+    "success_rate": "Erfolgsrate",
     "select_a_lead": "Wählen Sie einen Lead aus",
     "lead_dataset": "Lead-Datensatz",
     "select_a_campaign…": "Wählen Sie eine Kampagne aus…",
@@ -2824,7 +2834,8 @@
     "files": "Dateien",
     "select": "Wählen",
     "source": "Quelle",
-    "submit": "Einreichen"
+    "submit": "Einreichen",
+    "addressLine2": "Adresszeile 2"
   },
   "id": {
     "welcome": "Tindakan",
@@ -2889,7 +2900,7 @@
     "linking_calls_to_customer_orders": "Menghubungkan panggilan dengan pesanan pelanggan",
     "mahesh_talaviya": "Mahesh Talaviya",
     "maintaining_business_interaction_history": "Memelihara riwayat interaksi bisnis",
-    "maintaining_call_history_backup_across_authorized_devices": "Melakukan pencadangan riwayat panggilan di seluruh perangkat yang diizinkan.",
+    "maintaining_call_history_backup_across_authorized_devices": "Mempertahankan cadangan riwayat panggilan di seluruh perangkat yang diizinkan.",
     "no_chart_data_available": "Tidak ada data grafik yang tersedia.",
     "no_dates": "Tidak ada tanggal",
     "no_name": "Tanpa Nama",
@@ -3072,7 +3083,7 @@
     "enter_a_valid_url": "Silakan masukkan URL yang valid",
     "is_required": "diperlukan",
     "latitude_is_required": "Garis lintang diperlukan",
-    "longitude_is_required": "Garis bujur diperlukan.",
+    "longitude_is_required": "Garis bujur diperlukan",
     "validation_error": "Kesalahan Validasi",
     "please_select_a_value_for": "Silakan pilih nilai untuk",
     "form_locked": "Formulir Terkunci",
@@ -3081,7 +3092,8 @@
     "files": "Berkas",
     "select": "Memilih",
     "source": "Sumber",
-    "submit": "Kirim"
+    "submit": "Kirim",
+    "addressLine2": "Baris Alamat 2"
   },
   "tr": {
     "welcome": "Aksiyon",
@@ -3297,7 +3309,7 @@
     "enter_valid_email": "Lütfen geçerli bir e-posta adresi girin.",
     "enter_address_line_1": "Adres Satırı 1'i Girin",
     "address_line_1_required": "Adres satırı 1 zorunludur.",
-    "enter_address_line_2": "2. Adres Satırını Girin",
+    "enter_address_line_2": "Adres Satırı 2'yi Girin",
     "address_line_2_required": "Adres satırı 2 zorunludur.",
     "enter_city": "Şehre girin",
     "city_required": "Şehir gereklidir.",
@@ -3338,7 +3350,8 @@
     "files": "Dosyalar",
     "select": "Seçme",
     "source": "Kaynak",
-    "submit": "Göndermek"
+    "submit": "Göndermek",
+    "addressLine2": "Adres Satırı 2"
   },
   "ru": {
     "welcome": "Действие",
@@ -3595,12 +3608,13 @@
     "files": "Файлы",
     "select": "Выбирать",
     "source": "Источник",
-    "submit": "Представлять на рассмотрение"
+    "submit": "Представлять на рассмотрение",
+    "addressLine2": "Адресная строка 2"
   },
   "bn": {
     "welcome": "অ্যাকশন",
     "active_telecallers": "সক্রিয় টেলিকলাররা",
-    "alert_employees_about_customer_calls": "গ্রাহকদের ফোন কল সম্পর্কে কর্মচারীদের সতর্ক করুন।",
+    "alert_employees_about_customer_calls": "গ্রাহকদের কল সম্পর্কে কর্মচারীদের সতর্ক করুন।",
     "all_collected_information_is_used_only_for_employee_crm_and_": "সংগৃহীত সমস্ত তথ্য শুধুমাত্র কর্মচারী সিআরএম এবং ব্যবসায়িক যোগাযোগের বৈশিষ্ট্যগুলির জন্য ব্যবহৃত হয়।",
     "all_time": "সর্বকালের",
     "allow_employees_to_quickly_create_orders_notes_or_crm_update": "কর্মচারীদের কল বাধা না দিয়েই দ্রুত অর্ডার, নোট বা CRM আপডেট তৈরি করার সুযোগ দিন।",
@@ -3659,7 +3673,7 @@
     "leads_over_time": "সময়ের সাথে সাথে নেতৃত্ব",
     "linking_calls_to_customer_orders": "গ্রাহকের অর্ডারের সাথে কল সংযুক্ত করা",
     "mahesh_talaviya": "মহেশ তালাভিয়া",
-    "maintaining_business_interaction_history": "ব্যবসায়িক লেনদেনের ইতিহাস বজায় রাখা",
+    "maintaining_business_interaction_history": "ব্যবসায়িক যোগাযোগের ইতিহাস বজায় রাখা",
     "maintaining_call_history_backup_across_authorized_devices": "অনুমোদিত ডিভাইস জুড়ে কল হিস্ট্রি ব্যাকআপ বজায় রাখা",
     "no_chart_data_available": "কোন চার্ট ডেটা উপলব্ধ নেই",
     "no_dates": "কোন তারিখ নেই",
@@ -3669,7 +3683,7 @@
     "not_answered_12": "উত্তর দেওয়া হয়নি: ১২",
     "notification_page": "বিজ্ঞপ্তি পৃষ্ঠা",
     "notification_permission_is_used_to": "নোটিফিকেশন পারমিশন নিম্নলিখিত ক্ষেত্রে ব্যবহৃত হয়:",
-    "open_manufacturer_settings_auto_start": "প্রস্তুতকারকের সেটিংস খুলুন (স্বয়ংক্রিয়-শুরু)",
+    "open_manufacturer_settings_auto_start": "প্রস্তুতকারকের সেটিংস খুলুন (স্বয়ংক্রিয়-চালু)",
     "otp_verification": "ওটিপি যাচাইকরণ",
     "permission_disclosure": "অনুমতি প্রকাশ",
     "permissions_are_requested_only_after_your_explicit_consent": "আপনার সুস্পষ্ট সম্মতির পরেই অনুমতি চাওয়া হয়।",
@@ -3806,7 +3820,7 @@
     "enter_name": "নাম লিখুন",
     "name_required": "নাম আবশ্যক",
     "enter_valid_name": "অনুগ্রহ করে একটি বৈধ নাম লিখুন",
-    "enter_email": "ইমেল লিখুন",
+    "enter_email": "ইমেল প্রবেশ করান",
     "email_required": "ইমেল আবশ্যক",
     "enter_valid_email": "অনুগ্রহ করে একটি বৈধ ইমেল প্রবেশ করান।",
     "enter_address_line_1": "ঠিকানা লাইন ১ লিখুন",
@@ -3852,7 +3866,8 @@
     "files": "ফাইল",
     "select": "নির্বাচন করুন",
     "source": "উৎস",
-    "submit": "জমা দিন"
+    "submit": "জমা দিন",
+    "addressLine2": "ঠিকানা লাইন ২"
   },
   "km": {
     "welcome": "សកម្មភាព",
@@ -3968,7 +3983,7 @@
     "this_app_collects_and_processes_call_information_such_as": "កម្មវិធីនេះប្រមូល និងដំណើរការព័ត៌មានការហៅទូរសព្ទដូចជា៖",
     "this_information_is_used_only_for_business_crm_functionality": "ព័ត៌មាននេះត្រូវបានប្រើប្រាស់សម្រាប់តែមុខងារ CRM អាជីវកម្មប៉ុណ្ណោះ រួមមាន៖",
     "to_ensure_24_7_auto_calling_works_correctly_please_disable_b": "ដើម្បីធានាថាការហៅទូរសព្ទដោយស្វ័យប្រវត្តិ 24/7 ដំណើរការបានត្រឹមត្រូវ សូមបិទមុខងារបង្កើនប្រសិទ្ធភាពថ្ម ហើយបើក 'ចាប់ផ្តើមដោយស្វ័យប្រវត្តិ' សម្រាប់កម្មវិធីនេះ។",
-    "token_sent_successfully": "✅ សញ្ញាសម្ងាត់ត្រូវបានផ្ញើដោយជោគជ័យ",
+    "token_sent_successfully": "✅ ថូខឹនត្រូវបានផ្ញើដោយជោគជ័យ",
     "tracking_employee_call_activity_and_performance_analytics": "តាមដានសកម្មភាពហៅទូរសព្ទរបស់បុគ្គលិក និងការវិភាគការអនុវត្ត",
     "triggering_syncnow": "nhạc កំពុង​បង្ក​ឲ្យ​មាន​ការ​ធ្វើ​សមកាលកម្ម...",
     "unknown_contact": "ទំនាក់ទំនងមិនស្គាល់",
@@ -4109,7 +4124,8 @@
     "files": "ឯកសារ",
     "select": "ជ្រើសរើស",
     "source": "ប្រភព",
-    "submit": "ដាក់ស្នើ"
+    "submit": "ដាក់ស្នើ",
+    "addressLine2": "អាសយដ្ឋានជួរទី 2"
   },
   "he": {
     "welcome": "פְּעוּלָה",
@@ -4142,7 +4158,7 @@
     "continuous_call_detection": "זיהוי שיחות רציף",
     "crm_data_synchronization": "סנכרון נתוני CRM",
     "customer_inquiries_received": "פניות לקוחות שהתקבלו",
-    "customer_interaction_data_is_securely_transmitted_to_nhttps_": "נתוני אינטראקציה עם הלקוח מועברים בצורה מאובטחת אל: https://master.digibulkmarketing.com",
+    "customer_interaction_data_is_securely_transmitted_to_nhttps_": "נתוני אינטראקציה עם הלקוחות מועברים בצורה מאובטחת אל: https://master.digibulkmarketing.com",
     "dark_mode": "מצב כהה",
     "dashboard_overview": "סקירת לוח המחוונים",
     "data_is_not_sold_shared_with_third_parties_or_used_for_adver": "הנתונים אינם נמכרים, משותפים עם צדדים שלישיים או משמשים לפרסום",
@@ -4235,7 +4251,7 @@
     "verification_code": "קוד אימות",
     "we_have_send_the_verification_code_nlon_your_mobile_number": "שלחנו את קוד האימות @nlלמספר הנייד שלך",
     "write_call_log_access": "גישה ליומן שיחות כתובה",
-    "you_may_deny_or_revoke_permissions_anytime_from_device_setti": "ניתן לדחות או לבטל הרשאות בכל עת מהגדרות המכשיר",
+    "you_may_deny_or_revoke_permissions_anytime_from_device_setti": "באפשרותך לדחות או לבטל הרשאות בכל עת מהגדרות המכשיר",
     "orders": "הזמנות",
     "total": "סַך הַכֹּל",
     "all": "כֹּל",
@@ -4366,7 +4382,8 @@
     "files": "קבצים",
     "select": "לִבחוֹר",
     "source": "מָקוֹר",
-    "submit": "לְהַגִישׁ"
+    "submit": "לְהַגִישׁ",
+    "addressLine2": "שורת כתובת 2"
   },
   "ur": {
     "welcome": "ایکشن",
@@ -4402,7 +4419,7 @@
     "customer_interaction_data_is_securely_transmitted_to_nhttps_": "کسٹمر کی بات چیت کا ڈیٹا محفوظ طریقے سے اس پر منتقل کیا جاتا ہے:\\nhttps://master.digibulkmarketing.com",
     "dark_mode": "ڈارک موڈ",
     "dashboard_overview": "ڈیش بورڈ کا جائزہ",
-    "data_is_not_sold_shared_with_third_parties_or_used_for_adver": "ڈیٹا فروخت نہیں کیا جاتا، فریقین ثالث کے ساتھ اشتراک نہیں کیا جاتا، یا تشہیر کے لیے استعمال نہیں کیا جاتا",
+    "data_is_not_sold_shared_with_third_parties_or_used_for_adver": "ڈیٹا کو فروخت نہیں کیا جاتا، تیسرے فریقوں کے ساتھ اشتراک نہیں کیا جاتا، یا اشتہارات کے لیے استعمال نہیں کیا جاتا",
     "data_is_securely_transmitted_to_company_servers": "ڈیٹا کو محفوظ طریقے سے کمپنی کے سرورز پر منتقل کیا جاتا ہے۔",
     "data_usage_security": "ڈیٹا کا استعمال اور سیکیورٹی",
     "detect_incoming_and_outgoing_calls": "آنے والی اور جانے والی کالوں کا پتہ لگائیں۔",
@@ -4464,7 +4481,7 @@
     "select_country": "ملک منتخب کریں۔",
     "select_date_range": "تاریخ کی حد منتخب کریں۔",
     "sending_token_to_backgroundservice": "📤 بیک گراؤنڈ سروس کو ٹوکن بھیجنا...",
-    "show_customer_information_on_screen_during_calls": "کال کے دوران اسکرین پر کسٹمر کی معلومات دکھائیں۔",
+    "show_customer_information_on_screen_during_calls": "کال کے دوران کسٹمر کی معلومات اسکرین پر دکھائیں۔",
     "sort_leads_by": "لیڈز کو ترتیب دیں۔",
     "specific_time": "مخصوص وقت",
     "start_date_end_date": "تاریخ آغاز → اختتامی تاریخ",
@@ -4478,7 +4495,7 @@
     "the_app_may_create_or_update_call_interaction_entries_only_f": "ایپ صرف CRM سے باخبر رہنے کے مقاصد کے لیے کال کے تعامل کے اندراجات تخلیق یا اپ ڈیٹ کر سکتی ہے جیسے:",
     "the_app_may_request_battery_optimization_exemption_and_foreg": "قابل اعتماد ریئل ٹائم کال کا پتہ لگانے اور CRM کی مطابقت پذیری کو برقرار رکھنے کے لیے ایپ بیٹری آپٹیمائزیشن چھوٹ اور پیش منظر کی خدمت کی اجازت کی درخواست کر سکتی ہے۔",
     "the_app_may_run_background_services_and_restart_after_device": "ایپ بیک گراؤنڈ سروسز چلا سکتی ہے اور ڈیوائس ریبوٹ کے بعد دوبارہ شروع کر سکتی ہے تاکہ یہ یقینی بنایا جا سکے:",
-    "the_app_uses_call_screening_and_overlay_permissions_to": "ایپ کال اسکریننگ اور اوورلے کی اجازتوں کو استعمال کرتی ہے:",
+    "the_app_uses_call_screening_and_overlay_permissions_to": "ایپ کال اسکریننگ اور اوورلے کی اجازتوں کا استعمال کرتی ہے:",
     "this_app_collects_and_processes_call_information_such_as": "یہ ایپ کال کی معلومات اکٹھا کرتی ہے اور اس پر کارروائی کرتی ہے جیسے:",
     "this_information_is_used_only_for_business_crm_functionality": "یہ معلومات صرف کاروباری CRM فعالیت کے لیے استعمال ہوتی ہے، بشمول:",
     "to_ensure_24_7_auto_calling_works_correctly_please_disable_b": "یہ یقینی بنانے کے لیے کہ 24/7 آٹو کالنگ درست طریقے سے کام کرتی ہے، براہ کرم بیٹری کی اصلاح کو غیر فعال کریں اور اس ایپ کے لیے 'آٹو اسٹارٹ' کو فعال کریں۔",
@@ -4519,7 +4536,7 @@
     "leads_contact": "لیڈز رابطہ",
     "interested": "دلچسپی",
     "not_interested": "دلچسپی نہیں ہے۔",
-    "follow_up": "فالو اپ",
+    "follow_up": "فالو اپ کریں۔",
     "no_response": "کوئی جواب نہیں۔",
     "auto_dialer": "آٹو ڈائلر",
     "campaign_performance": "مہم کی کارکردگی",
@@ -4552,7 +4569,7 @@
     "i_read_and_accepted_the": "میں نے پڑھا اور قبول کیا۔",
     "continue": "جاری رکھیں",
     "create-at": "پر تخلیق کیا گیا۔",
-    "start_date": "شروع کی تاریخ",
+    "start_date": "آغاز کی تاریخ",
     "end_date": "اختتامی تاریخ",
     "name": "نام",
     "email": "ای میل",
@@ -4623,7 +4640,8 @@
     "files": "فائلیں",
     "select": "منتخب کریں۔",
     "source": "ماخذ",
-    "submit": "جمع کروائیں۔"
+    "submit": "جمع کروائیں۔",
+    "addressLine2": "ایڈریس لائن 2"
   },
   "el": {
     "welcome": "Δράση",
@@ -4880,7 +4898,8 @@
     "files": "Αρχεία",
     "select": "Επιλέγω",
     "source": "Πηγή",
-    "submit": "Υποτάσσομαι"
+    "submit": "Υποτάσσομαι",
+    "addressLine2": "Γραμμή Διεύθυνσης 2"
   },
   "pl": {
     "welcome": "Działanie",
@@ -4987,7 +5006,7 @@
     "tagging_customer_calls": "Oznaczanie połączeń klientów",
     "tap_to_change_file": "Kliknij, aby zmienić plik",
     "terms_conditions": "Warunki korzystania",
-    "the_app_does_not_delete_or_modify_personal_call_records_unre": "Aplikacja NIE usuwa ani nie modyfikuje osobistych rejestrów połączeń niezwiązanych z użytkowaniem firmowego systemu CRM.",
+    "the_app_does_not_delete_or_modify_personal_call_records_unre": "Aplikacja NIE usuwa ani nie modyfikuje osobistych rejestrów połączeń niezwiązanych z korzystaniem z firmowego systemu CRM.",
     "the_app_does_not_record_call_audio_or_call_content": "Aplikacja NIE nagrywa dźwięku ani treści rozmów.",
     "the_app_may_create_or_update_call_interaction_entries_only_f": "Aplikacja może tworzyć lub aktualizować wpisy interakcji połączeń wyłącznie w celach śledzenia CRM, takich jak:",
     "the_app_may_request_battery_optimization_exemption_and_foreg": "Aplikacja może żądać wyjątku od optymalizacji baterii i uprawnień do usług na pierwszym planie, aby zapewnić niezawodne wykrywanie połączeń w czasie rzeczywistym i synchronizację CRM.",
@@ -5137,7 +5156,8 @@
     "files": "Akta",
     "select": "Wybierać",
     "source": "Źródło",
-    "submit": "Składać"
+    "submit": "Składać",
+    "addressLine2": "Adres wiersz 2"
   },
   "nl": {
     "welcome": "Actie",
@@ -5225,7 +5245,7 @@
     "please_fill_in_all_required_fields_your_responses_ensure_acc": "Vul alle verplichte velden in. Uw antwoorden zorgen voor een nauwkeurige leadregistratie en een betere service-opvolging.",
     "privacy_policy": "Privacybeleid",
     "processed_purchases": "Verwerkte aankopen",
-    "provide_crm_reminders_and_business_updates": "Geef CRM-herinneringen en zakelijke updates door.",
+    "provide_crm_reminders_and_business_updates": "Geef CRM-herinneringen en zakelijke updates.",
     "refreshing_settings_page": "Instellingenpagina vernieuwen",
     "reliable_employee_productivity_tools": "Betrouwbare tools voor het verhogen van de productiviteit van medewerkers",
     "resend_otp": "OTP opnieuw verzenden",
@@ -5262,7 +5282,7 @@
     "user_control": "Gebruikersbesturing",
     "verification_code": "Verificatiecode",
     "we_have_send_the_verification_code_nlon_your_mobile_number": "We hebben de verificatiecode naar uw mobiele nummer verzonden.",
-    "write_call_log_access": "Toegang tot het oproeplogboek schrijven",
+    "write_call_log_access": "Toegang tot oproeplogboek schrijven",
     "you_may_deny_or_revoke_permissions_anytime_from_device_setti": "U kunt machtigingen op elk moment weigeren of intrekken via de apparaatinstellingen.",
     "orders": "Bestellingen",
     "total": "Totaal",
@@ -5394,7 +5414,8 @@
     "files": "Bestanden",
     "select": "Select",
     "source": "Bron",
-    "submit": "Indienen"
+    "submit": "Indienen",
+    "addressLine2": "Adresregel 2"
   },
   "uk": {
     "welcome": "Дія",
@@ -5413,7 +5434,7 @@
     "battery_optimization_foreground_services": "Оптимізація батареї та передні служби",
     "call_disposition": "Розподіл викликів",
     "call_duration": "Тривалість дзвінка",
-    "call_log_phone_information_access": "Журнал викликів та доступ до інформації про телефон",
+    "call_log_phone_information_access": "Доступ до журналу викликів та інформації про телефон",
     "call_next": "Далі зателефонуйте",
     "call_screening_overlay_display": "Фільтрування викликів та накладання дисплея",
     "call_status_distribution": "Розподіл статусу виклику",
@@ -5443,7 +5464,7 @@
     "fields_marked_with_are_mandatory_for_submission": "Поля, позначені *, обов'язкові для подання.",
     "filter_by_date": "Фільтрувати за датою",
     "filter_by_status": "Фільтрувати за статусом",
-    "filter_leads": "Фільтрувати потенційних клієнтів",
+    "filter_leads": "Фільтр лідів",
     "form_preview": "Попередній перегляд форми",
     "forms_submitted": "Надіслані форми",
     "handling_customer_calls": "Обробка дзвінків клієнтів",
@@ -5463,7 +5484,7 @@
     "no_chart_data_available": "Дані діаграми недоступні",
     "no_dates": "Без дат",
     "no_name": "Без імені",
-    "no_valid_token_found_to_send": "⚠️ Не знайдено дійсного токена для надсилання!",
+    "no_valid_token_found_to_send": "⚠️ Не знайдено дійсний токен для надсилання!",
     "not_answered": "Без відповіді",
     "not_answered_12": "Не відповіли: 12",
     "notification_page": "Сторінка сповіщень",
@@ -5475,14 +5496,14 @@
     "permissions_saved_to_storage": "✅ Дозволи збережено в сховищі",
     "phone_numbers": "Номери телефонів",
     "phonestatusservice_initialized_in_permissionscreen": "✅ PhoneStatusService ініціалізовано на екрані дозволу",
-    "pick_date": "Вибрати дату",
+    "pick_date": "Дата вибору",
     "please_accept_all_permissions_to_continue": "Будь ласка, прийміть усі дозволи, щоб продовжити",
     "please_check_the_terms_and_conditions_to_continue": "Будь ласка, перевірте умови та положення, щоб продовжити",
     "please_enter_a_valid_phone_number": "Будь ласка, введіть дійсний номер телефону",
     "please_fill_in_all_required_fields_your_responses_ensure_acc": "Будь ласка, заповніть усі обов'язкові поля. Ваші відповіді забезпечують точне відстеження потенційних клієнтів та краще подальше обслуговування.",
     "privacy_policy": "Політика конфіденційності",
     "processed_purchases": "Оброблені покупки",
-    "provide_crm_reminders_and_business_updates": "Надавати нагадування CRM та оновлення бізнесу",
+    "provide_crm_reminders_and_business_updates": "Надавати нагадування CRM та оновлення для бізнесу",
     "refreshing_settings_page": "Оновлення сторінки налаштувань",
     "reliable_employee_productivity_tools": "Надійні інструменти для підвищення продуктивності співробітників",
     "resend_otp": "Надіслати одноразовий пароль ще раз",
@@ -5641,7 +5662,7 @@
     "enter_a_valid_number": "Будь ласка, введіть дійсний номер",
     "enter_a_valid_url": "Будь ласка, введіть дійсну URL-адресу",
     "is_required": "обов'язковий",
-    "latitude_is_required": "Потрібно вказати широту",
+    "latitude_is_required": "Широта обов'язкова",
     "longitude_is_required": "Потрібно вказати довготу",
     "validation_error": "Помилка перевірки",
     "please_select_a_value_for": "Будь ласка, виберіть значення для",
@@ -5651,7 +5672,8 @@
     "files": "Файли",
     "select": "Виберіть",
     "source": "Джерело",
-    "submit": "Надіслати"
+    "submit": "Надіслати",
+    "addressLine2": "Рядок адреси 2"
   },
   "vi": {
     "welcome": "Hoạt động",
@@ -5684,7 +5706,7 @@
     "continuous_call_detection": "Phát hiện cuộc gọi liên tục",
     "crm_data_synchronization": "Đồng bộ hóa dữ liệu CRM",
     "customer_inquiries_received": "Các yêu cầu của khách hàng đã được nhận",
-    "customer_interaction_data_is_securely_transmitted_to_nhttps_": "Dữ liệu tương tác khách hàng được truyền tải an toàn đến: https://master.digibulkmarketing.com",
+    "customer_interaction_data_is_securely_transmitted_to_nhttps_": "Dữ liệu tương tác của khách hàng được truyền tải an toàn đến: https://master.digibulkmarketing.com",
     "dark_mode": "Chế độ tối",
     "dashboard_overview": "Tổng quan bảng điều khiển",
     "data_is_not_sold_shared_with_third_parties_or_used_for_adver": "Dữ liệu KHÔNG được bán, chia sẻ với bên thứ ba hoặc sử dụng cho mục đích quảng cáo.",
@@ -5807,7 +5829,7 @@
     "follow_up": "Theo dõi",
     "no_response": "Không có phản hồi",
     "auto_dialer": "Trình quay số tự động",
-    "campaign_performance": "Hiệu suất chiến dịch",
+    "campaign_performance": "Hiệu quả chiến dịch",
     "failed": "Thất bại ",
     "success": "Thành công",
     "ready_to_start": "Sẵn sàng bắt đầu",
@@ -5908,7 +5930,8 @@
     "files": "Tệp",
     "select": "Lựa chọn",
     "source": "Nguồn",
-    "submit": "Nộp"
+    "submit": "Nộp",
+    "addressLine2": "Dòng địa chỉ 2"
   },
   "pt_br": {
     "welcome": "Ação",
@@ -5957,7 +5980,7 @@
     "fields_marked_with_are_mandatory_for_submission": "Os campos marcados com * são obrigatórios para o envio.",
     "filter_by_date": "Filtrar por data",
     "filter_by_status": "Filtrar por status",
-    "filter_leads": "Filtros de chumbo",
+    "filter_leads": "Filtros de cabos",
     "form_preview": "Pré-visualização do formulário",
     "forms_submitted": "Formulários enviados",
     "handling_customer_calls": "Atendimento telefônico ao cliente",
@@ -6165,7 +6188,8 @@
     "files": "Arquivos",
     "select": "Selecione",
     "source": "Fonte",
-    "submit": "Enviar"
+    "submit": "Enviar",
+    "addressLine2": "Linha de endereço 2"
   },
   "zh_cn": {
     "welcome": "行动",
@@ -6397,7 +6421,7 @@
     "other": "其他",
     "no_contacts_found_for_this_lead": "未找到与此线索相关的联系人",
     "invalid": "无效的",
-    "next_dial": "下一拨号",
+    "next_dial": "下一个拨号",
     "ready_to_dial": "准备拨号",
     "autodialer_pages_only_mode": "自动拨号页面模式仅适用于网页和应用程序。",
     "access_restricted": "访问受限",
@@ -6422,7 +6446,8 @@
     "files": "文件",
     "select": "选择",
     "source": "来源",
-    "submit": "提交"
+    "submit": "提交",
+    "addressLine2": "地址行 2"
   },
   "it": {
     "welcome": "Azione",
@@ -6525,12 +6550,12 @@
     "specific_time": "Orario specifico",
     "start_date_end_date": "Data di inizio → Data di fine",
     "supporting_order_creation_and_customer_follow_ups": "Supporto nella creazione degli ordini e nel follow-up con i clienti.",
-    "syncnow_triggered": "✅ Attivazione di SyncNow",
+    "syncnow_triggered": "✅ Attivazione di sincronizzazione immediata",
     "tagging_customer_calls": "Etichettatura delle chiamate dei clienti",
     "tap_to_change_file": "Tocca per cambiare file",
     "terms_conditions": "Termini e condizioni",
     "the_app_does_not_delete_or_modify_personal_call_records_unre": "L'app NON elimina né modifica i registri delle chiamate personali non correlati all'utilizzo del CRM aziendale.",
-    "the_app_does_not_record_call_audio_or_call_content": "L'app NON registra l'audio o il contenuto delle chiamate.",
+    "the_app_does_not_record_call_audio_or_call_content": "L'app NON registra l'audio delle chiamate né il contenuto delle chiamate.",
     "the_app_may_create_or_update_call_interaction_entries_only_f": "L'app può creare o aggiornare voci di interazione con le chiamate esclusivamente a fini di tracciamento CRM, ad esempio:",
     "the_app_may_request_battery_optimization_exemption_and_foreg": "L'app potrebbe richiedere l'esenzione dall'ottimizzazione della batteria e le autorizzazioni per i servizi in primo piano al fine di garantire un rilevamento affidabile delle chiamate in tempo reale e la sincronizzazione con il CRM.",
     "the_app_may_run_background_services_and_restart_after_device": "L'app potrebbe eseguire servizi in background e riavviarsi dopo il riavvio del dispositivo per garantire:",
@@ -6547,7 +6572,7 @@
     "user_control": "Controllo umano",
     "verification_code": "codice di verifica",
     "we_have_send_the_verification_code_nlon_your_mobile_number": "Abbiamo inviato il codice di verifica @nl sul tuo numero di cellulare",
-    "write_call_log_access": "Accesso alla scrittura del registro chiamate",
+    "write_call_log_access": "Accesso al registro chiamate in scrittura",
     "you_may_deny_or_revoke_permissions_anytime_from_device_setti": "È possibile negare o revocare le autorizzazioni in qualsiasi momento dalle impostazioni del dispositivo.",
     "orders": "Ordini",
     "total": "Totale",
@@ -6634,7 +6659,7 @@
     "name_required": "Il nome è obbligatorio",
     "enter_valid_name": "Inserisci un nome valido",
     "enter_email": "Inserisci l'indirizzo email",
-    "email_required": "È richiesto l'indirizzo email",
+    "email_required": "È richiesta la posta elettronica",
     "enter_valid_email": "Inserisci un indirizzo email valido.",
     "enter_address_line_1": "Inserisci l'indirizzo sulla riga 1",
     "address_line_1_required": "La riga 1 dell'indirizzo è obbligatoria",
@@ -6679,7 +6704,8 @@
     "files": "File",
     "select": "Selezionare",
     "source": "Fonte",
-    "submit": "Invia"
+    "submit": "Invia",
+    "addressLine2": "Riga indirizzo 2"
   },
   "af": {
     "welcome": "Aksie",
@@ -6782,7 +6808,7 @@
     "specific_time": "Spesifieke Tyd",
     "start_date_end_date": "Begindatum → Einddatum",
     "supporting_order_creation_and_customer_follow_ups": "Ondersteuning van bestellingskepping en kliëntopvolg",
-    "syncnow_triggered": "✅ sinchronisasie Nou geaktiveer",
+    "syncnow_triggered": "✅ sinchroniseer Nou geaktiveer",
     "tagging_customer_calls": "Merk kliëntoproepe",
     "tap_to_change_file": "Tik om lêer te verander",
     "terms_conditions": "Terme en voorwaardes",
@@ -6797,7 +6823,7 @@
     "to_ensure_24_7_auto_calling_works_correctly_please_disable_b": "Om te verseker dat 24/7 outomatiese oproepe korrek werk, deaktiveer asseblief batteryoptimalisering en aktiveer 'Outomatiese begin' vir hierdie toepassing.",
     "token_sent_successfully": "✅ Teken suksesvol gestuur",
     "tracking_employee_call_activity_and_performance_analytics": "Opsporing van werknemersoproepaktiwiteit en prestasie-analise",
-    "triggering_syncnow": "📤 Aktiveer nou sinkronisering...",
+    "triggering_syncnow": "📤 Sinkronisasie begin nou...",
     "unknown_contact": "Onbekende Kontak",
     "untitled_field": "Ongetitelde Veld",
     "up_next": "Volgende",
@@ -6936,7 +6962,8 @@
     "files": "Lêers",
     "select": "Kies",
     "source": "Bron",
-    "submit": "Dien in"
+    "submit": "Dien in",
+    "addressLine2": "Adresreël 2"
   },
   "am": {
     "welcome": "ድርጊት",
@@ -6992,7 +7019,7 @@
     "i_agree": "እሳማማ አለህው",
     "i_agree_to_the": "እስማማለሁ ከ",
     "i_allow_digi_bulk_marketing_employee_to_access_call_log_and_": "የዲጂ ቡልክ ማርኬቲንግ - ሰራተኛ የጥሪ ምዝግብ ማስታወሻ እና የስልክ መረጃ ለCRM እና ለጥሪ አስተዳደር ባህሪያት እንዲደርስ እፈቅዳለሁ።",
-    "identifying_customers_during_incoming_and_outgoing_calls": "በሚመጡ እና በሚወጡ ጥሪዎች ወቅት ደንበኞችን መለየት",
+    "identifying_customers_during_incoming_and_outgoing_calls": "በገቢ እና ወጪ ጥሪዎች ወቅት ደንበኞችን መለየት",
     "if_permissions_are_denied_call_related_crm_features_and_call": "ፈቃዶች ከተከለከሉ፣ ከጥሪ ጋር የተያያዙ የCRM ባህሪያት እና የደዋይ መለያ ላይሰሩ ይችላሉ",
     "important_permission_disclosure_user_consent": "አስፈላጊ የፈቃድ ይፋ ማድረግ እና የተጠቃሚ ፈቃድ",
     "lead_contact": "መሪ እውቂያ",
@@ -7047,7 +7074,7 @@
     "the_app_does_not_record_call_audio_or_call_content": "መተግበሪያው የድምጽ ጥሪ ወይም የጥሪ ይዘት አይመዘግብም።",
     "the_app_may_create_or_update_call_interaction_entries_only_f": "መተግበሪያው የጥሪ መስተጋብር ግቤቶችን መፍጠር ወይም ማዘመን የሚችለው ለ CRM ክትትል ዓላማዎች ብቻ ነው ለምሳሌ፦",
     "the_app_may_request_battery_optimization_exemption_and_foreg": "መተግበሪያው አስተማማኝ የእውነተኛ ጊዜ የጥሪ ማወቂያ እና የCRM ማመሳሰልን ለመጠበቅ የባትሪ ማመቻቸት ነፃነትን እና የፊት ለፊት አገልግሎት ፈቃዶችን ሊጠይቅ ይችላል።",
-    "the_app_may_run_background_services_and_restart_after_device": "መተግበሪያው የሚከተሉትን ለማረጋገጥ የጀርባ አገልግሎቶችን ሊያስኬድ እና መሳሪያው ዳግም ከጀመረ በኋላ እንደገና ሊጀምር ይችላል፦",
+    "the_app_may_run_background_services_and_restart_after_device": "መተግበሪያው የሚከተሉትን ለማረጋገጥ የጀርባ አገልግሎቶችን ሊያስኬድ እና መሳሪያው ዳግም ከተጀመረ በኋላ እንደገና ሊጀምር ይችላል፦",
     "the_app_uses_call_screening_and_overlay_permissions_to": "መተግበሪያው የጥሪ ማጣሪያ እና የተደራቢ ፈቃዶችን ለሚከተሉት ይጠቀማል፦",
     "this_app_collects_and_processes_call_information_such_as": "ይህ መተግበሪያ የሚከተሉትን የጥሪ መረጃዎችን ይሰበስባል እና ያስኬዳል፦",
     "this_information_is_used_only_for_business_crm_functionality": "ይህ መረጃ ለንግድ CRM ተግባር ብቻ ጥቅም ላይ ይውላል፣ የሚከተሉትንም ጨምሮ፦",
@@ -7193,11 +7220,12 @@
     "files": "ፋይሎች",
     "select": "ምረጥ",
     "source": "ምንጭ",
-    "submit": "አስገባ"
+    "submit": "አስገባ",
+    "addressLine2": "የአድራሻ መስመር 2"
   },
   "az": {
     "welcome": "Fəaliyyət",
-    "active_telecallers": "Aktiv Telezəng Edənlər",
+    "active_telecallers": "Aktiv Telezəngçilər",
     "alert_employees_about_customer_calls": "Müştəri zəngləri barədə işçiləri xəbərdar edin",
     "all_collected_information_is_used_only_for_employee_crm_and_": "Toplanan bütün məlumatlar yalnız işçilərin CRM və işgüzar ünsiyyət xüsusiyyətləri üçün istifadə olunur",
     "all_time": "Bütün Zamanlar",
@@ -7214,7 +7242,7 @@
     "call_duration": "Zəng Müddəti",
     "call_log_phone_information_access": "Zəng Qeydiyyatı və Telefon Məlumatlarına Giriş",
     "call_next": "Növbəti Zəng Edin",
-    "call_screening_overlay_display": "Zənglərin Yoxlanılması və Üst-üstə Ekran",
+    "call_screening_overlay_display": "Zənglərin Yoxlanılması və Üst-üstə Düymələrin Göstərilməsi",
     "call_status_distribution": "Zəng Statusu Paylanması",
     "call_summary": "ZƏNG XÜLASƏSİ",
     "call_survey_form": "Sorğu Formasını Zəng Edin",
@@ -7295,7 +7323,7 @@
     "sort_leads_by": "Potensial müştəriləri sırala",
     "specific_time": "Xüsusi Vaxt",
     "start_date_end_date": "Başlama tarixi → Bitmə tarixi",
-    "supporting_order_creation_and_customer_follow_ups": "Sifariş yaradılmasını və müştəri izləmələrini dəstəkləmək",
+    "supporting_order_creation_and_customer_follow_ups": "Sifariş yaradılması və müştəri izləmələrinin dəstəklənməsi",
     "syncnow_triggered": "✅ syncNow işə salındı",
     "tagging_customer_calls": "Müştəri zənglərinin etiketlənməsi",
     "tap_to_change_file": "Faylı dəyişdirmək üçün toxunun",
@@ -7427,7 +7455,7 @@
     "invalid": "Yanlış",
     "next_dial": "Növbəti_Yığım",
     "ready_to_dial": "Yığım üçün hazırdır",
-    "autodialer_pages_only_mode": "Avtomatik Zəng Edən Yalnız Səhifələr rejimi yalnız veb və tətbiqlər üçün istifadə olunur",
+    "autodialer_pages_only_mode": "Avtomatik Zəng Səhifələri rejimi yalnız veb və tətbiq üçün istifadə olunur",
     "access_restricted": "Giriş Məhduddur",
     "follower": "İzləyici",
     "web": "Veb",
@@ -7450,7 +7478,8 @@
     "files": "Fayllar",
     "select": "Seçin",
     "source": "Mənbə",
-    "submit": "Göndər"
+    "submit": "Göndər",
+    "addressLine2": "Ünvan Sətri 2"
   },
   "bg": {
     "welcome": "Действие",
@@ -7469,7 +7498,7 @@
     "battery_optimization_foreground_services": "Оптимизация на батериите и услуги на преден план",
     "call_disposition": "Разпореждане с обаждания",
     "call_duration": "Продължителност на разговора",
-    "call_log_phone_information_access": "Достъп до дневник на обажданията и информация за телефона",
+    "call_log_phone_information_access": "Достъп до дневника на обажданията и информация за телефона",
     "call_next": "Следващо обаждане",
     "call_screening_overlay_display": "Филтриране на повиквания и наслагване на дисплея",
     "call_status_distribution": "Разпределение на състоянието на повикванията",
@@ -7507,7 +7536,7 @@
     "i_agree_to_the": "Съгласен съм с",
     "i_allow_digi_bulk_marketing_employee_to_access_call_log_and_": "Разрешавам на Digi Bulk Marketing – Employee достъп до регистъра на обажданията и информацията за телефона за CRM и функции за управление на обажданията.",
     "identifying_customers_during_incoming_and_outgoing_calls": "Идентифициране на клиенти по време на входящи и изходящи повиквания",
-    "if_permissions_are_denied_call_related_crm_features_and_call": "Ако разрешенията са отказани, функциите за CRM, свързани с обаждания, и идентификацията на обаждащия се може да не работят.",
+    "if_permissions_are_denied_call_related_crm_features_and_call": "Ако разрешенията са отказани, функциите за CRM, свързани с обажданията, и идентификацията на обаждащия се може да не работят.",
     "important_permission_disclosure_user_consent": "Важно разкриване на разрешения и съгласие на потребителя",
     "lead_contact": "Контакт за потенциални клиенти",
     "lead_status_distribution": "Разпределение на статуса на потенциалните клиенти",
@@ -7612,7 +7641,7 @@
     "ready_to_start": "Готови за начало",
     "active_call": "Активно повикване",
     "settled": "Уреден",
-    "next_in": "Следващо в",
+    "next_in": "Следващ в",
     "resume": "Автобиография",
     "stop": "Спри",
     "start_dialer": "Стартиране на набиране",
@@ -7632,7 +7661,7 @@
     "settings": "Настройки",
     "language": "Език",
     "logout": "Изход",
-    "decline": "Отказ",
+    "decline": "Спад",
     "i_read_and_accepted_the": "Прочетох и приех",
     "continue": "Продължи",
     "create-at": "Създадено в",
@@ -7669,7 +7698,7 @@
     "enter_address_line_2": "Въведете адрес, ред 2",
     "address_line_2_required": "Ред 2 от адреса е задължителен",
     "enter_city": "Въведете град",
-    "city_required": "Градът е задължителен",
+    "city_required": "Градът е задължително поле",
     "enter_valid_city": "Моля, въведете валиден град",
     "enter_state": "Въведете щат",
     "state_required": "Щатът е задължителен",
@@ -7707,7 +7736,8 @@
     "files": "Файлове",
     "select": "Изберете",
     "source": "Източник",
-    "submit": "Изпращане"
+    "submit": "Изпращане",
+    "addressLine2": "Адресен ред 2"
   },
   "ca": {
     "welcome": "Acció",
@@ -7762,7 +7792,7 @@
     "handling_customer_calls": "Gestionar les trucades dels clients",
     "i_agree": "Estic d'acord",
     "i_agree_to_the": "Estic d'acord amb",
-    "i_allow_digi_bulk_marketing_employee_to_access_call_log_and_": "Permeto que Digi Bulk Marketing – Employee accedeixi a la informació del registre de trucades i del telèfon per a les funcions de CRM i de gestió de trucades.",
+    "i_allow_digi_bulk_marketing_employee_to_access_call_log_and_": "Permeto que Digi Bulk Marketing – Employee accedeixi a la informació del registre de trucades i del telèfon per a les funcions de CRM i gestió de trucades.",
     "identifying_customers_during_incoming_and_outgoing_calls": "Identificació de clients durant les trucades entrants i sortints",
     "if_permissions_are_denied_call_related_crm_features_and_call": "Si es deneguen els permisos, és possible que les funcions de CRM relacionades amb les trucades i la identificació de la persona que truca no funcionin.",
     "important_permission_disclosure_user_consent": "Divulgació de permisos important i consentiment de l'usuari",
@@ -7782,7 +7812,7 @@
     "notification_page": "Pàgina de notificacions",
     "notification_permission_is_used_to": "El permís de notificació s'utilitza per:",
     "open_manufacturer_settings_auto_start": "Obre la configuració del fabricant (inici automàtic)",
-    "otp_verification": "Verificació d'un sol ús (OTP)",
+    "otp_verification": "Verificació d'OTP",
     "permission_disclosure": "Divulgació de permís",
     "permissions_are_requested_only_after_your_explicit_consent": "Els permisos només es sol·liciten després del vostre consentiment explícit",
     "permissions_saved_to_storage": "✅ Permisos desats a l'emmagatzematge",
@@ -7832,7 +7862,7 @@
     "user_control": "Control d'usuari",
     "verification_code": "Codi de verificació",
     "we_have_send_the_verification_code_nlon_your_mobile_number": "Hem enviat el codi de verificació @nlAl vostre número de mòbil",
-    "write_call_log_access": "Accés a Escriure al Registre de Trucades",
+    "write_call_log_access": "Accés a Escriure el Registre de Trucades",
     "you_may_deny_or_revoke_permissions_anytime_from_device_setti": "Podeu denegar o revocar permisos en qualsevol moment des de la configuració del dispositiu",
     "orders": "Comandes",
     "total": "Total",
@@ -7964,7 +7994,8 @@
     "files": "Fitxers",
     "select": "Selecciona",
     "source": "Font",
-    "submit": "Enviar"
+    "submit": "Enviar",
+    "addressLine2": "Línia d'adreça 2"
   },
   "es_es": {
     "welcome": "Acción",
@@ -8004,7 +8035,7 @@
     "data_is_securely_transmitted_to_company_servers": "Los datos se transmiten de forma segura a los servidores de la empresa.",
     "data_usage_security": "Uso y seguridad de los datos",
     "detect_incoming_and_outgoing_calls": "Detectar llamadas entrantes y salientes",
-    "digi_bulk_marketing_employee_is_a_company_crm_and_customer_m": "Digi Bulk Marketing – Employee es una aplicación de CRM y gestión de clientes para empresas, diseñada para empleados registrados. Para ofrecer sus funciones principales, esta aplicación requiere acceso a ciertos permisos del teléfono y del sistema.",
+    "digi_bulk_marketing_employee_is_a_company_crm_and_customer_m": "Digi Bulk Marketing – Employee es una aplicación de CRM y gestión de clientes diseñada para empleados registrados. Para ofrecer sus funciones principales, esta aplicación requiere acceso a ciertos permisos del teléfono y del sistema.",
     "disable_battery_optimization": "Desactivar la optimización de la batería",
     "displaying_customer_details_and_interaction_history_during_c": "Mostrar los detalles del cliente y el historial de interacciones durante las llamadas.",
     "don_t_recieve_verification_code": "¿No recibes el código de verificación?",
@@ -8013,7 +8044,7 @@
     "fields_marked_with_are_mandatory_for_submission": "Los campos marcados con * son obligatorios para la presentación.",
     "filter_by_date": "Filtrar por fecha",
     "filter_by_status": "Filtrar por estado",
-    "filter_leads": "Cables de filtro",
+    "filter_leads": "Filtrar cables",
     "form_preview": "Vista previa del formulario",
     "forms_submitted": "Formularios enviados",
     "handling_customer_calls": "Gestión de llamadas de clientes",
@@ -8186,8 +8217,8 @@
     "city_required": "Se requiere la ciudad",
     "enter_valid_city": "Por favor, introduzca una ciudad válida.",
     "enter_state": "Ingrese el estado",
-    "state_required": "Se requiere estado",
-    "enter_valid_state": "Por favor, ingrese un estado válido",
+    "state_required": "Se requiere el estado",
+    "enter_valid_state": "Por favor, ingrese un estado válido.",
     "select_country_required": "Seleccione un país",
     "enter_zip_code": "Ingrese el código postal",
     "zip_code_required": "Se requiere el código postal.",
@@ -8221,7 +8252,8 @@
     "files": "Archivos",
     "select": "Seleccionar",
     "source": "Fuente",
-    "submit": "Entregar"
+    "submit": "Entregar",
+    "addressLine2": "Línea de dirección 2"
   },
   "gu": {
     "welcome": "ક્રિયા",
@@ -8478,7 +8510,8 @@
     "files": "ફાઇલો",
     "select": "પસંદ કરો",
     "source": "સ્ત્રોત",
-    "submit": "સબમિટ કરો"
+    "submit": "સબમિટ કરો",
+    "addressLine2": "સરનામું લાઇન 2"
   },
   "kn": {
     "welcome": "ಕ್ರಿಯೆ",
@@ -8540,7 +8573,7 @@
     "lead_contact": "ಲೀಡ್ ಸಂಪರ್ಕ",
     "lead_status_distribution": "ಲೀಡ್ ಸ್ಥಿತಿ ವಿತರಣೆ",
     "leads_over_time": "ಕಾಲಾನಂತರದಲ್ಲಿ ಮುನ್ನಡೆಸುತ್ತದೆ",
-    "linking_calls_to_customer_orders": "ಗ್ರಾಹಕರ ಆರ್ಡರ್‌ಗಳಿಗೆ ಕರೆಗಳನ್ನು ಲಿಂಕ್ ಮಾಡುವುದು",
+    "linking_calls_to_customer_orders": "ಗ್ರಾಹಕರ ಆದೇಶಗಳಿಗೆ ಕರೆಗಳನ್ನು ಲಿಂಕ್ ಮಾಡುವುದು",
     "mahesh_talaviya": "ಮಹೇಶ್ ತಲವೀಯ",
     "maintaining_business_interaction_history": "ವ್ಯವಹಾರ ಸಂವಹನ ಇತಿಹಾಸವನ್ನು ನಿರ್ವಹಿಸುವುದು",
     "maintaining_call_history_backup_across_authorized_devices": "ಅಧಿಕೃತ ಸಾಧನಗಳಲ್ಲಿ ಕರೆ ಇತಿಹಾಸದ ಬ್ಯಾಕಪ್ ಅನ್ನು ನಿರ್ವಹಿಸುವುದು",
@@ -8735,7 +8768,8 @@
     "files": "ಫೈಲ್‌ಗಳು",
     "select": "ಆಯ್ಕೆ ಮಾಡಿ",
     "source": "ಮೂಲ",
-    "submit": "ಸಲ್ಲಿಸಿ"
+    "submit": "ಸಲ್ಲಿಸಿ",
+    "addressLine2": "ವಿಳಾಸ ಸಾಲು 2"
   },
   "ml": {
     "welcome": "ആക്ഷൻ",
@@ -8992,7 +9026,8 @@
     "files": "ഫയലുകൾ",
     "select": "തിരഞ്ഞെടുക്കുക",
     "source": "ഉറവിടം",
-    "submit": "സമർപ്പിക്കുക"
+    "submit": "സമർപ്പിക്കുക",
+    "addressLine2": "വിലാസ വരി 2"
   },
   "pa": {
     "welcome": "ਕਾਰਵਾਈ",
@@ -9008,7 +9043,7 @@
     "background_service_device_restart": "ਬੈਕਗ੍ਰਾਊਂਡ ਸੇਵਾ ਅਤੇ ਡਿਵਾਈਸ ਰੀਸਟਾਰਟ",
     "background_service_initialized": "✅ ਬੈਕਗ੍ਰਾਊਂਡ ਸੇਵਾ ਸ਼ੁਰੂ ਕੀਤੀ ਗਈ",
     "backgroundservice_is_not_running": "⚠️ ਬੈਕਗ੍ਰਾਊਂਡ ਸਰਵਿਸ ਨਹੀਂ ਚੱਲ ਰਹੀ!",
-    "battery_optimization_foreground_services": "ਬੈਟਰੀ ਔਪਟੀਮਾਈਜੇਸ਼ਨ ਅਤੇ ਫੋਰਗ੍ਰਾਉਂਡ ਸੇਵਾਵਾਂ",
+    "battery_optimization_foreground_services": "ਬੈਟਰੀ ਔਪਟੀਮਾਈਜੇਸ਼ਨ ਅਤੇ ਫੋਰਗ੍ਰਾਊਂਡ ਸੇਵਾਵਾਂ",
     "call_disposition": "ਕਾਲ ਡਿਸਪੋਜ਼ੀਸ਼ਨ",
     "call_duration": "ਕਾਲ ਦੀ ਮਿਆਦ",
     "call_log_phone_information_access": "ਕਾਲ ਲੌਗ ਅਤੇ ਫ਼ੋਨ ਜਾਣਕਾਰੀ ਪਹੁੰਚ",
@@ -9215,14 +9250,14 @@
     "enter_valid_city": "ਕਿਰਪਾ ਕਰਕੇ ਇੱਕ ਵੈਧ ਸ਼ਹਿਰ ਦਾਖਲ ਕਰੋ।",
     "enter_state": "ਰਾਜ ਦਰਜ ਕਰੋ",
     "state_required": "ਰਾਜ ਲੋੜੀਂਦਾ ਹੈ",
-    "enter_valid_state": "ਕਿਰਪਾ ਕਰਕੇ ਇੱਕ ਵੈਧ ਰਾਜ ਦਾਖਲ ਕਰੋ।",
+    "enter_valid_state": "ਕਿਰਪਾ ਕਰਕੇ ਇੱਕ ਵੈਧ ਸਥਿਤੀ ਦਾਖਲ ਕਰੋ।",
     "select_country_required": "ਕਿਰਪਾ ਕਰਕੇ ਕੋਈ ਦੇਸ਼ ਚੁਣੋ।",
     "enter_zip_code": "ਜ਼ਿਪ ਕੋਡ ਦਰਜ ਕਰੋ",
     "zip_code_required": "ਜ਼ਿਪ ਕੋਡ ਲੋੜੀਂਦਾ ਹੈ",
     "follow-up": "Ran leti",
     "reschedule": "ਮੁੜ-ਨਿਯਤ ਕਰੋ",
     "other": "ਹੋਰ",
-    "no_contacts_found_for_this_lead": "ਇਸ ਲੀਡ ਲਈ ਕੋਈ ਸੰਪਰਕ ਨਹੀਂ ਮਿਲਿਆ",
+    "no_contacts_found_for_this_lead": "ਇਸ ਲੀਡ ਲਈ ਕੋਈ ਸੰਪਰਕ ਨਹੀਂ ਮਿਲਿਆ।",
     "invalid": "ਅਵੈਧ",
     "next_dial": "ਅਗਲਾ_ਡਾਇਲ",
     "ready_to_dial": "ਡਾਇਲ ਕਰਨ ਲਈ ਤਿਆਰ",
@@ -9249,7 +9284,8 @@
     "files": "ਫਾਈਲਾਂ",
     "select": "ਚੁਣੋ",
     "source": "ਸਰੋਤ",
-    "submit": "ਜਮ੍ਹਾਂ ਕਰੋ"
+    "submit": "ਜਮ੍ਹਾਂ ਕਰੋ",
+    "addressLine2": "ਪਤਾ ਲਾਈਨ 2"
   },
   "sq": {
     "welcome": "Veprimi",
@@ -9327,7 +9363,7 @@
     "otp_verification": "Verifikimi i OTP-së",
     "permission_disclosure": "Deklarata e Lejes",
     "permissions_are_requested_only_after_your_explicit_consent": "Lejet kërkohen vetëm pas pëlqimit tuaj të qartë",
-    "permissions_saved_to_storage": "✅ Lejet u ruajtën në hapësirën e ruajtjes",
+    "permissions_saved_to_storage": "✅ Lejet e ruajtura në hapësirën e ruajtjes",
     "phone_numbers": "Numrat e telefonit",
     "phonestatusservice_initialized_in_permissionscreen": "✅ Shërbimi i Statusit të Telefonit inicializohet në PermissionScreen",
     "pick_date": "Data e zgjedhjes",
@@ -9500,13 +9536,14 @@
     "longitude_is_required": "Kërkohet gjatësi gjeografike",
     "validation_error": "Gabim Validimi",
     "please_select_a_value_for": "Ju lutem zgjidhni një vlerë për",
-    "form_locked": "Formulari i bllokuar",
+    "form_locked": "Formulari i kyçur",
     "please_use_save_or_cancel": "Ju lutemi përdorni butonat Ruaj ose Anulo në fund për të dalë.",
     "select_image": "Zgjidh imazhin",
     "files": "Skedarët",
     "select": "Zgjidh",
     "source": "Burimi",
-    "submit": "Dërgo"
+    "submit": "Dërgo",
+    "addressLine2": "Rreshti i adresës 2"
   },
   "uz": {
     "welcome": "Harakat",
@@ -9522,8 +9559,8 @@
     "background_service_device_restart": "Fon xizmati va qurilmani qayta ishga tushirish",
     "background_service_initialized": "✅ Fon xizmati ishga tushirildi",
     "backgroundservice_is_not_running": "⚠️ BackgroundService ishlamayapti!",
-    "battery_optimization_foreground_services": "Batareyani optimallashtirish va oldingi xizmatlar",
-    "call_disposition": "Qo'ng'iroqni boshqarish",
+    "battery_optimization_foreground_services": "Batareya optimallashtirish va oldingi xizmatlar",
+    "call_disposition": "Qo'ng'iroqlarni boshqarish",
     "call_duration": "Qo'ng'iroq davomiyligi",
     "call_log_phone_information_access": "Qo'ng'iroqlar jurnali va telefon ma'lumotlariga kirish",
     "call_next": "Keyingi qo'ng'iroq",
@@ -9550,7 +9587,7 @@
     "disable_battery_optimization": "Batareya optimallashtirishni o'chirib qo'yish",
     "displaying_customer_details_and_interaction_history_during_c": "Qo'ng'iroqlar paytida mijoz ma'lumotlari va o'zaro aloqalar tarixini ko'rsatish",
     "don_t_recieve_verification_code": "Tasdiqlash kodini olmadingizmi?",
-    "enter_phone_number_to_send_one_nltime_password": "@nlTime parolini yuborish uchun telefon raqamingizni kiriting.",
+    "enter_phone_number_to_send_one_nltime_password": "Bitta @nlTime parolini yuborish uchun telefon raqamingizni kiriting.",
     "failed_to_save_consent_please_try_again": "Rozilikni saqlab bo'lmadi. Qaytadan urinib ko'ring.",
     "fields_marked_with_are_mandatory_for_submission": "* bilan belgilangan maydonlarni to'ldirish majburiydir.",
     "filter_by_date": "Sana bo'yicha filtrlash",
@@ -9671,7 +9708,7 @@
     "next_in": "Keyingi kirish",
     "resume": "Rezyume; qayta boshlash",
     "stop": "STOP",
-    "start_dialer": "Raqam tergichni ishga tushirish",
+    "start_dialer": "Raqam tergichni ishga tushiring",
     "success_rate": "Muvaffaqiyat darajasi",
     "select_a_lead": "Potensial mijozni tanlang",
     "lead_dataset": "Potensial mijozlar ma'lumotlar to'plami",
@@ -9715,7 +9752,7 @@
     "logs": "Yozuvlar",
     "telecaller": "Teleqo'ng'iroq qiluvchi",
     "enter_name": "Ismni kiriting",
-    "name_required": "Ism talab qilinadi",
+    "name_required": "Ism kiritilishi shart",
     "enter_valid_name": "Iltimos, to'g'ri nom kiriting",
     "enter_email": "Elektron pochtani kiriting",
     "email_required": "Elektron pochta manzili talab qilinadi",
@@ -9763,7 +9800,8 @@
     "files": "Fayllar",
     "select": "Tanlang",
     "source": "Manba",
-    "submit": "Yuborish"
+    "submit": "Yuborish",
+    "addressLine2": "Manzil qatori 2"
   },
   "fil": {
     "welcome": "Aksyon",
@@ -9773,7 +9811,7 @@
     "all_time": "Lahat ng Panahon",
     "allow_employees_to_quickly_create_orders_notes_or_crm_update": "Payagan ang mga empleyado na mabilis na gumawa ng mga order, tala, o mga update sa CRM nang hindi nakakaabala sa mga tawag",
     "and": "At",
-    "automatically_linking_calls_with_customer_records": "Awtomatikong nagli-link ng mga tawag sa mga rekord ng customer",
+    "automatically_linking_calls_with_customer_records": "Awtomatikong nag-uugnay ng mga tawag sa mga rekord ng customer",
     "awaiting_contact": "Naghihintay ng pakikipag-ugnayan",
     "background_reliability": "Kahusayan sa Kaligiran",
     "background_service_device_restart": "Serbisyo sa Background at Pag-restart ng Device",
@@ -9822,7 +9860,7 @@
     "identifying_customers_during_incoming_and_outgoing_calls": "Pagtukoy sa mga customer sa panahon ng mga papasok at papalabas na tawag",
     "if_permissions_are_denied_call_related_crm_features_and_call": "Kung tatanggihan ang mga pahintulot, maaaring hindi gumana ang mga feature ng CRM na may kaugnayan sa tawag at ang pagkakakilanlan ng tumatawag.",
     "important_permission_disclosure_user_consent": "Mahalagang Pagbubunyag ng Pahintulot at Pahintulot ng Gumagamit",
-    "lead_contact": "Pangunahing Kontak",
+    "lead_contact": "Kontak ng Lead",
     "lead_status_distribution": "Pamamahagi ng Katayuan ng Lead",
     "leads_over_time": "Mga Lead sa Paglipas ng Panahon",
     "linking_calls_to_customer_orders": "Pag-uugnay ng mga tawag sa mga order ng customer",
@@ -9991,7 +10029,7 @@
     "enter_zip_code": "Ilagay ang Zip Code",
     "zip_code_required": "Kinakailangan ang Zip Code",
     "follow-up": "Pagsubaybay",
-    "reschedule": "I-reschedule",
+    "reschedule": "Muling iiskedyul",
     "other": "Iba pa",
     "no_contacts_found_for_this_lead": "Walang nakitang contact para sa lead na ito",
     "invalid": "Hindi wasto",
@@ -10020,7 +10058,8 @@
     "files": "Mga File",
     "select": "Piliin",
     "source": "Pinagmulan",
-    "submit": "Isumite"
+    "submit": "Isumite",
+    "addressLine2": "Linya ng Address 2"
   },
   "zh_hk": {
     "welcome": "行動",
@@ -10252,7 +10291,7 @@
     "other": "其他",
     "no_contacts_found_for_this_lead": "未找到與此線索相關的聯絡人",
     "invalid": "無效的",
-    "next_dial": "下一撥號",
+    "next_dial": "下一個撥號",
     "ready_to_dial": "準備撥號",
     "autodialer_pages_only_mode": "自動撥號頁面模式僅適用於網頁和應用程式。",
     "access_restricted": "訪問受限",
@@ -10277,7 +10316,8 @@
     "files": "文件",
     "select": "選擇",
     "source": "來源",
-    "submit": "提交"
+    "submit": "提交",
+    "addressLine2": "地址行 2"
   },
   "zh_tw": {
     "welcome": "行動",
@@ -10509,7 +10549,7 @@
     "other": "其他",
     "no_contacts_found_for_this_lead": "未找到與此線索相關的聯絡人",
     "invalid": "無效的",
-    "next_dial": "下一撥號",
+    "next_dial": "下一個撥號",
     "ready_to_dial": "準備撥號",
     "autodialer_pages_only_mode": "自動撥號頁面模式僅適用於網頁和應用程式。",
     "access_restricted": "訪問受限",
@@ -10534,7 +10574,8 @@
     "files": "文件",
     "select": "選擇",
     "source": "來源",
-    "submit": "提交"
+    "submit": "提交",
+    "addressLine2": "地址行 2"
   },
   "es_mx": {
     "welcome": "Acción",
@@ -10574,7 +10615,7 @@
     "data_is_securely_transmitted_to_company_servers": "Los datos se transmiten de forma segura a los servidores de la empresa.",
     "data_usage_security": "Uso y seguridad de los datos",
     "detect_incoming_and_outgoing_calls": "Detectar llamadas entrantes y salientes",
-    "digi_bulk_marketing_employee_is_a_company_crm_and_customer_m": "Digi Bulk Marketing – Employee es una aplicación de CRM y gestión de clientes para empresas, diseñada para empleados registrados. Para ofrecer sus funciones principales, esta aplicación requiere acceso a ciertos permisos del teléfono y del sistema.",
+    "digi_bulk_marketing_employee_is_a_company_crm_and_customer_m": "Digi Bulk Marketing – Employee es una aplicación de CRM y gestión de clientes diseñada para empleados registrados. Para ofrecer sus funciones principales, esta aplicación requiere acceso a ciertos permisos del teléfono y del sistema.",
     "disable_battery_optimization": "Desactivar la optimización de la batería",
     "displaying_customer_details_and_interaction_history_during_c": "Mostrar los detalles del cliente y el historial de interacciones durante las llamadas.",
     "don_t_recieve_verification_code": "¿No recibes el código de verificación?",
@@ -10583,7 +10624,7 @@
     "fields_marked_with_are_mandatory_for_submission": "Los campos marcados con * son obligatorios para la presentación.",
     "filter_by_date": "Filtrar por fecha",
     "filter_by_status": "Filtrar por estado",
-    "filter_leads": "Cables de filtro",
+    "filter_leads": "Filtrar cables",
     "form_preview": "Vista previa del formulario",
     "forms_submitted": "Formularios enviados",
     "handling_customer_calls": "Gestión de llamadas de clientes",
@@ -10756,8 +10797,8 @@
     "city_required": "Se requiere la ciudad",
     "enter_valid_city": "Por favor, introduzca una ciudad válida.",
     "enter_state": "Ingrese el estado",
-    "state_required": "Se requiere estado",
-    "enter_valid_state": "Por favor, ingrese un estado válido",
+    "state_required": "Se requiere el estado",
+    "enter_valid_state": "Por favor, ingrese un estado válido.",
     "select_country_required": "Seleccione un país",
     "enter_zip_code": "Ingrese el código postal",
     "zip_code_required": "Se requiere el código postal.",
@@ -10791,7 +10832,8 @@
     "files": "Archivos",
     "select": "Seleccionar",
     "source": "Fuente",
-    "submit": "Entregar"
+    "submit": "Entregar",
+    "addressLine2": "Línea de dirección 2"
   },
   "fi": {
     "welcome": "Toiminta",
@@ -10901,7 +10943,7 @@
     "the_app_does_not_delete_or_modify_personal_call_records_unre": "Sovellus EI poista tai muokkaa henkilökohtaisia ​​puhelutietoja, jotka eivät liity yrityksen CRM-käyttöön.",
     "the_app_does_not_record_call_audio_or_call_content": "Sovellus EI tallenna puheluiden ääntä tai sisältöä.",
     "the_app_may_create_or_update_call_interaction_entries_only_f": "Sovellus voi luoda tai päivittää puhelutoimintojen merkintöjä vain CRM-seurantatarkoituksiin, kuten:",
-    "the_app_may_request_battery_optimization_exemption_and_foreg": "Sovellus voi pyytää akun optimoinnin poikkeusta ja etualan palveluiden käyttöoikeuksia luotettavan reaaliaikaisen puheluiden tunnistuksen ja CRM-synkronoinnin ylläpitämiseksi.",
+    "the_app_may_request_battery_optimization_exemption_and_foreg": "Sovellus voi pyytää akun optimoinnin poikkeuslupaa ja etualan palveluiden käyttöoikeuksia luotettavan reaaliaikaisen puheluiden tunnistuksen ja CRM-synkronoinnin ylläpitämiseksi.",
     "the_app_may_run_background_services_and_restart_after_device": "Sovellus saattaa suorittaa taustapalveluita ja käynnistyä uudelleen laitteen uudelleenkäynnistyksen jälkeen varmistaakseen:",
     "the_app_uses_call_screening_and_overlay_permissions_to": "Sovellus käyttää puheluiden seulonta- ja päällekkäiskäyttöoikeuksia seuraaviin tarkoituksiin:",
     "this_app_collects_and_processes_call_information_such_as": "Tämä sovellus kerää ja käsittelee puhelutietoja, kuten:",
@@ -11048,6 +11090,7 @@
     "files": "Tiedostot",
     "select": "Valitse",
     "source": "Lähde",
-    "submit": "Lähetä"
+    "submit": "Lähetä",
+    "addressLine2": "Osoiterivi 2"
   }
 }

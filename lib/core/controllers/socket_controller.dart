@@ -270,7 +270,7 @@ class SocketController extends GetxController with WidgetsBindingObserver {
         disconnect();
       }
 
-      Uri uri = Uri.parse(AppConstants.BASE_SOCKET_URL);
+      Uri uri = Uri.parse(AppConstants.SOCKET_URL);
       String baseUrl = '${uri.scheme}://${uri.host}${uri.hasPort ? ':${uri
           .port}' : ''}';
       String socketPath = '/socket.io';

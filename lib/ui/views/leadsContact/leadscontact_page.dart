@@ -401,10 +401,10 @@ class LeadsContactPage extends GetView<LeadsContactController> {
                         ],
                       ),
                       SizedBox(height: 8.h),
-                      _buildContactLink(Icons.phone_outlined, phone ?? 'N/A',
-                          onTap: (phone != null && phone != 'N/A')
+                      Obx(() => _buildContactLink(Icons.phone_outlined, phone ?? 'N/A',
+                          onTap: (phone != null && phone != 'N/A' && controller.currentMode.value != 'web')
                               ? () => controller.makeCall(lead.contact?.phone)
-                              : null),
+                              : null)),
                       if (email != null && email.isNotEmpty) ...[
                         SizedBox(height: 4.h),
                         _buildContactLink(Icons.mail_outline_rounded, email,

@@ -26,21 +26,19 @@ class WelcomeController extends GetxController {
       [
         {
           "image": 'assets/images/d1.png',
-          "title": 'User Friendly'.tr,
+          "title": 'Welcome to Truecaller App',
           "description":
-              "User-friendly is a term that describes features and @nl functions that make using a device, system or website easier.",
+              "Experience the best telecalling features with our \n Truecaller app that makes communication easier.",
         },
         {
           "image": 'assets/images/d2.png',
-          "title": 'Advance Reporting'.tr,
-          "description":"he process of collecting data, breaking down information into @nl meaningful pieces, and then putting it back together in a @nl way that makes sense to the reader.",
-
+          "title": 'Advance Reporting',
+          "description":"The process of collecting data, breaking down information into \n meaningful pieces, and then putting it back together in a \n way that makes sense to the reader.",
         },
         {
           "image": 'assets/images/d3.png',
-          "title": '24 7 Service/Support'.tr,
-          "description":"customers can get help and find answers to questions as @nl soon as they come up—24/7 and in real-time.",
-
+          "title": '24 7 Service/Support',
+          "description":"Customers can get help and find answers to questions as \n soon as they come up—24/7 and in real-time.",
         },
       ].obs; // this list is used for all data like images,text and subtext
 

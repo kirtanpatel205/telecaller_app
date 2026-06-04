@@ -47,8 +47,22 @@ class LeadsContactController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    argumnetGet();
     apiService = Get.find<ApiService>();
+    argumnetGet();
+    fetchUserMode();
+  }
+
+  final currentMode = 'app'.obs;
+
+  Future<void> fetchUserMode() async {
+    try {
+      final response = await apiService.getUserSetting();
+      if (response.status == true) {
+        currentMode.value = response.userSetting?.telecallerSettings?.allowCalls?.from ?? 'app';
+      }
+    } catch (e) {
+      print("fetchUserMode error: $e");
+    }
   }
 
   void argumnetGet() {
@@ -253,6 +267,10 @@ class LeadsContactController extends GetxController {
 
   Future<void> makeCall(String? phoneNumber) async {
     if (phoneNumber != null && phoneNumber.isNotEmpty) {
+      if (currentMode.value == 'web') {
+        return; // Do nothing if web mode
+      }
+
       await Utils.makeDirectCall(phoneNumber);
     } else {
       Get.snackbar(

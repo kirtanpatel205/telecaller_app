@@ -1,5 +1,5 @@
 import 'dart:developer';
-import 'package:animated_theme_switcher/animated_theme_switcher.dart';
+
 import 'package:day_night_switcher/day_night_switcher.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -17,158 +17,158 @@ class SettingPage extends GetView<HomeController> {
   Widget build(BuildContext context) {
     final bool isStandalone = Get.currentRoute == Routes.SETTING || Get.currentRoute == Paths.SETTING;
 
-    Widget body = RefreshIndicator(
-      onRefresh: () async {
-        await controller.authController.refreshProfile();
-        log("profile refreshed");
-      },
-      child: CustomScrollView(
-        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-        slivers: [
-          // ─── Profile Header ─────────────────────────────────────────
-          SliverToBoxAdapter(
-            child: _ProfileHeader(controller: controller),
-          ),
- 
-          // ─── Menu Items ─────────────────────────────────────────────
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: 24.h),
- 
-                  // ── Account Section ─────────────────────────────────
-                  _SectionLabel(label: "account".tr),
-                  SizedBox(height: 10.h),
-                  _MenuCard(
-                    children: [
-                      _MenuItem(
-                        icon: Icons.person_outline_rounded,
-                        label: "editProfile".tr,
-                        onTap: () => Get.toNamed(Routes.EDITPROFILE),
-                      ),
-                    ],
-                  ),
- 
-                  SizedBox(height: 20.h),
- 
-                  // ── Appearance Section ───────────────────────────────
-                  _SectionLabel(label: "appearance".tr),
-                  SizedBox(height: 10.h),
-                  _MenuCard(
-                    children: [
-                      // Dark Mode Toggle
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 16.w, vertical: 4.h),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 40.w,
-                              height: 40.w,
-                              decoration: BoxDecoration(
-                                color: AppColors.themeColor.primaryColor
-                                    .withOpacity(0.12),
-                                borderRadius: BorderRadius.circular(10.r),
-                              ),
-                              child: Icon(
-                                Icons.nightlight_round,
-                                color: AppColors.themeColor.primaryColor,
-                                size: 20.sp,
-                              ),
-                            ),
-                            SizedBox(width: 14.w),
-                            Expanded(
-                              child: Text(
-                                "dark_mode".tr,
-                                style: AppTextStyle.medium7.copyWith(
-                                  fontSize: AppDimens.fontSize14,
-                                  color:
-                                      AppColors.themeColor.textPrimaryColor,
+    return Obx(() {
+      Widget body = RefreshIndicator(
+        onRefresh: () async {
+          await controller.authController.refreshProfile();
+          log("profile refreshed");
+        },
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+          slivers: [
+            // ─── Profile Header ─────────────────────────────────────────
+            SliverToBoxAdapter(
+              child: _ProfileHeader(controller: controller),
+            ),
+   
+            // ─── Menu Items ─────────────────────────────────────────────
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 24.h),
+   
+                    // ── Account Section ─────────────────────────────────
+                    _SectionLabel(label: "account".tr),
+                    SizedBox(height: 10.h),
+                    _MenuCard(
+                      children: [
+                        _MenuItem(
+                          icon: Icons.person_outline_rounded,
+                          label: "editProfile".tr,
+                          onTap: () => Get.toNamed(Routes.EDITPROFILE),
+                        ),
+                      ],
+                    ),
+   
+                    SizedBox(height: 20.h),
+   
+                    // ── Appearance Section ───────────────────────────────
+                    _SectionLabel(label: "appearance".tr),
+                    SizedBox(height: 10.h),
+                    _MenuCard(
+                      children: [
+                        // Dark Mode Toggle
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 16.w, vertical: 4.h),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 40.w,
+                                height: 40.w,
+                                decoration: BoxDecoration(
+                                  color: AppColors.themeColor.primaryColor
+                                      .withOpacity(0.12),
+                                  borderRadius: BorderRadius.circular(10.r),
+                                ),
+                                child: Icon(
+                                  Icons.nightlight_round,
+                                  color: AppColors.themeColor.primaryColor,
+                                  size: 20.sp,
                                 ),
                               ),
-                            ),
-                            SizedBox(
-                              height: 36.h,
-                              width: 46.w,
-                              child: ThemeSwitcher(
-                                builder: (ctx) => DayNightSwitcher(
+                              SizedBox(width: 14.w),
+                              Expanded(
+                                child: Text(
+                                  "dark_mode".tr,
+                                  style: AppTextStyle.medium7.copyWith(
+                                    fontSize: AppDimens.fontSize14,
+                                    color:
+                                        AppColors.themeColor.textPrimaryColor,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                height: 36.h,
+                                width: 46.w,
+                                child: DayNightSwitcher(
                                   isDarkModeEnabled:
                                       controller.isDarkMode.value,
                                   onStateChanged: (value) {
-                                    controller.toggleTheme(value, ctx);
+                                    controller.toggleTheme(value, context);
                                   },
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
+                        ),
+                        _Divider(),
+                        _MenuItem(
+                          icon: Icons.language_outlined,
+                          label: "language".tr,
+                          onTap: () => Get.toNamed(Routes.LANGUAGE),
+                        ),
+                      ],
+                    ),
+   
+                    SizedBox(height: 20.h),
+   
+                    // ── Legal Section ───────────────────────────────────
+                    _SectionLabel(label: "legal".tr),
+                    SizedBox(height: 10.h),
+                    _MenuCard(
+                      children: [
+                        _MenuItem(
+                          icon: Icons.privacy_tip_outlined,
+                          label: "privacy_policy".tr,
+                          onTap: () => Get.toNamed(Routes.PRIVACY_POLICY),
+                        ),
+                        _Divider(),
+                        _MenuItem(
+                          icon: Icons.description_outlined,
+                          label: "terms_conditions".tr,
+                          onTap: () => Get.toNamed(Routes.TERMS_CONDITIONS),
+                        ),
+                      ],
+                    ),
+   
+                    SizedBox(height: 28.h),
+   
+                    // ── Logout ───────────────────────────────────────────
+                    _LogoutButton(),
+   
+                    SizedBox(height: 32.h),
+   
+                    // App version tag
+                    Center(
+                      child: Text(
+                        "v1.0.0",
+                        style: AppTextStyle.regular7.copyWith(
+                          fontSize: AppDimens.fontSize11,
+                          color: AppColors.themeColor.textSecondaryColor,
                         ),
                       ),
-                      _Divider(),
-                      _MenuItem(
-                        icon: Icons.language_outlined,
-                        label: "language".tr,
-                        onTap: () => Get.toNamed(Routes.LANGUAGE),
-                      ),
-                    ],
-                  ),
- 
-                  SizedBox(height: 20.h),
- 
-                  // ── Legal Section ───────────────────────────────────
-                  _SectionLabel(label: "legal".tr),
-                  SizedBox(height: 10.h),
-                  _MenuCard(
-                    children: [
-                      _MenuItem(
-                        icon: Icons.privacy_tip_outlined,
-                        label: "privacy_policy".tr,
-                        onTap: () => Get.toNamed(Routes.PRIVACY_POLICY),
-                      ),
-                      _Divider(),
-                      _MenuItem(
-                        icon: Icons.description_outlined,
-                        label: "terms_conditions".tr,
-                        onTap: () => Get.toNamed(Routes.TERMS_CONDITIONS),
-                      ),
-                    ],
-                  ),
- 
-                  SizedBox(height: 28.h),
- 
-                  // ── Logout ───────────────────────────────────────────
-                  _LogoutButton(),
- 
-                  SizedBox(height: 32.h),
- 
-                  // App version tag
-                  Center(
-                    child: Text(
-                      "v1.0.0",
-                      style: AppTextStyle.regular7.copyWith(
-                        fontSize: AppDimens.fontSize11,
-                        color: AppColors.themeColor.textSecondaryColor,
-                      ),
                     ),
-                  ),
-                  SizedBox(height: 80.h),
-                ],
+                    SizedBox(height: 80.h),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
-      ),
-    );
-
-    if (isStandalone) {
-      return Scaffold(
-        backgroundColor: AppColors.themeColor.scaffoldBackgroundColor,
-        body: body,
+          ],
+        ),
       );
-    }
-    return body;
+
+      if (isStandalone) {
+        return Scaffold(
+          backgroundColor: AppColors.themeColor.scaffoldBackgroundColor,
+          body: body,
+        );
+      }
+      return body;
+    });
   }
 }
 

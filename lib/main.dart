@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:ui';
-import 'package:animated_theme_switcher/animated_theme_switcher.dart';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -96,34 +96,29 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     final ThemeService themeService = Get.find();
     final LangService langService = Get.find();
 
-    return ThemeProvider(
-      initTheme: themeService.isDarkMode.value ? AppTheme.darkTheme : AppTheme.theme,
-      builder: (context, theme) {
-        return ScreenUtilInit(
-          designSize: const Size(360, 690),
-          minTextAdapt: true,
-          splitScreenMode: true,
-          builder: (context, child) => Obx(
-            () => GetMaterialApp(
-              title: AppStrings.appName,
-              debugShowCheckedModeBanner: false,
-              theme: theme, // Use theme from ThemeProvider
-              locale: Locale(langService.selectedLang.value),
-              fallbackLocale: const Locale('en'),
-              darkTheme: AppTheme.darkTheme,
-              themeMode: themeService.isDarkMode.value ? ThemeMode.dark : ThemeMode.light,
-              initialRoute: AppPages.INITIAL,
-              getPages: AppPages.routes,
-              unknownRoute: GetPage(
-                name: Paths.SPLASH,
-                page: () => SplashPage(),
-                binding: SplashBinding(),
-              ),
-              home: child,
-            ),
+    return ScreenUtilInit(
+      designSize: const Size(360, 690),
+      minTextAdapt: true,
+      splitScreenMode: true,
+      builder: (context, child) => Obx(
+        () => GetMaterialApp(
+          title: AppStrings.appName,
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.theme,
+          locale: Locale(langService.selectedLang.value),
+          fallbackLocale: const Locale('en'),
+          darkTheme: AppTheme.darkTheme,
+          themeMode: themeService.isDarkMode.value ? ThemeMode.dark : ThemeMode.light,
+          initialRoute: AppPages.INITIAL,
+          getPages: AppPages.routes,
+          unknownRoute: GetPage(
+            name: Paths.SPLASH,
+            page: () => SplashPage(),
+            binding: SplashBinding(),
           ),
-        );
-      },
+          home: child,
+        ),
+      ),
     );
   }
 }
