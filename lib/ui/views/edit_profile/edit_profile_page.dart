@@ -145,10 +145,10 @@ class EditProfilePage extends GetView<EditProfileController> {
                                                             Container(
                                                               padding: EdgeInsets.all(16.w),
                                                               decoration: BoxDecoration(
-                                                                color: Colors.blue.withOpacity(0.1),
+                                                                color: AppColors.themeColor.primaryColor.withOpacity(0.1),
                                                                 shape: BoxShape.circle,
                                                               ),
-                                                              child: Icon(Icons.camera_alt_rounded, color: Colors.blue, size: 28.sp),
+                                                              child: Icon(Icons.camera_alt_rounded, color: AppColors.themeColor.primaryColor, size: 28.sp),
                                                             ),
                                                             SizedBox(height: 8.h),
                                                             Text(
@@ -314,7 +314,7 @@ class EditProfilePage extends GetView<EditProfileController> {
                         Text(
                           "address".tr,
                           style: AppTextStyle.bold7
-                              .copyWith(fontSize: AppDimens.fontSize16, color: AppColors.themeColor.primaryColor),
+                              .copyWith(fontSize: AppDimens.fontSize16, color: AppColors.themeColor.textPrimaryColor),
                         ),
                         SizedBox(
                           height: 12.h,

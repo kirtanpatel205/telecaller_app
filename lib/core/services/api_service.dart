@@ -16,6 +16,7 @@ import 'package:telecaller_app/core/models/lead_chart_entity.dart';
 import 'package:telecaller_app/core/models/lead_contact_id_entity.dart';
 import 'package:telecaller_app/core/models/login_response_entity.dart';
 import 'package:telecaller_app/core/models/call_chart_entity.dart';
+import 'package:telecaller_app/core/models/panel_response_entity.dart';
 import 'package:telecaller_app/core/models/user_setting_response_entity.dart';
 
 import 'package:telecaller_app/core/network/dio_client.dart';
@@ -377,6 +378,7 @@ class ApiService extends GetxService {
     print("✅ Form submission response: $response");
     return ApiResponseEntity.fromJson(response);
   }
+
   Future<ApiResponseEntity> updateCallForm(Map<String, dynamic> data) async {
     print("📡 Submitting call form data: $data");
     Map<String, dynamic> response = await client.post(
@@ -387,7 +389,6 @@ class ApiService extends GetxService {
     print("✅ Form submission response: $response");
     return ApiResponseEntity.fromJson(response);
   }
-
 
   Future<ApiResponseEntity> syncCallLogs(Map<String, dynamic> logs) async {
     print("📡 Syncing call logs: ${logs['logs']?.length ?? 0} entries");
@@ -432,5 +433,12 @@ class ApiService extends GetxService {
     );
     print("form response $response");
     return FormResponseEntity.fromJson(response);
+  }
+
+  Future<PanelResponseEntity> panelResponse() async {
+    final respone = await client.get(AppConstants.API_PANEL_RESPONSE);
+
+    print("panel response $respone");
+    return PanelResponseEntity.fromJson(respone);
   }
 }

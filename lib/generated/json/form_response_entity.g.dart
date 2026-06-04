@@ -384,7 +384,7 @@ extension FormResponseFormResponseAnswersExtension on FormResponseFormResponseAn
     String? fieldId,
     String? label,
     String? type,
-    String? value,
+    dynamic value,
   }) {
     return FormResponseFormResponseAnswers()
       ..fieldId = fieldId ?? this.fieldId

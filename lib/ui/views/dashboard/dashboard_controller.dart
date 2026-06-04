@@ -19,6 +19,7 @@ class DashboardController extends GetxController{
 
     super.onInit();
     fetchChartData();
+
     fetchLeadChartData();
     static();
   }

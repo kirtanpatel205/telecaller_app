@@ -734,7 +734,7 @@ class CallFormPage extends StatelessWidget {
 
     if (type == FORM_FIELD_TYPES["IMAGE"]) {
       icon = Icons.image_outlined;
-      accentColor = Colors.blue;
+      accentColor = AppColors.themeColor.primaryColor;
       displayHint = "Upload Image (Max 5MB)";
     } else if (type == FORM_FIELD_TYPES["VIDEO"]) {
       icon = Icons.videocam_outlined;

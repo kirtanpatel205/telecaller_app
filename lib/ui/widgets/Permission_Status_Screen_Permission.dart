@@ -10,6 +10,7 @@ import 'package:telecaller_app/core/helpers/storage.dart';
 import 'package:telecaller_app/core/services/background_service_manager.dart';
 import 'package:telecaller_app/core/services/fcm_service.dart';
 import 'package:telecaller_app/core/services/phone_status_service.dart';
+import 'package:telecaller_app/constants/app_colors.dart';
 import 'package:telecaller_app/main.dart';
 import 'app_safe_area.dart';
 import 'dart:io';
@@ -246,13 +247,16 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
                     padding: EdgeInsets.all(14),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [Colors.blue.shade50, Colors.blue.shade100],
+                        colors: [
+                          AppColors.themeColor.primaryColor.withOpacity(0.1),
+                          AppColors.themeColor.primaryColor.withOpacity(0.2)
+                        ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: Colors.blue.shade200,
+                        color: AppColors.themeColor.primaryColor.withOpacity(0.3),
                         width: 1.5,
                       ),
                     ),
@@ -263,7 +267,7 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
                           children: [
                             Icon(
                               Icons.lock_rounded,
-                              color: Colors.blue.shade700,
+                              color: AppColors.themeColor.primaryColor,
                               size: 20,
                             ),
                             SizedBox(width: 10),
@@ -272,7 +276,7 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
                               style: TextStyle(
                                 fontWeight: FontWeight.w700,
                                 fontSize: 13,
-                                color: Colors.blue.shade700,
+                                color: AppColors.themeColor.primaryColor,
                               ),
                             ),
                           ],
@@ -285,7 +289,7 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
                           '✓ Revoke anytime in settings',
                           style: TextStyle(
                             fontSize: 12,
-                            color: Colors.blue.shade800,
+                            color: AppColors.themeColor.primaryColor,
                             fontWeight: FontWeight.w500,
                             height: 1.8,
                           ),
@@ -313,7 +317,7 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
                   _requestPermission(permission);
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue.shade700,
+                  backgroundColor: AppColors.themeColor.primaryColor,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -378,7 +382,7 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('✅ Permission request completed'),
-          backgroundColor: Colors.green.shade600,
+          backgroundColor: AppColors.themeColor.primaryColor,
           duration: Duration(seconds: 2),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -430,7 +434,7 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
                     children: [
                       CircularProgressIndicator(
                         valueColor: AlwaysStoppedAnimation<Color>(
-                          Colors.blue.shade700,
+                          AppColors.themeColor.primaryColor,
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -568,7 +572,7 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
                       children: [
                         CircularProgressIndicator(
                           valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.blue.shade700,
+                            AppColors.themeColor.primaryColor,
                           ),
                           strokeWidth: 3,
                         ),
@@ -600,14 +604,14 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: [
-                                Colors.blue.shade50,
-                                Colors.blue.shade100,
+                                AppColors.themeColor.primaryColor.withOpacity(0.1),
+                                AppColors.themeColor.primaryColor.withOpacity(0.2),
                               ],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: Colors.blue.shade200),
+                            border: Border.all(color: AppColors.themeColor.primaryColor.withOpacity(0.3)),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -634,7 +638,7 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
                                         style: TextStyle(
                                           fontSize: 24,
                                           fontWeight: FontWeight.w700,
-                                          color: Colors.blue.shade700,
+                                          color: AppColors.themeColor.primaryColor,
                                         ),
                                       ),
                                     ],
@@ -646,7 +650,7 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
                                       shape: BoxShape.circle,
                                       boxShadow: [
                                         BoxShadow(
-                                          color: Colors.blue.withOpacity(0.2),
+                                          color: AppColors.themeColor.primaryColor.withOpacity(0.2),
                                           blurRadius: 8,
                                           offset: Offset(0, 2),
                                         ),
@@ -657,7 +661,7 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
                                       style: TextStyle(
                                         fontSize: 20,
                                         fontWeight: FontWeight.w700,
-                                        color: Colors.green.shade600,
+                                        color: AppColors.themeColor.primaryColor,
                                       ),
                                     ),
                                   ),
@@ -675,7 +679,7 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
                                   minHeight: 12,
                                   backgroundColor: Colors.white,
                                   valueColor: AlwaysStoppedAnimation<Color>(
-                                    Colors.green.shade500,
+                                    AppColors.themeColor.primaryColor,
                                   ),
                                 ),
                               ),
@@ -793,8 +797,8 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
                         ? ElevatedButton.icon(
                           onPressed: isContinuing ? null : _continueToWelcome,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green.shade600,
-                            disabledBackgroundColor: Colors.green.shade300,
+                            backgroundColor: AppColors.themeColor.primaryColor,
+                            disabledBackgroundColor: AppColors.themeColor.primaryColor.withOpacity(0.5),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(14),
                             ),
@@ -827,8 +831,8 @@ class _PermissionStatusScreenState extends State<PermissionStatusScreen>
                         : ElevatedButton.icon(
                           onPressed: isLoading ? null : _requestAllPermissions,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue.shade700,
-                            disabledBackgroundColor: Colors.blue.shade300,
+                            backgroundColor: AppColors.themeColor.primaryColor,
+                            disabledBackgroundColor: AppColors.themeColor.primaryColor.withOpacity(0.5),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(14),
                             ),
@@ -923,7 +927,7 @@ class _PermissionCardState extends State<PermissionCard>
             border: Border.all(
               color:
                   widget.isGranted
-                      ? Colors.green.shade300
+                      ? AppColors.themeColor.primaryColor.withOpacity(0.5)
                       : Colors.grey.shade200,
               width: 1.5,
             ),
@@ -942,7 +946,7 @@ class _PermissionCardState extends State<PermissionCard>
                 decoration: BoxDecoration(
                   color:
                       widget.isGranted
-                          ? Colors.green.shade50
+                          ? AppColors.themeColor.primaryColor.withOpacity(0.1)
                           : Colors.grey.shade50,
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -950,7 +954,7 @@ class _PermissionCardState extends State<PermissionCard>
                   widget.icon,
                   color:
                       widget.isGranted
-                          ? Colors.green.shade600
+                          ? AppColors.themeColor.primaryColor
                           : Colors.grey.shade600,
                   size: 24,
                 ),
@@ -987,12 +991,12 @@ class _PermissionCardState extends State<PermissionCard>
                 Container(
                   padding: EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.green.shade100,
+                    color: AppColors.themeColor.primaryColor.withOpacity(0.2),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     Icons.check_rounded,
-                    color: Colors.green.shade600,
+                    color: AppColors.themeColor.primaryColor,
                     size: 20,
                   ),
                 )

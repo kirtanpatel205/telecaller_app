@@ -5,6 +5,7 @@ import 'package:telecaller_app/core/helpers/storage.dart';
 import 'package:telecaller_app/core/services/background_service_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../constants/app_routes.dart';
+import '../../constants/app_colors.dart';
 import 'package:telecaller_app/ui/widgets/app_safe_area.dart';
 import 'custom-appbar.dart';
 
@@ -115,7 +116,7 @@ class _ProminentDisclosurePageState extends State<ProminentDisclosurePage> {
                   height: 200,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.blue.shade50.withOpacity(0.5),
+                    color: AppColors.themeColor.primaryColor.withOpacity(0.1),
                   ),
                 ),
               ),
@@ -149,14 +150,14 @@ class _ProminentDisclosurePageState extends State<ProminentDisclosurePage> {
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: Colors.blue.shade50,
+                                color: AppColors.themeColor.primaryColor.withOpacity(0.1),
                               ),
                               child: Container(
                                 padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   gradient: LinearGradient(
-                                    colors: [Colors.blue.shade600, Colors.indigo.shade700],
+                                    colors: [AppColors.themeColor.primaryColor, AppColors.themeColor.primaryColor.withOpacity(0.8)],
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
                                   ),
@@ -208,7 +209,7 @@ class _ProminentDisclosurePageState extends State<ProminentDisclosurePage> {
                           // CALL LOG SECTION CARD
                           _buildSectionCard(
                             icon: Icons.phone_android_rounded,
-                            iconColor: Colors.blue,
+                            iconColor: AppColors.themeColor.primaryColor,
                             title: "Call Log & Phone Information Access",
                             content: "This app collects and processes call information such as:",
                             items: const [
@@ -339,10 +340,10 @@ class _ProminentDisclosurePageState extends State<ProminentDisclosurePage> {
                                 Container(
                                   padding: const EdgeInsets.all(12),
                                   decoration: BoxDecoration(
-                                    color: Colors.blue.shade50.withOpacity(0.7),
+                                    color: AppColors.themeColor.primaryColor.withOpacity(0.1),
                                     borderRadius: BorderRadius.circular(10),
                                     border: Border.all(
-                                      color: Colors.blue.shade100,
+                                      color: AppColors.themeColor.primaryColor.withOpacity(0.2),
                                       width: 1,
                                     ),
                                   ),
@@ -352,7 +353,7 @@ class _ProminentDisclosurePageState extends State<ProminentDisclosurePage> {
                                       Icon(
                                         Icons.vpn_key_rounded,
                                         size: 16,
-                                        color: Colors.blue.shade800,
+                                        color: AppColors.themeColor.primaryColor,
                                       ),
                                       const SizedBox(width: 8),
                                       const Expanded(
@@ -451,7 +452,7 @@ class _ProminentDisclosurePageState extends State<ProminentDisclosurePage> {
                                 TextSpan(
                                   text: "Terms & Conditions",
                                   style: TextStyle(
-                                    color: Colors.blue.shade700,
+                                    color: AppColors.themeColor.primaryColor,
                                     fontWeight: FontWeight.w700,
                                     decoration: TextDecoration.underline,
                                   ),
@@ -466,7 +467,7 @@ class _ProminentDisclosurePageState extends State<ProminentDisclosurePage> {
                                 TextSpan(
                                   text: "Privacy Policy",
                                   style: TextStyle(
-                                    color: Colors.blue.shade700,
+                                    color: AppColors.themeColor.primaryColor,
                                     fontWeight: FontWeight.w700,
                                     decoration: TextDecoration.underline,
                                   ),
@@ -751,16 +752,16 @@ class _ProminentDisclosurePageState extends State<ProminentDisclosurePage> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
-          color: value ? Colors.blue.shade50.withOpacity(0.35) : Colors.white,
+          color: value ? AppColors.themeColor.primaryColor.withOpacity(0.1) : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: value ? Colors.blue.shade500 : const Color(0xFFE2E8F0),
+            color: value ? AppColors.themeColor.primaryColor : const Color(0xFFE2E8F0),
             width: value ? 1.5 : 1,
           ),
           boxShadow: value
               ? [
                   BoxShadow(
-                    color: Colors.blue.shade100.withOpacity(0.2),
+                    color: AppColors.themeColor.primaryColor.withOpacity(0.2),
                     blurRadius: 6,
                     offset: const Offset(0, 2),
                   )
@@ -778,7 +779,7 @@ class _ProminentDisclosurePageState extends State<ProminentDisclosurePage> {
                 child: Checkbox(
                   value: value,
                   onChanged: onChanged,
-                  activeColor: Colors.blue.shade600,
+                  activeColor: AppColors.themeColor.primaryColor,
                   checkColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(4),

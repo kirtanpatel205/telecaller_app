@@ -90,4 +90,10 @@ class AppConstants {
   static String API_SWITCH_MODE = '$API_URL/telecaller/switch-mode';
   static String API_FORM_RESPONSE =
       '$API_URL/telecaller/form-response/lead-contact';
+  static String API_PANEL_RESPONSE =
+      '$API_URL/panel/details/telecallerRequest';
+
+
+
+
 }

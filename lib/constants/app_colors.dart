@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:telecaller_app/core/services/theme_service.dart';
+import 'package:telecaller_app/core/helpers/storage.dart';
+
 
 class AppColors {
   const AppColors._();
@@ -15,9 +17,23 @@ class AppColors {
     }
   }
 
+  static Color _getDynamicPrimaryColor(Color defaultColor) {
+    try {
+      final colorStr = Storage.getValue('theme_primary_color');
+      if (colorStr != null && colorStr.toString().isNotEmpty) {
+        String hex = colorStr.toString().replaceAll('#', '');
+        if (hex.length == 6) {
+          hex = 'FF' + hex;
+        }
+        return Color(int.parse(hex, radix: 16));
+      }
+    } catch (_) {}
+    return defaultColor;
+  }
+
   static ThemeColor get lightThemeColor => new ThemeColor(
     scaffoldBackgroundColor: Color(0xFFF7F7F7),
-    primaryColor: Color(0xff0084FE),
+    primaryColor: _getDynamicPrimaryColor(Color(0xff0084FE)),
     onPrimaryColor: Color(0xFFFFFFFF),
     textPrimaryColor: Color(0xff000000),
     textSecondaryColor: Color(0xff676767),
@@ -59,7 +75,7 @@ class AppColors {
 
   static ThemeColor get darkThemeColor => new ThemeColor(
     scaffoldBackgroundColor: Color(0xFF121212),
-    primaryColor: Color(0xff3298CC),
+    primaryColor: _getDynamicPrimaryColor(Color(0xff3298CC)),
     onPrimaryColor: Color(0xFFFFFFFF),
     couponPercentageColor: Color(0xFF73BBFE),
     textPrimaryColor: Color(0xffffffff),

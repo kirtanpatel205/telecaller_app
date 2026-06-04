@@ -10,6 +10,8 @@ import 'package:telecaller_app/ui/widgets/Permission_Status_Screen_Permission.da
 import 'package:telecaller_app/ui/widgets/optimization_guide_dialog.dart';
 import 'package:flutter/services.dart';
 import 'package:telecaller_app/core/services/background_service_manager.dart';
+import 'package:telecaller_app/core/services/api_service.dart';
+import 'package:telecaller_app/constants/app_theme.dart';
 
 class SplashController extends GetxController {
   static const _channel = MethodChannel(
@@ -72,6 +74,18 @@ class SplashController extends GetxController {
       "isSignedIn: ${authController.isSignedIn}, "
       "hasUserId: ${Storage.hasData(AppConstants.USER_ID)}",
     );
+
+    try {
+      final panelResponse = await ApiService.to.panelResponse();
+      if (panelResponse.status == true && 
+          panelResponse.panel?.telecaller?.theme?.token?.colorPrimary != null) {
+        final String colorStr = panelResponse.panel!.telecaller!.theme!.token!.colorPrimary!;
+        await Storage.saveValue('theme_primary_color', colorStr);
+        Get.changeTheme(Get.isDarkMode ? AppTheme.darkTheme : AppTheme.theme);
+      }
+    } catch (e) {
+      print("Panel response error: $e");
+    }
 
     await Future.delayed(const Duration(milliseconds: 500));
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:telecaller_app/core/services/background_service_manager.dart';
+import 'package:telecaller_app/constants/app_colors.dart';
 
 class OptimizationGuideDialog extends StatelessWidget {
   final bool isXiaomi;
@@ -24,7 +25,7 @@ class OptimizationGuideDialog extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
           gradient: LinearGradient(
-            colors: [Colors.blue.shade900, Colors.blue.shade700],
+            colors: [AppColors.themeColor.primaryColor, AppColors.themeColor.primaryColor.withOpacity(0.8)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -68,7 +69,7 @@ class OptimizationGuideDialog extends StatelessWidget {
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
-                      foregroundColor: Colors.blue.shade900,
+                      foregroundColor: AppColors.themeColor.primaryColor,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
                     onPressed: () {

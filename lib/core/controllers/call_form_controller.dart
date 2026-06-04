@@ -813,7 +813,7 @@ class CallFormController extends GetxController {
                   _buildOptionTile(
                     icon: Icons.camera_alt_rounded,
                     label: "openCamera".tr,
-                    color: Colors.blue,
+                    color: AppColors.themeColor.primaryColor,
                     onTap: () async {
                       if (Get.isBottomSheetOpen ?? false) {
                         Get.back();

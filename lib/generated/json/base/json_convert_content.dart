@@ -15,6 +15,7 @@ import 'package:telecaller_app/core/models/language_entity.dart';
 import 'package:telecaller_app/core/models/lead_chart_entity.dart';
 import 'package:telecaller_app/core/models/lead_contact_id_entity.dart';
 import 'package:telecaller_app/core/models/login_response_entity.dart';
+import 'package:telecaller_app/core/models/panel_response_entity.dart';
 import 'package:telecaller_app/core/models/user_setting_response_entity.dart';
 
 JsonConvert jsonConvert = JsonConvert();
@@ -334,6 +335,190 @@ class JsonConvert {
           Map<String, dynamic> e) =>
           LoginResponseProfileSubscription.fromJson(e)).toList() as M;
     }
+    if (<PanelResponseEntity>[] is M) {
+      return data.map<PanelResponseEntity>((Map<String, dynamic> e) =>
+          PanelResponseEntity.fromJson(e)).toList() as M;
+    }
+    if (<PanelResponsePanel>[] is M) {
+      return data.map<PanelResponsePanel>((Map<String, dynamic> e) =>
+          PanelResponsePanel.fromJson(e)).toList() as M;
+    }
+    if (<PanelResponsePanelPaymentGateway>[] is M) {
+      return data.map<PanelResponsePanelPaymentGateway>((
+          Map<String, dynamic> e) =>
+          PanelResponsePanelPaymentGateway.fromJson(e)).toList() as M;
+    }
+    if (<PanelResponsePanelPaymentGatewayRazorPay>[] is M) {
+      return data.map<PanelResponsePanelPaymentGatewayRazorPay>((
+          Map<String, dynamic> e) =>
+          PanelResponsePanelPaymentGatewayRazorPay.fromJson(e)).toList() as M;
+    }
+    if (<PanelResponsePanelPaymentGatewayPayPal>[] is M) {
+      return data.map<PanelResponsePanelPaymentGatewayPayPal>((
+          Map<String, dynamic> e) =>
+          PanelResponsePanelPaymentGatewayPayPal.fromJson(e)).toList() as M;
+    }
+    if (<PanelResponsePanelPaymentGatewayPhonePe>[] is M) {
+      return data.map<PanelResponsePanelPaymentGatewayPhonePe>((
+          Map<String, dynamic> e) =>
+          PanelResponsePanelPaymentGatewayPhonePe.fromJson(e)).toList() as M;
+    }
+    if (<PanelResponsePanelPaymentGatewayPayUMoney>[] is M) {
+      return data.map<PanelResponsePanelPaymentGatewayPayUMoney>((
+          Map<String, dynamic> e) =>
+          PanelResponsePanelPaymentGatewayPayUMoney.fromJson(e)).toList() as M;
+    }
+    if (<PanelResponsePanelPaymentGatewayCashfree>[] is M) {
+      return data.map<PanelResponsePanelPaymentGatewayCashfree>((
+          Map<String, dynamic> e) =>
+          PanelResponsePanelPaymentGatewayCashfree.fromJson(e)).toList() as M;
+    }
+    if (<PanelResponsePanelPaymentGatewaySmepay>[] is M) {
+      return data.map<PanelResponsePanelPaymentGatewaySmepay>((
+          Map<String, dynamic> e) =>
+          PanelResponsePanelPaymentGatewaySmepay.fromJson(e)).toList() as M;
+    }
+    if (<PanelResponsePanelSeo>[] is M) {
+      return data.map<PanelResponsePanelSeo>((Map<String, dynamic> e) =>
+          PanelResponsePanelSeo.fromJson(e)).toList() as M;
+    }
+    if (<PanelResponsePanelBilling>[] is M) {
+      return data.map<PanelResponsePanelBilling>((Map<String, dynamic> e) =>
+          PanelResponsePanelBilling.fromJson(e)).toList() as M;
+    }
+    if (<PanelResponsePanelGoogleTag>[] is M) {
+      return data.map<PanelResponsePanelGoogleTag>((Map<String, dynamic> e) =>
+          PanelResponsePanelGoogleTag.fromJson(e)).toList() as M;
+    }
+    if (<PanelResponsePanelPolicy>[] is M) {
+      return data.map<PanelResponsePanelPolicy>((Map<String, dynamic> e) =>
+          PanelResponsePanelPolicy.fromJson(e)).toList() as M;
+    }
+    if (<PanelResponsePanelCurrencies>[] is M) {
+      return data.map<PanelResponsePanelCurrencies>((Map<String, dynamic> e) =>
+          PanelResponsePanelCurrencies.fromJson(e)).toList() as M;
+    }
+    if (<PanelResponsePanelGithub>[] is M) {
+      return data.map<PanelResponsePanelGithub>((Map<String, dynamic> e) =>
+          PanelResponsePanelGithub.fromJson(e)).toList() as M;
+    }
+    if (<PanelResponsePanelCrm>[] is M) {
+      return data.map<PanelResponsePanelCrm>((Map<String, dynamic> e) =>
+          PanelResponsePanelCrm.fromJson(e)).toList() as M;
+    }
+    if (<PanelResponsePanelCrmSupport>[] is M) {
+      return data.map<PanelResponsePanelCrmSupport>((Map<String, dynamic> e) =>
+          PanelResponsePanelCrmSupport.fromJson(e)).toList() as M;
+    }
+    if (<PanelResponsePanelCrmSocialMedia>[] is M) {
+      return data.map<PanelResponsePanelCrmSocialMedia>((
+          Map<String, dynamic> e) =>
+          PanelResponsePanelCrmSocialMedia.fromJson(e)).toList() as M;
+    }
+    if (<PanelResponsePanelCrmTheme>[] is M) {
+      return data.map<PanelResponsePanelCrmTheme>((Map<String, dynamic> e) =>
+          PanelResponsePanelCrmTheme.fromJson(e)).toList() as M;
+    }
+    if (<PanelResponsePanelCrmThemeToken>[] is M) {
+      return data.map<PanelResponsePanelCrmThemeToken>((
+          Map<String, dynamic> e) =>
+          PanelResponsePanelCrmThemeToken.fromJson(e)).toList() as M;
+    }
+    if (<PanelResponsePanelCrmCarousel>[] is M) {
+      return data.map<PanelResponsePanelCrmCarousel>((Map<String, dynamic> e) =>
+          PanelResponsePanelCrmCarousel.fromJson(e)).toList() as M;
+    }
+    if (<PanelResponsePanelCrmRate>[] is M) {
+      return data.map<PanelResponsePanelCrmRate>((Map<String, dynamic> e) =>
+          PanelResponsePanelCrmRate.fromJson(e)).toList() as M;
+    }
+    if (<PanelResponsePanelCrmRateUser>[] is M) {
+      return data.map<PanelResponsePanelCrmRateUser>((Map<String, dynamic> e) =>
+          PanelResponsePanelCrmRateUser.fromJson(e)).toList() as M;
+    }
+    if (<PanelResponsePanelCrmRateUserInstance>[] is M) {
+      return data.map<PanelResponsePanelCrmRateUserInstance>((
+          Map<String, dynamic> e) =>
+          PanelResponsePanelCrmRateUserInstance.fromJson(e)).toList() as M;
+    }
+    if (<PanelResponsePanelCrmRateUserMember>[] is M) {
+      return data.map<PanelResponsePanelCrmRateUserMember>((
+          Map<String, dynamic> e) =>
+          PanelResponsePanelCrmRateUserMember.fromJson(e)).toList() as M;
+    }
+    if (<PanelResponsePanelCrmRateUserEmail>[] is M) {
+      return data.map<PanelResponsePanelCrmRateUserEmail>((
+          Map<String, dynamic> e) =>
+          PanelResponsePanelCrmRateUserEmail.fromJson(e)).toList() as M;
+    }
+    if (<PanelResponsePanelCrmRateUserTelecaller>[] is M) {
+      return data.map<PanelResponsePanelCrmRateUserTelecaller>((
+          Map<String, dynamic> e) =>
+          PanelResponsePanelCrmRateUserTelecaller.fromJson(e)).toList() as M;
+    }
+    if (<PanelResponsePanelCrmRateMaster>[] is M) {
+      return data.map<PanelResponsePanelCrmRateMaster>((
+          Map<String, dynamic> e) =>
+          PanelResponsePanelCrmRateMaster.fromJson(e)).toList() as M;
+    }
+    if (<PanelResponsePanelCrmRateMasterMember>[] is M) {
+      return data.map<PanelResponsePanelCrmRateMasterMember>((
+          Map<String, dynamic> e) =>
+          PanelResponsePanelCrmRateMasterMember.fromJson(e)).toList() as M;
+    }
+    if (<PanelResponsePanelCrmRateMasterInstance>[] is M) {
+      return data.map<PanelResponsePanelCrmRateMasterInstance>((
+          Map<String, dynamic> e) =>
+          PanelResponsePanelCrmRateMasterInstance.fromJson(e)).toList() as M;
+    }
+    if (<PanelResponsePanelCrmRateMasterEmail>[] is M) {
+      return data.map<PanelResponsePanelCrmRateMasterEmail>((
+          Map<String, dynamic> e) =>
+          PanelResponsePanelCrmRateMasterEmail.fromJson(e)).toList() as M;
+    }
+    if (<PanelResponsePanelCrmRateMasterTelecaller>[] is M) {
+      return data.map<PanelResponsePanelCrmRateMasterTelecaller>((
+          Map<String, dynamic> e) =>
+          PanelResponsePanelCrmRateMasterTelecaller.fromJson(e)).toList() as M;
+    }
+    if (<PanelResponsePanelTelecaller>[] is M) {
+      return data.map<PanelResponsePanelTelecaller>((Map<String, dynamic> e) =>
+          PanelResponsePanelTelecaller.fromJson(e)).toList() as M;
+    }
+    if (<PanelResponsePanelTelecallerSupport>[] is M) {
+      return data.map<PanelResponsePanelTelecallerSupport>((
+          Map<String, dynamic> e) =>
+          PanelResponsePanelTelecallerSupport.fromJson(e)).toList() as M;
+    }
+    if (<PanelResponsePanelTelecallerSocialMedia>[] is M) {
+      return data.map<PanelResponsePanelTelecallerSocialMedia>((
+          Map<String, dynamic> e) =>
+          PanelResponsePanelTelecallerSocialMedia.fromJson(e)).toList() as M;
+    }
+    if (<PanelResponsePanelTelecallerTheme>[] is M) {
+      return data.map<PanelResponsePanelTelecallerTheme>((
+          Map<String, dynamic> e) =>
+          PanelResponsePanelTelecallerTheme.fromJson(e)).toList() as M;
+    }
+    if (<PanelResponsePanelTelecallerThemeToken>[] is M) {
+      return data.map<PanelResponsePanelTelecallerThemeToken>((
+          Map<String, dynamic> e) =>
+          PanelResponsePanelTelecallerThemeToken.fromJson(e)).toList() as M;
+    }
+    if (<PanelResponsePanelTelecallerCarousel>[] is M) {
+      return data.map<PanelResponsePanelTelecallerCarousel>((
+          Map<String, dynamic> e) =>
+          PanelResponsePanelTelecallerCarousel.fromJson(e)).toList() as M;
+    }
+    if (<PanelResponsePanelCost>[] is M) {
+      return data.map<PanelResponsePanelCost>((Map<String, dynamic> e) =>
+          PanelResponsePanelCost.fromJson(e)).toList() as M;
+    }
+    if (<PanelResponsePanelCostRebranding>[] is M) {
+      return data.map<PanelResponsePanelCostRebranding>((
+          Map<String, dynamic> e) =>
+          PanelResponsePanelCostRebranding.fromJson(e)).toList() as M;
+    }
     if (<UserSettingResponseEntity>[] is M) {
       return data.map<UserSettingResponseEntity>((Map<String, dynamic> e) =>
           UserSettingResponseEntity.fromJson(e)).toList() as M;
@@ -436,6 +621,77 @@ class JsonConvertClassCollection {
         .fromJson,
     (LoginResponseProfileSubscription)
         .toString(): LoginResponseProfileSubscription.fromJson,
+    (PanelResponseEntity).toString(): PanelResponseEntity.fromJson,
+    (PanelResponsePanel).toString(): PanelResponsePanel.fromJson,
+    (PanelResponsePanelPaymentGateway)
+        .toString(): PanelResponsePanelPaymentGateway.fromJson,
+    (PanelResponsePanelPaymentGatewayRazorPay)
+        .toString(): PanelResponsePanelPaymentGatewayRazorPay.fromJson,
+    (PanelResponsePanelPaymentGatewayPayPal)
+        .toString(): PanelResponsePanelPaymentGatewayPayPal.fromJson,
+    (PanelResponsePanelPaymentGatewayPhonePe)
+        .toString(): PanelResponsePanelPaymentGatewayPhonePe.fromJson,
+    (PanelResponsePanelPaymentGatewayPayUMoney)
+        .toString(): PanelResponsePanelPaymentGatewayPayUMoney.fromJson,
+    (PanelResponsePanelPaymentGatewayCashfree)
+        .toString(): PanelResponsePanelPaymentGatewayCashfree.fromJson,
+    (PanelResponsePanelPaymentGatewaySmepay)
+        .toString(): PanelResponsePanelPaymentGatewaySmepay.fromJson,
+    (PanelResponsePanelSeo).toString(): PanelResponsePanelSeo.fromJson,
+    (PanelResponsePanelBilling).toString(): PanelResponsePanelBilling.fromJson,
+    (PanelResponsePanelGoogleTag).toString(): PanelResponsePanelGoogleTag
+        .fromJson,
+    (PanelResponsePanelPolicy).toString(): PanelResponsePanelPolicy.fromJson,
+    (PanelResponsePanelCurrencies).toString(): PanelResponsePanelCurrencies
+        .fromJson,
+    (PanelResponsePanelGithub).toString(): PanelResponsePanelGithub.fromJson,
+    (PanelResponsePanelCrm).toString(): PanelResponsePanelCrm.fromJson,
+    (PanelResponsePanelCrmSupport).toString(): PanelResponsePanelCrmSupport
+        .fromJson,
+    (PanelResponsePanelCrmSocialMedia)
+        .toString(): PanelResponsePanelCrmSocialMedia.fromJson,
+    (PanelResponsePanelCrmTheme).toString(): PanelResponsePanelCrmTheme
+        .fromJson,
+    (PanelResponsePanelCrmThemeToken)
+        .toString(): PanelResponsePanelCrmThemeToken.fromJson,
+    (PanelResponsePanelCrmCarousel).toString(): PanelResponsePanelCrmCarousel
+        .fromJson,
+    (PanelResponsePanelCrmRate).toString(): PanelResponsePanelCrmRate.fromJson,
+    (PanelResponsePanelCrmRateUser).toString(): PanelResponsePanelCrmRateUser
+        .fromJson,
+    (PanelResponsePanelCrmRateUserInstance)
+        .toString(): PanelResponsePanelCrmRateUserInstance.fromJson,
+    (PanelResponsePanelCrmRateUserMember)
+        .toString(): PanelResponsePanelCrmRateUserMember.fromJson,
+    (PanelResponsePanelCrmRateUserEmail)
+        .toString(): PanelResponsePanelCrmRateUserEmail.fromJson,
+    (PanelResponsePanelCrmRateUserTelecaller)
+        .toString(): PanelResponsePanelCrmRateUserTelecaller.fromJson,
+    (PanelResponsePanelCrmRateMaster)
+        .toString(): PanelResponsePanelCrmRateMaster.fromJson,
+    (PanelResponsePanelCrmRateMasterMember)
+        .toString(): PanelResponsePanelCrmRateMasterMember.fromJson,
+    (PanelResponsePanelCrmRateMasterInstance)
+        .toString(): PanelResponsePanelCrmRateMasterInstance.fromJson,
+    (PanelResponsePanelCrmRateMasterEmail)
+        .toString(): PanelResponsePanelCrmRateMasterEmail.fromJson,
+    (PanelResponsePanelCrmRateMasterTelecaller)
+        .toString(): PanelResponsePanelCrmRateMasterTelecaller.fromJson,
+    (PanelResponsePanelTelecaller).toString(): PanelResponsePanelTelecaller
+        .fromJson,
+    (PanelResponsePanelTelecallerSupport)
+        .toString(): PanelResponsePanelTelecallerSupport.fromJson,
+    (PanelResponsePanelTelecallerSocialMedia)
+        .toString(): PanelResponsePanelTelecallerSocialMedia.fromJson,
+    (PanelResponsePanelTelecallerTheme)
+        .toString(): PanelResponsePanelTelecallerTheme.fromJson,
+    (PanelResponsePanelTelecallerThemeToken)
+        .toString(): PanelResponsePanelTelecallerThemeToken.fromJson,
+    (PanelResponsePanelTelecallerCarousel)
+        .toString(): PanelResponsePanelTelecallerCarousel.fromJson,
+    (PanelResponsePanelCost).toString(): PanelResponsePanelCost.fromJson,
+    (PanelResponsePanelCostRebranding)
+        .toString(): PanelResponsePanelCostRebranding.fromJson,
     (UserSettingResponseEntity).toString(): UserSettingResponseEntity.fromJson,
     (UserSettingResponseUserSetting).toString(): UserSettingResponseUserSetting
         .fromJson,
