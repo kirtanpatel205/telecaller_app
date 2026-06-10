@@ -105,8 +105,8 @@ dependencies:
   phone_state: ^2.1.1
 #  flutter_phone_call_state:
   permission_handler: ^11.3.1
-#  yaml: ^3.1.2
-#  flutter_launcher_icons: ^0.13.1
+  yaml: ^3.1.2
+  flutter_launcher_icons: ^0.13.1
 #  rename_app: ^1.0.2
 
     #  rename: ^3.0.2

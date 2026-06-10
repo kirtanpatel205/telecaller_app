@@ -1,1 +1,25 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"dbm-telecaller","appId":"1:626864530224:android:f6b51f7a782de4a55bdef5","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"dbm-telecaller","configurations":{"android":"1:626864530224:android:f6b51f7a782de4a55bdef5","ios":"1:626864530224:ios:ef1b6b4210ece0e45bdef5","macos":"1:626864530224:ios:674e1d5c902512a15bdef5","web":"1:626864530224:web:76fbf58827e24ea45bdef5","windows":"1:626864530224:web:ab85ba7ddadf4b3c5bdef5"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "dbm-telecaller",
+          "appId": "1:626864530224:android:f6b51f7a782de4a55bdef5",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "dbm-telecaller",
+          "configurations": {
+            "android": "1:626864530224:android:f6b51f7a782de4a55bdef5",
+            "ios": "1:626864530224:ios:ef1b6b4210ece0e45bdef5",
+            "macos": "1:626864530224:ios:674e1d5c902512a15bdef5",
+            "web": "1:626864530224:web:76fbf58827e24ea45bdef5",
+            "windows": "1:626864530224:web:ab85ba7ddadf4b3c5bdef5"
+          }
+        }
+      }
+    }
+  }
+}
