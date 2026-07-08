@@ -25,18 +25,18 @@ class WelcomeController extends GetxController {
   RxList onBoardingData =
       [
         {
-          "image": 'assets/images/d1.png',
+          "image": 'assets/images/Screenshot 2026-06-10 151602.png',
           "title": 'Welcome to Truecaller App',
           "description":
               "Experience the best telecalling features with our \n Truecaller app that makes communication easier.",
         },
         {
-          "image": 'assets/images/d2.png',
+          "image": 'assets/images/Screenshot 2026-06-10 151345.png',
           "title": 'Advance Reporting',
           "description":"The process of collecting data, breaking down information into \n meaningful pieces, and then putting it back together in a \n way that makes sense to the reader.",
         },
         {
-          "image": 'assets/images/d3.png',
+          "image": 'assets/images/Screenshot 2026-06-10 151656.png',
           "title": '24 7 Service/Support',
           "description":"Customers can get help and find answers to questions as \n soon as they come up—24/7 and in real-time.",
         },

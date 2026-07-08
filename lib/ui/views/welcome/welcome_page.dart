@@ -29,6 +29,7 @@ class WelcomePage extends GetView<WelcomeController> {
         .width;
     return AppSafeArea(child: Obx(() =>
         Scaffold(
+          backgroundColor: Colors.white,
           body: Stack(
             children: [
               PageView.builder(
@@ -56,7 +57,7 @@ class WelcomePage extends GetView<WelcomeController> {
                             controller.onBoardingData[index]['title'],
                             style: AppTextStyle.bold7.copyWith(
                               fontSize: AppDimens.fontSize18,
-                              color: AppColors.themeColor.textPrimaryColor,
+                              color: Colors.black87,
                             ),
                           ),
                         ),
@@ -68,7 +69,7 @@ class WelcomePage extends GetView<WelcomeController> {
                             textAlign: TextAlign.center,
                             style: AppTextStyle.regular7.copyWith(
                               fontSize: AppDimens.fontSize12,
-                              color: AppColors.themeColor.textSecondaryColor,
+                              color: Colors.black54,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -124,7 +125,7 @@ class WelcomePage extends GetView<WelcomeController> {
                             child: Text('Skip',
                                 style: AppTextStyle.medium7.copyWith(
                                     fontSize: AppDimens.fontSize14,
-                                    color: AppColors.themeColor.textSecondaryColor,
+                                    color: Colors.black54,
                                     fontWeight: FontWeight.w500)),
                           ),
                         ),

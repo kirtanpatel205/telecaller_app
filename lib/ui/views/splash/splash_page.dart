@@ -14,10 +14,10 @@ class SplashPage extends GetView<SplashController> {
   Widget build(BuildContext context) {
 
     return AppSafeArea(child: Scaffold(
-      backgroundColor: AppColors.themeColor.bgColor,
+      backgroundColor: Colors.white,
       body: Center(
           child: Image.asset(
-        'assets/images/Frame.png',
+        'assets/images/Frame (2).jpg',
         width: 0.5.sw,
         fit: BoxFit.contain,
       )),

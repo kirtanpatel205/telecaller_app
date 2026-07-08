@@ -76,7 +76,9 @@ class OtpController extends GetxController {
         otp: otp.value,
       );
       if (response.status == false) {
-        Utils.showToast("Your account is inactive, Please contact admin");
+        Utils.showToast("Invalid OTP or inactive account.");
+        isLoading.value = false;
+        return;
       }
       authController.checkUserManually(response);
 

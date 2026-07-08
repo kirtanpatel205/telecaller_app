@@ -250,6 +250,7 @@ class BackgroundServiceManager {
         onStart: onStart,
         autoStart: true,
         isForegroundMode: true,
+
         notificationChannelId: 'my_foreground',
         initialNotificationTitle: 'Telecaller Service',
         initialNotificationContent: 'Running in background',

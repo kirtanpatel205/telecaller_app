@@ -114,27 +114,6 @@ class SettingPage extends GetView<HomeController> {
                       ],
                     ),
    
-                    SizedBox(height: 20.h),
-   
-                    // ── Legal Section ───────────────────────────────────
-                    _SectionLabel(label: "legal".tr),
-                    SizedBox(height: 10.h),
-                    _MenuCard(
-                      children: [
-                        _MenuItem(
-                          icon: Icons.privacy_tip_outlined,
-                          label: "privacy_policy".tr,
-                          onTap: () => Get.toNamed(Routes.PRIVACY_POLICY),
-                        ),
-                        _Divider(),
-                        _MenuItem(
-                          icon: Icons.description_outlined,
-                          label: "terms_conditions".tr,
-                          onTap: () => Get.toNamed(Routes.TERMS_CONDITIONS),
-                        ),
-                      ],
-                    ),
-   
                     SizedBox(height: 28.h),
    
                     // ── Logout ───────────────────────────────────────────

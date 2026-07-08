@@ -16,10 +16,13 @@ import '../controllers/socket_controller.dart';
 import '../helpers/storage.dart';
 import '../services/api_service.dart';
 
+import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:telecaller_app/core/services/background_service_manager.dart';
 import 'package:telecaller_app/core/services/fcm_service.dart';
 import 'package:telecaller_app/core/services/phone_status_service.dart';
+import 'package:telecaller_app/core/services/theme_service.dart';
+import 'package:telecaller_app/core/services/lang_service.dart';
 import 'package:workmanager/workmanager.dart';
 
 class AuthController extends GetxController {
@@ -253,13 +256,23 @@ class AuthController extends GetxController {
       }
 
       // 4. Clear Local Storage (GetStorage & SharedPreferences)
-      final primaryColor = Storage.getValue('theme_primary_color');
       await Storage.clearStorage();
       final prefs = await SharedPreferences.getInstance();
       await prefs.clear();
       
-      if (primaryColor != null) {
-        await Storage.saveValue('theme_primary_color', primaryColor);
+      // Reset Theme and Language in memory
+      try {
+        if (Get.isRegistered<ThemeService>()) {
+          Get.find<ThemeService>().isDarkMode.value = false;
+          Get.changeThemeMode(ThemeMode.light);
+          Get.find<ThemeService>().getCurrentStatusNavigationBarColor();
+          Get.find<ThemeService>().primaryColorUpdateTrigger.value = ''; 
+        }
+        if (Get.isRegistered<LangService>()) {
+          Get.find<LangService>().onChangeLang('en');
+        }
+      } catch (e) {
+        print("Error resetting theme/lang: $e");
       }
       
       print("✅ Local session cleared");

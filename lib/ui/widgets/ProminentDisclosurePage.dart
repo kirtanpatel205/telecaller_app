@@ -196,7 +196,7 @@ class _ProminentDisclosurePageState extends State<ProminentDisclosurePage> {
 
                           // APP INTRO / CRM DESCRIPTION
                           const Text(
-                            "Digi Bulk Marketing – Telecaller is a company CRM and customer management application designed for registered telecallers. To provide its core business features, this app requires access to certain phone and system permissions.",
+                            "Digi Bulk Marketing – Telecaller is a company CRM. Digi Bulk Marketing – Telecaller collects, transmits, syncs, and stores your Phone Number and Call Log data to enable identifying customers during incoming/outgoing calls, and tracking telecaller performance, during active application usage and background call tracking.",
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 13,
@@ -210,8 +210,8 @@ class _ProminentDisclosurePageState extends State<ProminentDisclosurePage> {
                           _buildSectionCard(
                             icon: Icons.phone_android_rounded,
                             iconColor: AppColors.themeColor.primaryColor,
-                            title: "Call Log & Phone Information Access",
-                            content: "This app collects and processes call information such as:",
+                            title: "Phone Number & Call Log Access",
+                            content: "Digi Bulk Marketing – Telecaller collects, transmits, syncs, and stores your Phone Number and Call Log data to enable CRM features and customer identification, in both foreground and background scenarios. Data includes:",
                             items: const [
                               "Phone numbers",
                               "Call Duration",
@@ -242,6 +242,29 @@ class _ProminentDisclosurePageState extends State<ProminentDisclosurePage> {
                                 const SizedBox(height: 12),
                                 _buildSafeBadge(
                                   "The app does NOT record call audio or call content.",
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // SIM CARD SECTION CARD
+                          _buildSectionCard(
+                            icon: Icons.sim_card_rounded,
+                            iconColor: Colors.blueAccent,
+                            title: "SIM Card & Active Phone Number",
+                            content: "Digi Bulk Marketing – Telecaller collects and uses your active SIM Card information to enable you to select your preferred SIM for telecalling and map calls correctly to the CRM system.",
+                            items: const [
+                              "SIM Slot Index",
+                              "Carrier Name",
+                              "Phone number associated with the SIM",
+                            ],
+                            extraContent: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 12),
+                                _buildSafeBadge(
+                                  "This ensures we know which of your SIM cards (e.g., SIM 1 or SIM 2) is used for company calls.",
                                 ),
                               ],
                             ),
@@ -421,7 +444,7 @@ class _ProminentDisclosurePageState extends State<ProminentDisclosurePage> {
                             });
                           },
                           titleWidget: const Text(
-                            "I allow Digi Bulk Marketing – Telecaller to access Call Log and Phone information for CRM and call management features.",
+                            "I allow Digi Bulk Marketing – Telecaller to collect, transmit, sync, and store my Phone Number, SIM Card details, and Call Log data for CRM and call management features.",
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
