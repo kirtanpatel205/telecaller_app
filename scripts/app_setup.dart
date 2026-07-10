@@ -1,664 +1,1137 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
+import 'package:xml/xml.dart';
+import 'package:path/path.dart' as p;
+import 'package:image/image.dart' as img;
 
-final String sep = Platform.pathSeparator;
+// Hardcoded Firebase constants
+const String FIREBASE_PROJECT_ID = "dbm-telecaller";
+const String FIREBASE_ANDROID_APP_ID =
+    "1:626864530224:android:f6b51f7a782de4a55bdef5";
+const List<String> TESTERS = ["patelkirtan526@gmail.com"];
 
-// ══════════════════════════════════════════════════════════════
-//  DYNAMIC CONFIGURATION
-// ══════════════════════════════════════════════════════════════
-late String androidPackage;
-late String iosBundleId;
-late String macBundleId;
-late String windowsAppName;
-late String webAppName;
-late String newAppName;
-late String dartPackName;
-late String firebaseProjectId;
-late String firebaseAppId;
-late String appIconPath;
+// API-driven rebranding constants
+const String BASE_API_URL = "https://api.digibulkmarketing.com";
+const String GET_REBRANDING_APPS_API =
+    "$BASE_API_URL/app/app-rebranding/processing";
+const String BUILDER_TOKEN = "Wc3PBpXFLj";
 
-// ─────────────────────────────────────────────
-// HELPERS
-// ─────────────────────────────────────────────
-
-void ok(String msg)   => print('   ✅ $msg');
-void warn(String msg) => print('   ⚠️  $msg');
-void info(String msg) => print('   ℹ️  $msg');
-
-void step(String title) {
-  print('\n╔══════════════════════════════════════════════╗');
-  print('║  📝 $title');
-  print('╚══════════════════════════════════════════════╝');
-}
-
-final _skipDirs = {
-  '.dart_tool', '.git', '.symlinks',
-  '.plugin_symlinks', 'Pods', 'node_modules',
-};
-
-bool _shouldSkip(String path) {
-  final parts = path.split(sep);
-  for (final part in parts) {
-    if (_skipDirs.contains(part)) return true;
+Future<int> runCmd(
+    String exe,
+    List<String> args, {
+      bool throwOnError = false,
+    }) async {
+  print('💻 Running: $exe ${args.join(' ')}');
+  final process = await Process.start(exe, args, runInShell: true);
+  stdout.addStream(process.stdout);
+  stderr.addStream(process.stderr);
+  final code = await process.exitCode;
+  if (code != 0 && throwOnError) {
+    throw Exception('Command failed: $exe ${args.join(' ')} (exit $code)');
   }
-  if (path.contains('${sep}build${sep}app${sep}')) return true;
-  if (path.contains('${sep}build${sep}ios${sep}')) return true;
-  if (path.contains('${sep}build${sep}windows${sep}')) return true;
-  if (path.contains('${sep}build${sep}web${sep}')) return true;
-  if (path.contains('${sep}build${sep}macos${sep}')) return true;
-  if (path.contains('${sep}build${sep}linux${sep}')) return true;
-  return false;
+  return code;
 }
 
-Future<List<File>> findFiles(String filename) async {
-  final found = <File>[];
-  try {
-    for (final f in Directory.current.listSync(recursive: true).whereType<File>()) {
-      if (_shouldSkip(f.path)) continue;
-      if (f.path.split(sep).last == filename) found.add(f);
+Future<Map<String, dynamic>> runCmdCapture(
+    String exe,
+    List<String> args,
+    ) async {
+  print('💻 Running (capture): $exe ${args.join(' ')}');
+  final result = await Process.run(exe, args, runInShell: true);
+  return {
+    'exitCode': result.exitCode,
+    'stdout': result.stdout?.toString() ?? '',
+    'stderr': result.stderr?.toString() ?? '',
+  };
+}
+
+Never exitWith(String msg, [int code = 1]) {
+  stderr.writeln('$msg');
+  exit(code);
+}
+
+void ensureExists(String path) {
+  if (!File(path).existsSync()) exitWith('Required file not found: $path');
+}
+
+Future<void> renameAndroidLabel(String filePath, String appName) async {
+  final file = File(filePath);
+  if (!file.existsSync()) {
+    print('⚠️ AndroidManifest.xml not found: $filePath');
+    return;
+  }
+  final data = await file.readAsString();
+  final document = XmlDocument.parse(data);
+  final appElement =
+  document.findAllElements('application').isEmpty
+      ? null
+      : document.findAllElements('application').first;
+  if (appElement == null) {
+    print('⚠️ No <application> tag found in $filePath');
+    return;
+  }
+  appElement.setAttribute('android:label', appName);
+  await file.writeAsString(document.toXmlString(pretty: true, indent: ' '));
+  print('✅ AndroidManifest.xml label updated to "$appName"');
+}
+
+Future<String> readPubspecName() async {
+  final file = File('pubspec.yaml');
+  if (!file.existsSync()) return '';
+  final lines = await file.readAsLines();
+  for (final line in lines) {
+    if (line.trim().startsWith('name:')) {
+      return line.split(':').last.trim();
     }
-  } catch (_) {}
-  return found;
+  }
+  return '';
 }
 
-// ══════════════════════════════════════════════════════════════
-//  ANDROID
-// ══════════════════════════════════════════════════════════════
+Future<void> updatePubspecName(String appName) async {
+  print('📝 Updating pubspec.yaml name...');
+  final file = File('pubspec.yaml');
+  if (!file.existsSync()) {
+    print('⚠️ pubspec.yaml not found');
+    return;
+  }
+  final lines = await file.readAsLines();
+  final newName = appName.toLowerCase().replaceAll(' ', '_');
+  final updated =
+  lines.map((l) {
+    if (l.trim().startsWith('name:')) return 'name: $newName';
+    return l;
+  }).toList();
+  await file.writeAsString(updated.join('\n'));
+  print('✅ pubspec.yaml name updated to "$newName"\n');
+}
 
-Future<void> a1_buildGradle() async {
-  step('ANDROID 1/5 — build.gradle');
-  final directPaths = [
-    'android${sep}app${sep}build.gradle',
-    'android${sep}app${sep}build.gradle.kts',
-    'android/app/build.gradle',
-    'android/app/build.gradle.kts',
-  ];
+Future<void> updateGradleNamespace(String packageName) async {
+  print('📝 Updating Gradle namespace and applicationId...');
+  File gradleFile = File('android/app/build.gradle');
+  bool isKts = false;
+  if (!gradleFile.existsSync()) {
+    gradleFile = File('android/app/build.gradle.kts');
+    isKts = true;
+    if (!gradleFile.existsSync()) {
+      print('⚠️ build.gradle not found');
+      return;
+    }
+  }
+  String content = await gradleFile.readAsString();
+  final namespaceRegex = RegExp(r'namespace\s*=\s*"[a-zA-Z0-9_.]+"');
+  if (namespaceRegex.hasMatch(content)) {
+    content = content.replaceAllMapped(
+      namespaceRegex,
+          (_) => 'namespace = "$packageName"',
+    );
+  } else {
+    content = content.replaceFirst(
+      'android {',
+      'android {\n namespace = "$packageName"',
+    );
+  }
+  final appIdRegex =
+  isKts
+      ? RegExp(r'applicationId\s*=\s*"[a-zA-Z0-9_.]+"')
+      : RegExp(r'applicationId\s+"[a-zA-Z0-9_.]+"');
+  if (appIdRegex.hasMatch(content)) {
+    content = content.replaceAllMapped(
+      appIdRegex,
+          (_) =>
+      isKts
+          ? 'applicationId = "$packageName"'
+          : 'applicationId "$packageName"',
+    );
+  }
+  await gradleFile.writeAsString(content);
+  print('✅ Gradle namespace and applicationId updated\n');
+}
 
-  File? gradleFile;
-  for (final path in directPaths) {
-    final f = File(path);
-    if (f.existsSync()) { gradleFile = f; print('   📄 ${f.path}'); break; }
+Future<void> updateDartImports(String oldPackage, String newPackage) async {
+  final libDir = Directory('lib');
+  if (!libDir.existsSync()) {
+    print('⚠️ lib directory not found');
+    return;
+  }
+  final dartFiles = libDir
+      .listSync(recursive: true)
+      .whereType<File>()
+      .where((f) => f.path.endsWith('.dart'));
+  for (var file in dartFiles) {
+    String content = await file.readAsString();
+    if (content.contains('package:$oldPackage/')) {
+      content = content.replaceAll(
+        'package:$oldPackage/',
+        'package:$newPackage/',
+      );
+      await file.writeAsString(content);
+      print('✅ Updated imports in ${file.path}');
+    }
+  }
+}
+
+String escapeKotlinKeywords(String packageName) {
+  final keywords = {
+    'in',
+    'as',
+    'is',
+    'val',
+    'var',
+    'fun',
+    'object',
+    'typealias',
+    'class',
+    'interface',
+    'this',
+    'super',
+    'typeof',
+    'package',
+    'import',
+    'return',
+    'break',
+    'continue',
+    'throw',
+    'try',
+    'catch',
+    'finally',
+    'if',
+    'else',
+    'when',
+    'while',
+    'do',
+    'for',
+  };
+  return packageName
+      .split('.')
+      .map((segment) {
+    if (keywords.contains(segment)) {
+      return '`$segment`';
+    }
+    return segment;
+  })
+      .join('.');
+}
+
+Future<void> updateKotlinPackageStructure(String packageName) async {
+  print('🧩 Updating Kotlin package structure (renaming folders)...');
+  final baseKotlin = Directory('android/app/src/main/kotlin');
+  if (!baseKotlin.existsSync()) {
+    print('⚠️ Kotlin directory not found.');
+    return;
+  }
+  final allFiles = baseKotlin.listSync(recursive: true).whereType<File>();
+  final kotlinFiles = allFiles.where((f) => f.path.endsWith('.kt')).toList();
+  if (kotlinFiles.isEmpty) {
+    print('⚠️ No Kotlin files found.');
+    return;
+  }
+  final oldFile = kotlinFiles.first;
+  final oldDir = Directory(p.dirname(oldFile.path));
+  final oldRelativePath = p.relative(oldDir.path, from: baseKotlin.path);
+  final newRelativePath = packageName.replaceAll('.', '/');
+  if (oldRelativePath == newRelativePath) {
+    print('✅ Kotlin folder already matches package name.');
+  } else {
+    final newDirPath = p.join(baseKotlin.path, newRelativePath);
+    final newDirParent = Directory(p.dirname(newDirPath));
+    if (!newDirParent.existsSync()) {
+      newDirParent.createSync(recursive: true);
+    }
+    print('📁 Renaming folder:\n $oldRelativePath → $newRelativePath');
+    try {
+      oldDir.renameSync(newDirPath);
+    } catch (e) {
+      print('⚠️ Could not rename kotlin folder automatically: $e');
+    }
+  }
+  final updatedFiles = Directory(p.join(baseKotlin.path, newRelativePath))
+      .listSync(recursive: true)
+      .whereType<File>()
+      .where((f) => f.path.endsWith('.kt'));
+  final escapedPackageName = escapeKotlinKeywords(packageName);
+  for (final file in updatedFiles) {
+    String content = await file.readAsString();
+    final pkgRegex = RegExp(r'^package\s+[`a-zA-Z0-9_.]+', multiLine: true);
+    content = content.replaceAllMapped(
+      pkgRegex,
+          (_) => 'package $escapedPackageName',
+    );
+    await file.writeAsString(content);
+    print('✅ Updated package in ${p.basename(file.path)}');
+  }
+  print('✅ Kotlin folder renamed successfully.\n');
+}
+
+Future<String> prepareAppIcon(String logoPath) async {
+  print('🎨 Preparing balanced 1024x1024 app icon...');
+  final bytes = await File(logoPath).readAsBytes();
+  final original = img.decodeImage(bytes);
+  if (original == null) exitWith('Could not decode image: $logoPath');
+  const int canvasSize = 1024;
+  const int paddingPx = 150;
+  final availableSize = canvasSize - (2 * paddingPx);
+  int targetWidth, targetHeight;
+  if (original.width >= original.height) {
+    targetWidth = availableSize;
+    targetHeight = (original.height * availableSize / original.width).toInt();
+  } else {
+    targetHeight = availableSize;
+    targetWidth = (original.width * availableSize / original.height).toInt();
+  }
+  final resized = img.copyResize(
+    original,
+    width: targetWidth,
+    height: targetHeight,
+  );
+  final background = img.Image(width: canvasSize, height: canvasSize);
+  final offsetX = (canvasSize - targetWidth) ~/ 2;
+  final offsetY = (canvasSize - targetHeight) ~/ 2;
+  img.compositeImage(background, resized, dstX: offsetX, dstY: offsetY);
+  const outputPath = 'assets/images/processed_app_icon.png';
+  final outputFile = File(outputPath);
+  outputFile.createSync(recursive: true);
+  outputFile.writeAsBytesSync(img.encodePng(background));
+  print('✅ Centered icon with ${paddingPx}px padding → $outputPath');
+  return outputPath;
+}
+
+Future<void> updateGoogleServiceJsonPackage(String packageName) async {
+  final file = File('android/app/google-services.json');
+  print('\n🔥 Updating google-services.json package names...');
+  if (!file.existsSync()) {
+    print('⚠️ google-services.json not found in android/app/');
+    return;
+  }
+  final Map<String, dynamic> jsonContent = jsonDecode(
+    await file.readAsString(),
+  );
+  if (jsonContent['client'] is List) {
+    for (final client in jsonContent['client']) {
+      final clientInfo = client['client_info']?['android_client_info'];
+      if (clientInfo != null && clientInfo['package_name'] != null) {
+        clientInfo['package_name'] = packageName;
+      }
+      if (client['oauth_client'] is List) {
+        for (final oauth in client['oauth_client']) {
+          final androidInfo = oauth['android_info'];
+          if (androidInfo != null && androidInfo['package_name'] != null) {
+            androidInfo['package_name'] = packageName;
+          }
+        }
+      }
+    }
+  }
+  await file.writeAsString(
+    const JsonEncoder.withIndent(' ').convert(jsonContent),
+  );
+  print(
+    '✅ All package names in google-services.json updated to → $packageName\n',
+  );
+}
+
+Future<void> updateAppConstantsLogo(String processedLogo) async {
+  const constantsPath = 'lib/constants/app_constants.dart';
+  final constantsFile = File(constantsPath);
+  if (!constantsFile.existsSync()) {
+    print('⚠️ AppConstants file not found at $constantsPath\n');
+    return;
+  }
+  print('🔍 Updating APPLOGO in AppConstants...');
+  String content = await constantsFile.readAsString();
+  final lines = content.split('\n');
+  bool found = false;
+  for (int i = 0; i < lines.length; i++) {
+    if (lines[i].contains('APPLOGO') && lines[i].contains('=')) {
+      lines[i] = ' static const String APPLOGO = "$processedLogo";';
+      found = true;
+      break;
+    }
+  }
+  if (found) {
+    await constantsFile.writeAsString(lines.join('\n'));
+    print('✅ APPLOGO updated to → $processedLogo\n');
+  } else {
+    print('ℹ️ No APPLOGO constant found in AppConstants.\n');
+  }
+}
+
+Future<String> resolveAppIcon(String iconPathOrUrl, String appName) async {
+  if (iconPathOrUrl.startsWith('http://') ||
+      iconPathOrUrl.startsWith('https://')) {
+    return await downloadAppIcon(iconPathOrUrl, appName);
+  }
+  return iconPathOrUrl;
+}
+
+Future<void> updateBaseUrl(String apiUrl) async {
+  const constantsPath = 'lib/constants/app_constants.dart';
+  final constantsFile = File(constantsPath);
+  if (!constantsFile.existsSync()) {
+    print('⚠️ AppConstants file not found at $constantsPath\n');
+    return;
+  }
+  print('🔍 Updating BASE_URL in AppConstants...');
+  String content = await constantsFile.readAsString();
+
+  String baseUrl = apiUrl;
+  if (baseUrl.endsWith('/api/')) {
+    baseUrl = baseUrl.substring(0, baseUrl.length - 5);
+  } else if (baseUrl.endsWith('/api')) {
+    baseUrl = baseUrl.substring(0, baseUrl.length - 4);
+  } else if (baseUrl.endsWith('/')) {
+    baseUrl = baseUrl.substring(0, baseUrl.length - 1);
   }
 
-  if (gradleFile == null) {
-    final androidDir = Directory('android');
-    if (androidDir.existsSync()) {
-      for (final f in androidDir.listSync(recursive: true).whereType<File>()) {
-        final name = f.path.split(sep).last;
-        if (name == 'build.gradle' || name == 'build.gradle.kts') {
+  final baseUrlRegex = RegExp(
+    r'static\s+const\s+String\s+BASE_URL\s*=\s*"[^"]*";',
+  );
+  if (baseUrlRegex.hasMatch(content)) {
+    content = content.replaceAll(
+      baseUrlRegex,
+      'static const String BASE_URL = "$baseUrl";',
+    );
+    await constantsFile.writeAsString(content);
+    print('✅ BASE_URL updated to → \$baseUrl\\n');
+  } else {
+    print('⚠️ No BASE_URL constant found in AppConstants.\n');
+  }
+}
+
+Future<void> updateAppName(String appName) async {
+  const constantsPath = 'lib/constants/app_constants.dart';
+  final constantsFile = File(constantsPath);
+  if (!constantsFile.existsSync()) {
+    print('⚠️ AppConstants file not found at $constantsPath\n');
+    return;
+  }
+  print('🔍 Updating APP_NAME in AppConstants...');
+  String content = await constantsFile.readAsString();
+
+  final appNameRegex = RegExp(
+    r'static\s+const\s+String\s+APP_NAME\s*=\s*"[^"]*";',
+  );
+  if (appNameRegex.hasMatch(content)) {
+    content = content.replaceAll(
+      appNameRegex,
+      'static const String APP_NAME = "$appName";',
+    );
+  } else {
+    content = content.replaceFirst(
+      'class AppConstants {',
+      'class AppConstants {\n  static const String APP_NAME = "$appName";',
+    );
+  }
+  await constantsFile.writeAsString(content);
+  print('✅ APP_NAME updated to → $appName\n');
+}
+
+Future<bool> checkFirebaseAuth() async {
+  final res = await runCmdCapture('firebase', ['projects:list', '--json']);
+  if (res['exitCode'] != 0) {
+    if (res['stderr'].toString().contains('not signed in') ||
+        res['stderr'].toString().contains('authentication')) {
+      print('⚠️ Firebase CLI not authenticated. Running firebase login...');
+      final loginCode = await runCmd('firebase', [
+        'login',
+      ], throwOnError: false);
+      if (loginCode != 0) {
+        print(
+          '❌ Firebase login failed. Please run "firebase login" manually in terminal.',
+        );
+        return false;
+      }
+      print('✅ Firebase login successful.');
+      return true;
+    } else {
+      print('⚠️ Firebase projects:list failed: ${res['stderr']}');
+      return false;
+    }
+  }
+  return true;
+}
+
+Future<bool> downloadSdkConfig(String projectId, String appId) async {
+  final outfile = 'android/app/google-services.json';
+  final tempfile = 'android/app/google-services-temp.json';
+
+  print(
+    '💻 Running: firebase apps:sdkconfig ANDROID $appId --project $projectId --out $tempfile',
+  );
+  final code = await runCmd('firebase', [
+    'apps:sdkconfig',
+    'ANDROID',
+    appId,
+    '--project',
+    projectId,
+    '--out',
+    outfile,
+  ]);
+  if (code == 0) {
+    print('✅ Downloaded google-services.json → $outfile');
+    return true;
+  } else {
+    print(
+      '⚠️ Could not download google-services.json via firebase apps:sdkconfig',
+    );
+    return false;
+  }
+}
+
+Future<void> uploadToFirebaseDistribution(
+    String firebaseProjectId,
+    String androidAppId,
+    List<String> testers,
+    ) async {
+  print("\n🚀 Uploading to Firebase App Distribution...");
+  final apkPath = "build/app/outputs/flutter-apk/app-release.apk";
+  if (!File(apkPath).existsSync()) {
+    print(" APK not found: $apkPath");
+    return;
+  }
+  final result = await Process.run("firebase", [
+    "appdistribution:distribute",
+    apkPath,
+    "--app=$androidAppId",
+    "--project=$firebaseProjectId",
+    "--testers=${testers.join(",")}",
+    "--release-notes=Automated build from app_setup.dart",
+  ], runInShell: true);
+  if (result.stderr.toString().isNotEmpty &&
+      !result.stderr.toString().contains("error")) {
+    print("⚠ Some warnings:");
+    print(result.stderr);
+  }
+  if (result.stdout.toString().contains("uploaded")) {
+    print("🎉 Upload Successful!");
+  } else {
+    print(result.stdout);
+  }
+}
+
+Future<List<Map<String, dynamic>>> fetchRebrandingApps() async {
+  print("🌐 Fetching rebranding apps from API...");
+  final client = HttpClient();
+  try {
+    final uri = Uri.parse(GET_REBRANDING_APPS_API);
+    final request = await client.postUrl(uri);
+    request.headers.set('Authorization', 'Bearer $BUILDER_TOKEN');
+    request.headers.set('Content-Type', 'application/json');
+
+    final bodyObj = {
+      "panelId": "",
+      "userId": "",
+      "appType": "telecaller",
+      "status": "",
+      "page": 0,
+      "limit": 20,
+    };
+    request.write(jsonEncode(bodyObj));
+
+    final response = await request.close();
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final responseBody = await response.transform(utf8.decoder).join();
+      final Map<String, dynamic> data = jsonDecode(responseBody);
+      if (data["status"] == true && data["data"] is List) {
+        return List<Map<String, dynamic>>.from(data["data"]);
+      } else {
+        print(
+          "❌ API failed to return data. Status field is false or data is not a list.",
+        );
+        return [];
+      }
+    } else {
+      print("❌ API failed with status code: ${response.statusCode}");
+      final responseBody = await response.transform(utf8.decoder).join();
+      print("Response: $responseBody");
+      return [];
+    }
+  } catch (e) {
+    print("❌ API connection failed: $e");
+    return [];
+  } finally {
+    client.close();
+  }
+}
+
+Future<String> downloadAppIcon(String url, String appName) async {
+  print("🌐 Downloading remote app icon from $url...");
+  final client = HttpClient();
+  try {
+    final request = await client.getUrl(Uri.parse(url));
+    final response = await request.close();
+    if (response.statusCode == 200) {
+      final bytesBuilder = BytesBuilder();
+      await for (var chunk in response) {
+        bytesBuilder.add(chunk);
+      }
+      final bytes = bytesBuilder.takeBytes();
+
+      // Decode the image to check dimensions
+      final original = img.decodeImage(bytes);
+      if (original == null) {
+        exitWith('Could not decode downloaded image.');
+      }
+
+      List<int> outputBytes;
+      if (original.width != 512 || original.height != 512) {
+        print(
+          '🎨 Image size is ${original.width}x${original.height}. Resizing to 512x512...',
+        );
+        final resized = img.copyResize(original, width: 512, height: 512);
+        outputBytes = img.encodePng(resized);
+      } else {
+        outputBytes = bytes;
+      }
+
+      final cleanedAppName = appName.toLowerCase().replaceAll(
+        RegExp(r'[^a-z0-9_]'),
+        '_',
+      );
+      final savePath = 'assets/images/$cleanedAppName.png';
+      File(savePath).createSync(recursive: true);
+      File(savePath).writeAsBytesSync(outputBytes);
+      print('✅ Downloaded and processed app icon saved to $savePath');
+      return savePath;
+    } else {
+      exitWith(
+        'Failed to download app icon. Status code: ${response.statusCode}',
+      );
+    }
+  } catch (e) {
+    exitWith('Error downloading app icon: $e');
+  } finally {
+    client.close();
+  }
+}
+
+Future<String?> uploadApk({
+  required String rebrandId,
+  required String apkPath,
+}) async {
+  print("📤 Uploading APK to server...");
+  final file = File(apkPath);
+  if (!file.existsSync()) {
+    print("❌ APK file not found at $apkPath");
+    return null;
+  }
+
+  final client = HttpClient();
+  try {
+    final uploadUrl = "$BASE_API_URL/app/app-rebranding/$rebrandId/apk";
+    final uri = Uri.parse(uploadUrl);
+    final request = await client.postUrl(uri);
+
+    final boundary =
+        "----DartHttpClientBoundary${DateTime.now().millisecondsSinceEpoch}";
+    request.headers.set('Authorization', 'Bearer $BUILDER_TOKEN');
+    request.headers.set(
+      'Content-Type',
+      'multipart/form-data; boundary=$boundary',
+    );
+
+    // Header part
+    final filename = p.basename(apkPath);
+    final header =
+        "--$boundary\r\n"
+        "Content-Disposition: form-data; name=\"apk\"; filename=\"$filename\"\r\n"
+        "Content-Type: application/vnd.android.package-archive\r\n\r\n";
+    final headerBytes = utf8.encode(header);
+
+    // Footer part
+    final footer = "\r\n--$boundary--\r\n";
+    final footerBytes = utf8.encode(footer);
+
+    final fileLength = await file.length();
+    final totalLength = headerBytes.length + fileLength + footerBytes.length;
+    request.contentLength = totalLength;
+
+    request.add(headerBytes);
+    await request.addStream(file.openRead());
+    request.add(footerBytes);
+
+    final response = await request.close();
+    final responseBody = await response.transform(utf8.decoder).join();
+    print("Upload response code: ${response.statusCode}");
+    print("Upload response body: $responseBody");
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final Map<String, dynamic> resData = jsonDecode(responseBody);
+      if (resData["status"] == true || resData["data"] != null) {
+        final dataPart = resData["data"];
+        String? downloadUrl;
+        if (dataPart is Map) {
+          downloadUrl =
+              dataPart["downloadUrl"]?.toString() ??
+                  dataPart["url"]?.toString();
+        }
+        downloadUrl ??=
+            resData["downloadUrl"]?.toString() ?? resData["url"]?.toString();
+        if (downloadUrl != null) {
+          print("✅ APK uploaded successfully. URL: $downloadUrl");
+          return downloadUrl;
+        } else {
+          print("⚠️ APK uploaded, but download URL not found in response.");
+          return null;
+        }
+      } else {
+        print(
+          "❌ APK upload API failed: ${resData['message'] ?? 'Unknown error'}",
+        );
+        return null;
+      }
+    } else {
+      print("❌ APK upload failed with status code: ${response.statusCode}");
+      return null;
+    }
+  } catch (e) {
+    print("❌ Error uploading APK: $e");
+    return null;
+  } finally {
+    client.close();
+  }
+}
+
+Future<void> updateBuildInfo({
+  required String rebrandId,
+  required String firebaseProjectId,
+  required String firebaseAppId,
+  required String downloadUrl,
+}) async {
+  print("🔄 Updating build info on server...");
+  final client = HttpClient();
+  try {
+    final updateUrl = "$BASE_API_URL/app/app-rebranding/$rebrandId/build";
+    final uri = Uri.parse(updateUrl);
+    final request = await client.putUrl(uri);
+    request.headers.set('Authorization', 'Bearer $BUILDER_TOKEN');
+    request.headers.set('Content-Type', 'application/json');
+
+    final bodyObj = {
+      "firebaseProjectId": firebaseProjectId,
+      "firebaseAppId": firebaseAppId,
+      "downloadUrl": downloadUrl,
+    };
+    request.write(jsonEncode(bodyObj));
+
+    final response = await request.close();
+    final responseBody = await response.transform(utf8.decoder).join();
+    print("Update build info response code: ${response.statusCode}");
+    print("Update build info response body: $responseBody");
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      print("✅ Build info updated successfully.");
+    } else {
+      print(
+        "❌ Failed to update build info. Status code: ${response.statusCode}",
+      );
+    }
+  } catch (e) {
+    print("❌ Error updating build info: $e");
+  } finally {
+    client.close();
+  }
+}
+
+Future<String?> getOrCreateFirebaseAppId(
+    String projectId,
+    String packageName,
+    String appName,
+    ) async {
+  print(
+    "🔍 Querying Firebase project '$projectId' for package name '$packageName'...",
+  );
+  final listRes = await runCmdCapture('firebase', [
+    'apps:list',
+    '--project',
+    projectId,
+    '--json',
+  ]);
+  if (listRes['exitCode'] == 0) {
+    try {
+      final stdoutStr = listRes['stdout'].toString();
+      final jsonStartIndex = stdoutStr.indexOf('{');
+      if (jsonStartIndex != -1) {
+        final jsonContent = stdoutStr.substring(jsonStartIndex);
+        final data = jsonDecode(jsonContent);
+        if (data is Map && data['result'] is List) {
+          final apps = data['result'] as List;
+          for (final app in apps) {
+            if (app is Map &&
+                app['platform'] == 'ANDROID' &&
+                (app['namespace'] == packageName ||
+                    app['package_name'] == packageName)) {
+              final foundId = app['appId']?.toString();
+              if (foundId != null) {
+                print("✅ Found existing Firebase App ID: $foundId");
+                return foundId;
+              }
+            }
+          }
+        }
+      }
+    } catch (e) {
+      print("⚠️ Error parsing firebase apps:list output: $e");
+    }
+  } else {
+    print("⚠️ Failed to list firebase apps: ${listRes['stderr']}");
+  }
+
+  print("🆕 Firebase app not found for '$packageName'. Creating a new one...");
+  final createRes = await runCmdCapture('firebase', [
+    'apps:create',
+    'ANDROID',
+    appName,
+    '--package-name',
+    packageName,
+    '--project',
+    projectId,
+    '--json',
+  ]);
+
+  if (createRes['exitCode'] == 0) {
+    try {
+      final stdoutStr = createRes['stdout'].toString();
+      final jsonStartIndex = stdoutStr.indexOf('{');
+      if (jsonStartIndex != -1) {
+        final jsonContent = stdoutStr.substring(jsonStartIndex);
+        final data = jsonDecode(jsonContent);
+        if (data is Map && data['result'] != null) {
+          final newAppId = data['result']['appId']?.toString();
+          if (newAppId != null) {
+            print("✅ Created new Firebase App ID: $newAppId");
+            return newAppId;
+          }
+        }
+      }
+    } catch (e) {
+      print("⚠️ Error parsing apps:create output: $e");
+    }
+  } else {
+    print("❌ Failed to create Firebase app: ${createRes['stderr']}");
+  }
+
+  print("🔄 Refreshing Firebase apps list as fallback...");
+  final listRes2 = await runCmdCapture('firebase', [
+    'apps:list',
+    '--project',
+    projectId,
+    '--json',
+  ]);
+  if (listRes2['exitCode'] == 0) {
+    try {
+      final stdoutStr = listRes2['stdout'].toString();
+      final jsonStartIndex = stdoutStr.indexOf('{');
+      if (jsonStartIndex != -1) {
+        final jsonContent = stdoutStr.substring(jsonStartIndex);
+        final data = jsonDecode(jsonContent);
+        if (data is Map && data['result'] is List) {
+          final apps = data['result'] as List;
+          for (final app in apps) {
+            if (app is Map &&
+                app['platform'] == 'ANDROID' &&
+                (app['namespace'] == packageName ||
+                    app['package_name'] == packageName)) {
+              final foundId = app['appId']?.toString();
+              if (foundId != null) {
+                print("✅ Found dynamically created Firebase App ID: $foundId");
+                return foundId;
+              }
+            }
+          }
+        }
+      }
+    } catch (e) {
+      print("⚠️ Fallback parse error: $e");
+    }
+  }
+  return null;
+}
+
+Future<void> main() async {
+  // 1. Fetch rebranding configurations from API
+  final configs = await fetchRebrandingApps();
+  if (configs.isEmpty) {
+    exitWith('No rebranding apps found or API call failed.');
+  }
+
+  // 2. Display apps dynamically from API
+  print('\n📱 Available Apps for Rebranding:');
+  for (int i = 0; i < configs.length; i++) {
+    final cfg = configs[i];
+    print(' ${i + 1}. ${cfg['appName']} (${cfg['packageName']})');
+  }
+
+  // 3. Selection
+  stdout.write('\n👉 Enter app number to rebrand (1-${configs.length}): ');
+  final input = stdin.readLineSync();
+  final index = int.tryParse(input ?? '') ?? -1;
+  if (index < 1 || index > configs.length) exitWith('Invalid selection.');
+  final config = configs[index - 1];
+
+  // 4. Map configuration variables
+  final rebrandId = config['_id']?.toString() ?? '';
+  final appName = config['appName']?.toString() ?? '';
+  final packageName = config['packageName']?.toString() ?? '';
+  final logoPathRaw = config['appIcon']?.toString() ?? '';
+  final firebaseProjectId = "dbm-telecaller";
+  final dynamicAppId = await getOrCreateFirebaseAppId(
+    firebaseProjectId,
+    packageName,
+    appName,
+  );
+  final firebaseAppId =
+      dynamicAppId ?? "1:626864530224:android:f6b51f7a782de4a55bdef5";
+  final apiUrl = config['apiUrl']?.toString() ?? '';
+
+  if (rebrandId.isEmpty) {
+    exitWith('rebrandId (_id) is missing in configuration.');
+  }
+  if (apiUrl.isEmpty) {
+    exitWith('apiUrl is missing in configuration.');
+  }
+  if (appName.isEmpty || packageName.isEmpty || logoPathRaw.isEmpty) {
+    exitWith(
+      'Invalid configuration data (appName/packageName/appIcon is empty).',
+    );
+  }
+
+  // 5. Generate full app icon URL
+  String base = apiUrl;
+  if (base.endsWith('/')) {
+    base = base.substring(0, base.length - 1);
+  }
+  String path = logoPathRaw;
+  if (path.startsWith('/')) {
+    path = path.substring(1);
+  }
+  final fullIconUrl = "$base/$path";
+
+  // 6. Download app icon
+  final logoPath = await downloadAppIcon(fullIconUrl, appName);
+  if (!File(logoPath).existsSync()) {
+    exitWith('Logo file not found after download: $logoPath');
+  }
+
+  // 7. Rebrand print details
+  print('\n🚀 Selected Configuration:');
+  print(' 🏷️ App Name: $appName');
+  print(' 📦 Package: $packageName');
+  print(' 🖼️ Logo Path: $logoPath');
+  print(' 🔑 Firebase Project: $firebaseProjectId');
+  print(' 📱 Firebase App ID: $firebaseAppId\n');
+
+  final processedLogo = await prepareAppIcon(logoPath);
+  final iconsYaml = '''
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "$processedLogo"
+  adaptive_icon_background: "#ffffff"
+  adaptive_icon_foreground: "$processedLogo"
+  min_sdk_android: 21
+  remove_alpha_ios: true
+''';
+  File('flutter_launcher_icons.yaml').writeAsStringSync(iconsYaml);
+  print('✅ Created flutter_launcher_icons.yaml\n');
+
+  await updateAppConstantsLogo(logoPath);
+
+  var ec = await runCmd('flutter', ['pub', 'get']);
+  if (ec != 0) exitWith('flutter pub get failed');
+
+  ec = await runCmd('flutter', ['pub', 'run', 'flutter_launcher_icons']);
+  if (ec != 0) {
+    print('⚠️ flutter_launcher_icons failed. Continue anyway.');
+  }
+
+  final oldPackage = await readPubspecName();
+  print('📦 Old package name detected: $oldPackage');
+
+  await renameAndroidLabel('android/app/src/main/AndroidManifest.xml', appName);
+  await updatePubspecName(appName);
+  await updateGradleNamespace(packageName);
+  await updateBaseUrl(apiUrl);
+  await updateAppName(appName);
+
+  final newPackage = appName.toLowerCase().replaceAll(' ', '_');
+  await updateDartImports(oldPackage, newPackage);
+  await updateKotlinPackageStructure(packageName);
+
+  // 8. Firebase setup
+  String? appId = firebaseAppId;
+  if (firebaseProjectId.isEmpty || appId.isEmpty) {
+    print(
+      '⚠️ Firebase Project ID or App ID is empty. Skipping firebase configuration.',
+    );
+  } else {
+    final fvCheck = await runCmdCapture('firebase', ['--version']);
+    if (fvCheck['exitCode'] != 0) {
+      print(
+        '⚠️ Firebase CLI not found. Attempting to install via npm (requires npm).',
+      );
+      final npmRc = await runCmd('npm', ['install', '-g', 'firebase-tools']);
+      if (npmRc != 0) {
+        print(
+          '❌ Could not install firebase-tools. Please install manually and re-run.',
+        );
+      }
+    }
+    final authOk = await checkFirebaseAuth();
+    if (!authOk) {
+      print('❌ Firebase authentication failed. Skipping Firebase automation.');
+    } else {
+      print('ℹ️ Using Firebase Android appId: $appId');
+      final ok = await downloadSdkConfig(firebaseProjectId, appId);
+      if (!ok) {
+        print(
+          '⚠️ apps:sdkconfig method failed. Trying fallback: apps:sdkconfig --json and write file manually.',
+        );
+        final res = await runCmdCapture('firebase', [
+          'apps:sdkconfig',
+          'ANDROID',
+          appId,
+          '--project',
+          firebaseProjectId,
+          '--json',
+        ]);
+        if (res['exitCode'] == 0) {
           try {
-            final c = await f.readAsString();
-            if (c.contains('applicationId')) { gradleFile = f; print('   📄 ${f.path}'); break; }
-          } catch (_) {}
+            final obj = jsonDecode(res['stdout']);
+            String? fileContents;
+            if (obj is Map) {
+              if (obj['config'] != null) {
+                fileContents = const JsonEncoder.withIndent(
+                  ' ',
+                ).convert(obj['config']);
+              } else if (obj['result'] != null &&
+                  obj['result']['fileContents'] != null) {
+                fileContents = obj['result']['fileContents'];
+              }
+            }
+            if (fileContents != null) {
+              final outfile = 'android/app/google-services.json';
+              await File(outfile).writeAsString(fileContents);
+              print(
+                '✅ Wrote google-services.json from sdkconfig JSON to $outfile',
+              );
+            } else {
+              print('⚠️ Unexpected sdkconfig JSON format: ${res['stdout']}');
+            }
+          } catch (e) {
+            print('⚠️ Could not parse sdkconfig JSON: $e');
+          }
+        } else {
+          print('⚠️ apps:sdkconfig also failed: ${res['stderr']}');
         }
       }
     }
   }
 
-  if (gradleFile == null) { warn('build.gradle not found in android/ folder!'); return; }
+  // ALWAYS update the package name in the existing google-services.json
+  await updateGoogleServiceJsonPackage(packageName);
 
-  String c = await gradleFile.readAsString();
-  final kts = gradleFile.path.endsWith('.kts');
-  bool changed = false;
-
-  final nsRx = [
-    RegExp(r'namespace\s*=\s*"[a-zA-Z0-9_.]+"'),
-    RegExp(r"namespace\s*=\s*'[a-zA-Z0-9_.]+'"),
-    RegExp(r'namespace\s+"[a-zA-Z0-9_.]+"'),
-    RegExp(r"namespace\s+'[a-zA-Z0-9_.]+'"),
-  ];
-  bool nsDone = false;
-  for (final rx in nsRx) {
-    if (rx.hasMatch(c)) {
-      c = c.replaceAll(rx, 'namespace = "$androidPackage"');
-      ok('namespace updated'); changed = true; nsDone = true; break;
-    }
-  }
-  if (!nsDone) {
-    final ab = RegExp(r'android\s*\{');
-    if (ab.hasMatch(c)) {
-      c = c.replaceFirst(ab, 'android {\n    namespace = "$androidPackage"');
-      ok('namespace injected'); changed = true;
-    }
-  }
-
-  final aiRx = [
-    RegExp(r'applicationId\s*=\s*"[a-zA-Z0-9_.]+"'),
-    RegExp(r"applicationId\s*=\s*'[a-zA-Z0-9_.]+'"),
-    RegExp(r'applicationId\s+"[a-zA-Z0-9_.]+"'),
-    RegExp(r"applicationId\s+'[a-zA-Z0-9_.]+'"),
-  ];
-  for (final rx in aiRx) {
-    if (rx.hasMatch(c)) {
-      c = c.replaceAll(rx, kts ? 'applicationId = "$androidPackage"' : 'applicationId "$androidPackage"');
-      ok('applicationId updated'); changed = true; break;
-    }
-  }
-
-  if (changed) { await gradleFile.writeAsString(c); ok('Saved → ${gradleFile.path}'); }
-  else { warn('No patterns matched!'); }
-}
-
-Future<void> a2_manifests() async {
-  step('ANDROID 2/5 — AndroidManifest.xml');
-  final files = await findFiles('AndroidManifest.xml');
-  if (files.isEmpty) { warn('No AndroidManifest.xml found!'); return; }
-
-  for (final file in files) {
-    print('   📄 ${file.path}');
-    String c = await file.readAsString();
-    bool changed = false;
-
-    final pkgRx = RegExp(r'package="[a-zA-Z0-9_.]+"');
-    if (pkgRx.hasMatch(c)) { c = c.replaceAll(pkgRx, 'package="$androidPackage"'); changed = true; ok('package= updated'); }
-
-    final labelRx = RegExp(r'android:label="[^"]*"');
-    if (labelRx.hasMatch(c)) { c = c.replaceAll(labelRx, 'android:label="$newAppName"'); changed = true; ok('android:label updated'); }
-
-    final fqn = RegExp(r'android:name="([a-zA-Z0-9_.]+)\.([A-Z][a-zA-Z0-9_]*)"');
-    if (fqn.hasMatch(c)) { c = c.replaceAllMapped(fqn, (m) => 'android:name="$androidPackage.${m.group(2)}"'); changed = true; ok('FQN class names updated'); }
-
-    final authRx = RegExp(r'android:authorities="[a-zA-Z0-9_.]+"');
-    if (authRx.hasMatch(c)) { c = c.replaceAll(authRx, 'android:authorities="$androidPackage"'); changed = true; ok('authorities updated'); }
-
-    if (changed) await file.writeAsString(c);
-  }
-}
-
-Future<void> a3_googleServices() async {
-  step('ANDROID 3/5 — google-services.json');
-  final directPaths = ['android${sep}app${sep}google-services.json', 'android/app/google-services.json'];
-  File? gsFile;
-  for (final path in directPaths) {
-    final f = File(path);
-    if (f.existsSync()) { gsFile = f; break; }
-  }
-
-  if (gsFile == null) { warn('google-services.json not found'); return; }
-  print('   📄 ${gsFile.path}');
-  try {
-    final Map<String, dynamic> json = jsonDecode(await gsFile.readAsString());
-    void replace(dynamic node) {
-      if (node is Map) {
-        node.forEach((k, v) {
-          if (k == 'package_name' && v is String) { node[k] = androidPackage; } else replace(v);
-        });
-      } else if (node is List) { for (final i in node) replace(i); }
-    }
-    replace(json);
-    await gsFile.writeAsString(const JsonEncoder.withIndent('  ').convert(json));
-    ok('Saved with updated package');
-  } catch (e) { warn('Error parsing google-services.json: $e'); }
-}
-
-Future<void> a4_kotlinJava() async {
-  step('ANDROID 4/5 — Kotlin/Java source files');
-  Directory? baseDir;
-  String ext = '.kt';
-  final kotlinPath = 'android${sep}app${sep}src${sep}main${sep}kotlin';
-  final javaPath   = 'android${sep}app${sep}src${sep}main${sep}java';
-
-  if (Directory(kotlinPath).existsSync()) { baseDir = Directory(kotlinPath); ext = '.kt'; }
-  else if (Directory(javaPath).existsSync()) { baseDir = Directory(javaPath); ext = '.java'; }
-
-  if (baseDir == null) { warn('No kotlin/java source dir found'); return; }
-  final allFiles = baseDir.listSync(recursive: true).whereType<File>().where((f) => f.path.endsWith(ext)).toList();
-  if (allFiles.isEmpty) { warn('No $ext files found'); return; }
-
-  String oldPkg = '';
-  for (final f in allFiles) {
-    final m = RegExp(r'^package\s+([a-zA-Z0-9_.]+)', multiLine: true).firstMatch(await f.readAsString());
-    if (m != null) { oldPkg = m.group(1)!; break; }
-  }
-
-  if (oldPkg.isNotEmpty && oldPkg != androidPackage) {
-    final oldPath = '${baseDir.path}$sep${oldPkg.replaceAll('.', sep)}';
-    final newPath = '${baseDir.path}$sep${androidPackage.replaceAll('.', sep)}';
-    final oldDir  = Directory(oldPath);
-    if (oldDir.existsSync() && oldPath != newPath) {
-      Directory(newPath).createSync(recursive: true);
-      for (final src in oldDir.listSync(recursive: true).whereType<File>()) {
-        final rel = src.path.substring(oldPath.length);
-        final dest = newPath + rel;
-        Directory(dest.substring(0, dest.lastIndexOf(sep))).createSync(recursive: true);
-        await src.copy(dest);
-      }
-      oldDir.deleteSync(recursive: true);
-      ok('Folder renamed to match package');
-    }
-  }
-
-  for (final f in baseDir.listSync(recursive: true).whereType<File>().where((f) => f.path.endsWith(ext))) {
-    String c = await f.readAsString();
-    bool changed = false;
-    final pkgRx = RegExp(r'^package\s+[a-zA-Z0-9_.]+', multiLine: true);
-    if (pkgRx.hasMatch(c)) { c = c.replaceAll(pkgRx, 'package $androidPackage'); changed = true; }
-    if (oldPkg.isNotEmpty && c.contains('import $oldPkg.')) { c = c.replaceAll('import $oldPkg.', 'import $androidPackage.'); changed = true; }
-    if (changed) { await f.writeAsString(c); ok('Updated: ${f.path.split(sep).last}'); }
-  }
-}
-
-Future<void> a5_stringsXml() async {
-  step('ANDROID 5/5 — strings.xml');
-  final directPaths = ['android${sep}app${sep}src${sep}main${sep}res${sep}values${sep}strings.xml', 'android/app/src/main/res/values/strings.xml'];
-  File? strFile;
-  for (final path in directPaths) {
-    final f = File(path);
-    if (f.existsSync()) { strFile = f; break; }
-  }
-
-  if (strFile == null) {
-    final createPath = 'android${sep}app${sep}src${sep}main${sep}res${sep}values${sep}strings.xml';
-    Directory(createPath.substring(0, createPath.lastIndexOf(sep))).createSync(recursive: true);
-    strFile = File(createPath);
-    await strFile.writeAsString('<?xml version="1.0" encoding="utf-8"?>\n<resources>\n    <string name="app_name">$newAppName</string>\n</resources>');
-    ok('strings.xml created');
-    return;
-  }
-  String c = await strFile.readAsString();
-  final rx = RegExp(r'<string name="app_name">[^<]*<\/string>');
-  if (rx.hasMatch(c)) {
-    c = c.replaceAll(rx, '<string name="app_name">$newAppName</string>');
-    await strFile.writeAsString(c);
+  print('🏷 Changing Android package structure (change_app_package_name) ...');
+  ec = await runCmd('flutter', [
+    'pub',
+    'run',
+    'change_app_package_name:main',
+    packageName,
+  ]);
+  if (ec != 0) {
+    print(
+      '⚠️ Could not change Android package name automatically with change_app_package_name package.',
+    );
   } else {
-    c = c.replaceFirst('</resources>', '    <string name="app_name">$newAppName</string>\n</resources>');
-    await strFile.writeAsString(c);
-  }
-  ok('app_name set to $newAppName');
-}
-
-// ══════════════════════════════════════════════════════════════
-//  iOS
-// ══════════════════════════════════════════════════════════════
-
-Future<void> i1_infoPlist() async {
-  step('iOS 1/4 — Info.plist');
-  final files = await findFiles('Info.plist');
-  for (final file in files) {
-    if (file.path.contains('macos') || file.path.contains('MacOS')) continue;
-    String c = await file.readAsString();
-    bool changed = false;
-    void replacePlist(String key, String val) {
-      final rx = RegExp('(<key>$key<\\/key>\\s*<string>)[^<]*(<\\/string>)', dotAll: true);
-      if (rx.hasMatch(c)) { c = c.replaceAllMapped(rx, (m) => '${m.group(1)}$val${m.group(2)}'); changed = true; }
-    }
-    replacePlist('CFBundleIdentifier', iosBundleId);
-    replacePlist('CFBundleName', newAppName);
-    replacePlist('CFBundleDisplayName', newAppName);
-    if (changed) { await file.writeAsString(c); ok('Updated iOS Info.plist'); }
-  }
-}
-
-Future<void> i2_pbxproj() async {
-  step('iOS 2/4 — project.pbxproj');
-  final files = await findFiles('project.pbxproj');
-  for (final file in files) {
-    if (file.path.contains('macos') || file.path.contains('MacOS')) continue;
-    String c = await file.readAsString();
-    bool changed = false;
-    final bidRx = RegExp(r'PRODUCT_BUNDLE_IDENTIFIER\s*=\s*[a-zA-Z0-9_.]+\s*;');
-    if (bidRx.hasMatch(c)) { c = c.replaceAll(bidRx, 'PRODUCT_BUNDLE_IDENTIFIER = $iosBundleId;'); changed = true; }
-    final nameRx = RegExp(r'PRODUCT_NAME\s*=\s*"?[^";]+"?\s*;');
-    if (nameRx.hasMatch(c)) { c = c.replaceAll(nameRx, 'PRODUCT_NAME = "$newAppName";'); changed = true; }
-    if (changed) { await file.writeAsString(c); ok('Updated iOS pbxproj'); }
-  }
-}
-
-Future<void> i3_googleServiceInfo() async {
-  step('iOS 3/4 — GoogleService-Info.plist');
-  final files = await findFiles('GoogleService-Info.plist');
-  if (files.isEmpty) { warn('Not found'); return; }
-  for (final file in files) {
-    if (file.path.contains('macos')) continue;
-    String c = await file.readAsString();
-    final rx = RegExp(r'(<key>BUNDLE_ID<\/key>\s*<string>)[^<]*(<\/string>)', dotAll: true);
-    if (rx.hasMatch(c)) {
-      c = c.replaceAllMapped(rx, (m) => '${m.group(1)}$iosBundleId${m.group(2)}');
-      await file.writeAsString(c);
-      ok('BUNDLE_ID updated in GoogleService-Info.plist');
-    }
-  }
-}
-
-Future<void> i4_podfile() async {
-  step('iOS 4/4 — Podfile');
-  final f = File('ios${sep}Podfile');
-  final podFile = f.existsSync() ? f : (File('ios/Podfile').existsSync() ? File('ios/Podfile') : null);
-  if (podFile == null) return;
-  String c = await podFile.readAsString();
-  final rx = RegExp(r"bundle_identifier\s*=\s*'[a-zA-Z0-9_.]+'");
-  if (rx.hasMatch(c)) {
-    c = c.replaceAll(rx, "bundle_identifier = '$iosBundleId'");
-    await podFile.writeAsString(c);
-    ok('bundle_identifier updated in Podfile');
-  }
-}
-
-// ══════════════════════════════════════════════════════════════
-//  macOS, WINDOWS, WEB
-// ══════════════════════════════════════════════════════════════
-
-Future<void> runMacOsWindowsWeb() async {
-  step('MAC, WINDOWS, WEB Rebranding');
-  // MAC Info.plist
-  for (final file in await findFiles('Info.plist')) {
-    if (!file.path.contains('macos') && !file.path.contains('MacOS')) continue;
-    String c = await file.readAsString();
-    bool changed = false;
-    void replacePlist(String key, String val) {
-      final rx = RegExp('(<key>$key<\\/key>\\s*<string>)[^<]*(<\\/string>)', dotAll: true);
-      if (rx.hasMatch(c)) { c = c.replaceAllMapped(rx, (m) => '${m.group(1)}$val${m.group(2)}'); changed = true; }
-    }
-    replacePlist('CFBundleIdentifier', macBundleId);
-    replacePlist('CFBundleName', newAppName);
-    replacePlist('CFBundleDisplayName', newAppName);
-    if (changed) await file.writeAsString(c);
-  }
-  
-  // MAC pbxproj
-  for (final file in await findFiles('project.pbxproj')) {
-    if (!file.path.contains('macos') && !file.path.contains('MacOS')) continue;
-    String c = await file.readAsString();
-    bool changed = false;
-    final bidRx = RegExp(r'PRODUCT_BUNDLE_IDENTIFIER\s*=\s*[a-zA-Z0-9_.]+\s*;');
-    if (bidRx.hasMatch(c)) { c = c.replaceAll(bidRx, 'PRODUCT_BUNDLE_IDENTIFIER = $macBundleId;'); changed = true; }
-    final nameRx = RegExp(r'PRODUCT_NAME\s*=\s*"?[^";]+"?\s*;');
-    if (nameRx.hasMatch(c)) { c = c.replaceAll(nameRx, 'PRODUCT_NAME = "$newAppName";'); changed = true; }
-    if (changed) await file.writeAsString(c);
+    print('✅ Android package name changed successfully\n');
   }
 
-  // Windows CMakeLists
-  for (final file in await findFiles('CMakeLists.txt')) {
-    if (!file.path.contains('windows')) continue;
-    String c = await file.readAsString();
-    bool changed = false;
-    final projRx = RegExp(r'project\s*\(\s*[a-zA-Z0-9_\s"]+\s*\)');
-    if (projRx.hasMatch(c)) { c = c.replaceAll(projRx, 'project($windowsAppName)'); changed = true; }
-    final binRx = RegExp(r'set\s*\(\s*BINARY_NAME\s+"?[a-zA-Z0-9_]+"?\s*\)');
-    if (binRx.hasMatch(c)) { c = c.replaceAll(binRx, 'set(BINARY_NAME "$windowsAppName")'); changed = true; }
-    if (changed) await file.writeAsString(c);
-  }
-
-  // Web index.html & manifest
-  final webHtml = File('web/index.html');
-  if (webHtml.existsSync()) {
-    String c = await webHtml.readAsString();
-    c = c.replaceAll(RegExp(r'<title>[^<]*<\/title>'), '<title>$newAppName</title>');
-    await webHtml.writeAsString(c);
-  }
-  final webManifest = File('web/manifest.json');
-  if (webManifest.existsSync()) {
-    final Map<String, dynamic> json = jsonDecode(await webManifest.readAsString());
-    if (json.containsKey('name')) json['name'] = newAppName;
-    if (json.containsKey('short_name')) json['short_name'] = newAppName;
-    if (json.containsKey('id')) json['id'] = webAppName;
-    await webManifest.writeAsString(const JsonEncoder.withIndent('  ').convert(json));
-  }
-  ok('macOS, Windows, and Web rebranded successfully.');
-}
-
-Future<void> c1_pubspec() async {
-  step('COMMON — pubspec.yaml');
-  final f = File('pubspec.yaml');
-  if (!f.existsSync()) return;
-  final lines = await f.readAsLines();
-  final updated = lines.map((l) => l.trim().startsWith('name:') && !l.trim().startsWith('name: telecaller_app') ? 'name: $dartPackName' : l).toList();
-  await f.writeAsString(updated.join('\n'));
-  ok('pubspec name checked/updated');
-}
-
-// ══════════════════════════════════════════════════════════════
-//  FIREBASE SETUP
-// ══════════════════════════════════════════════════════════════
-
-Future<void> setupFirebase() async {
-  step('FIREBASE CONFIGURATION');
-  if (firebaseProjectId.isEmpty || firebaseAppId.isEmpty) {
-    warn('No Firebase info found. Skipping Firebase setup.');
-    return;
-  }
-  
-  final outPath = "android/app/google-services.json";
-  print('⬇ Fetching google-services.json for $firebaseProjectId / $firebaseAppId');
-  final result = await Process.run("firebase", [
-    "apps:sdkconfig",
-    "--project=$firebaseProjectId",
-    firebaseAppId,
-    "--out=$outPath"
-  ], runInShell: true);
-
-  if (result.stderr.toString().isNotEmpty && !result.stderr.toString().contains("Created")) {
-    warn("Firebase SDK download note: ${result.stderr}");
-  }
-  if (File(outPath).existsSync()) {
-    ok('google-services.json updated successfully!');
-  } else {
-    warn('google-services.json might not have downloaded properly.');
-  }
-}
-
-Future<void> setupIcons() async {
-  step('APP ICONS GENERATION');
-  final iconsYaml = '''
-flutter_launcher_icons:
-  android: true
-  ios: true
-  image_path: "$appIconPath"
-  adaptive_icon_background: "#ffffff"
-  adaptive_icon_foreground: "$appIconPath"
-  min_sdk_android: 21
-  remove_alpha_ios: true
-''';
-  File('flutter_launcher_icons.yaml').writeAsStringSync(iconsYaml);
-  ok('Created flutter_launcher_icons.yaml with path $appIconPath');
-
-  print('🎨 Running flutter_launcher_icons to generate icons...');
-  final result = await Process.run('flutter', ['pub', 'run', 'flutter_launcher_icons'], runInShell: true);
-  if (result.exitCode == 0) {
-    ok('Icons generated successfully.');
-  } else {
-    warn('Failed to generate icons. Error: ${result.stderr}');
-  }
-}
-
-Future<void> ui_updateLogos() async {
-  step('UPDATE UI LOGOS (Splash & Login)');
-  
-  final splashFile = File('lib/ui/views/splash/splash_page.dart');
-  if (splashFile.existsSync()) {
-    String c = await splashFile.readAsString();
-    // Replaces any existing logo path in SplashPage with the new appIconPath
-    final rx = RegExp(r"Image\.asset\(\s*'[A-Za-z0-9_/\.\s\(\)\-]+'");
-    if (rx.hasMatch(c)) {
-      c = c.replaceAll(rx, "Image.asset('$appIconPath'");
-      await splashFile.writeAsString(c);
-      ok('Splash Screen logo updated to $appIconPath');
-    }
-  }
-
-  final loginFile = File('lib/ui/views/login/login_page.dart');
-  if (loginFile.existsSync()) {
-    String c = await loginFile.readAsString();
-    // Replaces any existing logo path in LoginPage with the new appIconPath
-    final rx = RegExp(r"Image\.asset\(\s*'[A-Za-z0-9_/\.\s\(\)\-]+'");
-    if (rx.hasMatch(c)) {
-      c = c.replaceAll(rx, "Image.asset('$appIconPath'");
-      await loginFile.writeAsString(c);
-      ok('Login Screen logo updated to $appIconPath');
-    }
-  }
-}
-
-// ══════════════════════════════════════════════════════════════
-//  BUILD & DISTRIBUTION
-// ══════════════════════════════════════════════════════════════
-
-Future<void> buildAndDistribute() async {
-  step('BUILD & DEPLOYMENT');
-
-  print('====================================');
-  print('Building Flutter APK...');
-  print('====================================');
-  final buildApk = await Process.start("flutter", ["build", "apk", "--release"], runInShell: true);
-  await stdout.addStream(buildApk.stdout);
-  await stderr.addStream(buildApk.stderr);
-  final apkCode = await buildApk.exitCode;
-  
-  if (apkCode != 0) {
-    warn('APK Build failed!');
-    exit(apkCode);
-  }
-  ok('APK Built Successfully!');
-
-  print('====================================');
-  print('Building Flutter AppBundle (AAB)...');
-  print('====================================');
-  final buildAab = await Process.start("flutter", ["build", "appbundle", "--release"], runInShell: true);
-  await stdout.addStream(buildAab.stdout);
-  await stderr.addStream(buildAab.stderr);
-  final aabCode = await buildAab.exitCode;
-
-  if (aabCode != 0) {
-    warn('AppBundle Build failed!');
-    exit(aabCode);
-  }
-  ok('AAB Built Successfully!');
-
-  if (firebaseAppId.isNotEmpty) {
-    final apkPath = "build/app/outputs/flutter-apk/app-release.apk";
-    final aabPath = "build/app/outputs/bundle/release/app-release.aab";
-
-    print('====================================');
-    print('Uploading APK to Firebase App Distribution...');
-    print('====================================');
-    final uploadApk = await Process.run("firebase", [
-      "appdistribution:distribute", apkPath,
-      "--app=$firebaseAppId"
-    ], runInShell: true);
-    
-    if (uploadApk.stdout.toString().contains("uploaded")) {
-      ok("🎉 APK Upload Successful!");
+  if (firebaseProjectId.isNotEmpty) {
+    print(
+      '🔗 Running flutterfire configure to update firebase_options.dart (auto-overwrite)...',
+    );
+    ec = await runCmd('flutterfire', [
+      'configure',
+      '--project=$firebaseProjectId',
+      '--platforms=android',
+      '--yes',
+    ]);
+    if (ec != 0) {
+      print(
+        '⚠️ flutterfire configure failed or is not installed. You can run it manually: flutterfire configure --project=$firebaseProjectId --platforms=android --yes',
+      );
     } else {
-      print(uploadApk.stdout);
-      warn(uploadApk.stderr);
-    }
-
-    print('====================================');
-    print('Uploading AAB to Firebase App Distribution...');
-    print('====================================');
-    final uploadAab = await Process.run("firebase", [
-      "appdistribution:distribute", aabPath,
-      "--app=$firebaseAppId"
-    ], runInShell: true);
-    
-    if (uploadAab.stdout.toString().contains("uploaded")) {
-      ok("🎉 AAB Upload Successful!");
-    } else {
-      print(uploadAab.stdout);
-      warn(uploadAab.stderr);
+      print('✅ firebase_options.dart auto-updated without prompts.');
     }
   }
 
-  print('====================================');
-  print('Deployment Completed Successfully!');
-  print('====================================');
-}
+  print('\n🧹 Running flutter clean...');
+  await runCmd('flutter', ['clean']);
+  await runCmd('flutter', ['pub', 'get']);
 
-// ══════════════════════════════════════════════════════════════
-//  MAIN
-// ══════════════════════════════════════════════════════════════
-
-Future<void> main() async {
-  const configPath = 'assets/config/app_config.json';
-  if (!File(configPath).existsSync()) {
-    print('❌ Error: Configuration file not found at $configPath');
-    exit(1);
-  }
-
-  print('📖 Reading configuration...');
-  final jsonStr = await File(configPath).readAsString();
-  final dynamic rawConfig = jsonDecode(jsonStr);
-  List<Map<String, dynamic>> configs = [];
-  if (rawConfig is List) {
-    configs = rawConfig.cast<Map<String, dynamic>>();
+  // 9. Build APK
+  print('\n🔨 Building APK...');
+  final apkEc = await runCmd('flutter', ['build', 'apk', '--release']);
+  if (apkEc == 0) {
+    print(
+      '✅ APK built successfully! Location: build/app/outputs/flutter-apk/app-release.apk',
+    );
   } else {
-    print('❌ Error: Invalid JSON format. Expected list of apps.');
-    exit(1);
+    print('⚠️ APK build failed. Check errors above.');
   }
 
-  print('\n📱 Available Apps:');
-  for (int i = 0; i < configs.length; i++) {
-    final cfg = configs[i];
-    print('  ${i + 1}. ${cfg['app_name']} (${cfg['package_name']})');
-  }
-
-  stdout.write('\n👉 Enter app number to generate (1-${configs.length}): ');
-  final input = stdin.readLineSync();
-  final index = int.tryParse(input ?? '') ?? -1;
-  if (index < 1 || index > configs.length) {
-    print('❌ Invalid selection.');
-    exit(1);
-  }
-
-  final config = configs[index - 1];
-  newAppName = config['app_name']?.toString() ?? 'Telecaller App';
-  androidPackage = config['package_name']?.toString() ?? 'com.default.app';
-  iosBundleId = androidPackage;
-  macBundleId = androidPackage;
-  
-  String safeName = newAppName.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '_');
-  if (RegExp(r'^[0-9]').hasMatch(safeName)) safeName = 'app_$safeName';
-  windowsAppName = safeName;
-  webAppName = safeName;
-  dartPackName = safeName;
-  
-  firebaseProjectId = config['firebase_project_id']?.toString() ?? '';
-  firebaseAppId = config['app_id']?.toString() ?? '';
-  appIconPath = config['app_icon']?.toString() ?? '';
-
-  print('\n🚀 Selected Configuration:');
-  print(' 🏷️  App Name: $newAppName');
-  print(' 📦 Package: $androidPackage');
-  print(' 🖼️  Icon: $appIconPath');
-  print(' 🔑 Firebase: $firebaseProjectId ($firebaseAppId)\n');
-
-  // Ensure flutter clean / get before doing modifications
-  print('🧹 Running flutter clean & get...');
-  await Process.run('flutter', ['clean'], runInShell: true);
-  await Process.run('flutter', ['pub', 'get'], runInShell: true);
-
-  await a1_buildGradle();
-  await a2_manifests();
-  await a4_kotlinJava();
-  await a5_stringsXml();
-
-  await i1_infoPlist();
-  await i2_pbxproj();
-  await i4_podfile();
-
-  await runMacOsWindowsWeb();
-  await c1_pubspec();
-
-  if (appIconPath.isNotEmpty && File(appIconPath).existsSync()) {
-    await setupIcons();
-    await ui_updateLogos();
+  // 10. Build AAB
+  print('\n🔨 Building AAB...');
+  final aabEc = await runCmd('flutter', ['build', 'appbundle', '--release']);
+  if (aabEc == 0) {
+    print(
+      '✅ AAB built successfully! Location: build/app/outputs/bundle/release/app-release.aab',
+    );
   } else {
-    warn('App icon not found at $appIconPath. Skipping icon setup.');
+    print('⚠️ AAB build failed. Check errors above.');
   }
 
-  await setupFirebase();
-  
-  // Re-run pub get to pick up new icon changes
-  await Process.run('flutter', ['pub', 'get'], runInShell: true);
-
-  // Auto Build and upload
-  stdout.write('\n👉 Do you want to build and upload to Firebase App Distribution now? (y/N): ');
-  final buildChoice = stdin.readLineSync()?.toLowerCase() ?? '';
-  if (buildChoice == 'y' || buildChoice == 'yes') {
-    await buildAndDistribute();
+  // 11. Upload APK & Update build info
+  String? downloadUrl;
+  if (apkEc == 0) {
+    downloadUrl = await uploadApk(
+      rebrandId: rebrandId,
+      apkPath: 'build/app/outputs/flutter-apk/app-release.apk',
+    );
   } else {
-    print('\n✅ Skiped Build & Deploy.');
+    print('⚠️ Skipping APK upload because APK build failed.');
   }
 
-  print('\n🎉 Setup Completed Successfully!');
+  if (downloadUrl != null) {
+    await updateBuildInfo(
+      rebrandId: rebrandId,
+      firebaseProjectId: firebaseProjectId,
+      firebaseAppId: firebaseAppId,
+      downloadUrl: downloadUrl,
+    );
+  } else {
+    print(
+      '⚠️ Skipping updateBuildInfo because APK upload did not return a valid download URL.',
+    );
+  }
+
+  if (firebaseProjectId.isNotEmpty && appId != null && appId.isNotEmpty) {
+    await uploadToFirebaseDistribution(firebaseProjectId, appId, TESTERS);
+  } else {
+    print(
+      '⚠️ No appId or firebaseProjectId for distribution. Skipping upload.',
+    );
+  }
+
+  print('\n🎉 Setup & Build Complete!');
+  print('📋 Verify changes in:');
+  print(' • android/app/build.gradle');
+  print(' • android/app/src/main/AndroidManifest.xml');
+  print(' • android/app/google-services.json');
+  print(' • pubspec.yaml');
+  print(' • lib/ imports updated');
+  print(' • firebase_options.dart (auto-overwritten)');
+  print(' • APK: build/app/outputs/flutter-apk/app-release.apk');
+  print(' • AAB: build/app/outputs/bundle/release/app-release.aab\n');
+  print('✅ Done! Rebranding and build pipelines completed automatically.');
 }

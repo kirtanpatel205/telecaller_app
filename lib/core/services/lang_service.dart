@@ -50,7 +50,7 @@ class LangService extends GetxService {
     // });
 
     Get.addTranslations(convertMap(langData));
-    
+
     // Ensure the locale is set to the saved value on initialization
     Get.updateLocale(Locale(selectedLang.value));
   }
