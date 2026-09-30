@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:ui';
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -21,24 +20,20 @@ import 'package:telecaller_app/core/services/background_service_manager.dart';
 import 'package:telecaller_app/core/services/fcm_service.dart';
 import 'core/helpers/initializer.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-
 import 'core/helpers/utils.dart';
 import 'core/services/lang_service.dart';
 import 'core/services/theme_service.dart';
+
 final logger = Logger();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // ==================== FIREBASE INIT ====================
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // Register FCM background handler at the very top
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-
-
 
   // ==================== GESTURE RESAMPLING ====================
   GestureBinding.instance.resamplingEnabled = true;
@@ -51,8 +46,8 @@ Future<void> main() async {
     logger.e("❌ Local storage error: $e");
   }
   // Language data is now handled by LangService in Initializer
-  logger.i("✅ Initializing app services...");
 
+  logger.i("✅ Initializing app services...");
 
   // ==================== KEEP SCREEN ON ====================
   try {
@@ -100,25 +95,29 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       designSize: const Size(360, 690),
       minTextAdapt: true,
       splitScreenMode: true,
-      builder: (context, child) => Obx(
-        () => GetMaterialApp(
-          title: AppStrings.appName,
-          debugShowCheckedModeBanner: false,
-          theme: AppTheme.theme,
-          locale: Locale(langService.selectedLang.value),
-          fallbackLocale: const Locale('en'),
-          darkTheme: AppTheme.darkTheme,
-          themeMode: themeService.isDarkMode.value ? ThemeMode.dark : ThemeMode.light,
-          initialRoute: AppPages.INITIAL,
-          getPages: AppPages.routes,
-          unknownRoute: GetPage(
-            name: Paths.SPLASH,
-            page: () => SplashPage(),
-            binding: SplashBinding(),
+      builder:
+          (context, child) => Obx(
+            () => GetMaterialApp(
+              title: AppStrings.appName,
+              debugShowCheckedModeBanner: false,
+              theme: AppTheme.theme,
+              locale: Locale(langService.selectedLang.value),
+              fallbackLocale: const Locale('en'),
+              darkTheme: AppTheme.darkTheme,
+              themeMode:
+                  themeService.isDarkMode.value
+                      ? ThemeMode.dark
+                      : ThemeMode.light,
+              initialRoute: AppPages.INITIAL,
+              getPages: AppPages.routes,
+              unknownRoute: GetPage(
+                name: Paths.SPLASH,
+                page: () => SplashPage(),
+                binding: SplashBinding(),
+              ),
+              home: child,
+            ),
           ),
-          home: child,
-        ),
-      ),
     );
   }
 }

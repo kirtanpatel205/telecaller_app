@@ -8,6 +8,7 @@ class DioClient {
   final Dio _dio;
   static bool _isSigningOut = false;
 
+
   DioClient(this._dio) {
     _dio.interceptors.add(
       InterceptorsWrapper(

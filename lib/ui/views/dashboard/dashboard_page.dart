@@ -1,15 +1,10 @@
-import 'package:bounce/bounce.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
-import 'package:getwidget/getwidget.dart';
 import 'package:intl/intl.dart';
 import 'package:telecaller_app/constants/app_colors.dart';
-import 'package:telecaller_app/constants/app_routes.dart';
 import 'package:telecaller_app/constants/app_text_style.dart';
-import 'package:telecaller_app/ui/views/home/overlay/overlay_pages.dart';
 import 'package:telecaller_app/constants/app_dimens.dart';
 import 'package:telecaller_app/ui/widgets/dashboard_appbar.dart';
 
@@ -34,12 +29,22 @@ class DashboardPage extends GetView<HomeController> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    "dashboard_overview".tr,
-                    style: AppTextStyle.bold8.copyWith(
-                      fontSize: AppDimens.fontSize16,
-                      color: AppColors.themeColor.textPrimaryColor,
-                    ),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.dashboard_rounded,
+                        color: AppColors.themeColor.primaryColor,
+                        size: 22.sp,
+                      ),
+                      SizedBox(width: 8.w),
+                      Text(
+                        "dashboard_overview".tr,
+                        style: AppTextStyle.bold8.copyWith(
+                          fontSize: AppDimens.fontSize16,
+                          color: AppColors.themeColor.textPrimaryColor,
+                        ),
+                      ),
+                    ],
                   ),
                   // SizedBox(height:5.h),
                   _buildSummaryCards(context),
@@ -166,7 +171,7 @@ class DashboardPage extends GetView<HomeController> {
                     "${controller.dashboardController.activeTelecallers.value}",
                 subtitle: "handling_customer_calls".tr,
                 bgColor: AppColors.themeColor.totalkeyColor,
-                icon: Icons.notifications_active_outlined,
+                icon: Icons.support_agent_rounded,
                 iconColor: AppColors.themeColor.totalkeyiconColor,
               ),
             ),
@@ -176,7 +181,7 @@ class DashboardPage extends GetView<HomeController> {
                 value: "${controller.dashboardController.leadsCount.value}",
                 subtitle: "awaiting_contact".tr,
                 bgColor: AppColors.themeColor.avilablekeyColor,
-                icon: Icons.person_add_outlined,
+                icon: Icons.person_search_outlined,
                 iconColor: AppColors.themeColor.availablekeyiconColor,
               ),
             ),
@@ -186,7 +191,7 @@ class DashboardPage extends GetView<HomeController> {
                 value: "${controller.dashboardController.ordersCount.value}",
                 subtitle: "processed_purchases".tr,
                 bgColor: AppColors.themeColor.activekeyColor,
-                icon: Icons.headset_mic_outlined,
+                icon: Icons.shopping_bag_outlined,
                 iconColor: AppColors.themeColor.activekeyiconColor,
               ),
             ),
@@ -196,7 +201,7 @@ class DashboardPage extends GetView<HomeController> {
                 value: "${controller.dashboardController.formsSubmitted.value}",
                 subtitle: "customer_inquiries_received".tr,
                 bgColor: AppColors.themeColor.expairekeyColor,
-                icon: Icons.edit_document,
+                icon: Icons.assignment_turned_in_outlined,
                 iconColor: AppColors.themeColor.expairekeyiconColor,
               ),
             ),
@@ -372,12 +377,22 @@ class DashboardPage extends GetView<HomeController> {
                 topRight: Radius.circular(AppDimens.radius12),
               ),
             ),
-            child: Text(
-              "lead_contact".tr,
-              style: AppTextStyle.bold8.copyWith(
-                fontSize: AppDimens.fontSize16,
-                color: AppColors.themeColor.primaryColor,
-              ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.contact_phone_rounded,
+                  color: AppColors.themeColor.primaryColor,
+                  size: 20.sp,
+                ),
+                SizedBox(width: 8.w),
+                Text(
+                  "lead_contact".tr,
+                  style: AppTextStyle.bold8.copyWith(
+                    fontSize: AppDimens.fontSize16,
+                    color: AppColors.themeColor.primaryColor,
+                  ),
+                ),
+              ],
             ),
           ),
           Padding(
@@ -403,7 +418,7 @@ class DashboardPage extends GetView<HomeController> {
                         totalVal:
                             "${controller.dashboardController.leadContactAllTotal.value}",
                         color: AppColors.themeColor.primaryColor,
-                        icon: Icons.list_alt_rounded,
+                        icon: Icons.contacts_rounded,
                       ),
                     ),
                     Obx(
@@ -414,7 +429,7 @@ class DashboardPage extends GetView<HomeController> {
                         totalVal:
                             "${controller.dashboardController.leadContactCompletedTotal.value}",
                         color: AppColors.themeColor.completedColor,
-                        icon: Icons.check_circle_outline_rounded,
+                        icon: Icons.task_alt_rounded,
                       ),
                     ),
                     Obx(
@@ -425,7 +440,7 @@ class DashboardPage extends GetView<HomeController> {
                         totalVal:
                             "${controller.dashboardController.leadContactScheduledTotal.value}",
                         color: AppColors.themeColor.availablekeyiconColor,
-                        icon: Icons.calendar_today_rounded,
+                        icon: Icons.event_available_rounded,
                       ),
                     ),
                     Obx(
@@ -436,7 +451,7 @@ class DashboardPage extends GetView<HomeController> {
                         totalVal:
                             "${controller.dashboardController.leadContactPendingTotal.value}",
                         color: AppColors.themeColor.expairekeyiconColor,
-                        icon: Icons.pending_actions_rounded,
+                        icon: Icons.hourglass_top_rounded,
                       ),
                     ),
                   ],
@@ -478,12 +493,22 @@ class DashboardPage extends GetView<HomeController> {
                 topRight: Radius.circular(AppDimens.radius12),
               ),
             ),
-            child: Text(
-              "calls".tr,
-              style: AppTextStyle.bold8.copyWith(
-                fontSize: AppDimens.fontSize16,
-                color: Colors.white,
-              ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.phone_in_talk_rounded,
+                  color: Colors.white,
+                  size: 20.sp,
+                ),
+                SizedBox(width: 8.w),
+                Text(
+                  "calls".tr,
+                  style: AppTextStyle.bold8.copyWith(
+                    fontSize: AppDimens.fontSize16,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
             ),
           ),
           Padding(
@@ -531,7 +556,7 @@ class DashboardPage extends GetView<HomeController> {
                         totalVal:
                             "${controller.dashboardController.callsNotAnsweredTotal.value}",
                         color: AppColors.themeColor.activekeyiconColor,
-                        icon: Icons.phone_callback_rounded,
+                        icon: Icons.call_missed_outgoing_rounded,
                       ),
                     ),
                     Obx(
@@ -1062,26 +1087,30 @@ class DashboardPage extends GetView<HomeController> {
 
                 // ── Build valid data list ──────────────────────────────────
                 List<Map<String, dynamic>> validData = [];
-                if (incoming > 0)
+                if (incoming > 0) {
                   validData.add({
                     "value": incoming,
                     "color": AppColors.themeColor.completedColor,
                   });
-                if (missed > 0)
+                }
+                if (missed > 0) {
                   validData.add({
                     "value": missed,
                     "color": AppColors.themeColor.activekeyiconColor,
                   });
-                if (notAnswered > 0)
+                }
+                if (notAnswered > 0) {
                   validData.add({
                     "value": notAnswered,
                     "color": AppColors.themeColor.failColor,
                   });
-                if (outgoing > 0)
+                }
+                if (outgoing > 0) {
                   validData.add({
                     "value": outgoing,
                     "color": AppColors.themeColor.primaryColor,
                   });
+                }
 
                 // ── FIX: enforce minimum 2.5% so tiny slices stay visible ─
                 // Without this, "not_answered_12".tr out of 3235 total = 0.37%
@@ -1601,24 +1630,46 @@ class DashboardPage extends GetView<HomeController> {
                   return Center(child: Text("no_chart_data_available".tr));
                 }
 
-                List<PieChartSectionData> pieChartSections = [];
                 List<Map<String, dynamic>> validData = [];
 
-                if (completed > 0)
+                if (completed > 0) {
                   validData.add({
                     "value": completed,
                     "color": AppColors.themeColor.completedColor,
                   });
-                if (scheduled > 0)
+                }
+                if (scheduled > 0) {
                   validData.add({
                     "value": scheduled,
                     "color": AppColors.themeColor.activekeyiconColor,
                   });
-                if (pending > 0)
+                }
+                if (pending > 0) {
                   validData.add({
                     "value": pending,
                     "color": AppColors.themeColor.failColor,
                   });
+                }
+
+                // ── FIX: enforce minimum 2.5% so tiny slices stay visible ─
+                const double minPercent = 2.5;
+                final double rawTotal = validData.fold(
+                  0.0,
+                  (sum, e) => sum + (e["value"] as int).toDouble(),
+                );
+
+                List<double> adjustedValues =
+                    validData.map((e) {
+                      double pct = (e["value"] as int) / rawTotal * 100;
+                      return pct.clamp(minPercent, 100.0);
+                    }).toList();
+
+                final double adjSum = adjustedValues.fold(0.0, (s, v) => s + v);
+                adjustedValues =
+                    adjustedValues.map((v) => v / adjSum * rawTotal).toList();
+                // ─────────────────────────────────────────────────────────
+
+                List<PieChartSectionData> pieChartSections = [];
 
                 for (int i = 0; i < validData.length; i++) {
                   bool isTouched =
@@ -1630,7 +1681,7 @@ class DashboardPage extends GetView<HomeController> {
                   pieChartSections.add(
                     PieChartSectionData(
                       color: validData[i]["color"],
-                      value: validData[i]["value"].toDouble(),
+                      value: adjustedValues[i],
                       title: isTouched ? validData[i]["value"].toString() : '',
                       radius: isTouched ? 100 : 90,
                       titleStyle: AppTextStyle.bold11.copyWith(
@@ -1677,7 +1728,18 @@ class DashboardPage extends GetView<HomeController> {
             spacing: 12.w,
             runSpacing: 8.h,
             children: [
-              _buildLegendItem(AppColors.themeColor.failColor, "pending".tr),
+              _buildLegendItem(
+                AppColors.themeColor.completedColor,
+                "completed".tr,
+              ),
+              _buildLegendItem(
+                AppColors.themeColor.activekeyiconColor,
+                "scheduled".tr,
+              ),
+              _buildLegendItem(
+                AppColors.themeColor.failColor,
+                "pending".tr,
+              ),
             ],
           ),
         ],

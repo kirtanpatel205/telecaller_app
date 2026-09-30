@@ -104,7 +104,7 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
           ?.createNotificationChannel(channel);
     }
 
-    // ✅ CRITICAL FIX: Use await here — do NOT return before the call is launched.
+    // CRITICAL FIX: Use await here — do NOT return before the call is launched.
     // Previously a Timer() was used which fires AFTER the handler returns,
     // causing the isolate to be killed before the call could be made.
     await _handleNotificationPayload(
@@ -403,7 +403,9 @@ Future<Map<String, String>> _handleNotificationPayload(
     }
 
     // 🚨 REDUNDANT EMISSION REMOVED:
-    // The call-start event is now handled exclusively by PhoneStatusService
+    // The call-start
+    //
+    // is now handled exclusively by PhoneStatusService
     // which includes a 2-second debounce timer to filter out SIM selection
     // cancellations on Dual SIM devices.
 

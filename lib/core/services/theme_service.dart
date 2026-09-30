@@ -63,6 +63,7 @@ class ThemeService extends GetxService {
         statusBarIconBrightness: Brightness.light,
         systemNavigationBarColor: Color(0xFF26242e),
         systemNavigationBarIconBrightness: Brightness.light,
+
       ));
     }
   }
